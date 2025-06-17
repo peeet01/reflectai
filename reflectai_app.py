@@ -8,9 +8,8 @@ user_input = st.text_input("Kérdésed vagy feladatod:")
 
 if user_input:
     with st.spinner("Szimulált válasz generálása..."):
-        # Itt egy előre gyártott introspektív válasz
         st.markdown("### 🤖 Válasz:")
-        st.write(f""{user_input}" kérdésedre válaszként ezt gondolom:")
+        st.write(f'"{user_input}" kérdésedre válaszként ezt gondolom:')
         st.write("Ez egy szimulált válasz, amit a DEMO rendszer állított elő.")
 
         st.markdown("### 🔍 Önreflexió:")
