@@ -1,24 +1,27 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def run_hebbian_learning_with_noise(epochs=20, n_inputs=5, learning_rate=0.1, noise_std=0.05):
+def run_hebbian_learning_with_noise(learning_rate=0.1, noise_level=0.1, iterations=100):
     np.random.seed(42)
-    inputs = np.random.choice([-1, 1], size=(epochs, n_inputs))
-    weights = np.zeros(n_inputs)
-    weights_history = []
+    inputs = np.array([[0,0],[0,1],[1,0],[1,1]])
+    targets = np.array([[0],[1],[1],[0]])
 
-    for epoch in range(epochs):
-        x = inputs[epoch]
-        y = np.dot(weights, x) + np.random.normal(0, noise_std)
-        weights += learning_rate * x * y
-        weights_history.append(weights.copy())
+    weights = np.random.randn(2, 1)
+    loss_history = []
 
-    weights_history = np.array(weights_history)
+    for _ in range(iterations):
+        noisy_inputs = inputs + noise_level * np.random.randn(*inputs.shape)
+        predictions = 1 / (1 + np.exp(-np.dot(noisy_inputs, weights)))
+        error = targets - predictions
+        weights += learning_rate * np.dot(noisy_inputs.T, error)
+        loss = np.mean(np.square(error))
+        loss_history.append(loss)
+
     fig, ax = plt.subplots()
-    for i in range(n_inputs):
-        ax.plot(weights_history[:, i], label=f'Súly {i+1}')
+    ax.plot(loss_history, label="Hibatörténet")
+    ax.set_xlabel("Iteráció")
+    ax.set_ylabel("Hiba")
     ax.set_title("Hebbian tanulás zajjal")
-    ax.set_xlabel("Epoch")
-    ax.set_ylabel("Súly érték")
     ax.legend()
+    plt.tight_layout()
     return fig
