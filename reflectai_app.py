@@ -1,18 +1,29 @@
 import streamlit as st
+from modules.kuramoto_sim import run_kuramoto_simulation
+from modules.hebbian_learning import run_hebbian_learning
 
-st.set_page_config(page_title="ReflectAI DEMÓ", page_icon="🧠")
-st.markdown("## 🧠 ReflectAI – Kvázitudati MI (DEMO mód)")
-st.info("🔧 Ez a demó mód aktív, nincs OpenAI API kulcs beállítva. A válasz szimulált.")
+st.set_page_config(page_title="ReflectAI – Kutatási prototípus", page_icon="🧠")
 
-user_input = st.text_input("Kérdésed vagy feladatod:")
+st.title("🧠 ReflectAI – Tudományos neuromorf szimulátor")
+st.markdown("Ez a prototípus egy memrisztor–fotonikus neuromorf architektúra szoftveres előképe.")
 
+# 1. Felhasználói bemenet
+st.header("📥 Bemenet")
+user_input = st.text_input("Kérdésed vagy parancsod (introspektív teszthez):")
+
+# 2. Válasz szimuláció
+st.header("🤖 Szimulált MI válasz")
 if user_input:
-    with st.spinner("Szimulált válasz generálása..."):
-        st.markdown("### 🤖 Válasz:")
-        st.write(f'"{user_input}" kérdésedre válaszként ezt gondolom:')
-        st.write("Ez egy szimulált válasz, amit a DEMO rendszer állított elő.")
+    st.success("„Ez egy szimulált kvázitudatos válasz a kérdésedre.”")
 
-        st.markdown("### 🔍 Önreflexió:")
-        st.write("A válaszom szerintem koherens, a kérdésed tartalmára összpontosít. "
-                 "Bár nincs valódi nyelvi modell a háttérben, a rendszer képes lehet "
-                 "önreflexív modul integrálására a jövőben.")
+    # 3. Kuramoto szimuláció
+    st.header("🔄 Kuramoto szinkronizációs modell")
+    st.write("Kuramoto-féle oszcillátorháló szimulációja fáziskoherencia vizsgálathoz.")
+    fig = run_kuramoto_simulation()
+    st.pyplot(fig)
+
+    # 4. Hebbian tanulási modul
+    st.header("🧬 Hebbian tanulás szimuláció")
+    st.write("Egy egyszerű Hebbian szabály szerint változó szinaptikus súlyok alakulása.")
+    fig2 = run_hebbian_learning()
+    st.pyplot(fig2)
