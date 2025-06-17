@@ -1,44 +1,31 @@
 import streamlit as st
-from modules.kuramoto_sim import run_kuramoto_simulation
-from modules.hebbian_learning import run_hebbian_learning
+from modules.kuramoto_sim import run_kuramoto_simulation, compute_sync_steps
+from modules.hebbian_learning import run_hebbian_learning_with_noise
+from modules.xor_prediction import run_xor_prediction
 
-st.set_page_config(page_title="ReflectAI – Szabályalapú válaszoló", page_icon="🧠")
-st.title("🧠 ReflectAI – Kvázitudatos szabályalapú MI")
+st.set_page_config(page_title="ReflectAI – Fejlesztett Kutatási Prototípus", page_icon="🧠")
+st.title("🧠 ReflectAI – Tudományos szintű MI szimulációk")
 
-# 1. Felhasználói bemenet
-st.header("📥 Bemenet")
-user_input = st.text_input("Írd be a kérdésed vagy feladatod:")
+user_input = st.text_input("Kérdésed vagy kutatási parancsod:")
 
-# 2. Okos szabálymotor
-def generate_response(text):
-    text = text.lower()
-    if any(q in text for q in ["hogyan", "működik", "működése"]):
-        if "introspekció" in text:
-            return ("Az introspekció működése az MI-ben azt jelenti, hogy a rendszer képes felismerni saját válaszainak logikai szerkezetét és hibáit."), "A válasz kifejezetten a működésre fókuszál, ez kontextuálisan pontos."
-        if "tanulás" in text:
-            return ("A tanulás folyamata Hebbian elvek alapján történik, ahol a szinapszis erősödik, ha a bemenet és a válasz együtt aktiválódik."), "A válasz illeszkedik a kérdés szerkezetéhez és a kulcskifejezésekhez."
-    elif any(q in text for q in ["mi az", "mi az a", "definiáld", "fogalma"]):
-        if "introspekció" in text:
-            return ("Az introspekció a mesterséges intelligenciában a rendszer önmegfigyelési és önértékelési képességét jelenti."), "A válasz definíciószerű, releváns és kontextusfüggő."
-        if "kuramoto" in text:
-            return ("A Kuramoto-modell egy szinkronizációs elmélet, mely oszcillátorok fázisait modellezi, például a fotonikus hálózatokban."), "A válasz helyesen foglalja össze a Kuramoto-modellt."
-    elif "memrisztor" in text:
-        return ("A memrisztor egy olyan nanoszerkezet, amely képes ellenállás változással tárolni információt – szinaptikus súlyként használható."), "A válasz technikailag korrekt és informatív."
-
-    return ("A kérdésed összetett, de a jelenlegi szabályalapú válaszadó nem talál pontos egyezést.", "A válasz általános, a rendszer fejlesztése javasolt a további finomhangoláshoz.")
-
-# 3. Válasz és introspekció
 if user_input:
-    st.subheader("💡 Válasz a kérdésedre:")
-    answer, reflection = generate_response(user_input)
-    st.write(answer)
+    st.subheader("💡 Szabályalapú válasz")
+    st.write("Ez a verzió a kutatási komponensekre fókuszál. Szimulált, tematikus válasz érkezik.")
     st.markdown("### 🔍 Önreflexió:")
-    st.write(reflection)
+    st.write("A rendszer bővített metrikák alapján működik: tanulási zaj, szinkronizációs idő, predikciós pontosság.")
 
-    st.header("🌐 Kuramoto szinkronizációs szimuláció")
-    fig = run_kuramoto_simulation()
-    st.pyplot(fig)
+# Kuramoto metrika
+st.header("🌐 Kuramoto szinkronizáció")
+fig1, steps_needed = run_kuramoto_simulation()
+st.pyplot(fig1)
+st.success(f"Szinkronizációs idő: {steps_needed} iteráció")
 
-    st.header("🧬 Hebbian tanulás szimuláció")
-    fig2 = run_hebbian_learning()
-    st.pyplot(fig2)
+# Hebbian tanulás zajjal
+st.header("🧬 Hebbian tanulás zajmodellel")
+fig2 = run_hebbian_learning_with_noise()
+st.pyplot(fig2)
+
+# XOR predikció
+st.header("🧠 XOR predikciós tanulási feladat")
+accuracy = run_xor_prediction()
+st.success(f"Predikciós pontosság: {accuracy:.2f} %")
