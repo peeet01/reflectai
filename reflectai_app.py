@@ -1,6 +1,5 @@
-
 import streamlit as st
-from modules.kuramoto_sim import run_kuramoto_simulation, compute_sync_steps
+from modules.kuramoto_sim import run_kuramoto_simulation
 from modules.hebbian_learning import run_hebbian_learning_with_noise
 from modules.xor_prediction import run_xor_prediction
 
