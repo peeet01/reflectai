@@ -1,96 +1,54 @@
 import streamlit as st
-import matplotlib.pyplot as plt
 from modules.kuramoto_sim import run_kuramoto_simulation
+from modules.kuramoto_hebbian import run_adaptive_kuramoto
 from modules.hebbian_learning import run_hebbian_learning_with_noise
-from modules.hebbian_learning_visual import run_hebbian_learning_with_visual
-from modules.xor_prediction import run_xor_prediction
+from modules.hebbian_learning_visual import plot_hebbian_learning
 from modules.lorenz_sim import generate_lorenz_data
 from modules.predict_lorenz import predict_lorenz
-from modules.mlp_predict_lorenz import predict_lorenz_mlp
-from modules.kuramoto_hebbian_dynamic import run_adaptive_kuramoto_hebbian
-from modules.hebbian_topo_kuramoto import run_topo_adaptive_kuramoto
+from modules.mlp_predict_lorenz import run_lorenz_mlp
+from modules.xor_prediction import run_xor_prediction
 
-st.set_page_config(page_title="ReflectAI Pro", layout="wide")
+# Beállítások
+st.set_page_config(page_title="ReflectAI Pro", page_icon="🧠")
+st.title("🧠 ReflectAI Pro – Fejlett MI szimulációk")
 
-st.sidebar.title("🔧 Modulválasztó")
-module = st.sidebar.radio("Válassz modult:", [
-    "🏠 Főoldal",
-    "🌐 Kuramoto szinkronizáció",
-    "🧬 Hebbian tanulás",
-    "📉 Súlydinamika",
-    "🌀 Lorenz predikció (Ridge)",
-    "🧠 Lorenz predikció (MLP)",
-    "🔁 XOR tanulás",
-    "🔄 Adaptív Kuramoto–Hebbian",
-    "🌐 Topológikus Kuramoto–Hebbian"
-])
+user_input = st.text_input("💬 Add meg kutatási kérdésed vagy utasításod:")
 
-if module == "🏠 Főoldal":
-    st.title("🧠 ReflectAI Pro")
-    st.markdown("**Tudományos MI-szimulációs platform**")
-    st.write("Ez az alkalmazás a neuromorf, fotonikus és prediktív rendszerek kutatásához készült.")
-    st.success("Használj oldalt modult, állítsd be a paramétereket, és szimulálj!")
+if user_input:
+    st.subheader("🔎 Elemzés")
+    st.write("A rendszer a megadott kérdés alapján különböző MI-komponenseket aktivál.")
 
-elif module == "🌐 Kuramoto szinkronizáció":
-    st.header("🌐 Kuramoto szinkronizáció")
-    fig1, steps_needed = run_kuramoto_simulation()
-    st.pyplot(fig1)
-    st.success(f"Szinkronizációs idő: {steps_needed} iteráció")
+# --- Kuramoto szinkronizáció ---
+st.header("🌐 Klasszikus Kuramoto szinkronizáció")
+fig1, steps = run_kuramoto_simulation()
+st.pyplot(fig1)
+st.success(f"Szinkronizációs iterációk száma: {steps}")
 
-elif module == "🧬 Hebbian tanulás":
-    st.header("🧬 Hebbian tanulás zajmodellel")
-    learning_rate = st.slider("Tanulási ráta", 0.01, 1.0, 0.1, 0.01)
-    noise_level = st.slider("Zaj szintje", 0.0, 1.0, 0.1, 0.01)
-    iterations = st.slider("Iterációk száma", 10, 1000, 100, 10)
-    fig2 = run_hebbian_learning_with_noise(learning_rate, noise_level, iterations)
-    st.pyplot(fig2)
+# --- Adaptív Hebbian Kuramoto háló ---
+st.header("🧠 Adaptív Hebbian–Kuramoto hálózat")
+fig2, metrics = run_adaptive_kuramoto()
+st.pyplot(fig2)
+st.info(f"Koherencia: {metrics['coherence']:.2f} | Iterációk: {metrics['steps']}")
 
-elif module == "📉 Súlydinamika":
-    st.header("📉 Hebbian súlydinamika")
-    fig3 = run_hebbian_learning_with_visual(
-        learning_rate=0.1,
-        noise_level=0.1,
-        iterations=100
-    )
-    st.pyplot(fig3)
+# --- Hebbian tanulás (vizualizációval) ---
+st.header("🔬 Hebbian tanulás zajmodellel")
+fig3 = run_hebbian_learning_with_noise()
+st.pyplot(fig3)
 
-elif module == "🌀 Lorenz predikció (Ridge)":
-    st.header("🌀 Lorenz-attraktor predikció (Ridge)")
-    t, true_states = generate_lorenz_data()
-    pred_states = predict_lorenz(true_states, window=5)
-    fig = plt.figure(figsize=(10, 5))
-    ax = fig.add_subplot(121, projection='3d')
-    ax.plot(*true_states.T)
-    ax.set_title("Valódi Lorenz pálya")
-    ax2 = fig.add_subplot(122, projection='3d')
-    ax2.plot(*pred_states.T, color='orange')
-    ax2.set_title("Predikált pálya (Ridge)")
-    st.pyplot(fig)
+st.header("🎯 Hebbian tanulási vizualizáció")
+fig4 = plot_hebbian_learning()
+st.pyplot(fig4)
 
-elif module == "🧠 Lorenz predikció (MLP)":
-    st.header("🧠 Lorenz-attraktor predikció (MLP)")
-    t, true_states = generate_lorenz_data()
-    pred_states = predict_lorenz_mlp(true_states, window=5)
-    fig = plt.figure(figsize=(10, 5))
-    ax = fig.add_subplot(121, projection='3d')
-    ax.plot(*true_states.T)
-    ax.set_title("Valódi Lorenz pálya")
-    ax2 = fig.add_subplot(122, projection='3d')
-    ax2.plot(*pred_states.T, color='green')
-    ax2.set_title("Predikált pálya (MLP)")
-    st.pyplot(fig)
+# --- Lorenz attraktor predikció (klasszikus és MLP) ---
+st.header("🌪️ Lorenz attraktor predikció")
+fig5 = predict_lorenz()
+st.pyplot(fig5)
 
-elif module == "🔁 XOR tanulás":
-    st.header("🔁 XOR predikciós feladat")
-    accuracy = run_xor_prediction()
-    st.success(f"Predikciós pontosság: {accuracy:.2f} %")
+st.header("🧠 MLP predikció Lorenz adatokra")
+accuracy = run_lorenz_mlp()
+st.success(f"MLP predikciós pontosság: {accuracy:.2f} %")
 
-elif module == "🔄 Adaptív Kuramoto–Hebbian":
-    st.header("🔄 Adaptív Kuramoto–Hebbian háló")
-    fig = run_adaptive_kuramoto_hebbian()
-    st.pyplot(fig)
-
-elif module == "🌐 Topológikus Kuramoto–Hebbian":
-    st.header("🌐 Topológikus Kuramoto–Hebbian háló (Kisvilág)")
-    fig = run_topo_adaptive_kuramoto()
-    st.pyplot(fig)
+# --- XOR feladat ---
+st.header("🧩 XOR tanulási feladat")
+acc_xor = run_xor_prediction()
+st.success(f"XOR predikciós pontosság: {acc_xor:.2f} %")
