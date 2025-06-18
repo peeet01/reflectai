@@ -1,46 +1,52 @@
 import streamlit as st
 
-from modules.kuramoto_sim import run as run_kuramoto
-from modules.hebbian_learning import run as run_hebbian
-from modules.hebbian_learning_visual import run as run_hebbian_visual
-from modules.kuramoto_hebbiansim import run as run_kuramoto_hebbian
-from modules.graph_sync_analysis import run as run_graph_sync
-from modules.lorenz_sim import run as run_lorenz
-from modules.mlp_predict_lorenz import run as run_mlp_lorenz
-from modules.predict_lorenz import run as run_predict_lorenz
-from modules.xor_prediction import run as run_xor
+from modules import (
+    graph_sync_analysis,
+    hebbian_learning,
+    hebbian_learning_viz,
+    kuramoto_hebbiansim,
+    kuramoto_sim,
+    lorenz_sim,
+    mlp_predict_lorenz,
+    modules_utils,
+    predict_lorenz,
+    utils,
+    xor_prediction,
+)
 
-st.set_page_config(page_title="ReflectAI", layout="wide")
+st.set_page_config(page_title="ReflectAI App", layout="centered")
+st.title("🧠 ReflectAI App")
 
-st.markdown("<h1 style='text-align: center;'>🧠 ReflectAI App</h1>", unsafe_allow_html=True)
-
-menu = st.sidebar.selectbox("Válassz modult", [
+menu = st.sidebar.selectbox("Válassz modult", (
     "Kuramoto szinkronizáció",
+    "Kuramoto-Hebbian szimuláció",
     "Hebbian tanulás",
     "Hebbian vizualizáció",
-    "Kuramoto + Hebbian",
-    "Gráf szinkron analízis",
     "Lorenz szimuláció",
-    "Lorenz előrejelzés MLP-vel",
-    "Lorenz előrejelzés (klasszikus)",
-    "XOR predikció"
-])
+    "Lorenz jóslás (MLP)",
+    "Lorenz jóslás (egyszerű)",
+    "Gyakorlati graf elemzés",
+    "XOR predikció",
+    "Egyéb utils tesztek"
+))
 
 if menu == "Kuramoto szinkronizáció":
-    run_kuramoto()
+    kuramoto_sim.run()
+elif menu == "Kuramoto-Hebbian szimuláció":
+    kuramoto_hebbiansim.run()
 elif menu == "Hebbian tanulás":
-    run_hebbian()
+    hebbian_learning.run()
 elif menu == "Hebbian vizualizáció":
-    run_hebbian_visual()
-elif menu == "Kuramoto + Hebbian":
-    run_kuramoto_hebbian()
-elif menu == "Gráf szinkron analízis":
-    run_graph_sync()
+    hebbian_learning_viz.run()
 elif menu == "Lorenz szimuláció":
-    run_lorenz()
-elif menu == "Lorenz előrejelzés MLP-vel":
-    run_mlp_lorenz()
-elif menu == "Lorenz előrejelzés (klasszikus)":
-    run_predict_lorenz()
+    lorenz_sim.run()
+elif menu == "Lorenz jóslás (MLP)":
+    mlp_predict_lorenz.run()
+elif menu == "Lorenz jóslás (egyszerű)":
+    predict_lorenz.run()
+elif menu == "Gyakorlati graf elemzés":
+    graph_sync_analysis.run()
 elif menu == "XOR predikció":
-    run_xor()
+    xor_prediction.run()
+elif menu == "Egyéb utils tesztek":
+    utils.run()
