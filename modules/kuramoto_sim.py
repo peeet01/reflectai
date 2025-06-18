@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def run():
+    st.subheader("Kuramoto szimuláció")
     st.write("Kuramoto szimuláció modul fut.")
 
     N = 10  # oszcillátorok száma
