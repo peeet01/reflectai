@@ -1,2 +1,2 @@
 def run():
-    print('Gráf szinkron analízis')
+    st.write('Gráf szinkron analízis')
