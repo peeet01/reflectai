@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def run():
-    st.subheader("Kuramoto_Hebbian szimuláció")
-    st.write("Kuramoto_Hebbian szimuláció modul fut.")
+    st.subheader("Kuramoto-Hebbian szimuláció")
+    st.write("Kuramoto-Hebbian szimuláció modul fut.")
 
     N = 10
     T = 10
