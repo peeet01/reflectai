@@ -5,19 +5,18 @@ from modules import (
     kuramoto_sim,
     hebbian_learning,
     hebbian_learning_viz,
+    kuramoto_hebbiansim,
     lorenz_sim,
     predict_lorenz,
     xor_prediction,
     graph_sync_analysis,
-    kuramoto_hebbiansim,
     modules_utils
 )
 
-# Alkalmazás címe
 st.set_page_config(page_title="ReflectAI App", page_icon="🧠", layout="wide")
 st.title("🧠 ReflectAI App")
 
-# Oldalsó menü
+# Modulválasztó menü
 menu = st.sidebar.selectbox(
     "Válassz modult:",
     (
