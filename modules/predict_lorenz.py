@@ -1,2 +1,2 @@
 def run():
-    print('Lorenz predikció')
+    st.write('Lorenz predikció')
