@@ -1,24 +1,49 @@
 import streamlit as st
-from sklearn.neural_network import MLPClassifier
 import numpy as np
+import matplotlib.pyplot as plt
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_deriv(x):
+    return sigmoid(x) * (1 - sigmoid(x))
 
 def run():
-    st.subheader("🧠 XOR predikciós feladat")
-    st.write("Egyszerű MLP modell az XOR logikai művelet megtanulására.")
+    st.subheader("🧠 XOR predikció")
+    st.write("Egyszerű MLP modell az XOR logikai kapu tanulására.")
 
-    # Bemenetek és célértékek
-    X = np.array([[0,0], [0,1], [1,0], [1,1]])
-    y = np.array([0, 1, 1, 0])
+    X = np.array([[0,0],[0,1],[1,0],[1,1]])
+    Y = np.array([[0],[1],[1],[0]])
 
-    # Modell létrehozása és tanítása
-    model = MLPClassifier(hidden_layer_sizes=(4,), max_iter=1000, random_state=1)
-    model.fit(X, y)
+    np.random.seed(42)
+    hidden_weights = np.random.randn(2, 3)
+    output_weights = np.random.randn(3, 1)
 
-    preds = model.predict(X)
-    acc = model.score(X, y)
+    learning_rate = 0.1
+    epochs = 5000
+    errors = []
 
-    # Eredmények megjelenítése
-    st.write("Bemenetek (X):", X.tolist())
-    st.write("Célértékek (y):", y.tolist())
-    st.write("Predikciók:", preds.tolist())
-    st.success(f"Pontosság: {acc * 100:.1f}%")
+    for _ in range(epochs):
+        hidden_input = np.dot(X, hidden_weights)
+        hidden_output = sigmoid(hidden_input)
+
+        final_input = np.dot(hidden_output, output_weights)
+        final_output = sigmoid(final_input)
+
+        error = Y - final_output
+        errors.append(np.mean(np.abs(error)))
+
+        d_output = error * sigmoid_deriv(final_input)
+        d_hidden = np.dot(d_output, output_weights.T) * sigmoid_deriv(hidden_input)
+
+        output_weights += learning_rate * np.dot(hidden_output.T, d_output)
+        hidden_weights += learning_rate * np.dot(X.T, d_hidden)
+
+    fig, ax = plt.subplots()
+    ax.plot(errors)
+    ax.set_title("XOR predikció – Hiba alakulása")
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Átlagos abszolút hiba")
+    st.pyplot(fig)
+
+    st.success(f"Végső predikciós hiba: {errors[-1]:.4f}")
