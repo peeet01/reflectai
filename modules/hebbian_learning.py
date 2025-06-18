@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 
 def run():
+    st.subheader("Hebbian tanulás modul")
     st.write("Hebbian tanulás modul fut.")
 
     x = np.array([[1, 0, 1]])
