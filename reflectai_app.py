@@ -16,7 +16,7 @@ page = st.sidebar.selectbox(
     "Válassz modult",
     [
         "Kuramoto szimuláció",
-        "Kuramoto-Hebbian szimuláció",
+        "Kuramoto Hebbian szimuláció",
         "Hebbian tanulás",
         "Gráf szinkronizáció",
         "XOR predikció",
@@ -33,8 +33,8 @@ if page == "Kuramoto szimuláció":
     st.subheader("Kuramoto szimuláció")
     run_kuramoto()
 
-elif page == "Kuramoto-Hebbian szimuláció":
-    st.subheader("Kuramoto-Hebbian szimuláció")
+elif page == "Kuramoto Hebbian szimuláció":
+    st.subheader("Kuramoto Hebbian szimuláció")
     run_kuramoto_hebbian()
 
 elif page == "Hebbian tanulás":
