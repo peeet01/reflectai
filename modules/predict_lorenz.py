@@ -4,6 +4,7 @@ from sklearn.neural_network import MLPRegressor
 import matplotlib.pyplot as plt
 
 def run():
+    st.subheader("Lorenz predikció")
     st.write("Lorenz predikció modul fut.")
 
     # Lorenz x komponens előállítása
