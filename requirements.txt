@@ -4,4 +4,3 @@ matplotlib
 scikit-learn
 seaborn
 networkx
-tensorflow==2.12.0
