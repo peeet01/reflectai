@@ -1,34 +1,51 @@
+# reflectai_app.py
+
 import streamlit as st
+from modules import (
+    kuramoto_sim,
+    hebbian_learning,
+    hebbian_learning_viz,
+    lorenz_sim,
+    predict_lorenz,
+    xor_prediction,
+    graph_sync_analysis,
+    kuramoto_hebbiansim,
+    modules_utils
+)
 
-st.set_page_config(page_title="ReflectAI App", layout="wide")
-st.title("🧠 ReflectAI App Teszt")
+# Alkalmazás címe
+st.set_page_config(page_title="ReflectAI App", page_icon="🧠", layout="wide")
+st.title("🧠 ReflectAI App")
 
-try:
-    from modules import kuramoto_sim
-    st.sidebar.success("✅ kuramoto_sim betöltve")
-except ImportError as e:
-    st.sidebar.error(f"❌ kuramoto_sim hiba: {e}")
+# Oldalsó menü
+menu = st.sidebar.selectbox(
+    "Válassz modult:",
+    (
+        "Kuramoto szinkronizáció",
+        "Hebbian tanulás",
+        "Hebbian vizualizáció",
+        "Kuramoto + Hebbian",
+        "Lorenz szimuláció",
+        "Lorenz előrejelzés",
+        "XOR predikció",
+        "Gráf szinkron elemzés"
+    )
+)
 
-try:
-    from modules import kuramoto_hebbian_sim
-    st.sidebar.success("✅ kuramoto_hebbian_sim betöltve")
-except ImportError as e:
-    st.sidebar.error(f"❌ kuramoto_hebbian_sim hiba: {e}")
-
-try:
-    from modules import hebbian_learning
-    st.sidebar.success("✅ hebbian_learning betöltve")
-except ImportError as e:
-    st.sidebar.error(f"❌ hebbian_learning hiba: {e}")
-
-try:
-    from modules import hebbian_learning_visual
-    st.sidebar.success("✅ hebbian_learning_visual betöltve")
-except ImportError as e:
-    st.sidebar.error(f"❌ hebbian_learning_visual hiba: {e}")
-
-try:
-    from modules import xor_prediction
-    st.sidebar.success("✅ xor_prediction betöltve")
-except ImportError as e:
-    st.sidebar.error(f"❌ xor_prediction hiba: {e}")
+# Modulok futtatása
+if menu == "Kuramoto szinkronizáció":
+    kuramoto_sim.run()
+elif menu == "Hebbian tanulás":
+    hebbian_learning.run()
+elif menu == "Hebbian vizualizáció":
+    hebbian_learning_viz.run()
+elif menu == "Kuramoto + Hebbian":
+    kuramoto_hebbiansim.run()
+elif menu == "Lorenz szimuláció":
+    lorenz_sim.run()
+elif menu == "Lorenz előrejelzés":
+    predict_lorenz.run()
+elif menu == "XOR predikció":
+    xor_prediction.run()
+elif menu == "Gráf szinkron elemzés":
+    graph_sync_analysis.run()
