@@ -1,42 +1,58 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
 
+# Modulok importálása
 from modules import (
     kuramoto_sim,
-    hebbian_learning,
-    xor_prediction,
     kuramoto_hebbiansim,
-    graph_sync_analysis
+    hebbian_learning,
+    hebbian_learning_visual,
+    graph_sync_analysis,
+    xor_prediction,
+    lorenz_sim,
+    predict_lorenz,
+    mlp_predict_lorenz,
 )
 
-# Alkalmazás címe
 st.set_page_config(page_title="ReflectAI App", layout="centered")
 st.title("🧠 ReflectAI App")
 
 # Oldalsáv menü
 menu = st.sidebar.selectbox(
-    "Modul kiválasztása",
+    "Válassz egy modult:",
     (
         "Kuramoto szinkronizáció",
-        "Hebbian tanulás zajjal",
-        "XOR predikciós tanulási feladat",
         "Adaptív Kuramoto–Hebbian háló",
-        "Tudományos kérdés: Topológia és zaj hatása"
+        "Hebbian tanulás zajjal",
+        "Topológia és zaj hatása",
+        "XOR predikció",
+        "Lorenz szimuláció",
+        "Lorenz predikció",
+        "MLP Lorenz predikció"
     )
 )
 
-# Menü vezérlés
+# Menü működés
 if menu == "Kuramoto szinkronizáció":
     kuramoto_sim.run()
-
-elif menu == "Hebbian tanulás zajjal":
-    hebbian_learning.run()
-
-elif menu == "XOR predikciós tanulási feladat":
-    xor_prediction.run()
 
 elif menu == "Adaptív Kuramoto–Hebbian háló":
     kuramoto_hebbiansim.run()
 
-elif menu == "Tudományos kérdés: Topológia és zaj hatása":
+elif menu == "Hebbian tanulás zajjal":
+    hebbian_learning_visual.run()
+
+elif menu == "Topológia és zaj hatása":
     graph_sync_analysis.run()
+
+elif menu == "XOR predikció":
+    xor_prediction.run()
+
+elif menu == "Lorenz szimuláció":
+    lorenz_sim.run()
+
+elif menu == "Lorenz predikció":
+    predict_lorenz.run()
+
+elif menu == "MLP Lorenz predikció":
+    mlp_predict_lorenz.run()
