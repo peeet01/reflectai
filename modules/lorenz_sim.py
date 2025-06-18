@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def run():
+    st.subheader("Lorenz szimuláció")
     st.write("Lorenz szimuláció modul fut.")
 
     sigma = 10
