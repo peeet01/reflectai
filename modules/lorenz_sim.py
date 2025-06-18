@@ -1,2 +1,2 @@
 def run():
-    print('Lorenz szimuláció')
+    st.write('Lorenz szimuláció')
