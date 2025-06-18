@@ -1,29 +1,14 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
 
-def run():
-    st.subheader("🧬 Hebbian tanulás zajjal")
-    st.write("Hebbian súlyfrissítés zajos bemenettel.")
+def run_hebbian():
+    st.subheader("🧬 Hebbian tanulás")
+    st.write("Klasszikus Hebbian súlytanulás bemeneti és kimeneti mintákon.")
 
-    np.random.seed(42)
-    eta = 0.01
-    epochs = 100
-    inputs = np.random.randn(epochs, 2)
-    noise = np.random.normal(0, 0.1, inputs.shape)
-    inputs += noise
+    x = np.array([[1, 0, 1]])
+    y = np.array([[1, 0, 0]])
+    w = y.T @ x
 
-    weights = np.zeros(2)
-    history = []
-
-    for x in inputs:
-        weights += eta * x * x
-        history.append(weights.copy())
-
-    history = np.array(history)
-    fig, ax = plt.subplots()
-    ax.plot(history[:, 0], label='w1')
-    ax.plot(history[:, 1], label='w2')
-    ax.set_title("Hebbian súlyok változása")
-    ax.legend()
-    st.pyplot(fig)
+    st.write("Bemenet (x):", x)
+    st.write("Kimenet (y):", y)
+    st.write("Súlymátrix (w):", w)
