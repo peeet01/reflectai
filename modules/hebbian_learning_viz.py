@@ -1,2 +1,2 @@
 def run():
-    print('Hebbian tanulás vizualizáció')
+    st.write('Hebbian tanulás vizualizáció')
