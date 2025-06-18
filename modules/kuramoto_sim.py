@@ -4,31 +4,28 @@ import matplotlib.pyplot as plt
 
 def run():
     st.subheader("🌐 Kuramoto szinkronizáció")
-    st.write("Egyszerű Kuramoto-oszcillátorháló szimuláció.")
+    st.write("Egyszerű Kuramoto-háló fázisszinkronizációs vizsgálata.")
 
-    n = 10
-    coupling = 0.5
-    timesteps = 100
-    theta = np.random.rand(n) * 2 * np.pi
-    omega = np.random.rand(n)
+    N = 10
+    T = 200
+    dt = 0.05
+    K = 1.0
+
+    theta = np.random.rand(N) * 2 * np.pi
+    omega = np.random.normal(1.0, 0.1, N)
     history = [theta.copy()]
-    sync_threshold = 0.99
 
-    for _ in range(timesteps):
-        for i in range(n):
-            interaction = np.sum(np.sin(theta - theta[i]))
-            theta[i] += omega[i] + (coupling / n) * interaction
+    for _ in range(T):
+        dtheta = omega + (K / N) * np.sum(np.sin(theta[:, None] - theta), axis=1)
+        theta += dt * dtheta
         history.append(theta.copy())
 
-        order_param = np.abs(np.sum(np.exp(1j * theta))) / n
-        if order_param > sync_threshold:
-            break
+    history = np.array(history)
 
-    data = np.array(history)
     fig, ax = plt.subplots()
-    ax.plot(data)
-    ax.set_title("Kuramoto szinkronizáció")
-    ax.set_xlabel("Iteráció")
+    for i in range(N):
+        ax.plot(history[:, i], label=f'Oszc. {i}')
+    ax.set_title("Fázisok időbeli alakulása")
+    ax.set_xlabel("Időlépés")
     ax.set_ylabel("Fázis")
     st.pyplot(fig)
-    st.success(f"Szinkronizáció elérve {len(data)} iteráció alatt.")
