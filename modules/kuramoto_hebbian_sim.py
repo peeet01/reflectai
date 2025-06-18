@@ -2,28 +2,31 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
-def run():
-    st.subheader("🔁 Kuramoto–Hebbian hálózat")
-    st.write("Szinkronizáció Hebbian frissítéssel kombinálva.")
+def run_kuramoto_hebbian():
+    st.subheader("🔁 Kuramoto–Hebbian háló")
+    st.write("Adaptív Kuramoto-modell Hebbian tanulással.")
 
-    n = 6
-    timesteps = 150
-    coupling = 0.4
-    theta = np.random.rand(n) * 2 * np.pi
-    omega = np.random.rand(n)
-    weights = np.random.rand(n, n)
-    history = [theta.copy()]
+    N = 10
+    T = 10
+    dt = 0.05
+    steps = int(T / dt)
 
-    for _ in range(timesteps):
-        for i in range(n):
-            for j in range(n):
+    theta = np.random.uniform(0, 2 * np.pi, N)
+    omega = np.random.normal(1.0, 0.1, N)
+    weights = np.ones((N, N)) / N
+
+    results = np.zeros((steps, N))
+    for t in range(steps):
+        results[t] = theta
+        for i in range(N):
+            influence = np.sum(weights[i] * np.sin(theta - theta[i]))
+            theta[i] += dt * (omega[i] + influence)
+
+            # Hebbian frissítés
+            for j in range(N):
                 if i != j:
-                    weights[i, j] += 0.001 * np.cos(theta[i] - theta[j])
-            theta[i] += omega[i] + (coupling / n) * np.sum(weights[i] * np.sin(theta - theta[i]))
-        history.append(theta.copy())
+                    weights[i, j] += 0.01 * np.cos(theta[i] - theta[j])
 
-    data = np.array(history)
     fig, ax = plt.subplots()
-    ax.plot(data)
-    ax.set_title("Kuramoto–Hebbian szinkronizáció")
+    ax.plot(results)
     st.pyplot(fig)
