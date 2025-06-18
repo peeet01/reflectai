@@ -3,6 +3,7 @@ from sklearn.neural_network import MLPClassifier
 import numpy as np
 
 def run():
+    st.subheader("XOR predikció")
     st.write("XOR predikció modul fut.")
 
     X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
