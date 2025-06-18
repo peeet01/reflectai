@@ -1,23 +1,28 @@
-
 import streamlit as st
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
 
-def run():
-    st.subheader("Lorenz attraktor")
+def run_lorenz():
+    st.subheader("🌪️ Lorenz attraktor")
+    st.write("Káoszelmélet Lorenz-rendszer alapján.")
+
+    sigma, rho, beta = 10, 28, 8/3
     dt = 0.01
     steps = 10000
-    xyz = np.empty((steps, 3))
-    xyz[0] = (0., 1., 1.05)
-    sigma, rho, beta = 10., 28., 8./3.
+
+    xs = np.empty(steps)
+    ys = np.empty(steps)
+    zs = np.empty(steps)
+
+    xs[0], ys[0], zs[0] = 0., 1., 1.05
+
     for i in range(1, steps):
-        x, y, z = xyz[i - 1]
-        xyz[i] = (
-            x + sigma * (y - x) * dt,
-            y + (x * (rho - z) - y) * dt,
-            z + (x * y - beta * z) * dt
-        )
+        x, y, z = xs[i-1], ys[i-1], zs[i-1]
+        xs[i] = x + dt * sigma * (y - x)
+        ys[i] = y + dt * (x * (rho - z) - y)
+        zs[i] = z + dt * (x * y - beta * z)
+
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot(*xyz.T, lw=0.5)
+    ax = fig.add_subplot(projection='3d')
+    ax.plot(xs, ys, zs)
     st.pyplot(fig)
