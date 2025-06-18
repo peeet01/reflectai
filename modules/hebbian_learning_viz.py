@@ -4,6 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 def run():
+    st.subheader("Hebbian tanulási vzualizáció")
     st.write("Hebbian tanulás vizualizáció modul fut.")
 
     # Bemenet és kimenet mátrix
