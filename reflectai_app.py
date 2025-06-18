@@ -1,61 +1,25 @@
 import streamlit as st
 
-from modules import (
-    graph_sync_analysis,
-    hebbian_learning,
-    hebbian_learning_viz,
-    kuramoto_hebbiansim,
-    kuramoto_sim,
-    lorenz_sim,
-    mlp_predict_lorenz,
-    modules_utils,
-    predict_lorenz,
-    utils,
-    xor_prediction,
+from modules.kuramoto_sim import run as run_kuramoto
+from modules.kuramoto_hebbian import run as run_kuramoto_hebbian
+from modules.hebbian_learning import run as run_hebbian
+from modules.graph_sync_analysis import run as run_graph_sync
+from modules.xor_prediction import run as run_xor
+
+st.title("ReflectAI App")
+
+page = st.sidebar.selectbox(
+    "Válassz modult",
+    ["Kuramoto", "Kuramoto-Hebbian", "Hebbian", "Sync Analízis", "XOR Predikció"]
 )
 
-st.set_page_config(page_title="ReflectAI App", layout="centered")
-st.title("🧠 ReflectAI App")
-
-menu = st.sidebar.selectbox("Válassz modult", (
-    "Kuramoto szinkronizáció",
-    "Kuramoto-Hebbian szimuláció",
-    "Hebbian tanulás",
-    "Hebbian vizualizáció",
-    "Lorenz szimuláció",
-    "Lorenz jóslás (MLP)",
-    "Lorenz jóslás (egyszerű)",
-    "Gyakorlati XOR predikció",
-    "Görbe szinkron analízis",
-    "Utils teszt",
-))
-
-if menu == "Kuramoto szinkronizáció":
-    kuramoto_sim.run()
-
-elif menu == "Kuramoto-Hebbian szimuláció":
-    kuramoto_hebbiansim.run()
-
-elif menu == "Hebbian tanulás":
-    hebbian_learning.run()
-
-elif menu == "Hebbian vizualizáció":
-    hebbian_learning_viz.run()
-
-elif menu == "Lorenz szimuláció":
-    lorenz_sim.run()
-
-elif menu == "Lorenz jóslás (MLP)":
-    mlp_predict_lorenz.run()
-
-elif menu == "Lorenz jóslás (egyszerű)":
-    predict_lorenz.run()
-
-elif menu == "Gyakorlati XOR predikció":
-    xor_prediction.run()
-
-elif menu == "Görbe szinkron analízis":
-    graph_sync_analysis.run()
-
-elif menu == "Utils teszt":
-    utils.run()
+if page == "Kuramoto":
+    run_kuramoto()
+elif page == "Kuramoto-Hebbian":
+    run_kuramoto_hebbian()
+elif page == "Hebbian":
+    run_hebbian()
+elif page == "Sync Analízis":
+    run_graph_sync()
+elif page == "XOR Predikció":
+    run_xor()
