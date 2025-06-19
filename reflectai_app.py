@@ -13,6 +13,7 @@ from modules.noise_robustness import run as run_noise
 from modules.esn_prediction import run as run_esn
 from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
+from modules.insight_learning import run as run_insight_learning  # ÚJ modul importálása
 
 # Alkalmazás címe és bevezető
 st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
@@ -34,7 +35,8 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Zajtűrés és szinkronizációs robusztusság",
     "Echo State Network (ESN) predikció",
     "Hebbian plaszticitás dinamikája",
-    "Szinkronfraktál dimenzióanalízis"
+    "Szinkronfraktál dimenzióanalízis",
+    "Belátás alapú tanulás (Insight Learning)"  # ÚJ modul választható listában
 ))
 
 # Modulok futtatása bemenetekkel
@@ -52,12 +54,10 @@ elif module_name == "Hebbian tanulás":
 
 elif module_name == "XOR predikció":
     st.subheader("🧠 XOR tanítása neurális hálóval")
-
     hidden_size = st.slider("Rejtett réteg neuronjainak száma", 1, 10, 2)
     learning_rate = st.slider("Tanulási ráta", 0.001, 1.0, 0.1)
     epochs = st.number_input("Epochok száma", min_value=100, max_value=10000, value=1000, step=100)
     note = st.text_input("Megjegyzés (opcionális)")
-
     run_xor(hidden_size, learning_rate, epochs, note)
 
 elif module_name == "Kuramoto–Hebbian háló":
@@ -89,3 +89,10 @@ elif module_name == "Hebbian plaszticitás dinamikája":
 
 elif module_name == "Szinkronfraktál dimenzióanalízis":
     run_fractal()
+
+elif module_name == "Belátás alapú tanulás (Insight Learning)":
+    st.subheader("💡 Belátás alapú tanulási szimuláció")
+    trials = st.slider("Próbálkozások száma", 1, 20, 5)
+    pause_time = st.slider("Megállás hossza (másodperc)", 0.0, 5.0, 1.0)
+    complexity = st.selectbox("Feladat komplexitása", ["alacsony", "közepes", "magas"])
+    run_insight_learning(trials, pause_time, complexity)
