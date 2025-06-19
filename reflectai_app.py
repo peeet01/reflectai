@@ -2,7 +2,7 @@ import streamlit as st
 from modules.kuramoto_sim import run as run_kuramoto
 from modules.hebbian_learning import run as run_hebbian
 from modules.xor_prediction import run as run_xor
-from modules.kuramoto_hebbian_net import run as run_kuramoto_hebbian
+from modules.kuramoto_hebbian import run as run_kuramoto_hebbian
 from modules.topo_protect import run as run_topo_protect
 from modules.lorenz_sim import run as run_lorenz_sim
 from modules.predict_lorenz import run as run_lorenz_pred
