@@ -1,6 +1,3 @@
-# reflectai_app.py
-# © 2025 Fejlesztő: peeet01 – Minden jog fenntartva.
-
 import streamlit as st
 
 # Modulok importálása
@@ -19,14 +16,19 @@ from modules.fractal_dimension import run as run_fractal
 from modules.persistent_homology import run as run_homology
 from modules.lyapunov_spectrum import run as run_lyapunov
 
-# App beállítása
-st.set_page_config(page_title="ReflecAI – Szinkron és MI", layout="wide")
-st.title("🌐 ReflecAI – Szinkronizáció és Mesterséges Intelligencia")
-st.markdown("Válassz egy modult a bal oldali menüből a vizualizáció elindításához.")
+# Alkalmazás címe és bevezető
+st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
+st.title("🌐 ReflectAI - Szinkronizáció és Mesterséges Intelligencia")
+st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 
-# Oldalsáv: modulválasztás
+# 💬 Szövegdoboz visszahelyezve
+user_input = st.text_input("💬 Kérdésed, megjegyzésed vagy javaslatod:")
+if user_input:
+    st.info(f"📌 Beérkezett üzenet: *{user_input}*")
+
+# Modulválasztás oldalsávban
 st.sidebar.title("📂 Modulválasztó")
-module_name = st.sidebar.radio("Kérlek válassz egy modult:", (
+module_name = st.sidebar.radio("Kérlek válassz:", (
     "Kuramoto szinkronizáció",
     "Hebbian tanulás",
     "XOR predikció",
@@ -40,8 +42,8 @@ module_name = st.sidebar.radio("Kérlek válassz egy modult:", (
     "Echo State Network (ESN) predikció",
     "Hebbian plaszticitás dinamikája",
     "Szinkronfraktál dimenzióanalízis",
-    "Perzisztens homológia vizsgálat",
-    "Lyapunov-spektrum kalkulátor"
+    "Perzisztens homológia analízis",
+    "Lyapunov-spektrum vizualizáció"
 ))
 
 # Modulok meghívása
@@ -84,8 +86,8 @@ elif module_name == "Hebbian plaszticitás dinamikája":
 elif module_name == "Szinkronfraktál dimenzióanalízis":
     run_fractal()
 
-elif module_name == "Perzisztens homológia vizsgálat":
+elif module_name == "Perzisztens homológia analízis":
     run_homology()
 
-elif module_name == "Lyapunov-spektrum kalkulátor":
+elif module_name == "Lyapunov-spektrum vizualizáció":
     run_lyapunov()
