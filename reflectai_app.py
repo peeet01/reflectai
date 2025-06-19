@@ -1,3 +1,7 @@
+# © 2025 ReflectAI Projekt. Minden jog fenntartva.
+# Szerző: Kovács Péter (peeet01)
+# Licenc: Kizárólag tudományos és oktatási célokra használható.
+# Bármilyen kereskedelmi célú felhasználás előzetes írásos engedélyhez kötött.
 import streamlit as st
 
 # Modulok importálása
