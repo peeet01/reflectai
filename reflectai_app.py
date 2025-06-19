@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Modulok importálása
+# Modulok helyes importja
 from modules.kuramoto_sim import run as run_kuramoto
 from modules.hebbian_learning import run as run_hebbian
 from modules.xor_prediction import run as run_xor
@@ -14,9 +14,10 @@ from modules.esn_prediction import run as run_esn
 from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
 
-# ---------------- FEJLÉC + LEÍRÁS + SZÖVEGDOBBOZ ----------------
+# Oldal beállítása
 st.set_page_config(page_title="ReflectAI – Kvázitudati MI", layout="centered")
 
+# Cím és leírás
 st.title("🧠 ReflectAI – Kvázitudati MI modulok")
 st.markdown("""
 Ez az alkalmazás különböző kvázitudati mechanizmusokat modellez moduláris formában: 
@@ -24,12 +25,12 @@ Ez az alkalmazás különböző kvázitudati mechanizmusokat modellez moduláris
 Válassz egy modult bal oldalt a szimuláció elindításához!
 """)
 
-# Szövegbeviteli doboz (parancs vagy megjegyzés)
+# Beviteli mező felhasználói megjegyzésre vagy parancsra
 user_input = st.text_input("✏️ Írj be egy megjegyzést vagy parancsot:")
 if user_input:
     st.info(f"A beírt szöveg: {user_input}")
 
-# ---------------- MODULVÁLASZTÓ ----------------
+# Modulválasztó menü
 st.sidebar.title("📂 Modulválasztó")
 
 module_name = st.sidebar.radio("Válassz egy modult:", (
@@ -48,7 +49,7 @@ module_name = st.sidebar.radio("Válassz egy modult:", (
     "Szinkronfraktál dimenzióanalízis"
 ))
 
-# ---------------- MODUL FUTTATÁS ----------------
+# Modul futtatás logikája
 if module_name == "Kuramoto szinkronizáció":
     run_kuramoto()
 elif module_name == "Hebbian tanulás":
