@@ -1,7 +1,6 @@
 # reflectai_app.py
-# Copyright (c) 2025, [Saját neved vagy szervezeted neve]
-# Minden jog fenntartva. A ReflecAI alkalmazás szellemi tulajdon.
-# A forráskód csak engedéllyel vagy a licencfeltételek szerint használható fel.
+# © 2024 - ReflecAI - Szinkronizáció és Mesterséges Intelligencia (Copyright tulajdonos: [Saját név/jogosult])
+# Minden jog fenntartva.
 
 import streamlit as st
 
@@ -18,14 +17,16 @@ from modules.noise_robustness import run as run_noise
 from modules.esn_prediction import run as run_esn
 from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
-from modules.persistent_homology import run as run_persistent_homology
+from modules.persistent_homology import run as run_homology  # 🆕
 
-# Alkalmazás címe és bevezető
+# Oldal konfigurációja
 st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
-st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
-st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 
-# Modulválasztás oldalsávban
+# Cím és bevezető szöveg
+st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
+st.markdown("Ez az alkalmazás különböző komplex dinamikai rendszerek és MI-modellek vizualizációját teszi lehetővé. Válassz egy modult az oldalsávból!")
+
+# Modulválasztó
 st.sidebar.title("📂 Modulválasztó")
 module_name = st.sidebar.radio("Kérlek válassz:", (
     "Kuramoto szinkronizáció",
@@ -41,7 +42,7 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Echo State Network (ESN) predikció",
     "Hebbian plaszticitás dinamikája",
     "Szinkronfraktál dimenzióanalízis",
-    "Persistent Homology"
+    "Persistent Homology"  # 🆕 új menüpont
 ))
 
 # Modulok futtatása a választás alapján
@@ -85,4 +86,4 @@ elif module_name == "Szinkronfraktál dimenzióanalízis":
     run_fractal()
 
 elif module_name == "Persistent Homology":
-    run_persistent_homology()
+    run_homology()
