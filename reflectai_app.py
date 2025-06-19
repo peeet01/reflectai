@@ -1,6 +1,5 @@
 # reflectai_app.py
-# © 2024 - ReflecAI - Szinkronizáció és Mesterséges Intelligencia (Copyright tulajdonos: [Saját név/jogosult])
-# Minden jog fenntartva.
+# © 2025 Fejlesztő: peeet01 – Minden jog fenntartva.
 
 import streamlit as st
 
@@ -17,18 +16,17 @@ from modules.noise_robustness import run as run_noise
 from modules.esn_prediction import run as run_esn
 from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
-from modules.persistent_homology import run as run_homology  # 🆕
+from modules.persistent_homology import run as run_homology
+from modules.lyapunov_spectrum import run as run_lyapunov
 
-# Oldal konfigurációja
-st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
+# App beállítása
+st.set_page_config(page_title="ReflecAI – Szinkron és MI", layout="wide")
+st.title("🌐 ReflecAI – Szinkronizáció és Mesterséges Intelligencia")
+st.markdown("Válassz egy modult a bal oldali menüből a vizualizáció elindításához.")
 
-# Cím és bevezető szöveg
-st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
-st.markdown("Ez az alkalmazás különböző komplex dinamikai rendszerek és MI-modellek vizualizációját teszi lehetővé. Válassz egy modult az oldalsávból!")
-
-# Modulválasztó
+# Oldalsáv: modulválasztás
 st.sidebar.title("📂 Modulválasztó")
-module_name = st.sidebar.radio("Kérlek válassz:", (
+module_name = st.sidebar.radio("Kérlek válassz egy modult:", (
     "Kuramoto szinkronizáció",
     "Hebbian tanulás",
     "XOR predikció",
@@ -42,10 +40,11 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Echo State Network (ESN) predikció",
     "Hebbian plaszticitás dinamikája",
     "Szinkronfraktál dimenzióanalízis",
-    "Persistent Homology"  # 🆕 új menüpont
+    "Perzisztens homológia vizsgálat",
+    "Lyapunov-spektrum kalkulátor"
 ))
 
-# Modulok futtatása a választás alapján
+# Modulok meghívása
 if module_name == "Kuramoto szinkronizáció":
     run_kuramoto()
 
@@ -85,5 +84,8 @@ elif module_name == "Hebbian plaszticitás dinamikája":
 elif module_name == "Szinkronfraktál dimenzióanalízis":
     run_fractal()
 
-elif module_name == "Persistent Homology":
+elif module_name == "Perzisztens homológia vizsgálat":
     run_homology()
+
+elif module_name == "Lyapunov-spektrum kalkulátor":
+    run_lyapunov()
