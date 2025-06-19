@@ -1,10 +1,9 @@
 import streamlit as st
 
-# Modulok helyes importja
 from modules.kuramoto_sim import run as run_kuramoto
 from modules.hebbian_learning import run as run_hebbian
 from modules.xor_prediction import run as run_xor
-from modules.kuramoto_hebbian import run as run_kuramoto_hebbian
+from modules.kuramoto_hebbian_sim import run as run_kuramoto_hebbian
 from modules.topo_protect import run as run_topo_protect
 from modules.lorenz_sim import run as run_lorenz_sim
 from modules.predict_lorenz import run as run_lorenz_pred
@@ -14,26 +13,26 @@ from modules.esn_prediction import run as run_esn
 from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
 
-# Oldal beállítása
+# --- App config & fejléc ---
 st.set_page_config(page_title="ReflectAI – Kvázitudati MI", layout="centered")
 
-# Cím és leírás
-st.title("🧠 ReflectAI – Kvázitudati MI modulok")
+st.title("🧠 ReflectAI – Kvázitudati MI alkalmazás")
 st.markdown("""
-Ez az alkalmazás különböző kvázitudati mechanizmusokat modellez moduláris formában: 
+Ez az alkalmazás különböző kvázitudati mechanizmusokat modellez moduláris formában:  
 **szinkronizáció, tanulás, predikció, topológia és robusztusság**.
-Válassz egy modult bal oldalt a szimuláció elindításához!
+
+🔽 Válassz egy modult a bal oldali sávból, és futtasd a szimulációt!
 """)
 
-# Beviteli mező felhasználói megjegyzésre vagy parancsra
-user_input = st.text_input("✏️ Írj be egy megjegyzést vagy parancsot:")
+# --- Szöveges bemenet ---
+user_input = st.text_input("✏️ Adj meg egy megjegyzést vagy parancsot:")
 if user_input:
-    st.info(f"A beírt szöveg: {user_input}")
+    st.info(f"A megadott bemenet: `{user_input}`")
 
-# Modulválasztó menü
+# --- Modulválasztó ---
 st.sidebar.title("📂 Modulválasztó")
 
-module_name = st.sidebar.radio("Válassz egy modult:", (
+module_name = st.sidebar.radio("Válassz modult:", (
     "Kuramoto szinkronizáció",
     "Hebbian tanulás",
     "XOR predikció",
@@ -49,7 +48,7 @@ module_name = st.sidebar.radio("Válassz egy modult:", (
     "Szinkronfraktál dimenzióanalízis"
 ))
 
-# Modul futtatás logikája
+# --- Modulok futtatása ---
 if module_name == "Kuramoto szinkronizáció":
     run_kuramoto()
 elif module_name == "Hebbian tanulás":
