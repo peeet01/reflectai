@@ -1,56 +1,53 @@
 import streamlit as st
-import torch
-import torch.nn as nn
-import torch.optim as optim
+import numpy as np
 
-# Egyszerű XOR háló modell
-class XORNet(nn.Module):
-    def __init__(self, hidden_size):
-        super(XORNet, self).__init__()
-        self.net = nn.Sequential(
-            nn.Linear(2, hidden_size),
-            nn.Sigmoid(),
-            nn.Linear(hidden_size, 1),
-            nn.Sigmoid()
-        )
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
 
-    def forward(self, x):
-        return self.net(x)
+def sigmoid_deriv(x):
+    return x * (1 - x)
 
-def run(hidden_size, learning_rate, epochs, note=""):
-    st.write(f"🔧 Háló tanítása: hidden_size={hidden_size}, lr={learning_rate}, epochs={epochs}")
-    if note:
-        st.info(f"📝 Megjegyzés: {note}")
+def train_xor():
+    # Bemenetek és elvárt kimenetek
+    X = np.array([[0,0],[0,1],[1,0],[1,1]])
+    y = np.array([[0],[1],[1],[0]])
 
-    # XOR adat
-    X = torch.tensor([[0, 0], [0, 1], [1, 0], [1, 1]], dtype=torch.float32)
-    Y = torch.tensor([[0], [1], [1], [0]], dtype=torch.float32)
+    # Súlyok inicializálása
+    np.random.seed(1)
+    weights0 = 2 * np.random.random((2, 4)) - 1
+    weights1 = 2 * np.random.random((4, 1)) - 1
 
-    model = XORNet(hidden_size)
-    loss_fn = nn.MSELoss()
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+    # Tanítás
+    for j in range(10000):
+        layer0 = X
+        layer1 = sigmoid(np.dot(layer0, weights0))
+        layer2 = sigmoid(np.dot(layer1, weights1))
 
-    losses = []
-    for epoch in range(epochs):
-        output = model(X)
-        loss = loss_fn(output, Y)
-        losses.append(loss.item())
+        layer2_error = y - layer2
+        layer2_delta = layer2_error * sigmoid_deriv(layer2)
+        layer1_error = layer2_delta.dot(weights1.T)
+        layer1_delta = layer1_error * sigmoid_deriv(layer1)
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        weights1 += layer1.T.dot(layer2_delta)
+        weights0 += layer0.T.dot(layer1_delta)
 
-        if epoch % (epochs // 5) == 0:
-            st.write(f"Epoch {epoch}: Loss = {loss.item():.4f}")
+    return weights0, weights1
 
-    # Eredmény kiírás
-    st.subheader("📊 Tanulás befejezve. Eredmények:")
-    with torch.no_grad():
-        preds = model(X)
-        for i in range(4):
-            a, b = X[i].tolist()
-            pred = preds[i].item()
-            st.write(f"{int(a)} XOR {int(b)} ≈ {pred:.2f}")
+def predict(x, weights0, weights1):
+    layer1 = sigmoid(np.dot(x, weights0))
+    output = sigmoid(np.dot(layer1, weights1))
+    return output
 
-    # Loss görbe (opcionálisan matplotlibtel is mehetne)
-    st.line_chart(losses)
+def run():
+    st.header("🧠 XOR Tanítás egyszerű hálóval")
+    weights0, weights1 = train_xor()
+
+    input1 = st.selectbox("Első bemenet", [0, 1], key="xor_input1")
+    input2 = st.selectbox("Második bemenet", [0, 1], key="xor_input2")
+
+    x = np.array([[input1, input2]])
+    output = predict(x, weights0, weights1)
+
+    st.write(f"🧩 Bemenet: ({input1}, {input2})")
+    st.write(f"📈 Kimenet (0-1): {output[0][0]:.4f}")
+    st.write(f"✅ Eredmény: {int(round(output[0][0]))}")
