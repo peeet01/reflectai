@@ -30,7 +30,7 @@ if user_input:
     st.markdown("🧠 Nyelvi modell gondolkodik...")
 
     headers = {
-        "Authorization": "Bearer sk-or-v1-...írd-be...",
+        "Authorization": "Bearer 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",
     "Referer": "https://reflec.streamlit.app",
     "X-Title": "ReflecAI",
         "Content-Type": "application/json"
