@@ -1,26 +1,28 @@
-import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+import streamlit as st
 
-def run(num_neurons, learning_rate, iterations, user_note):
-    st.subheader("🧠 Hebbian tanulás vizualizáció")
+def hebbian_learning(learning_rate, num_neurons):
+    # Szimulált bináris bemenetek (pl. 10 minta, num_neurons hosszú)
+    inputs = np.random.randint(0, 2, (10, num_neurons))
+    
+    # Kezdeti súlyok nullák
+    weights = np.zeros((num_neurons, num_neurons))
+    
+    # Hebbian tanulás alkalmazása
+    for x in inputs:
+        x = x.reshape(-1, 1)  # Oszlopvektor
+        weights += learning_rate * np.dot(x, x.T)  # Hebb-szabály: Δw = η * x * x^T
 
-    # Kezdeti bemenetek
-    inputs = np.random.rand(iterations, num_neurons)
-    weights = np.random.rand(num_neurons, num_neurons)
+    return weights
 
-    # Hebbian tanulás
-    for i in range(iterations):
-        x = inputs[i].reshape(-1, 1)
-        weights += learning_rate * x @ x.T
-
-    # Megjelenítés
+def plot_weights(weights):
     fig, ax = plt.subplots()
-    im = ax.imshow(weights, cmap='viridis')
-    plt.colorbar(im, ax=ax)
-    ax.set_title("Tanult súlymátrix")
+    cax = ax.matshow(weights, cmap='viridis')
+    plt.title("Hebbian Súlymátrix")
+    plt.colorbar(cax)
     st.pyplot(fig)
 
-    # Megjegyzés megjelenítése
-    if user_note:
-        st.info(f"📝 Megjegyzés: {user_note}")
+def run(learning_rate, num_neurons):
+    weights = hebbian_learning(learning_rate, num_neurons)
+    plot_weights(weights)
