@@ -1,7 +1,8 @@
 # © 2025 ReflectAI Projekt. Minden jog fenntartva.
-# Szerző: Kovács Péter (peeet01)
+# Szerző: Péter (peeet01)
 # Licenc: Kizárólag tudományos és oktatási célokra használható.
 # Bármilyen kereskedelmi célú felhasználás előzetes írásos engedélyhez kötött.
+
 import streamlit as st
 
 # Modulok importálása
@@ -22,6 +23,12 @@ from modules.fractal_dimension import run as run_fractal
 st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
 st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
+
+# 🔹 Kérdésfeltevő szövegdoboz
+user_input = st.text_input("💬 Kérdésed, megjegyzésed vagy kutatási parancsod:")
+if user_input:
+    st.info(f"🔍 Ezt írtad be: **{user_input}**")
+    st.markdown("> A rendszer jelenleg nem generál választ, de a bemenet rögzítésre került.")
 
 # Modulválasztás oldalsávban
 st.sidebar.title("📂 Modulválasztó")
