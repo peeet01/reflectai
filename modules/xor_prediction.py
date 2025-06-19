@@ -1,53 +1,58 @@
-import streamlit as st
 import numpy as np
+import streamlit as st
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
-def sigmoid_deriv(x):
+def sigmoid_derivative(x):
     return x * (1 - x)
 
-def train_xor():
-    # Bemenetek és elvárt kimenetek
-    X = np.array([[0,0],[0,1],[1,0],[1,1]])
-    y = np.array([[0],[1],[1],[0]])
+def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
+    st.subheader("XOR predikció neurális hálóval")
+    st.markdown(f"**Jegyzet:** {note}")
+
+    # Bemeneti és kimeneti adatok az XOR problémára
+    X = np.array([[0,0], [0,1], [1,0], [1,1]])
+    y = np.array([[0], [1], [1], [0]])
+
+    input_size = 2
+    output_size = 1
 
     # Súlyok inicializálása
-    np.random.seed(1)
-    weights0 = 2 * np.random.random((2, 4)) - 1
-    weights1 = 2 * np.random.random((4, 1)) - 1
+    np.random.seed(42)
+    W1 = np.random.randn(input_size, hidden_size)
+    b1 = np.zeros((1, hidden_size))
+    W2 = np.random.randn(hidden_size, output_size)
+    b2 = np.zeros((1, output_size))
 
-    # Tanítás
-    for j in range(10000):
-        layer0 = X
-        layer1 = sigmoid(np.dot(layer0, weights0))
-        layer2 = sigmoid(np.dot(layer1, weights1))
+    losses = []
 
-        layer2_error = y - layer2
-        layer2_delta = layer2_error * sigmoid_deriv(layer2)
-        layer1_error = layer2_delta.dot(weights1.T)
-        layer1_delta = layer1_error * sigmoid_deriv(layer1)
+    for epoch in range(epochs):
+        # Előre terjesztés
+        z1 = np.dot(X, W1) + b1
+        a1 = sigmoid(z1)
+        z2 = np.dot(a1, W2) + b2
+        output = sigmoid(z2)
 
-        weights1 += layer1.T.dot(layer2_delta)
-        weights0 += layer0.T.dot(layer1_delta)
+        # Veszteség kiszámítása (MSE)
+        loss = np.mean((y - output) ** 2)
+        losses.append(loss)
 
-    return weights0, weights1
+        # Visszaterjesztés (gradient descent)
+        error = y - output
+        d_output = error * sigmoid_derivative(output)
 
-def predict(x, weights0, weights1):
-    layer1 = sigmoid(np.dot(x, weights0))
-    output = sigmoid(np.dot(layer1, weights1))
-    return output
+        error_hidden = d_output.dot(W2.T)
+        d_hidden = error_hidden * sigmoid_derivative(a1)
 
-def run():
-    st.header("🧠 XOR Tanítás egyszerű hálóval")
-    weights0, weights1 = train_xor()
+        # Súlyok frissítése
+        W2 += a1.T.dot(d_output) * learning_rate
+        b2 += np.sum(d_output, axis=0, keepdims=True) * learning_rate
+        W1 += X.T.dot(d_hidden) * learning_rate
+        b1 += np.sum(d_hidden, axis=0, keepdims=True) * learning_rate
 
-    input1 = st.selectbox("Első bemenet", [0, 1], key="xor_input1")
-    input2 = st.selectbox("Második bemenet", [0, 1], key="xor_input2")
+    st.line_chart(losses)
 
-    x = np.array([[input1, input2]])
-    output = predict(x, weights0, weights1)
-
-    st.write(f"🧩 Bemenet: ({input1}, {input2})")
-    st.write(f"📈 Kimenet (0-1): {output[0][0]:.4f}")
-    st.write(f"✅ Eredmény: {int(round(output[0][0]))}")
+    st.write("Végső kimenetek:")
+    for i, (x_i, y_i) in enumerate(zip(X, output)):
+        st.write(f"Bemenet: {x_i} → Predikció: {y_i[0]:.4f}")
