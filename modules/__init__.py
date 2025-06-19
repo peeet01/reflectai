@@ -1,14 +1,14 @@
-from .kuramoto_sim import run as run_kuramoto
-from .hebbian_learning import run as run_hebbian
-from .xor_prediction import run as run_xor
-from .kuramoto_hebbian_sim import run as run_kuramoto_hebbian
-from .topo_protect import run as run_topo_protect
-from .lorenz_sim import run as run_lorenz_sim
-from .predict_lorenz import run as run_lorenz_pred
-from .berry_curvature import run as run_berry
-from .noise_robustness import run as run_noise
-from .esn_prediction import run as run_esn
-from .plasticity_dynamics import run as run_plasticity
-from .fractal_dimension import run as run_fractal
-from .persistent_homology import run as run_homology
-from .lyapunov_spectrum import run as run_lyapunov  # ✅ új modul
+from modules.kuramoto_sim import run as run_kuramoto
+from modules.hebbian_learning import run as run_hebbian
+from modules.xor_prediction import run as run_xor
+from modules.kuramoto_hebbian_sim import run as run_kuramoto_hebbian
+from modules.topo_protect import run as run_topo_protect
+from modules.lorenz_sim import run as run_lorenz_sim
+from modules.predict_lorenz import run as run_lorenz_pred
+from modules.berry_curvature import run as run_berry
+from modules.noise_robustness import run as run_noise
+from modules.esn_prediction import run as run_esn
+from modules.plasticity_dynamics import run as run_plasticity
+from modules.fractal_dimension import run as run_fractal
+from modules.persistent_homology import run as run_homology
+from modules.lyapunov_spectrum import run as run_lyapunov  # ✅ ABSZOLÚT import!
