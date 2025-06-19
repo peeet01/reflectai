@@ -9,3 +9,4 @@ from .topo_protect import run as run_topo_protect
 from .berry_curvature import run as run_berry_curvature
 from .esn_prediction import run as run_esn
 from .noise_robustness import run as run_noise_robustness  # 🆕 zajmodul
+from .fractal_dimension import run as run_fractal_dimension
