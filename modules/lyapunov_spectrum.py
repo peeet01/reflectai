@@ -1,28 +1,58 @@
-modules/lyapunov_spectrum.py
+# modules/lyapunov_spectrum.py
 
-import streamlit as st import numpy as np import matplotlib.pyplot as plt
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
 
-def lyapunov_exponent(f, x0, d0, n, r): x, d = x0, d0 le = 0.0 for i in range(n): dx = d dfx = (f(x + dx, r) - f(x, r)) / dx le += np.log(abs(dfx)) x = f(x, r) return le / n
+def generate_lorenz_trajectory(dt=0.01, steps=10000, sigma=10, rho=28, beta=8/3):
+    def lorenz(x, y, z, sigma, rho, beta):
+        dx = sigma * (y - x)
+        dy = x * (rho - z) - y
+        dz = x * y - beta * z
+        return dx, dy, dz
 
-def logistic_map(x, r): return r * x * (1 - x)
+    xs = np.empty(steps)
+    ys = np.empty(steps)
+    zs = np.empty(steps)
+    xs[0], ys[0], zs[0] = 1.0, 1.0, 1.0
 
-def run(): st.title("Lyapunov-spektrum kalkulátor") st.markdown("Ez a modul egy logisztikus leképezés Lyapunov-exponensét számítja ki.")
+    for i in range(1, steps):
+        dx, dy, dz = lorenz(xs[i - 1], ys[i - 1], zs[i - 1], sigma, rho, beta)
+        xs[i] = xs[i - 1] + dx * dt
+        ys[i] = ys[i - 1] + dy * dt
+        zs[i] = zs[i - 1] + dz * dt
 
-r_min = st.slider("r alsó határ", 2.5, 3.5, 2.9, step=0.01)
-r_max = st.slider("r felső határ", 3.5, 4.0, 4.0, step=0.01)
-num_r = st.slider("r felbontás", 100, 1000, 500, step=100)
-n_iter = st.slider("Iterációk száma", 100, 2000, 1000, step=100)
+    return np.vstack((xs, ys, zs))
 
-r_vals = np.linspace(r_min, r_max, num_r)
-les = [lyapunov_exponent(logistic_map, 0.5, 1e-8, n_iter, r) for r in r_vals]
+def calculate_lyapunov(trajectory):
+    n = trajectory.shape[1]
+    eps = 1e-6
+    d0 = np.linalg.norm(trajectory[:, 1] - trajectory[:, 0]) + eps
+    lyapunov_sum = 0
 
-fig, ax = plt.subplots()
-ax.plot(r_vals, les, lw=1)
-ax.axhline(0, color='red', linestyle='--')
-ax.set_title("Lyapunov-exponens logisztikus leképezéshez")
-ax.set_xlabel("r paraméter")
-ax.set_ylabel("Lyapunov-exponens")
-st.pyplot(fig)
+    for i in range(1, n - 1):
+        d = np.linalg.norm(trajectory[:, i + 1] - trajectory[:, i])
+        lyapunov_sum += np.log(abs(d / d0))
 
-st.success("Lyapunov-exponens számítás sikeres.")
+    return lyapunov_sum / (n - 2)
 
+def run():
+    st.title("🌌 Lyapunov Spektrum Vizualizáció")
+    st.markdown("Ez a modul a Lorenz-rendszer pályáiból számítja a legnagyobb Lyapunov-exponenst.")
+
+    steps = st.slider("Iterációk száma", 1000, 20000, 10000, step=1000)
+    dt = st.number_input("Időlépés (dt)", 0.001, 0.1, 0.01, step=0.001)
+
+    with st.spinner("Lorenz-rendszer generálása..."):
+        traj = generate_lorenz_trajectory(dt=dt, steps=steps)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.plot(traj[0], traj[1], traj[2], lw=0.5)
+    ax.set_title("Lorenz-attractor")
+    st.pyplot(fig)
+
+    with st.spinner("Lyapunov-exponens számítása..."):
+        lyap = calculate_lyapunov(traj)
+
+    st.success(f"Legnagyobb Lyapunov-exponens: {lyap:.5f}")
