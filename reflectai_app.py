@@ -1,3 +1,11 @@
+# Copyright (c) 2025.06.19., [Kovács Péter] – ReflectAI Project
+# Minden jog fenntartva.
+#
+# Ez a szoftver és annak komponensei kutatási és oktatási célokra készültek.
+# A forráskód részben vagy egészben történő másolása, terjesztése vagy módosítása csak
+# a szerző előzetes írásos engedélyével történhet.
+#
+# Licenc: Egyedi kutatási licenc / Személyes használatra engedélyezett
 import streamlit as st
 
 # Modulok importálása
