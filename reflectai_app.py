@@ -30,7 +30,7 @@ if user_input:
     st.markdown("🧠 Nyelvi modell gondolkodik...")
 
     headers = {
-        "Authorization": "Bearer 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",
+        "Authorization": "Bearer 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",
         "Content-Type": "application/json"
     }
 
