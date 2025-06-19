@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def run(n_oscillators=10, coupling_strength=1.0, sim_time=10):
-    st.subheader("🌀 Kuramoto szinkronizáció")
+    st.subheader("🌀 Kuramoto szinkronizáció szimuláció")
 
     dt = 0.05
     t = np.arange(0, sim_time, dt)
@@ -21,13 +21,13 @@ def run(n_oscillators=10, coupling_strength=1.0, sim_time=10):
 
     fig, ax = plt.subplots(figsize=(10, 4))
     for i in range(n_oscillators):
-        ax.plot(t, theta[:, i], label=f'Oszcillátor {i+1}')
-    ax.set_title("Kuramoto szinkronizáció fázisidősora")
+        ax.plot(t, theta[:, i])
+    ax.set_title("Fázisidősor (Kuramoto oszcillátorok)")
     ax.set_xlabel("Idő (s)")
-    ax.set_ylabel("Fázis (rad)")
+    ax.set_ylabel("Fázis (radian)")
     st.pyplot(fig)
 
-    # Szinkronizációs mérték
+    # Szinkronizáció mértéke
     r_values = np.abs(np.mean(np.exp(1j * theta), axis=1))
     st.line_chart(r_values, height=200, use_container_width=True)
-    st.caption("🔁 Szinkronizáció mértéke az idő függvényében (0–1 között)")
+    st.caption("📊 Szinkronizáció mértéke az idő függvényében (0-1 között)")
