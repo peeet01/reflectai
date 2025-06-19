@@ -14,12 +14,12 @@ from modules.esn_prediction import run as run_esn
 from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
 
-# Oldal beállítása
+# Alkalmazás címe és bevezető
 st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
 st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 
-# Modulválasztó
+# Modulválasztó oldalsávban
 st.sidebar.title("📂 Modulválasztó")
 module_name = st.sidebar.radio("Kérlek válassz:", (
     "Kuramoto szinkronizáció",
@@ -37,25 +37,28 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Szinkronfraktál dimenzióanalízis"
 ))
 
-# Modul futtatás logika
+# Modulok futtatása bemenetekkel
 if module_name == "Kuramoto szinkronizáció":
-    st.subheader("🌀 Kuramoto szinkronizáció - Paraméterek")
-    num_oscillators = st.slider("Oszcillátorok száma", 2, 100, 10)
-    coupling_strength = st.slider("Kapcsolódási erősség", 0.0, 5.0, 1.0)
-    time_steps = st.number_input("Szimuláció időlépései", min_value=10, max_value=10000, value=200)
-    user_comment = st.text_input("Megjegyzés (opcionális)")
-    run_kuramoto(num_oscillators, coupling_strength, time_steps, user_comment)
+    st.subheader("🧭 Kuramoto paraméterek")
+    coupling = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
+    num_osc = st.number_input("Oszcillátorok száma", min_value=2, max_value=100, value=10)
+    run_kuramoto(coupling, num_osc)
 
 elif module_name == "Hebbian tanulás":
-    st.subheader("🧠 Hebbian tanulás - Paraméterek")
-    num_neurons = st.slider("Neuronok száma", 2, 100, 10)
+    st.subheader("🧠 Hebbian paraméterek")
     learning_rate = st.slider("Tanulási ráta", 0.001, 1.0, 0.1)
-    iterations = st.number_input("Iterációk száma", min_value=10, max_value=5000, value=100)
-    user_note = st.text_input("Megjegyzés (opcionális)")
-    run_hebbian(num_neurons, learning_rate, iterations, user_note)
+    num_neurons = st.number_input("Neuronok száma", min_value=2, max_value=100, value=10)
+    run_hebbian(learning_rate, num_neurons)
 
 elif module_name == "XOR predikció":
-    run_xor()
+    st.subheader("🧠 XOR tanítása neurális hálóval")
+
+    hidden_size = st.slider("Rejtett réteg neuronjainak száma", 1, 10, 2)
+    learning_rate = st.slider("Tanulási ráta", 0.001, 1.0, 0.1)
+    epochs = st.number_input("Epochok száma", min_value=100, max_value=10000, value=1000, step=100)
+    note = st.text_input("Megjegyzés (opcionális)")
+
+    run_xor(hidden_size, learning_rate, epochs, note)
 
 elif module_name == "Kuramoto–Hebbian háló":
     run_kuramoto_hebbian()
