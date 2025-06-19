@@ -1,4 +1,5 @@
 import streamlit as st
+import requests
 
 # Modulok importálása
 from modules.kuramoto_sim import run as run_kuramoto
@@ -13,15 +14,40 @@ from modules.noise_robustness import run as run_noise
 from modules.esn_prediction import run as run_esn
 from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
-from modules.insight_learning import run as run_insight_learning  # ÚJ modul importálása
+from modules.insight_learning import run as run_insight_learning
 
 # Alkalmazás címe és bevezető
 st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
 st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 
-# 🗨️ Szövegdoboz nyelvi modulhoz
+# 🗨️ Kérdés szövegdoboz nyelvi modellhez
 user_input = st.text_input("💬 Írd be kérdésed vagy megfigyelésed (nyelvi modulhoz):")
+
+# 🌐 Nyelvi modell válasz (OpenRouter API)
+if user_input:
+    st.markdown("🧠 Nyelvi modell gondolkodik...")
+
+    headers = {
+        "Authorization": "Bearer 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"  # <--- API KULCS IDE
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "model": "mistral-7b-instruct",
+        "messages": [
+            {"role": "user", "content": user_input}
+        ]
+    }
+
+    try:
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+        result = response.json()
+        reply = result["choices"][0]["message"]["content"]
+        st.success("💬 Válasz a nyelvi modelltől:")
+        st.markdown(reply)
+    except Exception as e:
+        st.error(f"Hiba történt: {e}")
 
 # Modulválasztó oldalsávban
 st.sidebar.title("📂 Modulválasztó")
