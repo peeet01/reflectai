@@ -1,5 +1,6 @@
 import streamlit as st
 
+# Modulok importálása
 from modules.kuramoto_sim import run as run_kuramoto
 from modules.hebbian_learning import run as run_hebbian
 from modules.xor_prediction import run as run_xor
@@ -13,26 +14,14 @@ from modules.esn_prediction import run as run_esn
 from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
 
-# --- App config & fejléc ---
-st.set_page_config(page_title="ReflectAI – Kvázitudati MI", layout="centered")
+# Alkalmazás címe és bevezető
+st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
+st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
+st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 
-st.title("🧠 ReflectAI – Kvázitudati MI alkalmazás")
-st.markdown("""
-Ez az alkalmazás különböző kvázitudati mechanizmusokat modellez moduláris formában:  
-**szinkronizáció, tanulás, predikció, topológia és robusztusság**.
-
-🔽 Válassz egy modult a bal oldali sávból, és futtasd a szimulációt!
-""")
-
-# --- Szöveges bemenet ---
-user_input = st.text_input("✏️ Adj meg egy megjegyzést vagy parancsot:")
-if user_input:
-    st.info(f"A megadott bemenet: `{user_input}`")
-
-# --- Modulválasztó ---
+# Modulválasztás oldalsávban
 st.sidebar.title("📂 Modulválasztó")
-
-module_name = st.sidebar.radio("Válassz modult:", (
+module_name = st.sidebar.radio("Kérlek válassz:", (
     "Kuramoto szinkronizáció",
     "Hebbian tanulás",
     "XOR predikció",
@@ -48,30 +37,42 @@ module_name = st.sidebar.radio("Válassz modult:", (
     "Szinkronfraktál dimenzióanalízis"
 ))
 
-# --- Modulok futtatása ---
+# Modulok futtatása a választás alapján
 if module_name == "Kuramoto szinkronizáció":
     run_kuramoto()
+
 elif module_name == "Hebbian tanulás":
     run_hebbian()
+
 elif module_name == "XOR predikció":
     run_xor()
+
 elif module_name == "Kuramoto–Hebbian háló":
     run_kuramoto_hebbian()
+
 elif module_name == "Topológiai szinkronizáció":
     run_topo_protect()
+
 elif module_name == "Lorenz szimuláció":
     run_lorenz_sim()
+
 elif module_name == "Lorenz predikció":
     run_lorenz_pred()
+
 elif module_name == "Topológiai védettség (Chern-szám)":
     run_berry()
+
 elif module_name == "Topológiai Chern–szám analízis":
     run_berry()
+
 elif module_name == "Zajtűrés és szinkronizációs robusztusság":
     run_noise()
+
 elif module_name == "Echo State Network (ESN) predikció":
     run_esn()
+
 elif module_name == "Hebbian plaszticitás dinamikája":
     run_plasticity()
+
 elif module_name == "Szinkronfraktál dimenzióanalízis":
     run_fractal()
