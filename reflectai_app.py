@@ -1,14 +1,5 @@
-# Copyright (c) 2025.06.19., [Kovács Péter] – ReflectAI Project
-# Minden jog fenntartva.
-#
-# Ez a szoftver és annak komponensei kutatási és oktatási célokra készültek.
-# A forráskód részben vagy egészben történő másolása, terjesztése vagy módosítása csak
-# a szerző előzetes írásos engedélyével történhet.
-#
-# Licenc: Egyedi kutatási licenc / Személyes használatra engedélyezett
 import streamlit as st
 
-# Modulok importálása
 from modules.kuramoto_sim import run as run_kuramoto
 from modules.hebbian_learning import run as run_hebbian
 from modules.xor_prediction import run as run_xor
@@ -21,16 +12,11 @@ from modules.noise_robustness import run as run_noise
 from modules.esn_prediction import run as run_esn
 from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
-from modules.persistent_homology import run as run_homology
-from modules.lyapunov_spectrum import run as run_lyapunov
-from modules.memory_landscape import run as run_memory  # ✅ ÚJ MODUL
 
-# App beállítás
-st.set_page_config(page_title="ReflecAI – Szinkronizáció és MI", layout="wide")
-st.title("🌐 ReflecAI – Szinkronizáció és Mesterséges Intelligencia")
-st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció elindításához.")
+st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
+st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
+st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 
-# Oldalsáv – modulválasztó
 st.sidebar.title("📂 Modulválasztó")
 module_name = st.sidebar.radio("Kérlek válassz:", (
     "Kuramoto szinkronizáció",
@@ -45,57 +31,38 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Zajtűrés és szinkronizációs robusztusság",
     "Echo State Network (ESN) predikció",
     "Hebbian plaszticitás dinamikája",
-    "Szinkronfraktál dimenzióanalízis",
-    "Perzisztens homológia",
-    "Lyapunov-spektrum vizsgálat",
-    "Memória tájkép vizualizáció"  # ✅ ÚJ MENÜPONT
+    "Szinkronfraktál dimenzióanalízis"
 ))
 
-# Modulok futtatása
+# ✅ MÓDOSÍTOTT Kuramoto blokk bemeneti vezérléssel
 if module_name == "Kuramoto szinkronizáció":
-    run_kuramoto()
+    n = st.sidebar.slider("🧠 Oszcillátorok száma", min_value=2, max_value=100, value=10)
+    coupling = st.sidebar.slider("🔗 Kapcsolási erősség", min_value=0.0, max_value=5.0, value=1.0, step=0.1)
+    duration = st.sidebar.slider("⏱️ Szimuláció hossza (s)", min_value=1, max_value=60, value=10)
+
+    run_kuramoto(n_oscillators=n, coupling_strength=coupling, sim_time=duration)
 
 elif module_name == "Hebbian tanulás":
     run_hebbian()
-
 elif module_name == "XOR predikció":
     run_xor()
-
 elif module_name == "Kuramoto–Hebbian háló":
     run_kuramoto_hebbian()
-
 elif module_name == "Topológiai szinkronizáció":
     run_topo_protect()
-
 elif module_name == "Lorenz szimuláció":
     run_lorenz_sim()
-
 elif module_name == "Lorenz predikció":
     run_lorenz_pred()
-
 elif module_name == "Topológiai védettség (Chern-szám)":
     run_berry()
-
 elif module_name == "Topológiai Chern–szám analízis":
     run_berry()
-
 elif module_name == "Zajtűrés és szinkronizációs robusztusság":
     run_noise()
-
 elif module_name == "Echo State Network (ESN) predikció":
     run_esn()
-
 elif module_name == "Hebbian plaszticitás dinamikája":
     run_plasticity()
-
 elif module_name == "Szinkronfraktál dimenzióanalízis":
     run_fractal()
-
-elif module_name == "Perzisztens homológia":
-    run_homology()
-
-elif module_name == "Lyapunov-spektrum vizsgálat":
-    run_lyapunov()
-
-elif module_name == "Memória tájkép vizualizáció":
-    run_memory()
