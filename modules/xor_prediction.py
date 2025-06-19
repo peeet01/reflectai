@@ -1,68 +1,56 @@
 import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt
+import torch
+import torch.nn as nn
+import torch.optim as optim
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
+# Egyszerű XOR háló modell
+class XORNet(nn.Module):
+    def __init__(self, hidden_size):
+        super(XORNet, self).__init__()
+        self.net = nn.Sequential(
+            nn.Linear(2, hidden_size),
+            nn.Sigmoid(),
+            nn.Linear(hidden_size, 1),
+            nn.Sigmoid()
+        )
 
-def sigmoid_deriv(x):
-    return sigmoid(x) * (1 - sigmoid(x))
+    def forward(self, x):
+        return self.net(x)
 
-def run():
-    st.subheader("🧠 XOR predikció – vizuális MLP tanulás")
-    st.write("Egyszerű 2-3-1 MLP modell vizuális visszacsatolással az XOR logikai kapura.")
+def run(hidden_size, learning_rate, epochs, note=""):
+    st.write(f"🔧 Háló tanítása: hidden_size={hidden_size}, lr={learning_rate}, epochs={epochs}")
+    if note:
+        st.info(f"📝 Megjegyzés: {note}")
 
-    # Tanító adatok
-    X = np.array([[0,0],[0,1],[1,0],[1,1]])
-    Y = np.array([[0],[1],[1],[0]])
+    # XOR adat
+    X = torch.tensor([[0, 0], [0, 1], [1, 0], [1, 1]], dtype=torch.float32)
+    Y = torch.tensor([[0], [1], [1], [0]], dtype=torch.float32)
 
-    np.random.seed(42)
-    hidden_weights = np.random.randn(2, 3)
-    output_weights = np.random.randn(3, 1)
+    model = XORNet(hidden_size)
+    loss_fn = nn.MSELoss()
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
-    learning_rate = 0.1
-    epochs = 5000
-    errors = []
-    hidden_acts = []
+    losses = []
+    for epoch in range(epochs):
+        output = model(X)
+        loss = loss_fn(output, Y)
+        losses.append(loss.item())
 
-    for _ in range(epochs):
-        hidden_input = np.dot(X, hidden_weights)
-        hidden_output = sigmoid(hidden_input)
-        final_input = np.dot(hidden_output, output_weights)
-        final_output = sigmoid(final_input)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-        error = Y - final_output
-        errors.append(np.mean(np.abs(error)))
-        hidden_acts.append(hidden_output)
+        if epoch % (epochs // 5) == 0:
+            st.write(f"Epoch {epoch}: Loss = {loss.item():.4f}")
 
-        d_output = error * sigmoid_deriv(final_input)
-        d_hidden = np.dot(d_output, output_weights.T) * sigmoid_deriv(hidden_input)
+    # Eredmény kiírás
+    st.subheader("📊 Tanulás befejezve. Eredmények:")
+    with torch.no_grad():
+        preds = model(X)
+        for i in range(4):
+            a, b = X[i].tolist()
+            pred = preds[i].item()
+            st.write(f"{int(a)} XOR {int(b)} ≈ {pred:.2f}")
 
-        output_weights += learning_rate * np.dot(hidden_output.T, d_output)
-        hidden_weights += learning_rate * np.dot(X.T, d_hidden)
-
-    # ⬛ 1. Hibatörténet
-    fig1, ax1 = plt.subplots()
-    ax1.plot(errors)
-    ax1.set_title("Tanulási hiba – XOR MLP")
-    ax1.set_xlabel("Epoch")
-    ax1.set_ylabel("Átlagos absz. hiba")
-    st.pyplot(fig1)
-
-    # ⬛ 2. Rejtett réteg vizualizáció (utolsó epoch)
-    hidden_output = sigmoid(np.dot(X, hidden_weights))
-    fig2, ax2 = plt.subplots()
-    for i, label in enumerate(Y.flatten()):
-        ax2.scatter(hidden_output[i, 0], hidden_output[i, 1], c='r' if label == 1 else 'b', label=f"Bemenet: {X[i]}")
-    ax2.set_title("Rejtett réteg 2D aktivációi")
-    ax2.set_xlabel("Neuron 1")
-    ax2.set_ylabel("Neuron 2")
-    st.pyplot(fig2)
-
-    # ⬛ 3. Végső kimenet kiírás
-    final_output = sigmoid(np.dot(hidden_output, output_weights))
-    st.write("### Predikciók a bemenetekre:")
-    for x, pred in zip(X, final_output):
-        st.write(f"`{x}` → **{pred[0]:.4f}**")
-
-    st.success(f"Végső átlagos hiba: {errors[-1]:.4f}")
+    # Loss görbe (opcionálisan matplotlibtel is mehetne)
+    st.line_chart(losses)
