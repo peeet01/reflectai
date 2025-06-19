@@ -4,7 +4,7 @@ import streamlit as st
 from modules.kuramoto_sim import run as run_kuramoto
 from modules.hebbian_learning import run as run_hebbian
 from modules.xor_prediction import run as run_xor
-from modules.kuramoto_hebbian import run as run_kuramoto_hebbian  # ✅ FIX
+from modules.kuramoto_hebbian import run as run_kuramoto_hebbian
 from modules.topo_protect import run as run_topo_protect
 from modules.lorenz_sim import run as run_lorenz_sim
 from modules.predict_lorenz import run as run_lorenz_pred
@@ -14,12 +14,11 @@ from modules.esn_prediction import run as run_esn
 from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal_dimension
 
-# Streamlit oldalbeállítás
+# Streamlit oldal beállítás
 st.set_page_config(page_title="ReflectAI", layout="wide")
-
 st.title("🧠 ReflectAI – Kvázi-tudati MI szimulációk")
 
-# Oldalsáv
+# Oldalsáv – modulválasztó
 st.sidebar.title("📁 Modulválasztó")
 module_name = st.sidebar.radio("Válassz modult:", (
     "Kuramoto szinkronizáció",
@@ -37,7 +36,7 @@ module_name = st.sidebar.radio("Válassz modult:", (
     "Fraktáldimenzió analízis"
 ))
 
-# Modul futtatása
+# Feltételes modulfuttatás
 if module_name == "Kuramoto szinkronizáció":
     run_kuramoto()
 
@@ -68,7 +67,4 @@ elif module_name == "Topológiai Chern–szám analízis":
 elif module_name == "Zajtűrés és szinkronizációs robusztusság":
     run_noise_robust()
 
-elif module_name == "Echo State Network (ESN) predikció":
-    run_esn()
-
-elif module_name ==
+elif module_name == "Echo State Network
