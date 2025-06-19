@@ -1,7 +1,7 @@
-
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 
 def simulate_environment(step, insight_step):
@@ -11,7 +11,7 @@ def simulate_environment(step, insight_step):
         return 1
 
 
-def run(hidden_size=5, learning_rate=0.1, epochs=100, note=""):
+def run(trials=5, pause_time=1.0, complexity="közepes"):
     st.header("🧠 Belátás-alapú tanulás szimuláció")
 
     total_steps = 100
@@ -21,26 +21,29 @@ def run(hidden_size=5, learning_rate=0.1, epochs=100, note=""):
     memory_strength = 0.0
 
     st.markdown(f"🔍 **Belátás pillanata várhatóan a(z) {insight_step}. lépés körül.**")
+    st.markdown(f"🧪 **Próbálkozások száma:** {trials}")
+    st.markdown(f"⚙️ **Komplexitás:** {complexity}")
+    st.markdown(f"⏱️ **Pihenőidő próbálkozások között:** {pause_time} másodperc")
 
-    for t in range(total_steps):
-        outcome = simulate_environment(t, insight_step)
+    for trial in range(trials):
+        performance = []
+        memory_strength = 0.0
+        for t in range(total_steps):
+            outcome = simulate_environment(t, insight_step)
+            if outcome == 1:
+                memory_strength += 0.1 * (1 - memory_strength)
+            else:
+                memory_strength -= 0.1 * memory_strength * 0.3
+            performance.append(memory_strength)
 
-        if outcome == 1:
-            memory_strength += learning_rate * (1 - memory_strength)
-        else:
-            memory_strength -= learning_rate * memory_strength * 0.3
+        st.markdown(f"### 🔁 Próbálkozás {trial + 1}")
+        fig, ax = plt.subplots()
+        ax.plot(performance, label="Megoldás sikeressége", color="purple")
+        ax.axvline(insight_step, color="red", linestyle="--", label="Belátás pontja")
+        ax.set_xlabel("Idő (lépések)")
+        ax.set_ylabel("Megtanult sikeresség")
+        ax.set_title(f"🧠 Insight Learning szimuláció – {trial + 1}. kör")
+        ax.legend()
+        st.pyplot(fig)
 
-        performance.append(memory_strength)
-
-    fig, ax = plt.subplots()
-    ax.plot(performance, label="Megoldás sikeressége", color="purple")
-    ax.axvline(insight_step, color="red", linestyle="--", label="Belátás pontja")
-    ax.set_xlabel("Idő (lépések)")
-    ax.set_ylabel("Megtanult sikeresség")
-    ax.set_title("🧠 Insight Learning szimuláció")
-    ax.legend()
-    st.pyplot(fig)
-
-    if note:
-        st.subheader("🗒️ Megjegyzés:")
-        st.info(note)
+        time.sleep(pause_time)
