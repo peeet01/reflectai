@@ -34,11 +34,19 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Szinkronfraktál dimenzióanalízis"
 ))
 
-# ✅ MÓDOSÍTOTT Kuramoto blokk bemeneti vezérléssel
+# ✅ Kuramoto blokk bemeneti értékekkel és szövegdobozzal
 if module_name == "Kuramoto szinkronizáció":
+    st.sidebar.markdown("### Paraméterek")
+
     n = st.sidebar.slider("🧠 Oszcillátorok száma", min_value=2, max_value=100, value=10)
     coupling = st.sidebar.slider("🔗 Kapcsolási erősség", min_value=0.0, max_value=5.0, value=1.0, step=0.1)
-    duration = st.sidebar.slider("⏱️ Szimuláció hossza (s)", min_value=1, max_value=60, value=10)
+    duration = st.sidebar.slider("⏱️ Szimuláció hossza (másodperc)", min_value=1, max_value=60, value=10)
+
+    # Szövegdoboz a felhasználónak
+    user_note = st.text_input("💬 Írj megjegyzést vagy kérdést a szimulációhoz:", "")
+
+    if user_note:
+        st.info(f"📩 Beírt megjegyzésed: _{user_note}_")
 
     run_kuramoto(n_oscillators=n, coupling_strength=coupling, sim_time=duration)
 
