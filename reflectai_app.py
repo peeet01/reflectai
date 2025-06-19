@@ -20,6 +20,9 @@ st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide
 st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 
+# 🗨️ Szövegdoboz nyelvi modulhoz
+user_input = st.text_input("💬 Írd be kérdésed vagy megfigyelésed (nyelvi modulhoz):")
+
 # Modulválasztó oldalsávban
 st.sidebar.title("📂 Modulválasztó")
 module_name = st.sidebar.radio("Kérlek válassz:", (
@@ -36,7 +39,7 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Echo State Network (ESN) predikció",
     "Hebbian plaszticitás dinamikája",
     "Szinkronfraktál dimenzióanalízis",
-    "Belátás alapú tanulás (Insight Learning)"  # ÚJ modul választható listában
+    "Belátás alapú tanulás (Insight Learning)"
 ))
 
 # Modulok futtatása bemenetekkel
