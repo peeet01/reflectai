@@ -15,18 +15,14 @@ from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
 from modules.persistent_homology import run as run_homology
 from modules.lyapunov_spectrum import run as run_lyapunov
+from modules.memory_landscape import run as run_memory  # ✅ ÚJ MODUL
 
-# Alkalmazás címe és bevezető
-st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
-st.title("🌐 ReflectAI - Szinkronizáció és Mesterséges Intelligencia")
-st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
+# App beállítás
+st.set_page_config(page_title="ReflecAI – Szinkronizáció és MI", layout="wide")
+st.title("🌐 ReflecAI – Szinkronizáció és Mesterséges Intelligencia")
+st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció elindításához.")
 
-# 💬 Szövegdoboz visszahelyezve
-user_input = st.text_input("💬 Kérdésed, megjegyzésed vagy javaslatod:")
-if user_input:
-    st.info(f"📌 Beérkezett üzenet: *{user_input}*")
-
-# Modulválasztás oldalsávban
+# Oldalsáv – modulválasztó
 st.sidebar.title("📂 Modulválasztó")
 module_name = st.sidebar.radio("Kérlek válassz:", (
     "Kuramoto szinkronizáció",
@@ -42,11 +38,12 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Echo State Network (ESN) predikció",
     "Hebbian plaszticitás dinamikája",
     "Szinkronfraktál dimenzióanalízis",
-    "Perzisztens homológia analízis",
-    "Lyapunov-spektrum vizualizáció"
+    "Perzisztens homológia",
+    "Lyapunov-spektrum vizsgálat",
+    "Memória tájkép vizualizáció"  # ✅ ÚJ MENÜPONT
 ))
 
-# Modulok meghívása
+# Modulok futtatása
 if module_name == "Kuramoto szinkronizáció":
     run_kuramoto()
 
@@ -86,8 +83,11 @@ elif module_name == "Hebbian plaszticitás dinamikája":
 elif module_name == "Szinkronfraktál dimenzióanalízis":
     run_fractal()
 
-elif module_name == "Perzisztens homológia analízis":
+elif module_name == "Perzisztens homológia":
     run_homology()
 
-elif module_name == "Lyapunov-spektrum vizualizáció":
+elif module_name == "Lyapunov-spektrum vizsgálat":
     run_lyapunov()
+
+elif module_name == "Memória tájkép vizualizáció":
+    run_memory()
