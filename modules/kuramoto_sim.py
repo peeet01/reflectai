@@ -2,30 +2,32 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
-def run():
-    st.subheader("🌐 Kuramoto szinkronizáció")
-    st.write("Egyszerű Kuramoto-háló fázisszinkronizációs vizsgálata.")
+def run(n_oscillators=10, coupling_strength=1.0, sim_time=10):
+    st.subheader("🌀 Kuramoto szinkronizáció")
 
-    N = 10
-    T = 200
     dt = 0.05
-    K = 1.0
+    t = np.arange(0, sim_time, dt)
 
-    theta = np.random.rand(N) * 2 * np.pi
-    omega = np.random.normal(1.0, 0.1, N)
-    history = [theta.copy()]
+    theta = np.zeros((len(t), n_oscillators))
+    theta[0] = np.random.uniform(0, 2 * np.pi, n_oscillators)
+    omega = np.random.normal(0.0, 1.0, n_oscillators)
 
-    for _ in range(T):
-        dtheta = omega + (K / N) * np.sum(np.sin(theta[:, None] - theta), axis=1)
-        theta += dt * dtheta
-        history.append(theta.copy())
+    for i in range(1, len(t)):
+        for j in range(n_oscillators):
+            interaction = np.sum(np.sin(theta[i - 1] - theta[i - 1, j]))
+            theta[i, j] = theta[i - 1, j] + dt * (
+                omega[j] + (coupling_strength / n_oscillators) * interaction
+            )
 
-    history = np.array(history)
-
-    fig, ax = plt.subplots()
-    for i in range(N):
-        ax.plot(history[:, i], label=f'Oszc. {i}')
-    ax.set_title("Fázisok időbeli alakulása")
-    ax.set_xlabel("Időlépés")
-    ax.set_ylabel("Fázis")
+    fig, ax = plt.subplots(figsize=(10, 4))
+    for i in range(n_oscillators):
+        ax.plot(t, theta[:, i], label=f'Oszcillátor {i+1}')
+    ax.set_title("Kuramoto szinkronizáció fázisidősora")
+    ax.set_xlabel("Idő (s)")
+    ax.set_ylabel("Fázis (rad)")
     st.pyplot(fig)
+
+    # Szinkronizációs mérték
+    r_values = np.abs(np.mean(np.exp(1j * theta), axis=1))
+    st.line_chart(r_values, height=200, use_container_width=True)
+    st.caption("🔁 Szinkronizáció mértéke az idő függvényében (0–1 között)")
