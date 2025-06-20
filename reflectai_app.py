@@ -17,19 +17,17 @@ from modules.insight_learning import run as run_insight_learning
 from modules.generative_kuramoto import run as run_generative_kuramoto
 from modules.generative_x import run as run_generative_x
 
-# Oldal beállítása
+# Alkalmazás címe és bevezető
 st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
 st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 
-# 💬 Szövegdoboz megfigyelésekhez (opcionális)
-user_input = st.text_input("💬 Megjegyzés vagy kérdés (nem nyelvi feldolgozás):")
-if user_input:
-    st.info(f"📌 Megjegyzés rögzítve: {user_input}")
+# Megfigyelés/kérdés szövegdoboz (jövőbeli funkciókhoz)
+st.text_input("📝 Írd be megfigyelésed vagy kérdésed (opcionális, nem kerül feldolgozásra jelenleg):", key="observation_input")
 
-# Modulválasztó menü
+# Modulválasztó
 st.sidebar.title("📂 Modulválasztó")
-module_name = st.sidebar.radio("Válassz egy modult:", (
+module_name = st.sidebar.radio("Kérlek válassz:", (
     "Kuramoto szinkronizáció",
     "Hebbian tanulás",
     "XOR predikció",
@@ -45,7 +43,7 @@ module_name = st.sidebar.radio("Válassz egy modult:", (
     "Szinkronfraktál dimenzióanalízis",
     "Belátás alapú tanulás (Insight Learning)",
     "Generatív Kuramoto",
-    "Generatív X-szimuláció"
+    "Generatív X"
 ))
 
 # Modulok futtatása
@@ -107,9 +105,13 @@ elif module_name == "Belátás alapú tanulás (Insight Learning)":
     run_insight_learning(trials, pause_time, complexity)
 
 elif module_name == "Generatív Kuramoto":
-    st.subheader("🌱 Generatív Kuramoto szimuláció")
-    run_generative_kuramoto()
+    st.subheader("🎨 Generatív Kuramoto szimuláció")
+    diversity = st.slider("Diverzitás mértéke", 0.1, 3.0, 1.0)
+    duration = st.slider("Időtartam", 50, 500, 200)
+    run_generative_kuramoto(diversity, duration)
 
-elif module_name == "Generatív X-szimuláció":
-    st.subheader("🔄 Generatív X típusú dinamika")
-    run_generative_x()
+elif module_name == "Generatív X":
+    st.subheader("🌀 Generatív X modell")
+    iterations = st.slider("Iterációk száma", 10, 500, 100)
+    temperature = st.slider("Hőmérséklet (véletlenszerűség)", 0.1, 2.0, 1.0)
+    run_generative_x(iterations, temperature)
