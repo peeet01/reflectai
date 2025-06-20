@@ -13,11 +13,10 @@ def generate_problem(complexity):
 
 
 def simulate_trial(num_elements, insight_step, t):
-    # Ha még nincs belátás
     if t < insight_step:
-        return np.random.rand() < 0.1  # 10% esély
+        return np.random.rand() < 0.1
     else:
-        return np.random.rand() < (0.5 + 0.1 * num_elements)  # nagyobb esély a sikerre
+        return np.random.rand() < (0.5 + 0.1 * num_elements)
 
 
 def run(trials=5, pause_time=1.0, complexity="közepes"):
@@ -28,6 +27,18 @@ def run(trials=5, pause_time=1.0, complexity="közepes"):
     st.markdown(f"🔍 **A belátás várhatóan a(z) {insight_step}. próbálkozás körül történik.**")
 
     success_history = []
-    log_messages = []
 
-    for t in range(1
+    for t in range(1, trials + 1):
+        success = simulate_trial(num_elements, insight_step, t)
+        success_history.append(success)
+        st.write(f"🧪 Próbálkozás {t}: {'✅ Sikeres' if success else '❌ Sikertelen'}")
+
+    success_rate = np.mean(success_history)
+    st.markdown(f"📈 **Sikerességi arány:** {success_rate:.2f}")
+
+    fig, ax = plt.subplots()
+    ax.plot(range(1, trials + 1), success_history, marker="o")
+    ax.set_xlabel("Próbálkozás")
+    ax.set_ylabel("Siker (1) / Sikertelenség (0)")
+    ax.set_title("Belátás-alapú tanulás szimuláció")
+    st.pyplot(fig)
