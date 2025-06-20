@@ -55,8 +55,10 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
     y = np.array([[0],[1],[1],[0]], dtype=np.float32)
 
     X_noisy = add_noise(X, noise_level)
-    X_tensor = torch.tensor(X_noisy).to(device)
-    y_tensor = torch.tensor(y).to(device)
+
+    # ✅ KÖTELEZŐ: float32 típus a tensorhoz
+    X_tensor = torch.tensor(X_noisy, dtype=torch.float32).to(device)
+    y_tensor = torch.tensor(y, dtype=torch.float32).to(device)
 
     # 📐 Modell, veszteség, optimalizáló
     model = XORNet(hidden_size=hidden_size).to(device)
@@ -105,7 +107,7 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
         csv_path = "xor_results.csv"
         results_df.to_csv(csv_path, index=False)
 
-        # ✅ Helyes letöltési mód (bytes formátumban)
+        # ✅ Letöltés bytes formátumban
         with open(csv_path, "rb") as f:
             csv_bytes = f.read()
             st.download_button("📁 CSV letöltése", data=csv_bytes, file_name="xor_results.csv", mime="text/csv")
