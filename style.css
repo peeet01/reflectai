@@ -1,1 +1,29 @@
+/* style.css */
+h1, h2, h3 {
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 700;
+    color: #111;
+}
 
+.sidebar .sidebar-content {
+    background-color: #f7f7f7;
+    padding: 1rem;
+}
+
+.block-container {
+    padding-top: 2rem;
+}
+
+.stPlotlyChart {
+    margin-top: 2rem !important;
+    margin-bottom: 2rem !important;
+}
+
+div[data-testid="stHeader"] {
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+}
+
+.css-1kyxreq, .css-1v3fvcr {
+    margin-bottom: 30px;
+}
