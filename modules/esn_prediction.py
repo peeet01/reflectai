@@ -6,12 +6,10 @@ import plotly.graph_objects as go
 def run():
     st.subheader("🧠 ESN Predikció")
 
-    # Paraméterek
     delay = st.slider("Késleltetés (delay)", 2, 10, 5)
     dim = st.slider("Beágyazási dimenzió", 3, 10, 5)
     pred_steps = st.slider("Előrejelzendő lépések száma", 1, 50, 20)
 
-    # Lorenz attractor szimuláció
     def lorenz(x, y, z, s=10, r=28, b=2.667):
         dx = s * (y - x)
         dy = r * x - y - x * z
@@ -27,11 +25,9 @@ def run():
         dx, dy, dz = lorenz(*xyz[i - 1])
         xyz[i] = xyz[i - 1] + dt * np.array([dx, dy, dz])
 
-    # Normalizálás
     xyz -= xyz.mean(axis=0)
     xyz /= xyz.std(axis=0)
 
-    # Beágyazás
     def time_delay_embed(data, delay, dim):
         N = len(data)
         M = N - (dim - 1) * delay
@@ -47,24 +43,20 @@ def run():
     X_data = X_embed[:min_len]
     y_data = y_target[:min_len]
 
-    # Szűrés NaN ellen
     valid_mask = np.all(np.isfinite(X_data), axis=1) & np.isfinite(y_data)
     X_data = X_data[valid_mask]
     y_data = y_data[valid_mask]
 
     if len(X_data) < 10:
-        st.warning("⚠️ Az érvényes adatok száma túl kevés. Próbálj kisebb késleltetést vagy dimenziót.")
+        st.warning("⚠️ Túl kevés érvényes adat. Próbálj más beállítást.")
         return
 
-    # Ridge modell tanítás
     model = Ridge(alpha=1.0)
     model.fit(X_data, y_data)
     y_pred = model.predict(X_data)
 
-    # Hibaszámítás
     rmse = np.sqrt(np.mean((y_pred - y_data) ** 2))
 
-    # 3D ábra (valódi és predikció)
     fig = go.Figure()
     fig.add_trace(go.Scatter3d(
         x=xyz[:len(y_pred), 0],
@@ -84,16 +76,21 @@ def run():
     ))
 
     fig.update_layout(
-        title=None,
         margin=dict(l=0, r=0, t=0, b=0),
         scene=dict(
             xaxis_title='x',
             yaxis_title='y',
-            zaxis_title='z (valós / pred)'
+            zaxis_title='z / pred'
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.15,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=12)
         )
     )
 
-    # Megjelenítés külön blokkban, elválasztva
-    st.markdown("---")
-    st.markdown(f"### 🎯 RMSE: `{rmse:.4f}`", unsafe_allow_html=True)
+    st.markdown("### 🎯 RMSE: `{:.4f}`".format(rmse))
     st.plotly_chart(fig, use_container_width=True)
