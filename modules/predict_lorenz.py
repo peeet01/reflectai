@@ -1,37 +1,63 @@
-import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.neural_network import MLPRegressor
+import streamlit as st
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.linear_model import Ridge
+
+def generate_lorenz(T=10000, dt=0.01, sigma=10, rho=28, beta=8/3):
+    xs, ys, zs = [1.], [1.], [1.]
+    for _ in range(T-1):
+        x_dot = sigma * (ys[-1] - xs[-1])
+        y_dot = xs[-1] * (rho - zs[-1]) - ys[-1]
+        z_dot = xs[-1] * ys[-1] - beta * zs[-1]
+        xs.append(xs[-1] + x_dot * dt)
+        ys.append(ys[-1] + y_dot * dt)
+        zs.append(zs[-1] + z_dot * dt)
+    return np.array([xs, ys, zs]).T
+
+def prepare_data(data, lag=10):
+    X, y = [], []
+    for i in range(len(data) - lag):
+        X.append(data[i:i+lag])
+        y.append(data[i+lag])
+    return np.array(X), np.array(y)
 
 def run():
-    st.write("Lorenz predikció modul fut.")
+    st.subheader("📈 Lorenz rendszer predikció – gépi tanulással")
 
-    sigma, rho, beta = 10, 28, 8/3
-    dt = 0.01
-    steps = 1000
+    T = st.slider("Időlépések száma", 1000, 10000, 3000, step=500)
+    lag = st.slider("Késleltetés (lag)", 5, 50, 10)
+    alpha = st.slider("Ridge regresszió α", 0.001, 10.0, 1.0)
+    note = st.text_input("📝 Megjegyzés (opcionális):")
 
-    x = np.empty(steps)
-    y = np.empty(steps)
-    z = np.empty(steps)
+    data = generate_lorenz(T)
+    scaler = MinMaxScaler()
+    scaled_data = scaler.fit_transform(data)
 
-    x[0], y[0], z[0] = 0., 1., 1.05
+    X, y = prepare_data(scaled_data, lag)
+    split = int(0.8 * len(X))
+    X_train, X_test = X[:split], X[split:]
+    y_train, y_test = y[:split], y[split:]
 
-    for i in range(1, steps):
-        x[i] = x[i-1] + dt * sigma * (y[i-1] - x[i-1])
-        y[i] = y[i-1] + dt * (x[i-1] * (rho - z[i-1]) - y[i-1])
-        z[i] = z[i-1] + dt * (x[i-1] * y[i-1] - beta * z[i-1])
+    model = Ridge(alpha=alpha)
+    model.fit(X_train.reshape(X_train.shape[0], -1), y_train)
+    y_pred = model.predict(X_test.reshape(X_test.shape[0], -1))
 
-    # Gépi tanulás predikció
-    window = 5
-    X, y_pred = [], []
-    for i in range(len(x) - window):
-        X.append(x[i:i+window])
-        y_pred.append(x[i+window])
-    X = np.array(X)
-    y_pred = np.array(y_pred)
+    # Hibagörbe
+    error = np.mean((y_pred - y_test)**2, axis=1)
 
-    model = MLPRegressor(hidden_layer_sizes=(10,), max_iter=1000)
-    model.fit(X, y_pred)
-    pred = model.predict(X)
+    fig, axs = plt.subplots(2, 1, figsize=(10, 6))
+    axs[0].plot(y_test[:, 0], label="Valós X")
+    axs[0].plot(y_pred[:, 0], label="Predikált X", linestyle='dashed')
+    axs[0].set_title("📊 Lorenz predikció összehasonlítása")
+    axs[0].legend()
 
-    st.line_chart(pred)
+    axs[1].plot(error, color="red")
+    axs[1].set_title("⚠️ Átlagos négyzetes hiba")
+    axs[1].set_xlabel("Idő")
+    axs[1].set_ylabel("MSE")
+
+    st.pyplot(fig)
+
+    if note:
+        st.markdown(f"📌 Megjegyzés: {note}")
