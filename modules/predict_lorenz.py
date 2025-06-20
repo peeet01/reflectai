@@ -29,40 +29,49 @@ def run():
 
     max_index = len(data) - delay * (dimension - 1) - predict_ahead
     if max_index <= 10:
-        st.warning("⚠️ Túl kevés adat keletkezett ehhez a beállításhoz. Növeld az időlépések számát vagy csökkentsd a dimenziót.")
+        st.warning("⚠️ Túl kevés adat keletkezett ehhez a beállításhoz.")
         return
 
-    # Késleltetett vektorok
-    embedded = np.array([
-        np.hstack([data[i + j * delay] for j in range(dimension)])
-        for i in range(max_index)
-    ])
-    targets = data[delay * (dimension - 1) + predict_ahead : delay * (dimension - 1) + predict_ahead + max_index]
+    # Késleltetett embedding
+    embedded = []
+    targets = []
+    for i in range(max_index):
+        window = []
+        for j in range(dimension):
+            window.extend(data[i + j * delay])
+        target_idx = i + delay * (dimension - 1) + predict_ahead
+        embedded.append(window)
+        targets.append(data[target_idx])
 
-    # Csak véges adatokkal dolgozzunk
-    valid_mask = np.all(np.isfinite(embedded), axis=1) & np.all(np.isfinite(targets), axis=1)
-    X_data = embedded[valid_mask]
-    y_data = targets[valid_mask]
+    X_data = np.array(embedded)
+    y_data = np.array(targets)
+
+    # Véges adatok ellenőrzése
+    finite_mask = np.isfinite(X_data).all(axis=1) & np.isfinite(y_data).all(axis=1)
+    X_data = X_data[finite_mask]
+    y_data = y_data[finite_mask]
 
     if len(X_data) < 10:
-        st.error("❌ Nem áll rendelkezésre elég adat a tanításhoz. Próbálj kisebb dimenzióval vagy több időlépéssel.")
+        st.error("❌ Túl kevés érvényes adat áll rendelkezésre. Próbálj kisebb dimenzióval vagy hosszabb időlépéssel.")
         return
 
-    # Modell betanítás
+    # Modell
     model = Ridge()
     model.fit(X_data, y_data)
-    predictions = model.predict(X_data)
+    y_pred = model.predict(X_data)
 
-    # Kiértékelés
-    rmse = np.sqrt(mean_squared_error(y_data, predictions))
-    st.markdown(f"📉 **Gyök-átlag-négyzetes hiba (RMSE):** {rmse:.4f}")
+    # RMSE kiírás
+    rmse = np.sqrt(mean_squared_error(y_data, y_pred))
+    st.markdown(f"📉 **Gyök-négyzetes átlagos hiba (RMSE):** {rmse:.4f}")
 
-    # 3D ábrák
+    # 3D vizualizáció
     fig = plt.figure(figsize=(12, 5))
     ax1 = fig.add_subplot(121, projection='3d')
     ax1.plot(y_data[:, 0], y_data[:, 1], y_data[:, 2], label="Valódi", alpha=0.6)
     ax1.set_title("🎯 Valódi trajektória")
+
     ax2 = fig.add_subplot(122, projection='3d')
-    ax2.plot(predictions[:, 0], predictions[:, 1], predictions[:, 2], label="Előrejelzett", color="orange", alpha=0.6)
+    ax2.plot(y_pred[:, 0], y_pred[:, 1], y_pred[:, 2], label="Előrejelzett", color="orange", alpha=0.6)
     ax2.set_title("🔮 Predikált trajektória")
+
     st.pyplot(fig)
