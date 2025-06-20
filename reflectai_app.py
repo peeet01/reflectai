@@ -1,4 +1,9 @@
 import streamlit as st
+# ... egyéb importok
+
+def load_custom_css():
+    with open("style.css") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Modulok importálása
 from modules.kuramoto_sim import run as run_kuramoto
