@@ -3,92 +3,86 @@ import numpy as np
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
 import plotly.graph_objects as go
-from scipy.integrate import solve_ivp
 
+def generate_lorenz(dt, steps, sigma=10, rho=28, beta=8/3):
+    xyz = np.empty((steps, 3))
+    xyz[0] = [1.0, 1.0, 1.0]
+    for i in range(1, steps):
+        x, y, z = xyz[i - 1]
+        dx = sigma * (y - x)
+        dy = x * (rho - z) - y
+        dz = x * y - beta * z
+        xyz[i] = xyz[i - 1] + dt * np.array([dx, dy, dz])
+    return xyz
 
-def lorenz(t, state, sigma=10.0, rho=28.0, beta=8.0/3.0):
-    x, y, z = state
-    dx = sigma * (y - x)
-    dy = x * (rho - z) - y
-    dz = x * y - beta * z
-    return [dx, dy, dz]
-
-
-def embed_delay_coordinates(data, delay, dimension):
-    N = len(data)
-    if N - (dimension - 1) * delay <= 0:
+def time_delay_embedding(data, delay, dimension):
+    N = len(data) - delay * (dimension - 1)
+    if N <= 0:
         return np.empty((0, dimension))
-    return np.array([data[i:i + delay * dimension:delay] for i in range(N - delay * (dimension - 1))])
-
+    return np.array([data[i:i + delay * dimension:delay] for i in range(N)])
 
 def run():
-    st.subheader("🌪️ Lorenz attractor (ESN predikció – Pro)")
+    st.subheader("🌀 ESN predikció Lorenz attraktoron")
 
-    delay = st.slider("⏳ Késleltetés", 1, 10, 5)
-    embed_dim = st.slider("📐 Beágyazási dimenzió", 2, 10, 5)
-    pred_steps = st.slider("🔮 Előrejelzendő lépések száma", 1, 50, 20)
+    # Paraméterek
+    dt = st.slider("Időlépés (dt)", 0.001, 0.05, 0.01)
+    steps = st.slider("Időlépések száma", 500, 3000, 1500)
+    delay = st.slider("Késleltetés (delay)", 1, 20, 3)
+    dim = st.slider("Beágyazás dimenziója", 2, 10, 5)
+    predict_horizon = st.slider("Előrejelzendő lépések száma", 1, 50, 20)
 
-    # Lorenz adatok
-    t_max = 50
-    dt = 0.01
-    t = np.arange(0, t_max, dt)
-    sol = solve_ivp(lorenz, [0, t_max], [1.0, 1.0, 1.0], t_eval=t)
-    x, y, z = sol.y
+    # Lorenz generálás
+    data = generate_lorenz(dt, steps)
+    x_series = data[:, 0]
 
-    # Beágyazás
-    x_embed = embed_delay_coordinates(x, delay, embed_dim)
-    y_target = x[delay * embed_dim:]
+    # Embed
+    X_embed = time_delay_embedding(x_series, delay, dim)
+    y_target = x_series[delay * dim : delay * dim + len(X_embed)]
 
-    valid_mask = np.all(np.isfinite(x_embed), axis=1) & np.isfinite(y_target)
-    x_embed = x_embed[valid_mask]
-    y_target = y_target[valid_mask]
+    # Validáció
+    valid_mask = np.all(np.isfinite(X_embed), axis=1) & np.isfinite(y_target)
+    X_data = X_embed[valid_mask]
+    y_data = y_target[valid_mask]
 
-    if len(x_embed) == 0:
-        st.error("❌ Az aktuális késleltetés és dimenzió mellett nincs elegendő adat.")
+    # Modell tanítás
+    if len(X_data) < predict_horizon:
+        st.error("⚠️ Túl kevés adat az előrejelzéshez!")
         return
 
-    # Tanító / teszt szétválasztás
-    train_size = int(len(x_embed) * 0.8)
-    X_train, y_train = x_embed[:train_size], y_target[:train_size]
-    X_test, y_test = x_embed[train_size:], y_target[train_size:]
-
-    # ESN helyett egyszerű Ridge
     model = Ridge(alpha=1.0)
-    model.fit(X_train, y_train)
+    model.fit(X_data[:-predict_horizon], y_data[predict_horizon:])
 
-    pred = model.predict(X_test[:pred_steps])
-    rmse = np.sqrt(mean_squared_error(y_test[:pred_steps], pred))
+    # Előrejelzés
+    preds = model.predict(X_data[:-predict_horizon])
+    true_vals = y_data[predict_horizon:]
 
-    # Megfelelő hosszra vágott pályák
-    real_x = x[train_size:train_size + pred_steps]
-    real_y = y[train_size:train_size + pred_steps]
-    real_z = z[train_size:train_size + pred_steps]
+    # RMSE számítás
+    rmse = mean_squared_error(true_vals, preds, squared=False)
 
-    pred_x = pred
-    pred_y = y[train_size:train_size + pred_steps]
-    pred_z = z[train_size:train_size + pred_steps]
+    # Vizuális elrendezés: szöveg külön, ábra alá
+    with st.container():
+        st.markdown("### 🌪️ ESN Predikció")
+        st.markdown(f"📉 **RMSE:** `{rmse:.4f}`")
+        st.markdown("---")
 
-    # 💬 RMSE szétválasztva
-    st.markdown(
-        f"<div style='margin-top: 20px; font-size:18px; font-weight:bold;'>"
-        f"📉 RMSE: <span style='color:#004d99'>{rmse:.4f}</span>"
-        f"</div>",
-        unsafe_allow_html=True
-    )
-
-    # 🎯 3D vizualizáció Plotly
+    # 3D vizualizáció
     fig = go.Figure()
-    fig.add_trace(go.Scatter3d(x=real_x, y=real_y, z=real_z,
-                               mode='lines', name='Valós pálya', line=dict(color='blue')))
-    fig.add_trace(go.Scatter3d(x=pred_x, y=pred_y, z=pred_z,
-                               mode='lines', name='Predikció', line=dict(color='red')))
+    fig.add_trace(go.Scatter3d(x=data[:, 0], y=data[:, 1], z=data[:, 2],
+                                mode='lines', name='Valós pálya',
+                                line=dict(color='blue')))
+    pred_lorenz = np.zeros((len(preds), 3))
+    pred_lorenz[:, 0] = preds
+    pred_lorenz[:, 1:] = data[:len(preds), 1:]  # y,z csak díszítésként
 
+    fig.add_trace(go.Scatter3d(x=pred_lorenz[:, 0],
+                               y=pred_lorenz[:, 1],
+                               z=pred_lorenz[:, 2],
+                               mode='lines',
+                               name='Predikció',
+                               line=dict(color='red')))
     fig.update_layout(
-        scene=dict(
-            xaxis_title='x', yaxis_title='y', zaxis_title='z'
-        ),
+        scene=dict(xaxis_title='X', yaxis_title='Y', zaxis_title='Z'),
         margin=dict(l=0, r=0, b=0, t=0),
         height=600
     )
-
     st.plotly_chart(fig, use_container_width=True)
