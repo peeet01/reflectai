@@ -1,81 +1,83 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.linear_model import Ridge
-from sklearn.metrics import mean_squared_error
 import streamlit as st
+import numpy as np
+from sklearn.linear_model import Ridge, Lasso
+from sklearn.neural_network import MLPRegressor
+from sklearn.metrics import mean_squared_error
 import plotly.graph_objects as go
 
+def lorenz_system(x, y, z, s=10, r=28, b=2.667):
+    dx = s * (y - x)
+    dy = x * (r - z) - y
+    dz = x * y - b * z
+    return dx, dy, dz
+
+def generate_lorenz_data(dt, steps, x0=0., y0=1., z0=1.05):
+    xs, ys, zs = [x0], [y0], [z0]
+    for _ in range(steps - 1):
+        dx, dy, dz = lorenz_system(xs[-1], ys[-1], zs[-1])
+        xs.append(xs[-1] + dx * dt)
+        ys.append(ys[-1] + dy * dt)
+        zs.append(zs[-1] + dz * dt)
+    return np.array(xs), np.array(ys), np.array(zs)
+
+def embed_time_series(data, delay, dimension):
+    N = len(data)
+    M = N - (dimension - 1) * delay
+    if M <= 0:
+        return np.empty((0, dimension))
+    return np.array([data[i:i + delay * dimension:delay] for i in range(M)])
+
 def run():
-    st.subheader("🔮 ESN predikció vizualizáció (Pro)")
+    st.subheader("🧠 Lorenz előrejelzés – Modellválasztással")
 
-    # Paraméterek
-    T = st.slider("Szimuláció hossza (időlépések)", 200, 2000, 500)
-    dt = st.slider("Időlépés (dt)", 0.001, 0.05, 0.01)
-    delay = st.slider("Késleltetés (delay)", 1, 20, 4)
-    embed_dim = st.slider("Beágyazás dimenzió", 2, 10, 4)
-    predict_steps = st.slider("Előrejelzendő lépések száma", 1, 50, 10)
+    # Interaktív modelválasztó
+    model_type = st.selectbox("🤖 Válassz prediktív modellt", ["Ridge", "Lasso", "MLP"])
 
-    # Lorenz rendszer
-    sigma, rho, beta = 10, 28, 8/3
-    def lorenz(x, y, z):
-        dx = sigma * (y - x)
-        dy = x * (rho - z) - y
-        dz = x * y - beta * z
-        return dx, dy, dz
+    dt = st.slider("🕒 Időlépés", 0.005, 0.05, 0.01)
+    steps = st.slider("🔁 Időlépések száma", 1000, 3000, 1500)
+    delay = st.slider("⏱️ Késleltetés", 1, 20, 3)
+    dimension = st.slider("📐 Beágyazás dimenziója", 2, 10, 5)
+    pred_steps = st.slider("🎯 Előrejelzendő lépések száma", 1, 50, 20)
 
-    def simulate_lorenz(T, dt):
-        xs, ys, zs = [1.], [1.], [1.]
-        for _ in range(T):
-            dx, dy, dz = lorenz(xs[-1], ys[-1], zs[-1])
-            xs.append(xs[-1] + dx*dt)
-            ys.append(ys[-1] + dy*dt)
-            zs.append(zs[-1] + dz*dt)
-        return np.array(xs), np.array(ys), np.array(zs)
+    # Lorenz pálya
+    x, y, z = generate_lorenz_data(dt, steps)
+    X_embed = embed_time_series(x, delay, dimension)
+    y_target = x[(dimension - 1) * delay + pred_steps:]
 
-    x, y, z = simulate_lorenz(T + 200, dt)
-
-    # Beágyazás
-    def time_delay_embed(data, delay, dim):
-        N = len(data) - (dim - 1) * delay
-        if N <= 0:
-            return np.empty((0, dim))
-        return np.array([data[i:i + dim * delay:delay] for i in range(N)])
-
-    X_embed = time_delay_embed(x, delay, embed_dim)
-    y_target = x[(embed_dim * delay):(embed_dim * delay + len(X_embed))]
-
-    # Szűrés: csak ahol minden érték véges és a méretek stimmelnek
     min_len = min(len(X_embed), len(y_target))
     X_embed = X_embed[:min_len]
     y_target = y_target[:min_len]
 
-    valid_mask = (
-        np.all(np.isfinite(X_embed), axis=1)
-        & np.isfinite(y_target)
-    )
-    X_valid = X_embed[valid_mask]
-    y_valid = y_target[valid_mask]
+    valid_mask = np.all(np.isfinite(X_embed), axis=1) & np.isfinite(y_target)
+    X_data = X_embed[valid_mask]
+    y_data = y_target[valid_mask]
 
-    if len(X_valid) < 10:
-        st.warning("⚠️ Túl kevés érvényes adat. Próbálj más beállításokat.")
+    if len(X_data) == 0:
+        st.error("❌ Nincs elég érvényes adat. Próbálj más paramétereket.")
         return
 
-    model = Ridge(alpha=1.0)
-    model.fit(X_valid, y_valid)
-    y_pred = model.predict(X_valid)
-    rmse = np.sqrt(mean_squared_error(y_valid, y_pred))
+    # Modell kiválasztása
+    if model_type == "Ridge":
+        model = Ridge(alpha=1.0)
+    elif model_type == "Lasso":
+        model = Lasso(alpha=0.01, max_iter=10000)
+    elif model_type == "MLP":
+        model = MLPRegressor(hidden_layer_sizes=(50,), activation='relu', solver='adam', max_iter=500)
 
-    # 3D Plot
+    model.fit(X_data, y_data)
+    pred_x = model.predict(X_data)
+    pred_x_full = np.concatenate([X_data[:, 0], pred_x])[:len(x)]
+
+    # 3D plot – valós és predikált pályák
     fig = go.Figure()
-    fig.add_trace(go.Scatter3d(x=x[:len(y_valid)], y=y[:len(y_valid)], z=z[:len(y_valid)],
-                               mode='lines', name='Valós pálya',
-                               line=dict(color='blue', width=3)))
-    fig.add_trace(go.Scatter3d(x=y_pred[:-1], y=y_pred[1:], z=y_valid[1:],
-                               mode='lines', name='Predikció',
-                               line=dict(color='red', width=2)))
-    fig.update_layout(title=f"🌪️ Lorenz attractor (ESN predikció) – RMSE: {rmse:.4f}",
-                      scene=dict(xaxis_title='x', yaxis_title='y', zaxis_title='z'),
-                      margin=dict(l=0, r=0, b=0, t=40))
-    st.plotly_chart(fig, use_container_width=True)
+    fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name='Valós pálya', line=dict(color='blue')))
+    fig.add_trace(go.Scatter3d(x=pred_x_full, y=y, z=z, mode='lines', name='Predikció', line=dict(color='red')))
 
-    st.success(f"✅ RMSE: {rmse:.4f}")
+    fig.update_layout(
+        scene=dict(xaxis_title='x', yaxis_title='y', zaxis_title='z'),
+        margin=dict(l=0, r=0, b=0, t=30)
+    )
+
+    rmse = np.sqrt(mean_squared_error(x[:len(pred_x_full)], pred_x_full))
+    st.markdown(f"### 📈 {model_type} predikció – RMSE: `{rmse:.4f}`")
+    st.plotly_chart(fig, use_container_width=True)
