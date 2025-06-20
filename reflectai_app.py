@@ -1,4 +1,3 @@
-
 import streamlit as st
 import requests
 
@@ -17,10 +16,10 @@ from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
 from modules.insight_learning import run as run_insight_learning
 
-# 🔑 API kulcs helye
-API_KEY = "sk-or-v1-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"
+# 🔑 Itt add meg az OpenRouter API kulcsod
+API_KEY = "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"
 
-# Alkalmazás címe és bevezető
+# Alkalmazás beállítások
 st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
 st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
@@ -28,19 +27,21 @@ st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indítá
 # 💬 Nyelvi kérdés szövegdoboz
 user_input = st.text_input("💬 Írd be kérdésed vagy megfigyelésed (nyelvi modulhoz):")
 
-# Nyelvi modell hívása (OpenAI GPT-4o)
+# Nyelvi modell meghívása OpenRouteren keresztül
 if user_input:
     st.markdown("🧠 Nyelvi modell gondolkodik...")
     headers = {
         "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Referer": "https://reflec.streamlit.app",
+        "X-Title": "ReflecAI"
     }
     data = {
-        "model": "gpt-4o",
+        "model": "openrouter/mistral-7b-instruct",
         "messages": [{"role": "user", "content": user_input}]
     }
     try:
-        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
         result = response.json()
         if "choices" in result:
             reply = result["choices"][0]["message"]["content"]
@@ -52,7 +53,7 @@ if user_input:
     except Exception as e:
         st.error(f"Hiba történt: {e}")
 
-# Modulválasztó
+# 📂 Modulválasztó
 st.sidebar.title("📂 Modulválasztó")
 module_name = st.sidebar.radio("Kérlek válassz:", (
     "Kuramoto szinkronizáció",
@@ -71,7 +72,7 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Belátás alapú tanulás (Insight Learning)"
 ))
 
-# Modulok futtatása
+# 🧠 Modulok futtatása
 if module_name == "Kuramoto szinkronizáció":
     st.subheader("🧭 Kuramoto paraméterek")
     coupling = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
