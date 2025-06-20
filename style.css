@@ -1,87 +1,108 @@
-/* Általános háttér */
-body {
-    background-color: #f9f9f9;
+/* Globális betűstílus és szín */
+html, body, [class*="css"]  {
     font-family: 'Segoe UI', sans-serif;
+    font-size: 18px;
+    color: #ffffff;
+    background-color: #0e0e0e;
 }
 
-/* Globális szövegformázás */
-h1, h2, h3, h4, h5 {
-    color: #111;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-}
-
-p, span, label {
-    font-size: 16px;
-    color: #222;
-}
-
-/* Streamlit főcím */
+/* Főcím (ReflecAI) */
 h1 {
     font-size: 30px;
-    margin-bottom: 1rem;
+    color: #ffffff;
+    padding: 0.5em 0;
 }
 
-/* Oldalsáv stílus */
+/* Modulválasztó (sidebar) */
 section[data-testid="stSidebar"] {
-    background-color: #ffffff;
-    padding: 20px;
-    border-right: 1px solid #ddd;
+    background-color: #111111;
+    border-right: 1px solid #333333;
 }
 
-/* Oldalsáv fejléc */
-section[data-testid="stSidebar"] .block-container h1 {
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
     font-size: 20px;
-    color: #111;
-    font-weight: 700;
+    color: #ffffff;
 }
 
-/* Modulválasztó rádiógomb javítása */
-section[data-testid="stSidebar"] .stRadio {
-    font-size: 16px;
-    margin-bottom: 10px;
-}
-
-section[data-testid="stSidebar"] label {
-    color: #111;
-    font-weight: 500;
-}
-
-/* Gombok – sötét stílus */
-.stButton>button, button.css-1emrehy {
-    background-color: #111 !important;
-    color: #fff !important;
-    border-radius: 6px;
-    border: none;
-    padding: 8px 16px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-/* Gomb hover */
-.stButton>button:hover, button.css-1emrehy:hover {
-    background-color: #333 !important;
-}
-
-/* Diagram címek */
-.css-10trblm, .stPlotlyChart, .stpyplot {
-    margin-top: 20px;
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] div {
     font-size: 18px;
+    color: #e0e0e0;
 }
 
-/* Megfigyelési input */
+/* Modulválasztó rádiógomb ikon és méret */
+section[data-testid="stSidebar"] .stRadio > label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* Aktív elem kiemelése */
+section[data-testid="stSidebar"] .stRadio > div > div {
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+section[data-testid="stSidebar"] .stRadio > div > div:hover {
+    background-color: #444444;
+}
+
+/* Input mezők, slider stb. */
+input, textarea, .stSlider {
+    background-color: #222222 !important;
+    color: #ffffff !important;
+    border-radius: 5px;
+}
+
+/* Grafikon felirat szétválasztás */
+div[data-testid="stMarkdownContainer"] h3,
+div[data-testid="stMarkdownContainer"] p {
+    margin-top: 1.2em;
+    margin-bottom: 1.2em;
+}
+
+/* Plotly grafikon méret fixálás */
+div[data-testid="stPlotlyChart"] {
+    padding-top: 25px;
+    margin-top: 10px;
+    z-index: 2;
+}
+
+/* Megjegyzés mező */
 input[type="text"] {
-    font-size: 16px;
-    padding: 8px;
+    background-color: #1a1a1a;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 6px;
 }
 
-/* Fix a szöveg és grafikon összeolvadásra */
-.block-container {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+/* Gombok */
+button[kind="primary"] {
+    background-color: #222;
+    border: none;
+    color: #fff;
+    padding: 0.5em 1em;
+    font-size: 18px;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
 }
 
-/* Térköz a grafikonok alatt */
-.stPlotlyChart, .stpyplot {
-    margin-bottom: 30px;
+button[kind="primary"]:hover {
+    background-color: #444;
+}
+
+/* Scrollbar egységesítése */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 10px;
 }
