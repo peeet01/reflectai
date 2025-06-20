@@ -1,29 +1,48 @@
-/* style.css */
+/* === Alap betűstílusok === */
 h1, h2, h3 {
-    font-family: 'Segoe UI', sans-serif;
-    font-weight: 700;
-    color: #111;
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 0.5rem;
 }
 
+/* === Oldalsáv dizájn === */
 .sidebar .sidebar-content {
-    background-color: #f7f7f7;
-    padding: 1rem;
+  background-color: #f7f7f7;
+  padding: 1rem;
 }
 
+/* === Tartalom belső térköz (felül) === */
 .block-container {
-    padding-top: 2rem;
+  padding-top: 2rem;
 }
 
+/* === Plotly ábrák körüli térköz === */
 .stPlotlyChart {
-    margin-top: 2rem !important;
-    margin-bottom: 2rem !important;
+  margin-top: 2rem !important;
+  margin-bottom: 2rem !important;
 }
 
+/* === Fejléc stílus (globális elválasztás) === */
 div[data-testid="stHeader"] {
-    background-color: white;
-    border-bottom: 1px solid #ddd;
+  background-color: white;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
 }
 
+/* === Automatikus elválasztás Plotly legend és címsor között === */
 .css-1kyxreq, .css-1v3fvcr {
-    margin-bottom: 30px;
+  margin-bottom: 30px;
+}
+
+/* === Alapértelmezett ikonméret és sötét ikonok (pl. fejléc ikon) === */
+.sidebar .element-container svg {
+  font-size: 30px;
+  color: black;
+}
+
+/* === Menük közötti spacing fix === */
+.element-container {
+  margin-bottom: 1.2rem;
 }
