@@ -11,58 +11,50 @@ def kuramoto_with_noise(N, K, T, noise_std, dt):
         coupling = np.sum(np.sin(theta_matrix), axis=1)
         noise = np.random.normal(0, noise_std, N)
         theta += (omega + (K / N) * coupling + noise) * dt
-
     r = np.abs(np.sum(np.exp(1j * theta)) / N)
-    return r
+    return r if np.isfinite(r) else 0.0
 
 def run():
-    st.subheader("🧪 Zajtűrés vizsgálata Kuramoto-modellel (Optimalizált 3D)")
+    st.subheader("📊 Zajtűrés vizsgálata Kuramoto-modellel – Pro vizualizáció")
 
-    # Paraméterek
-    N = st.slider("🧠 Oszcillátorok száma", 5, 30, 15)
-    T = st.slider("⏱️ Iterációk száma", 50, 200, 80)
+    # Beállítható paraméterek
+    N = st.slider("🧠 Oszcillátorok száma", 5, 50, 20)
+    T = st.slider("⏱️ Iterációk száma", 100, 300, 150)
     dt = st.slider("🔄 Időlépés (dt)", 0.01, 0.1, 0.03)
 
-    k_start, k_end = st.slider("📡 Kapcsolási erősség tartománya (K)", 0.0, 10.0, (1.0, 3.0))
-    noise_start, noise_end = st.slider("🔉 Zaj szórás tartománya", 0.0, 2.0, (0.0, 0.5))
+    k_min, k_max = st.slider("📡 Kapcsolási erősség (K) tartomány", 0.0, 10.0, (1.0, 3.0))
+    noise_min, noise_max = st.slider("🔉 Zaj szórás tartomány", 0.0, 2.0, (0.0, 0.5))
 
-    k_values = np.linspace(k_start, k_end, 10)
-    noise_values = np.linspace(noise_start, noise_end, 10)
+    k_vals = np.linspace(k_min, k_max, 15)
+    noise_vals = np.linspace(noise_min, noise_max, 15)
 
-    R = np.zeros((len(noise_values), len(k_values)))
+    Z = np.zeros((len(noise_vals), len(k_vals)))
 
     progress = st.progress(0)
-    total = len(noise_values) * len(k_values)
+    total = len(noise_vals) * len(k_vals)
     step = 0
 
-    for i, noise in enumerate(noise_values):
-        for j, k in enumerate(k_values):
-            try:
-                r_value = kuramoto_with_noise(N, k, T, noise, dt)
-                if np.isnan(r_value) or np.isinf(r_value):
-                    r_value = 0
-                R[i, j] = r_value
-            except:
-                R[i, j] = 0
+    for i, noise in enumerate(noise_vals):
+        for j, k in enumerate(k_vals):
+            Z[i, j] = kuramoto_with_noise(N, k, T, noise, dt)
             step += 1
             progress.progress(step / total)
 
     fig = go.Figure(data=[
         go.Surface(
-            z=R,
-            x=k_values,
-            y=noise_values,
+            z=Z,
+            x=k_vals,
+            y=noise_vals,
             colorscale='Viridis'
         )
     ])
     fig.update_layout(
-        title="🌐 Szinkronizáció mértéke (r) a zaj és K függvényében",
+        title="🌐 Szinkronizációs index (r) – zaj és K függvényében",
         scene=dict(
-            xaxis_title='Kapcsolási erősség (K)',
-            yaxis_title='Zaj (σ)',
+            xaxis_title='K',
+            yaxis_title='Zaj szórás (σ)',
             zaxis_title='Szinkronizáció (r)'
         ),
-        margin=dict(l=0, r=0, b=0, t=30)
+        margin=dict(l=10, r=10, b=10, t=50)
     )
-
     st.plotly_chart(fig, use_container_width=True)
