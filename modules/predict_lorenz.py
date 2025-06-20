@@ -1,63 +1,71 @@
+import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import streamlit as st
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.linear_model import Ridge
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.metrics import mean_squared_error
 
-def generate_lorenz(T=10000, dt=0.01, sigma=10, rho=28, beta=8/3):
-    xs, ys, zs = [1.], [1.], [1.]
-    for _ in range(T-1):
-        x_dot = sigma * (ys[-1] - xs[-1])
-        y_dot = xs[-1] * (rho - zs[-1]) - ys[-1]
-        z_dot = xs[-1] * ys[-1] - beta * zs[-1]
-        xs.append(xs[-1] + x_dot * dt)
-        ys.append(ys[-1] + y_dot * dt)
-        zs.append(zs[-1] + z_dot * dt)
-    return np.array([xs, ys, zs]).T
+def lorenz(x, y, z, s=10, r=28, b=2.667):
+    dx = s * (y - x)
+    dy = r * x - y - x * z
+    dz = x * y - b * z
+    return dx, dy, dz
 
-def prepare_data(data, lag=10):
-    X, y = [], []
-    for i in range(len(data) - lag):
-        X.append(data[i:i+lag])
-        y.append(data[i+lag])
-    return np.array(X), np.array(y)
+def simulate_lorenz(x0, y0, z0, dt=0.01, steps=1000):
+    xs = np.empty(steps)
+    ys = np.empty(steps)
+    zs = np.empty(steps)
+    xs[0], ys[0], zs[0] = x0, y0, z0
+    for i in range(1, steps):
+        dx, dy, dz = lorenz(xs[i-1], ys[i-1], zs[i-1])
+        xs[i] = xs[i-1] + dx * dt
+        ys[i] = ys[i-1] + dy * dt
+        zs[i] = zs[i-1] + dz * dt
+    return xs, ys, zs
+
+def simple_predictor(xs, ys, zs):
+    # Triviális késleltetéses modell előrejelzéshez
+    return xs[:-1], ys[:-1], zs[:-1]
 
 def run():
-    st.subheader("📈 Lorenz rendszer predikció – gépi tanulással")
+    st.subheader("📈 Lorenz attractor predikció")
 
-    T = st.slider("Időlépések száma", 1000, 10000, 3000, step=500)
-    lag = st.slider("Késleltetés (lag)", 5, 50, 10)
-    alpha = st.slider("Ridge regresszió α", 0.001, 10.0, 1.0)
-    note = st.text_input("📝 Megjegyzés (opcionális):")
+    dt = st.slider("Időlépés (dt)", 0.001, 0.05, 0.01)
+    steps = st.slider("Időlépések száma", 100, 2000, 1000)
 
-    data = generate_lorenz(T)
-    scaler = MinMaxScaler()
-    scaled_data = scaler.fit_transform(data)
+    st.markdown("🔄 Szimuláció...")
+    x0, y0, z0 = 0., 1., 1.05
+    xs, ys, zs = simulate_lorenz(x0, y0, z0, dt, steps)
 
-    X, y = prepare_data(scaled_data, lag)
-    split = int(0.8 * len(X))
-    X_train, X_test = X[:split], X[split:]
-    y_train, y_test = y[:split], y[split:]
+    pred_x, pred_y, pred_z = simple_predictor(xs, ys, zs)
+    target_x, target_y, target_z = xs[1:], ys[1:], zs[1:]
 
-    model = Ridge(alpha=alpha)
-    model.fit(X_train.reshape(X_train.shape[0], -1), y_train)
-    y_pred = model.predict(X_test.reshape(X_test.shape[0], -1))
+    error = np.sqrt((pred_x - target_x)**2 + (pred_y - target_y)**2 + (pred_z - target_z)**2)
+    rmse = np.sqrt(mean_squared_error(np.vstack([target_x, target_y, target_z]).T,
+                                      np.vstack([pred_x, pred_y, pred_z]).T))
 
-    # Hibagörbe
-    error = np.mean((y_pred - y_test)**2, axis=1)
+    st.markdown(f"🔍 **RMSE**: {rmse:.4f}")
 
-    fig, axs = plt.subplots(2, 1, figsize=(10, 6))
-    axs[0].plot(y_test[:, 0], label="Valós X")
-    axs[0].plot(y_pred[:, 0], label="Predikált X", linestyle='dashed')
-    axs[0].set_title("📊 Lorenz predikció összehasonlítása")
-    axs[0].legend()
+    fig = plt.figure(figsize=(14, 4))
 
-    axs[1].plot(error, color="red")
-    axs[1].set_title("⚠️ Átlagos négyzetes hiba")
-    axs[1].set_xlabel("Idő")
-    axs[1].set_ylabel("MSE")
+    # 3D attraktor
+    ax1 = fig.add_subplot(131, projection='3d')
+    ax1.plot(xs, ys, zs, color='blue', label="Valódi")
+    ax1.plot(pred_x, pred_y, pred_z, color='red', alpha=0.6, label="Predikció")
+    ax1.set_title("🌪️ Lorenz attraktor")
+    ax1.legend()
+
+    # Hiba időfüggése
+    ax2 = fig.add_subplot(132)
+    ax2.plot(error, color='purple')
+    ax2.set_title("📉 Hiba időfüggése")
+    ax2.set_xlabel("Időlépés")
+    ax2.set_ylabel("Hiba")
+
+    # Hiba eloszlása
+    ax3 = fig.add_subplot(133)
+    ax3.hist(error, bins=30, color='green', alpha=0.7)
+    ax3.set_title("📊 Hiba eloszlása")
+    ax3.set_xlabel("Hiba")
+    ax3.set_ylabel("Gyakoriság")
 
     st.pyplot(fig)
-
-    if note:
-        st.markdown(f"📌 Megjegyzés: {note}")
