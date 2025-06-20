@@ -1,29 +1,69 @@
-import streamlit as st
 import numpy as np
-import networkx as nx
 import matplotlib.pyplot as plt
-from scipy.linalg import eigh
+import networkx as nx
+import streamlit as st
 
-def compute_chern_number(H):
-    eigvals, eigvecs = eigh(H)
-    proj = np.outer(eigvecs[:, 0], eigvecs[:, 0].conj())
-    berry_curvature = np.imag(np.trace(proj @ proj @ proj))
-    return round(berry_curvature, 3)
+
+def kuramoto_dynamics(G, K, T, dt=0.05):
+    N = len(G)
+    A = nx.to_numpy_array(G)
+    theta = np.random.uniform(0, 2*np.pi, N)
+    omega = np.random.normal(0, 1, N)
+    sync_history = []
+
+    for _ in range(T):
+        theta_matrix = np.subtract.outer(theta, theta)
+        coupling = np.sum(A * np.sin(theta_matrix), axis=1)
+        theta += (omega + (K / N) * coupling) * dt
+
+        r = np.abs(np.sum(np.exp(1j * theta)) / N)
+        sync_history.append(r)
+
+    return theta, sync_history
+
+
+def plot_network(G, theta, title):
+    pos = nx.spring_layout(G, seed=42)
+    colors = np.angle(np.exp(1j * theta))
+    nx.draw(G, pos, node_color=colors, cmap='hsv', node_size=200, with_labels=False)
+    plt.title(title)
+
 
 def run():
-    st.subheader("🧭 Topológiai védettség – Chern-szám modul")
-    st.write("Egy egyszerű oszcillátorháló alapján számoljuk a hálózat topológiai jellemzőjét (Chern-szám).")
+    st.subheader("🧭 Topológiai szinkronizáció – hálózat alapú Kuramoto szimuláció")
 
-    N = st.slider("🧩 Csomópontok száma", 5, 30, 10)
-    rewiring_p = st.slider("🔁 Rewiring valószínűség", 0.0, 1.0, 0.2)
+    # Beállítások
+    N = st.slider("🔢 Csúcsok száma", 10, 100, 30)
+    K = st.slider("📡 Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
+    T = st.slider("⏱️ Iterációk száma", 10, 500, 200)
+    topo = st.selectbox("🌐 Hálózati topológia", ["rács", "kis-világ", "skálafüggetlen"])
 
-    G = nx.watts_strogatz_graph(N, k=4, p=rewiring_p)
-    A = nx.to_numpy_array(G)
-    L = np.diag(A.sum(axis=1)) - A
+    # Hálózat létrehozása
+    if topo == "rács":
+        side = int(np.sqrt(N))
+        G = nx.grid_2d_graph(side, side)
+        G = nx.convert_node_labels_to_integers(G)
+    elif topo == "kis-világ":
+        G = nx.watts_strogatz_graph(N, k=4, p=0.3)
+    elif topo == "skálafüggetlen":
+        G = nx.barabasi_albert_graph(N, m=2)
 
-    chern = compute_chern_number(L)
+    # Kuramoto futtatás
+    final_theta, sync_history = kuramoto_dynamics(G, K, T)
 
-    fig, ax = plt.subplots()
-    nx.draw_circular(G, ax=ax, with_labels=True, node_color="skyblue")
-    st.pyplot(fig)
-    st.info(f"📌 Számított Chern-szám (approx.): **{chern}**")
+    # Vizualizáció
+    col1, col2 = st.columns(2)
+    with col1:
+        fig1 = plt.figure()
+        plot_network(G, np.random.uniform(0, 2*np.pi, N), "Kezdeti állapot")
+        st.pyplot(fig1)
+
+    with col2:
+        fig2 = plt.figure()
+        plot_network(G, final_theta, "Végső állapot")
+        st.pyplot(fig2)
+
+    # Szinkronizációs index
+    st.line_chart(sync_history)
+    st.success(f"📊 Végső szinkronizációs index: r = {sync_history[-1]:.2f}")
+    st.info("A különböző topológiák eltérő mértékű szinkronizációt eredményezhetnek. A kis-világ hálók gyakran hatékonyabbak.")
