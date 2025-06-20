@@ -1,65 +1,51 @@
-import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
+import streamlit as st
 
-def simulate_kuramoto(N, K, noise_level, T=200, dt=0.05):
-    omega = np.random.normal(0, 1, N)
-    theta = np.random.uniform(0, 2 * np.pi, N)
+def kuramoto_step(theta, omega, K, noise_std, dt):
+    N = len(theta)
+    theta_matrix = np.subtract.outer(theta, theta)
+    coupling = np.sum(np.sin(theta_matrix), axis=1)
+    noise = np.random.normal(0, noise_std, N)
+    return theta + (omega + (K / N) * coupling + noise) * dt
 
-    for _ in range(T):
-        theta_diff = np.subtract.outer(theta, theta)
-        interaction = np.sum(np.sin(theta_diff), axis=1)
-        noise = noise_level * np.random.randn(N)
-        theta += (omega + (K / N) * interaction + noise) * dt
-
-    r = np.abs(np.mean(np.exp(1j * theta)))
-    return float(np.nan_to_num(r, nan=0.0, posinf=0.0, neginf=0.0))
+def compute_sync_index(theta):
+    return np.abs(np.mean(np.exp(1j * theta)))
 
 def run():
-    st.subheader("🎯 Zajtűrés és szinkronizációs robusztusság (stabil verzió)")
+    st.subheader("📊 Szinkronizációs robusztusság (Pro)")
 
-    N = st.slider("Oszcillátorok száma", 5, 100, 20)
-    T = st.slider("Szimulációs idő (lépések)", 50, 500, 200)
-    grid_size = st.slider("Rácsfelbontás", 10, 40, 25)
+    N = st.slider("Oszcillátorok száma (N)", 10, 100, 30)
+    T = st.slider("Iterációk száma (T)", 100, 1000, 300)
+    dt = st.slider("Időlépés (dt)", 0.01, 0.1, 0.05)
 
-    K_vals = np.linspace(0.1, 10.0, grid_size)
-    noise_vals = np.linspace(0.0, 5.0, grid_size)
-    K_grid, Noise_grid = np.meshgrid(K_vals, noise_vals)
+    k_min, k_max = st.slider("Kapcsolási erősség tartománya (K)", 0.0, 10.0, (1.0, 5.0))
+    noise_min, noise_max = st.slider("Zaj tartomány (szórás)", 0.0, 2.0, (0.0, 1.0))
 
-    R_grid = np.zeros_like(K_grid)
+    k_values = np.linspace(k_min, k_max, 20)
+    noise_values = np.linspace(noise_min, noise_max, 20)
 
-    with st.status("⏳ Számítás folyamatban..."):
-        for i in range(grid_size):
-            for j in range(grid_size):
-                try:
-                    R_grid[i, j] = simulate_kuramoto(N, K_grid[i, j], Noise_grid[i, j], T)
-                except Exception:
-                    R_grid[i, j] = 0.0  # Hiba esetén 0
+    sync_matrix = np.zeros((len(noise_values), len(k_values)))
 
-    # 🧭 2D hőtérkép
+    progress = st.progress(0.0, "Szimuláció fut...")
+
+    for i, noise in enumerate(noise_values):
+        for j, K in enumerate(k_values):
+            theta = np.random.uniform(0, 2 * np.pi, N)
+            omega = np.random.normal(0, 1, N)
+            for _ in range(T):
+                theta = kuramoto_step(theta, omega, K, noise, dt)
+            sync_index = compute_sync_index(theta)
+            sync_matrix[i, j] = sync_index
+        progress.progress((i + 1) / len(noise_values))
+
     fig, ax = plt.subplots()
-    im = ax.pcolormesh(K_grid, Noise_grid, R_grid, shading='auto', cmap='plasma')
-    fig.colorbar(im, ax=ax, label="Szinkronizációs index (r)")
+    c = ax.imshow(sync_matrix, aspect='auto', origin='lower',
+                  extent=[k_min, k_max, noise_min, noise_max],
+                  cmap='viridis')
+    fig.colorbar(c, ax=ax, label='Szinkronizációs index')
+    ax.set_title("🧪 Szinkronizációs robusztusság térképe")
     ax.set_xlabel("Kapcsolási erősség (K)")
-    ax.set_ylabel("Zajszint")
-    ax.set_title("🔬 Zajtűrés hőtérkép")
-    st.pyplot(fig)
+    ax.set_ylabel("Zaj szórás")
 
-    # 🌐 3D interaktív ábra
-    fig3d = go.Figure(data=[go.Surface(
-        z=R_grid,
-        x=K_grid,
-        y=Noise_grid,
-        colorscale='Plasma'
-    )])
-    fig3d.update_layout(
-        title="🎛️ 3D robusztussági felület",
-        scene=dict(
-            xaxis_title='K',
-            yaxis_title='Zaj',
-            zaxis_title='r'
-        ),
-        margin=dict(l=0, r=0, b=0, t=40)
-    )
-    st.plotly_chart(fig3d, use_container_width=True)
+    st.pyplot(fig)
