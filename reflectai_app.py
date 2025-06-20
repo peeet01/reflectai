@@ -17,18 +17,31 @@ from modules.insight_learning import run as run_insight_learning
 from modules.generative_kuramoto import run as run_generative_kuramoto
 from modules.memory_landscape import run as run_memory_landscape
 from modules.graph_sync_analysis import run as run_graph_sync
-from modules.graph_sync_analysis import run as run_graph_sync_analysis
 
-# Alkalmazás címe és bevezető
+# App konfiguráció
 st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
+st.markdown(
+    """
+    <style>
+        .sidebar-title {
+            font-size: 18px !important;
+            color: black !important;
+            margin-bottom: 30px;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Oldalcím
 st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 
-# Üres szövegmező a megfigyelésekhez, nyelvi modultól függetlenül
+# Jegyzetmező
 st.text_input("📝 Megfigyelés vagy jegyzet (opcionális):")
 
-# Modulválasztó
-st.sidebar.title("📂 Modulválasztó")
+# Oldalsáv – Modulválasztó fejléc (egyedi stílus)
+st.sidebar.markdown('<div class="sidebar-title">📊 Modulválasztó</div>', unsafe_allow_html=True)
 module_name = st.sidebar.radio("Kérlek válassz:", (
     "Kuramoto szinkronizáció",
     "Hebbian tanulás",
@@ -46,10 +59,10 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Belátás alapú tanulás (Insight Learning)",
     "Generatív Kuramoto hálózat",
     "Memória tájkép (Pro)",
-    "Gráf alapú szinkronanalízis"
+    "Gráf alapú szinkronizációs analízis"
 ))
 
-# Modulok futtatása
+# Modul futtatás
 if module_name == "Kuramoto szinkronizáció":
     st.subheader("🧭 Kuramoto paraméterek")
     coupling = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
@@ -113,9 +126,5 @@ elif module_name == "Generatív Kuramoto hálózat":
 elif module_name == "Memória tájkép (Pro)":
     run_memory_landscape()
 
-elif module_name == "Gráf alapú szinkronanalízis":
+elif module_name == "Gráf alapú szinkronizációs analízis":
     run_graph_sync()
-    
-elif module_name == "Hálózati szinkronizáció (Pro)":
-    run_graph_sync_analysis()
-
