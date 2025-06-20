@@ -1,10 +1,13 @@
 import streamlit as st
 
-# Globális CSS betöltése
-with open("style.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# 🌐 Globális CSS betöltés
+def load_local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# Modulok importálása
+load_local_css("style.css")
+
+# 🧠 Modulok importálása
 from modules.kuramoto_sim import run as run_kuramoto
 from modules.hebbian_learning import run as run_hebbian
 from modules.xor_prediction import run as run_xor
@@ -20,31 +23,21 @@ from modules.fractal_dimension import run as run_fractal
 from modules.insight_learning import run as run_insight_learning
 from modules.generative_kuramoto import run as run_generative_kuramoto
 from modules.memory_landscape import run as run_memory_landscape
-from modules.graph_sync_analysis import run as run_graph_sync_analysis
+from modules.graph_sync_analysis import run as run_graph_sync
 
-# App konfiguráció
-st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
-st.markdown(
-    """
-    <style>
-    .sidebar-title {
-        font-size: 18px;
-        font-weight: bold;
-        color: black;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# 🌐 App konfiguráció
+st.set_page_config(page_title="🧠 ReflecAI – Szinkronizáció és MI", layout="wide")
 
-# Cím és bevezető
-st.title("🧠 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
+# 🌟 Címsor
+st.markdown("<h1 style='font-size:30px; display:flex; align-items:center;'>🧠 ReflecAI – Szinkronizáció és Mesterséges Intelligencia</h1>", unsafe_allow_html=True)
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
+
+# 📝 Megfigyelés / Jegyzet
 st.text_input("📝 Megfigyelés vagy jegyzet (opcionális):")
 
-# Modulválasztó
-st.sidebar.title("📂 Modulválasztó")
-module_name = st.sidebar.radio("Kérlek válassz:", (
+# 📂 Oldalsáv – Modulválasztó
+st.sidebar.markdown("<h2 style='color:black; font-size:18px;'>📊 Modulválasztó</h2>", unsafe_allow_html=True)
+module_name = st.sidebar.radio("Válassz egy modult:", (
     "Kuramoto szinkronizáció",
     "Hebbian tanulás",
     "XOR predikció",
@@ -61,10 +54,10 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Belátás alapú tanulás (Insight Learning)",
     "Generatív Kuramoto hálózat",
     "Memória tájkép (Pro)",
-    "Gráfalapú szinkronanalízis (Pro)"
+    "Globális gráf szinkronanalízis"
 ))
 
-# Modulok futtatása
+# ✅ Modulok meghívása
 if module_name == "Kuramoto szinkronizáció":
     st.subheader("🧭 Kuramoto paraméterek")
     coupling = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
@@ -128,5 +121,5 @@ elif module_name == "Generatív Kuramoto hálózat":
 elif module_name == "Memória tájkép (Pro)":
     run_memory_landscape()
 
-elif module_name == "Gráfalapú szinkronanalízis (Pro)":
-    run_graph_sync_analysis()
+elif module_name == "Globális gráf szinkronanalízis":
+    run_graph_sync()
