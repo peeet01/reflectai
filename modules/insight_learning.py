@@ -1,50 +1,33 @@
-import streamlit as st import numpy as np import matplotlib.pyplot as plt import time import random
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
 
-def run(trials=5, pause_time=1.0, complexity="kozepes"): st.write("### 🧠 Belátás alapú tanulás – Szimuláció")
 
-# Komplexitás szintjeihez paraméterek
-if complexity == "alacsony":
-    n_elements = 3
-elif complexity == "magas":
-    n_elements = 7
-else:
-    n_elements = 5
+def generate_problem(complexity):
+    if complexity == "alacsony":
+        return 2
+    elif complexity == "közepes":
+        return 3
+    else:  # "magas"
+        return 4
 
-fig, ax = plt.subplots()
-progress_bar = st.progress(0)
-log_area = st.empty()
 
-success_found = False
-insight_trial = random.randint(2, trials)  # belátás várhatóan itt következik be
-solution_path = np.sort(np.random.permutation(range(1, 10))[:n_elements])
-
-log = ""
-for t in range(1, trials + 1):
-    progress_bar.progress(t / trials)
-
-    ax.clear()
-    attempt = np.sort(np.random.permutation(range(1, 10))[:n_elements])
-    ax.bar(range(n_elements), attempt)
-    ax.set_title(f"{t}. próbálkozás – Elemkombináció")
-    st.pyplot(fig)
-
-    if np.array_equal(attempt, solution_path) and t >= insight_trial:
-        log += f"\n✅ {t}. próbálkozás: Sikeres belátás! Megfejtett struktúra: {attempt}"
-        success_found = True
-        break
+def simulate_trial(num_elements, insight_step, t):
+    # Ha még nincs belátás
+    if t < insight_step:
+        return np.random.rand() < 0.1  # 10% esély
     else:
-        log += f"\n❌ {t}. próbálkozás: Nem sikerült. Próbálkozott: {attempt}"
-        time.sleep(pause_time)
-    log_area.code(log)
+        return np.random.rand() < (0.5 + 0.1 * num_elements)  # nagyobb esély a sikerre
 
-if not success_found:
-    log += f"\n⚠️ {trials}. próbálkozás után sem történt áttörés."
-    log_area.code(log)
-else:
-    st.balloons()
-    st.success("Belátás megtörtént!")
 
-st.markdown("---")
-st.markdown("#### 🔎 Megjegyzés")
-st.info("A belátás szimulációja során egy rejtett mintázatot próbál meg felfedezni a modell próbálkozások sorozatával. A 'megoldás' akkor érkezik meg, ha egy belső áttörés történik – ez itt egy véletlenszerű kísérlet, ami az előre definiált mintára illeszkedik.")
+def run(trials=5, pause_time=1.0, complexity="közepes"):
+    st.header("💡 Belátás-alapú tanulási szimuláció")
 
+    num_elements = generate_problem(complexity)
+    insight_step = np.random.randint(2, trials)
+    st.markdown(f"🔍 **A belátás várhatóan a(z) {insight_step}. próbálkozás körül történik.**")
+
+    success_history = []
+    log_messages = []
+
+    for t in range(1
