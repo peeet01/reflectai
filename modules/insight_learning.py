@@ -1,49 +1,50 @@
-import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt
-import time
+import streamlit as st import numpy as np import matplotlib.pyplot as plt import time import random
 
+def run(trials=5, pause_time=1.0, complexity="kozepes"): st.write("### 🧠 Belátás alapú tanulás – Szimuláció")
 
-def simulate_environment(step, insight_step):
-    if step < insight_step:
-        return 0
+# Komplexitás szintjeihez paraméterek
+if complexity == "alacsony":
+    n_elements = 3
+elif complexity == "magas":
+    n_elements = 7
+else:
+    n_elements = 5
+
+fig, ax = plt.subplots()
+progress_bar = st.progress(0)
+log_area = st.empty()
+
+success_found = False
+insight_trial = random.randint(2, trials)  # belátás várhatóan itt következik be
+solution_path = np.sort(np.random.permutation(range(1, 10))[:n_elements])
+
+log = ""
+for t in range(1, trials + 1):
+    progress_bar.progress(t / trials)
+
+    ax.clear()
+    attempt = np.sort(np.random.permutation(range(1, 10))[:n_elements])
+    ax.bar(range(n_elements), attempt)
+    ax.set_title(f"{t}. próbálkozás – Elemkombináció")
+    st.pyplot(fig)
+
+    if np.array_equal(attempt, solution_path) and t >= insight_trial:
+        log += f"\n✅ {t}. próbálkozás: Sikeres belátás! Megfejtett struktúra: {attempt}"
+        success_found = True
+        break
     else:
-        return 1
-
-
-def run(trials=5, pause_time=1.0, complexity="közepes"):
-    st.header("🧠 Belátás-alapú tanulás szimuláció")
-
-    total_steps = 100
-    insight_step = np.random.randint(20, 80)
-
-    performance = []
-    memory_strength = 0.0
-
-    st.markdown(f"🔍 **Belátás pillanata várhatóan a(z) {insight_step}. lépés körül.**")
-    st.markdown(f"🧪 **Próbálkozások száma:** {trials}")
-    st.markdown(f"⚙️ **Komplexitás:** {complexity}")
-    st.markdown(f"⏱️ **Pihenőidő próbálkozások között:** {pause_time} másodperc")
-
-    for trial in range(trials):
-        performance = []
-        memory_strength = 0.0
-        for t in range(total_steps):
-            outcome = simulate_environment(t, insight_step)
-            if outcome == 1:
-                memory_strength += 0.1 * (1 - memory_strength)
-            else:
-                memory_strength -= 0.1 * memory_strength * 0.3
-            performance.append(memory_strength)
-
-        st.markdown(f"### 🔁 Próbálkozás {trial + 1}")
-        fig, ax = plt.subplots()
-        ax.plot(performance, label="Megoldás sikeressége", color="purple")
-        ax.axvline(insight_step, color="red", linestyle="--", label="Belátás pontja")
-        ax.set_xlabel("Idő (lépések)")
-        ax.set_ylabel("Megtanult sikeresség")
-        ax.set_title(f"🧠 Insight Learning szimuláció – {trial + 1}. kör")
-        ax.legend()
-        st.pyplot(fig)
-
+        log += f"\n❌ {t}. próbálkozás: Nem sikerült. Próbálkozott: {attempt}"
         time.sleep(pause_time)
+    log_area.code(log)
+
+if not success_found:
+    log += f"\n⚠️ {trials}. próbálkozás után sem történt áttörés."
+    log_area.code(log)
+else:
+    st.balloons()
+    st.success("Belátás megtörtént!")
+
+st.markdown("---")
+st.markdown("#### 🔎 Megjegyzés")
+st.info("A belátás szimulációja során egy rejtett mintázatot próbál meg felfedezni a modell próbálkozások sorozatával. A 'megoldás' akkor érkezik meg, ha egy belső áttörés történik – ez itt egy véletlenszerű kísérlet, ami az előre definiált mintára illeszkedik.")
+
