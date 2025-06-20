@@ -28,56 +28,61 @@ def embed_time_series(data, delay, dimension):
     return np.array([data[i:i + delay * dimension:delay] for i in range(M)])
 
 def run():
-    st.subheader("🧠 Lorenz előrejelzés – Modellválasztással")
+    st.markdown("### 🧠 Lorenz attractor predikció – Interaktív modellválasztás")
 
-    # Interaktív modelválasztó
-    model_type = st.selectbox("🤖 Válassz prediktív modellt", ["Ridge", "Lasso", "MLP"])
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        model_type = st.selectbox("🤖 Prediktív modell kiválasztása", ["Ridge", "Lasso", "MLP"])
+    with col2:
+        show_error = st.checkbox("📉 RMSE mutatása", value=True)
 
-    dt = st.slider("🕒 Időlépés", 0.005, 0.05, 0.01)
-    steps = st.slider("🔁 Időlépések száma", 1000, 3000, 1500)
-    delay = st.slider("⏱️ Késleltetés", 1, 20, 3)
-    dimension = st.slider("📐 Beágyazás dimenziója", 2, 10, 5)
-    pred_steps = st.slider("🎯 Előrejelzendő lépések száma", 1, 50, 20)
+    dt = st.slider("🕒 Időlépés (dt)", 0.005, 0.05, 0.01)
+    steps = st.slider("🔁 Szimuláció lépések száma", 1000, 3000, 1500)
+    delay = st.slider("⏱️ Késleltetés (delay)", 1, 20, 4)
+    dimension = st.slider("📐 Beágyazási dimenzió", 2, 10, 5)
+    pred_steps = st.slider("🔮 Előrejelzendő lépések", 1, 50, 20)
 
-    # Lorenz pálya
+    # Adatgenerálás
     x, y, z = generate_lorenz_data(dt, steps)
     X_embed = embed_time_series(x, delay, dimension)
     y_target = x[(dimension - 1) * delay + pred_steps:]
 
     min_len = min(len(X_embed), len(y_target))
-    X_embed = X_embed[:min_len]
-    y_target = y_target[:min_len]
-
-    valid_mask = np.all(np.isfinite(X_embed), axis=1) & np.isfinite(y_target)
-    X_data = X_embed[valid_mask]
-    y_data = y_target[valid_mask]
+    X_embed, y_target = X_embed[:min_len], y_target[:min_len]
+    valid = np.all(np.isfinite(X_embed), axis=1) & np.isfinite(y_target)
+    X_data, y_data = X_embed[valid], y_target[valid]
 
     if len(X_data) == 0:
-        st.error("❌ Nincs elég érvényes adat. Próbálj más paramétereket.")
+        st.warning("⚠️ Nincs elég érvényes adat. Próbálj más paramétereket.")
         return
 
-    # Modell kiválasztása
+    # Modell inicializálása
     if model_type == "Ridge":
         model = Ridge(alpha=1.0)
     elif model_type == "Lasso":
         model = Lasso(alpha=0.01, max_iter=10000)
     elif model_type == "MLP":
-        model = MLPRegressor(hidden_layer_sizes=(50,), activation='relu', solver='adam', max_iter=500)
+        model = MLPRegressor(hidden_layer_sizes=(100,), activation='relu', solver='adam', max_iter=500)
 
+    # Tanítás
     model.fit(X_data, y_data)
     pred_x = model.predict(X_data)
     pred_x_full = np.concatenate([X_data[:, 0], pred_x])[:len(x)]
 
-    # 3D plot – valós és predikált pályák
-    fig = go.Figure()
-    fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name='Valós pálya', line=dict(color='blue')))
-    fig.add_trace(go.Scatter3d(x=pred_x_full, y=y, z=z, mode='lines', name='Predikció', line=dict(color='red')))
-
-    fig.update_layout(
-        scene=dict(xaxis_title='x', yaxis_title='y', zaxis_title='z'),
-        margin=dict(l=0, r=0, b=0, t=30)
-    )
-
     rmse = np.sqrt(mean_squared_error(x[:len(pred_x_full)], pred_x_full))
-    st.markdown(f"### 📈 {model_type} predikció – RMSE: `{rmse:.4f}`")
-    st.plotly_chart(fig, use_container_width=True)
+
+    # 3D Plotly vizualizáció – külön helyen!
+    with st.container():
+        st.markdown("---")
+        st.markdown(f"### 🌌 Lorenz attractor – 3D előrejelzés (`{model_type}` modell)")
+        if show_error:
+            st.markdown(f"**RMSE:** `{rmse:.4f}`")
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='lines', name='Valós pálya', line=dict(color='blue')))
+        fig.add_trace(go.Scatter3d(x=pred_x_full, y=y[:len(pred_x_full)], z=z[:len(pred_x_full)],
+                                   mode='lines', name='Predikció', line=dict(color='red')))
+        fig.update_layout(scene=dict(
+            xaxis_title='x', yaxis_title='y', zaxis_title='z'
+        ), margin=dict(l=0, r=0, b=0, t=30))
+        st.plotly_chart(fig, use_container_width=True)
