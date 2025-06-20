@@ -107,5 +107,5 @@ elif module_name == "Belátás alapú tanulás (Insight Learning)":
 elif module_name == "Generatív Kuramoto hálózat":
     run_generative_kuramoto()
 
-elif modul_valasztas == "Memória tájkép (Pro)":
+elif modul_name == "Memória tájkép (Pro)":
     run_memory_landscape()
