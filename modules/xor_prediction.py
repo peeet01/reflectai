@@ -1,73 +1,108 @@
 import streamlit as st
-import pandas as pd
+import torch
+import torch.nn as nn
+import torch.optim as optim
 import numpy as np
-from sklearn.metrics import accuracy_score, confusion_matrix
-import plotly.express as px
-import seaborn as sns
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-def run(hidden_size=2, learning_rate=0.1, epochs=1000, note=""):
-    st.subheader("🧠 XOR predikció statisztikai összegzéssel")
+# Neurális háló osztály
+class XORNet(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        super(XORNet, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.act1 = nn.Tanh()
+        self.fc2 = nn.Linear(hidden_size, 1)
+        self.out = nn.Sigmoid()
 
-    # XOR input és output
-    X = np.array([[0,0],[0,1],[1,0],[1,1]])
-    y_true = np.array([0,1,1,0])
+    def forward(self, x):
+        x = self.act1(self.fc1(x))
+        x = self.out(self.fc2(x))
+        return x
 
-    # Véletlen súlyok inicializálása
-    np.random.seed(42)
-    weights1 = np.random.randn(2, hidden_size)
-    weights2 = np.random.randn(hidden_size)
+def run(hidden_size, learning_rate, epochs, note):
+    st.subheader("🧠 XOR predikció neurális hálóval (Pro verzió)")
 
-    # Tanítási ciklus
+    # Felhasználói zaj szint beállítása
+    noise_level = st.slider("Zaj szint (0.0 = nincs zaj, 1.0 = teljes)", 0.0, 1.0, 0.1, step=0.01)
+
+    # XOR bemenetek és kimenetek
+    X_raw = np.array([[0,0], [0,1], [1,0], [1,1]], dtype=np.float32)
+    Y_raw = np.array([[0], [1], [1], [0]], dtype=np.float32)
+
+    # Zaj hozzáadása a bemenethez
+    noise = noise_level * np.random.randn(*X_raw.shape).astype(np.float32)
+    X_noisy = X_raw + noise
+
+    X = torch.from_numpy(X_noisy)
+    Y = torch.from_numpy(Y_raw)
+
+    # Modell inicializálás
+    model = XORNet(input_size=2, hidden_size=hidden_size)
+    criterion = nn.BCELoss()
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+    losses = []
+    accuracies = []
+
+    # Tanítás
     for epoch in range(epochs):
-        z1 = X @ weights1
-        a1 = np.tanh(z1)
-        z2 = a1 @ weights2
-        y_pred = (z2 > 0).astype(int)
-        error = y_true - y_pred
-        weights2 += learning_rate * a1.T @ error
+        optimizer.zero_grad()
+        outputs = model(X)
+        loss = criterion(outputs, Y)
+        loss.backward()
+        optimizer.step()
 
-    # Végső predikciók újraszámolása
-    z1 = X @ weights1
-    a1 = np.tanh(z1)
-    z2 = a1 @ weights2
-    y_pred = (z2 > 0).astype(int)
+        with torch.no_grad():
+            predictions = (outputs > 0.5).float()
+            accuracy = (predictions == Y).float().mean().item()
+            losses.append(loss.item())
+            accuracies.append(accuracy)
 
-    # Táblázat készítés
-    df = pd.DataFrame(X, columns=["Input 1", "Input 2"])
-    df["Valós érték"] = y_true
-    df["Predikció"] = y_pred
+    # Előrejelzések
+    with torch.no_grad():
+        final_outputs = model(X)
+        final_preds = (final_outputs > 0.5).float()
+        final_acc = (final_preds == Y).float().mean().item()
 
-    # Pontosság
-    acc = accuracy_score(y_true, y_pred)
-    cm = confusion_matrix(y_true, y_pred)
-
-    st.markdown(f"### 🎯 Pontosság: `{acc:.2f}`")
-
-    # Konfúziós mátrix megjelenítés
-    st.markdown("#### 📊 Konfúziós mátrix:")
-    fig_cm, ax = plt.subplots()
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False,
-                xticklabels=[0, 1], yticklabels=[0, 1], ax=ax)
-    ax.set_xlabel("Predikció")
-    ax.set_ylabel("Valós érték")
-    st.pyplot(fig_cm)
-
-    # Plotly predikciós scatter ábra
-    st.markdown("#### 🧩 Predikció vizualizáció:")
-    fig = px.scatter(df, x="Input 1", y="Input 2",
-                     color=df["Predikció"].astype(str),
-                     symbol=df["Valós érték"].astype(str),
-                     title="XOR predikciós térkép",
-                     labels={"color": "Predikció", "symbol": "Valós érték"})
-    st.plotly_chart(fig, use_container_width=True)
-
-    # Letöltés
-    st.download_button("📥 Eredmények letöltése CSV-ben",
-                       data=df.to_csv(index=False).encode('utf-8'),
-                       file_name="xor_predikcio.csv",
-                       mime="text/csv")
-
-    # Jegyzet
+    # Megjegyzés
     if note:
-        st.markdown(f"#### 📝 Jegyzet:\n> {note}")
+        st.markdown(f"📌 **Megjegyzés:** _{note}_")
+
+    # Pontosság, konfidencia
+    st.markdown(f"✅ **Pontosság:** `{final_acc*100:.2f}%`")
+    st.markdown("### 🔍 Előrejelzések részletezve:")
+
+    results_df = pd.DataFrame({
+        "Bemenet 1": X_raw[:, 0],
+        "Bemenet 2": X_raw[:, 1],
+        "Valós kimenet": Y_raw[:, 0],
+        "Predikció": final_preds.numpy().flatten(),
+        "Konfidencia": final_outputs.numpy().flatten()
+    })
+
+    st.dataframe(results_df.style.background_gradient(cmap="RdYlGn", subset=["Konfidencia"]))
+
+    # Loss és pontosság grafikon
+    fig, ax = plt.subplots(1, 2, figsize=(12, 4))
+    ax[0].plot(losses, label="Veszteség")
+    ax[0].set_title("Tanulási veszteség")
+    ax[0].set_xlabel("Epoch")
+    ax[0].set_ylabel("Loss")
+    ax[0].legend()
+
+    ax[1].plot(accuracies, label="Pontosság", color="green")
+    ax[1].set_title("Tanulási pontosság")
+    ax[1].set_xlabel("Epoch")
+    ax[1].set_ylabel("Pontosság")
+    ax[1].legend()
+
+    st.pyplot(fig)
+
+    # Hőtérkép a bemenet és konfidencia viszonyáról
+    fig2, ax2 = plt.subplots(figsize=(6, 4))
+    sns.heatmap(results_df.pivot_table(index="Bemenet 1", columns="Bemenet 2", values="Konfidencia"),
+                annot=True, fmt=".2f", cmap="viridis", ax=ax2)
+    ax2.set_title("📊 Bemenet ↔ Konfidencia hőtérkép")
+    st.pyplot(fig2)
