@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import time
 
 def berry_curvature(kx, ky, mass):
     d = np.array([
@@ -14,8 +15,6 @@ def berry_curvature(kx, ky, mass):
         return 0.0
     d_hat = d / d_norm
 
-    # Deriváltak numerikusan (kicsi h eltolással)
-    h = 1e-5
     dkx = np.array([
         np.cos(kx),
         0,
@@ -27,44 +26,45 @@ def berry_curvature(kx, ky, mass):
         -np.sin(ky)
     ])
     cross = np.cross(dkx, dky)
-    curvature = np.dot(d_hat, cross) / (d_norm ** 2 + 1e-12)
+    curvature = np.dot(d_hat, cross) / (d_norm**2 + 1e-12)
     return curvature
 
 def run():
-    st.subheader("🌀 Topológiai Chern–szám és Berry-görbület vizualizáció (Pro)")
+    st.subheader("🌀 Topológiai Chern–szám és Berry-görbület – Pro változat")
 
-    # Paraméterek
+    # Interaktív vezérlés
+    mode = st.radio("Animáció módja:", ["🔘 Manuális léptetés", "🔄 Automatikus animáció"])
     grid_size = st.slider("Rácsfelbontás", 20, 100, 50)
-    mass = st.slider("Topológiai tömeg (mass paraméter)", -5.0, 5.0, 1.0)
+    delay = st.slider("Animáció szünet (másodperc)", 0.1, 2.0, 0.4)
+    mass_vals = np.linspace(-3.0, 3.0, 60)
+    step = st.slider("Lépés kiválasztása", 0, len(mass_vals)-1, 0) if mode == "🔘 Manuális léptetés" else None
 
-    # Rács
+    # Rács létrehozása
     kx_vals = np.linspace(-np.pi, np.pi, grid_size)
     ky_vals = np.linspace(-np.pi, np.pi, grid_size)
     KX, KY = np.meshgrid(kx_vals, ky_vals)
 
-    curvature_grid = np.zeros_like(KX)
+    plot_placeholder = st.empty()
 
-    # Berry görbület kiszámítása
-    for i in range(grid_size):
-        for j in range(grid_size):
-            curvature_grid[i, j] = berry_curvature(KX[i, j], KY[i, j], mass)
+    for i, mass in enumerate(mass_vals):
+        if mode == "🔘 Manuális léptetés" and i != step:
+            continue
 
-    chern_number = np.round(np.sum(curvature_grid) * (2 * np.pi / grid_size)**2 / (2 * np.pi), 2)
+        curvature_grid = np.zeros_like(KX)
+        for ix in range(grid_size):
+            for iy in range(grid_size):
+                curvature_grid[ix, iy] = berry_curvature(KX[ix, iy], KY[ix, iy], mass)
 
-    st.markdown(f"### 🌐 Becsült Chern-szám: `{chern_number}`")
+        chern_number = np.round(np.sum(curvature_grid) * (2 * np.pi / grid_size)**2 / (2 * np.pi), 2)
+        st.markdown(f"### ℹ️ Tömegparaméter: `{mass:.2f}` | Becsült Chern-szám: `{chern_number}`")
 
-    # 2D hőtérkép
-    fig1, ax = plt.subplots()
-    c = ax.pcolormesh(KX, KY, curvature_grid, cmap='RdBu', shading='auto')
-    fig1.colorbar(c, ax=ax, label="Berry görbület")
-    ax.set_title("🗺️ 2D Berry görbület térkép")
-    ax.set_xlabel("$k_x$")
-    ax.set_ylabel("$k_y$")
-    st.pyplot(fig1)
+        fig = go.Figure(data=[go.Surface(z=curvature_grid, x=KX, y=KY, colorscale='RdBu')])
+        fig.update_layout(
+            title="🎛️ Berry-görbület 3D – forgatható nézet",
+            scene=dict(xaxis_title='kx', yaxis_title='ky', zaxis_title='Berry curvature'),
+            margin=dict(l=10, r=10, b=10, t=30)
+        )
+        plot_placeholder.plotly_chart(fig, use_container_width=True)
 
-    # 3D Plotly ábra
-    fig2 = go.Figure(data=[go.Surface(z=curvature_grid, x=KX, y=KY, colorscale='RdBu')])
-    fig2.update_layout(title="🌌 3D Berry görbület felület",
-                       scene=dict(xaxis_title='kx', yaxis_title='ky', zaxis_title='Berry curvature'),
-                       margin=dict(l=0, r=0, b=0, t=30))
-    st.plotly_chart(fig2, use_container_width=True)
+        if mode == "🔄 Automatikus animáció":
+            time.sleep(delay)
