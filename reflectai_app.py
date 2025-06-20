@@ -18,7 +18,7 @@ from modules.fractal_dimension import run as run_fractal
 from modules.insight_learning import run as run_insight_learning
 
 # 🔑 API kulcs helye
-API_KEY = "IDE_ÍRD_BE_AZ_OPENAI_API_KULCSODAT"
+API_KEY = "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"
 
 # Alkalmazás címe és bevezető
 st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
