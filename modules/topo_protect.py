@@ -1,71 +1,69 @@
+import streamlit as st
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-import streamlit as st
-import matplotlib.cm as cm
-from matplotlib.colors import Normalize
+
+
+def generate_topology(N, topology):
+    if topology == "rács":
+        G = nx.grid_2d_graph(int(np.sqrt(N)), int(np.sqrt(N)))
+        G = nx.convert_node_labels_to_integers(G)
+    elif topology == "kis világ":
+        G = nx.watts_strogatz_graph(N, k=4, p=0.1)
+    elif topology == "skálafüggetlen":
+        G = nx.barabasi_albert_graph(N, m=2)
+    else:
+        G = nx.erdos_renyi_graph(N, p=0.1)
+    return G
+
 
 def plot_network(G, phases, title):
     pos = nx.spring_layout(G, seed=42)
-    norm = Normalize(vmin=0, vmax=2*np.pi)
-    colors = cm.hsv(norm(phases))
+    phases = np.array(phases)
+    if len(phases) != len(G.nodes):
+        phases = phases[:len(G.nodes)]
+    nx.draw(
+        G, pos, node_color=phases, cmap='hsv',
+        node_size=200, with_labels=False
+    )
+    plt.title(title)
 
-    fig, ax = plt.subplots(figsize=(6, 6))
-    nx.draw_networkx_edges(G, pos, ax=ax, alpha=0.3)
-    nx.draw_networkx_nodes(G, pos, node_color=colors, ax=ax, node_size=200, cmap='hsv')
-    ax.set_title(title)
-    ax.axis('off')
-    return fig
 
-def kuramoto_topology_sim(N, K, iterations, topology="grid"):
-    if topology == "grid":
-        size = int(np.sqrt(N))
-        G = nx.grid_2d_graph(size, size)
-        G = nx.convert_node_labels_to_integers(G)
-    elif topology == "small_world":
-        G = nx.watts_strogatz_graph(N, k=4, p=0.1)
-    elif topology == "random":
-        G = nx.erdos_renyi_graph(N, p=0.1)
-    else:
-        G = nx.path_graph(N)
-
+def kuramoto_topology_sim(G, K, steps):
+    N = len(G.nodes)
     A = nx.to_numpy_array(G)
-    theta = np.random.uniform(0, 2*np.pi, N)
-    omega = np.random.normal(0, 1, N)
-
+    theta = np.random.uniform(0, 2 * np.pi, N)
     dt = 0.05
-    for _ in range(iterations):
-        theta_matrix = np.subtract.outer(theta, theta)
-        coupling = np.sum(A * np.sin(theta_matrix), axis=1)
-        theta += (omega + (K / N) * coupling) * dt
+    history = []
 
-    order_parameter = np.abs(np.sum(np.exp(1j * theta)) / N)
-    return G, theta, order_parameter
+    for _ in range(steps):
+        theta_matrix = np.subtract.outer(theta, theta)
+        if A.shape != theta_matrix.shape:
+            A = A[:theta_matrix.shape[0], :theta_matrix.shape[1]]
+        coupling = np.sum(A * np.sin(theta_matrix), axis=1)
+        theta += (K / N) * coupling * dt
+        history.append(theta.copy())
+
+    return theta, history
+
 
 def run():
     st.subheader("🧭 Topológiai szinkronizáció – hálózat alapú Kuramoto szimuláció")
 
     N = st.slider("🔢 Csúcsok száma", 10, 100, 30)
     K = st.slider("📡 Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
-    iterations = st.slider("⏱️ Iterációk száma", 10, 500, 200)
-    topology = st.selectbox("🌐 Hálózati topológia", ["grid", "small_world", "random", "path"])
+    steps = st.slider("⏱️ Iterációk száma", 10, 500, 200)
+    topology = st.selectbox("🌐 Hálózati topológia", ["rács", "kis világ", "skálafüggetlen", "véletlenszerű"])
 
-    G, final_phases, r = kuramoto_topology_sim(N, K, iterations, topology)
+    G = generate_topology(N, topology)
+    theta_final, _ = kuramoto_topology_sim(G, K, steps)
 
-    initial_phases = np.random.uniform(0, 2*np.pi, N)
-    fig1 = plot_network(G, initial_phases, "🌀 Kezdeti fázisállapot")
-    fig2 = plot_network(G, final_phases, f"🔄 Végső állapot\nSzinkronizációs index r = {r:.2f}")
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
-    st.pyplot(fig1)
-    st.pyplot(fig2)
-    st.markdown(f"**Globális szinkronizációs mutató:** `r = {r:.2f}`")
+    plt.sca(axes[0])
+    plot_network(G, np.random.uniform(0, 2 * np.pi, N), "Kezdeti állapot")
 
-    # Hálózati jellemzők táblázat
-    st.markdown("### 📊 Hálózati jellemzők")
-    st.write({
-        "Csomópontok száma": G.number_of_nodes(),
-        "Élek száma": G.number_of_edges(),
-        "Átlagos fokszám": np.mean([d for n, d in G.degree()]),
-        "Átlagos klaszterezettség": nx.average_clustering(G),
-        "Szinkronizációs index (r)": round(r, 3)
-    })
+    plt.sca(axes[1])
+    plot_network(G, theta_final, "Végső állapot")
+
+    st.pyplot(fig)
