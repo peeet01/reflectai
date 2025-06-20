@@ -1,88 +1,73 @@
 import streamlit as st
+import pandas as pd
 import numpy as np
+from sklearn.metrics import accuracy_score, confusion_matrix
+import plotly.express as px
+import seaborn as sns
 import matplotlib.pyplot as plt
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-def sigmoid_deriv(x):
-    sx = sigmoid(x)
-    return sx * (1 - sx)
-
 def run(hidden_size=2, learning_rate=0.1, epochs=1000, note=""):
-    st.subheader("🔀 XOR predikciós háló továbbfejlesztve")
-    
-    # XOR adat
-    X = np.array([[0, 0],
-                  [0, 1],
-                  [1, 0],
-                  [1, 1]])
-    y = np.array([[0], [1], [1], [0]])
+    st.subheader("🧠 XOR predikció statisztikai összegzéssel")
 
+    # XOR input és output
+    X = np.array([[0,0],[0,1],[1,0],[1,1]])
+    y_true = np.array([0,1,1,0])
+
+    # Véletlen súlyok inicializálása
     np.random.seed(42)
-    W1 = np.random.randn(2, hidden_size)
-    b1 = np.zeros((1, hidden_size))
-    W2 = np.random.randn(hidden_size, 1)
-    b2 = np.zeros((1, 1))
+    weights1 = np.random.randn(2, hidden_size)
+    weights2 = np.random.randn(hidden_size)
 
-    loss_history = []
-    hidden_activations = []
-
+    # Tanítási ciklus
     for epoch in range(epochs):
-        z1 = np.dot(X, W1) + b1
-        a1 = sigmoid(z1)
-        z2 = np.dot(a1, W2) + b2
-        a2 = sigmoid(z2)
+        z1 = X @ weights1
+        a1 = np.tanh(z1)
+        z2 = a1 @ weights2
+        y_pred = (z2 > 0).astype(int)
+        error = y_true - y_pred
+        weights2 += learning_rate * a1.T @ error
 
-        loss = np.mean((y - a2) ** 2)
-        loss_history.append(loss)
+    # Végső predikciók újraszámolása
+    z1 = X @ weights1
+    a1 = np.tanh(z1)
+    z2 = a1 @ weights2
+    y_pred = (z2 > 0).astype(int)
 
-        if epoch % (epochs // 10) == 0 or epoch == epochs - 1:
-            hidden_activations.append(a1.copy())
+    # Táblázat készítés
+    df = pd.DataFrame(X, columns=["Input 1", "Input 2"])
+    df["Valós érték"] = y_true
+    df["Predikció"] = y_pred
 
-        # Backpropagation
-        delta2 = (a2 - y) * sigmoid_deriv(z2)
-        dW2 = np.dot(a1.T, delta2)
-        db2 = np.sum(delta2, axis=0, keepdims=True)
+    # Pontosság
+    acc = accuracy_score(y_true, y_pred)
+    cm = confusion_matrix(y_true, y_pred)
 
-        delta1 = np.dot(delta2, W2.T) * sigmoid_deriv(z1)
-        dW1 = np.dot(X.T, delta1)
-        db1 = np.sum(delta1, axis=0, keepdims=True)
+    st.markdown(f"### 🎯 Pontosság: `{acc:.2f}`")
 
-        W1 -= learning_rate * dW1
-        b1 -= learning_rate * db1
-        W2 -= learning_rate * dW2
-        b2 -= learning_rate * db2
+    # Konfúziós mátrix megjelenítés
+    st.markdown("#### 📊 Konfúziós mátrix:")
+    fig_cm, ax = plt.subplots()
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False,
+                xticklabels=[0, 1], yticklabels=[0, 1], ax=ax)
+    ax.set_xlabel("Predikció")
+    ax.set_ylabel("Valós érték")
+    st.pyplot(fig_cm)
 
-    # Előrejelzés és pontosság
-    z1 = np.dot(X, W1) + b1
-    a1 = sigmoid(z1)
-    z2 = np.dot(a1, W2) + b2
-    a2 = sigmoid(z2)
-    predictions = (a2 > 0.5).astype(int)
-    accuracy = np.mean(predictions == y)
+    # Plotly predikciós scatter ábra
+    st.markdown("#### 🧩 Predikció vizualizáció:")
+    fig = px.scatter(df, x="Input 1", y="Input 2",
+                     color=df["Predikció"].astype(str),
+                     symbol=df["Valós érték"].astype(str),
+                     title="XOR predikciós térkép",
+                     labels={"color": "Predikció", "symbol": "Valós érték"})
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.write("🎯 Pontosság:", f"{accuracy * 100:.2f}%")
-    st.write("📈 Előrejelzések:", predictions.ravel().tolist())
+    # Letöltés
+    st.download_button("📥 Eredmények letöltése CSV-ben",
+                       data=df.to_csv(index=False).encode('utf-8'),
+                       file_name="xor_predikcio.csv",
+                       mime="text/csv")
 
-    # Tanulási görbe
-    fig1, ax1 = plt.subplots()
-    ax1.plot(loss_history, label="Veszteség")
-    ax1.set_title("📉 Tanulási görbe")
-    ax1.set_xlabel("Epoch")
-    ax1.set_ylabel("Loss")
-    st.pyplot(fig1)
-
-    # Rejtett aktivációk vizualizációja
-    fig2, ax2 = plt.subplots()
-    for i, a in enumerate(hidden_activations):
-        ax2.plot(range(a.shape[1]), a.mean(axis=0), label=f"Epoch {i * (epochs // 10)}")
-    ax2.set_title("🧠 Rejtett réteg aktivációk")
-    ax2.set_xlabel("Neuron index")
-    ax2.set_ylabel("Átlagos aktiváció")
-    ax2.legend()
-    st.pyplot(fig2)
-
-    # Megjegyzés megjelenítés
+    # Jegyzet
     if note:
-        st.info(f"📎 Megjegyzés: {note}")
+        st.markdown(f"#### 📝 Jegyzet:\n> {note}")
