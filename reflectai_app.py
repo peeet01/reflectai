@@ -42,7 +42,7 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Hebbian plaszticitás dinamikája",
     "Szinkronfraktál dimenzióanalízis",
     "Belátás alapú tanulás (Insight Learning)",
-    "Generatív Kuramoto hálózat"
+    "Generatív Kuramoto hálózat",
     "Memória tájkép (Pro)"
 ))
 
@@ -107,5 +107,5 @@ elif module_name == "Belátás alapú tanulás (Insight Learning)":
 elif module_name == "Generatív Kuramoto hálózat":
     run_generative_kuramoto()
 
-elif modul_name == "Memória tájkép (Pro)":
+elif module_name == "Memória tájkép (Pro)":
     run_memory_landscape()
