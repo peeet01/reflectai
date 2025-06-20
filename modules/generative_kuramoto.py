@@ -1,70 +1,37 @@
-
-import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-
-
-def generate_initial_graph(num_nodes):
-    adjacency = np.zeros((num_nodes, num_nodes))
-    for i in range(num_nodes):
-        for j in range(i + 1, num_nodes):
-            if np.random.rand() < 0.1:
-                adjacency[i, j] = 1
-                adjacency[j, i] = 1
-    return adjacency
-
-
-def dynamic_update_graph(adjacency, phases, threshold=0.9):
-    num_nodes = len(phases)
-    new_adj = np.copy(adjacency)
-    for i in range(num_nodes):
-        for j in range(i + 1, num_nodes):
-            sync = np.cos(phases[i] - phases[j])
-            if sync > threshold:
-                new_adj[i, j] = 1
-                new_adj[j, i] = 1
-            else:
-                new_adj[i, j] *= 0.99
-                new_adj[j, i] *= 0.99
-    return new_adj
-
-
-def simulate_generative_kuramoto(N, T, dt, K):
-    theta = np.random.uniform(0, 2*np.pi, N)
-    omega = np.random.normal(0, 1, N)
-    adjacency = generate_initial_graph(N)
-
-    history = []
-
-    for t in range(T):
-        dtheta = np.zeros(N)
-        for i in range(N):
-            interaction = 0
-            for j in range(N):
-                if adjacency[i, j] > 0:
-                    interaction += np.sin(theta[j] - theta[i])
-            dtheta[i] = omega[i] + (K / N) * interaction
-        theta += dtheta * dt
-        adjacency = dynamic_update_graph(adjacency, theta)
-        history.append(np.copy(theta))
-
-    return np.array(history)
-
+import streamlit as st
 
 def run():
-    st.header("🌱 Generatív Kuramoto Modell")
-    N = st.slider("Oszcillátorok száma", 5, 50, 10)
-    T = st.slider("Időlépések száma", 50, 500, 200)
-    dt = st.slider("Időlépés (dt)", 0.001, 0.1, 0.01)
-    K = st.slider("Kapcsolódási erősség (K)", 0.0, 10.0, 2.0)
+    st.subheader("🎛️ Generatív Kuramoto szimuláció – Kezdeti vs. Végső állapot")
 
-    if st.button("Szimuláció futtatása"):
-        result = simulate_generative_kuramoto(N, T, dt, K)
+    # Paraméterek
+    N = st.slider("Oszcillátorok száma (N)", 5, 100, 20)
+    K = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
+    T = st.slider("Szimulációs idő (lépések)", 10, 500, 200)
 
-        fig, ax = plt.subplots()
-        for i in range(N):
-            ax.plot(np.unwrap(result[:, i]), label=f"Oszc. {i+1}")
-        ax.set_title("Generatív Kuramoto szinkronizáció")
-        ax.set_xlabel("Időlépés")
-        ax.set_ylabel("Fázis")
-        st.pyplot(fig)
+    # Frekvenciák és kezdeti fázisok
+    omega = np.random.normal(0, 1, N)
+    theta = np.random.uniform(0, 2*np.pi, N)
+    initial_theta = theta.copy()  # Mentés
+
+    dt = 0.05
+
+    # Kuramoto egyenlet iterációja
+    for _ in range(T):
+        theta_matrix = np.subtract.outer(theta, theta)
+        coupling = np.sum(np.sin(theta_matrix), axis=1)
+        theta += (omega + (K / N) * coupling) * dt
+
+    # Szinkronizációs index számítása
+    order_parameter = np.abs(np.sum(np.exp(1j * theta)) / N)
+
+    # Ábrák
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5), subplot_kw=dict(polar=True))
+    axes[0].set_title("🌀 Kezdeti fáziseloszlás")
+    axes[0].scatter(initial_theta, np.ones(N), c='blue', alpha=0.75)
+
+    axes[1].set_title(f"🔄 Végső fáziseloszlás\nSzinkronizációs index: r = {order_parameter:.2f}")
+    axes[1].scatter(theta, np.ones(N), c='red', alpha=0.75)
+
+    st.pyplot(fig)
