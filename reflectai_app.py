@@ -34,7 +34,7 @@ st.markdown(
 )
 
 # Oldalcím
-st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
+st.title(st.title("🧠 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 
 # Jegyzetmező
