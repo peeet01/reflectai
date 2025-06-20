@@ -7,7 +7,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
-from mpl_toolkits.mplot3d import Axes3D  # 3D vizualizációhoz
+from mpl_toolkits.mplot3d import Axes3D  # Matplotlib 3D
+import plotly.graph_objects as go        # Plotly 3D interaktív felület
 
 # 🔧 Modell definiálása
 class XORNet(nn.Module):
@@ -92,8 +93,8 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
     st.markdown("### 📉 Veszteség alakulása")
     st.line_chart(losses)
 
-    # 🌊 3D hullámszerű predikciós felület
-    st.markdown("### 🌊 Predikciós felület (3D hullámként)")
+    # 🌊 Interaktív 3D hullámszerű predikciós felület (Plotly)
+    st.markdown("### 🌊 Interaktív predikciós felület (3D hullám)")
     grid_size = 100
     x_vals = np.linspace(0, 1, grid_size)
     y_vals = np.linspace(0, 1, grid_size)
@@ -104,15 +105,17 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
     with torch.no_grad():
         zz = model(grid_tensor).cpu().numpy().reshape(xx.shape)
 
-    fig_wave = plt.figure(figsize=(8, 6))
-    ax = fig_wave.add_subplot(111, projection='3d')
-    surf = ax.plot_surface(xx, yy, zz, cmap="coolwarm", edgecolor='k', linewidth=0.3, alpha=0.9)
-    ax.set_xlabel("Input 1")
-    ax.set_ylabel("Input 2")
-    ax.set_zlabel("Predikció")
-    ax.set_title("🌐 Hullámszerű predikciós felület")
-    fig_wave.colorbar(surf, ax=ax, shrink=0.5, aspect=10)
-    st.pyplot(fig_wave)
+    fig_plotly = go.Figure(data=[go.Surface(z=zz, x=xx, y=yy, colorscale='RdBu', showscale=True)])
+    fig_plotly.update_layout(
+        title='🌐 Predikciós felület (Plotly interaktív)',
+        scene=dict(
+            xaxis_title='Input 1',
+            yaxis_title='Input 2',
+            zaxis_title='Predikció'
+        ),
+        height=600
+    )
+    st.plotly_chart(fig_plotly, use_container_width=True)
 
     # 📈 Eredmények
     accuracy, predictions = evaluate(model, X_tensor, y_tensor)
