@@ -20,34 +20,49 @@ def simulate_kuramoto(N, K, T, noise_levels, dt=0.05):
             r = np.abs(np.sum(np.exp(1j * theta)) / N)
             r_vals.append(r)
 
-        results[noise] = np.array(r_vals)
+        results[np.round(noise, 2)] = np.array(r_vals)
 
     return results
 
+def plot_results(results):
+    fig, ax = plt.subplots(figsize=(10, 5))
+    for noise, r_vals in results.items():
+        ax.plot(r_vals, label=f"Zaj = {noise}", linewidth=2)
+
+    ax.set_title("🎧 Zajtűrés hatása a szinkronizációra")
+    ax.set_xlabel("⏱️ Időlépések")
+    ax.set_ylabel("🔗 Szinkronizációs index (r)")
+    ax.legend()
+    ax.grid(True)
+    return fig
+
 def run():
-    st.subheader("🎧 Zajtűrés és szinkronizáció vizsgálata (Pro Optimalizált)")
+    st.subheader("🎛️ Pro szintű zajtűrés vizualizáció – Kuramoto modell")
 
     N = st.slider("🧠 Oszcillátorok száma", 10, 100, 30)
     K = st.slider("🔗 Kapcsolási erősség", 0.0, 10.0, 2.0)
-    T = st.slider("⏳ Időlépések száma", 100, 1000, 300)
+    T = st.slider("🕒 Szimulációs időlépések", 100, 2000, 500)
+    dt = st.slider("📏 Időlépés mérete (dt)", 0.01, 0.1, 0.05)
 
-    noise_levels = st.multiselect("🔉 Választható zajszintek (max 3)", [0.0, 0.1, 0.3, 0.5, 0.7, 1.0], default=[0.0, 0.3, 0.7])
-    if len(noise_levels) > 3:
-        st.warning("⚠️ Maximum 3 zajszint választható a gyorsabb működéshez.")
+    noise_levels = st.multiselect(
+        "🔉 Zajszintek összehasonlítása (max 4)",
+        [0.0, 0.1, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0],
+        default=[0.0, 0.3, 0.7]
+    )
+
+    if len(noise_levels) == 0 or len(noise_levels) > 4:
+        st.warning("⚠️ Kérlek válassz 1–4 zajszintet az összehasonlításhoz.")
         return
 
     if st.button("▶️ Szimuláció indítása"):
-        results = simulate_kuramoto(N, K, T, noise_levels)
+        with st.spinner("Szimuláció fut..."):
+            results = simulate_kuramoto(N, K, T, noise_levels, dt)
+            fig = plot_results(results)
+            st.pyplot(fig)
 
-        fig, ax = plt.subplots()
-        for noise, r in results.items():
-            ax.plot(r, label=f"zaj = {noise}", linewidth=2)
-
-        ax.set_title("Szinkronizáció különböző zajszintek mellett")
-        ax.set_xlabel("Időlépés")
-        ax.set_ylabel("Szinkronizációs index (r)")
-        ax.legend()
-        ax.grid(True)
-        st.pyplot(fig)
-    else:
-        st.info("Válassz paramétereket és indítsd el a szimulációt.")
+            # Záró statisztika
+            final_sync = {k: round(v[-1], 3) for k, v in results.items()}
+            sorted_sync = sorted(final_sync.items())
+            summary = "\n".join([f"Zaj = {k}: r = {v}" for k, v in sorted_sync])
+            st.markdown("### 🔍 Végső szinkronizációs indexek:")
+            st.code(summary)
