@@ -1,74 +1,75 @@
-import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
-from mpl_toolkits.mplot3d import Axes3D
-from time import time
+import streamlit as st
+import plotly.graph_objects as go
 
-def generate_lorenz(dt, steps, sigma=10.0, rho=28.0, beta=8.0/3.0):
-    xyz = np.empty((steps + 1, 3))
-    xyz[0] = (1.0, 1.0, 1.0)
-    for i in range(steps):
-        x, y, z = xyz[i]
+def run():
+    st.subheader("🔮 ESN predikció vizualizáció (Pro)")
+
+    # Paraméterek
+    T = st.slider("Szimuláció hossza (időlépések)", 100, 1000, 300)
+    dt = st.slider("Időlépés (dt)", 0.001, 0.05, 0.01)
+    delay = st.slider("Késleltetés (delay)", 1, 20, 5)
+    embed_dim = st.slider("Beágyazás dimenzió", 2, 10, 4)
+    predict_steps = st.slider("Előrejelzendő lépések száma", 1, 50, 10)
+
+    # Lorenz rendszer
+    sigma, rho, beta = 10, 28, 8/3
+    def lorenz(x, y, z):
         dx = sigma * (y - x)
         dy = x * (rho - z) - y
         dz = x * y - beta * z
-        xyz[i + 1] = xyz[i] + dt * np.array([dx, dy, dz])
-    return xyz
+        return dx, dy, dz
 
-def embed_data(data, delay, dim, pred_steps):
-    N = len(data)
-    max_index = N - delay * (dim - 1) - pred_steps
-    X, y = [], []
-    for i in range(max_index):
-        x_i = [data[i + j * delay] for j in range(dim)]
-        y_i = data[i + delay * dim : i + delay * dim + pred_steps]
-        if len(y_i) == pred_steps:
-            X.append(x_i)
-            y.append(y_i)
-    return np.array(X), np.array(y)
+    def simulate_lorenz(T, dt):
+        xs, ys, zs = [1.], [1.], [1.]
+        for _ in range(T):
+            dx, dy, dz = lorenz(xs[-1], ys[-1], zs[-1])
+            xs.append(xs[-1] + dx*dt)
+            ys.append(ys[-1] + dy*dt)
+            zs.append(zs[-1] + dz*dt)
+        return np.array(xs), np.array(ys), np.array(zs)
 
-def run():
-    st.subheader("🧠 Echo State Network (ESN) predikció – Lorenz attractor")
+    x, y, z = simulate_lorenz(T + 100, dt)
 
-    dt = st.slider("Időlépés (dt)", 0.01, 0.05, 0.03)
-    steps = st.slider("Időlépések száma", 500, 3000, 1500)
-    delay = st.slider("Késleltetés (delay)", 1, 20, 3)
-    dim = st.slider("Beágyazás dimenziója", 2, 10, 5)
-    pred_steps = st.slider("Előrejelzendő lépések", 1, 20, 1)
+    # Beágyazás
+    def time_delay_embed(data, delay, dim):
+        N = len(data) - (dim - 1) * delay
+        if N <= 0:
+            return np.empty((0, dim))
+        return np.array([data[i:i + dim * delay:delay] for i in range(N)])
 
-    st.markdown("⏳ Szimuláció fut...")
+    X_embed = time_delay_embed(x, delay, embed_dim)
+    y_target = x[(embed_dim * delay):(embed_dim * delay + len(X_embed))]
 
-    start_time = time()
-    data = generate_lorenz(dt, steps)
-    progress = st.progress(0)
+    # Érvényes minták szűrése
+    valid_mask = np.all(np.isfinite(X_embed), axis=1) & np.isfinite(y_target)
+    X_valid = X_embed[valid_mask]
+    y_valid = y_target[valid_mask]
 
-    X_data, y_data = [], []
-    for i, idx in enumerate(range(3)):  # x, y, z komponensek
-        X, y = embed_data(data[:, idx], delay, dim, pred_steps)
-        X_data.append(X)
-        y_data.append(y)
-        progress.progress((i + 1) / 3.0)
+    if len(X_valid) < 10:
+        st.error("⚠️ Nincs elég érvényes adat. Próbálj más paramétereket.")
+        return
 
-    X_data = np.concatenate(X_data)
-    y_data = np.concatenate(y_data)
-
-    valid_mask = np.isfinite(X_data).all(axis=1) & np.isfinite(y_data).all(axis=1)
-    X_data, y_data = X_data[valid_mask], y_data[valid_mask]
-
+    # Ridge regresszió
     model = Ridge(alpha=1.0)
-    model.fit(X_data, y_data)
+    model.fit(X_valid, y_valid)
+    y_pred = model.predict(X_valid)
+    rmse = np.sqrt(mean_squared_error(y_valid, y_pred))
 
-    y_pred = model.predict(X_data)
-    rmse = np.sqrt(mean_squared_error(y_data, y_pred))
+    # 3D plot Plotly-vel
+    fig = go.Figure()
+    fig.add_trace(go.Scatter3d(x=x, y=y, z=z,
+                               mode='lines', name='Valós Lorenz pálya',
+                               line=dict(color='blue', width=2)))
+    fig.add_trace(go.Scatter3d(x=y_pred[:-1], y=y_pred[1:], z=y_valid[1:],
+                               mode='lines', name='Predikció pálya',
+                               line=dict(color='red', width=2)))
+    fig.update_layout(title=f"🌪️ Lorenz attractor – RMSE: {rmse:.4f}",
+                      scene=dict(xaxis_title='x', yaxis_title='y', zaxis_title='z'),
+                      margin=dict(l=0, r=0, b=0, t=30))
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.success(f"✅ RMSE: {rmse:.4f}")
-
-    fig = plt.figure(figsize=(8, 5))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot(data[:, 0], data[:, 1], data[:, 2], color='blue', label='Eredeti')
-    ax.plot(y_pred[:, 0], y_pred[:, 1], y_pred[:, 2], color='orange', alpha=0.7, label='Predikció')
-    ax.set_title("📊 Lorenz attractor – Predikció vs Eredeti")
-    ax.legend()
-    st.pyplot(fig)
+    st.success(f"✅ RMSE (gyökös átlagos négyzetes hiba): {rmse:.4f}")
