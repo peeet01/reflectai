@@ -6,7 +6,7 @@ import time
 import pandas as pd
 import os
 
-# 🔧 Neurális háló modell
+# 🔧 Modell definiálása
 class XORNet(nn.Module):
     def __init__(self, input_size=2, hidden_size=4):
         super(XORNet, self).__init__()
@@ -20,7 +20,7 @@ class XORNet(nn.Module):
         x = self.act2(self.fc2(x))
         return x
 
-# 🔊 Zaj hozzáadása
+# 🌪️ Zaj hozzáadása a bemenethez
 def add_noise(data, noise_level):
     noise = noise_level * np.random.randn(*data.shape)
     return data + noise
@@ -29,34 +29,34 @@ def add_noise(data, noise_level):
 def save_model(model, path="xor_model.pth"):
     torch.save(model.state_dict(), path)
 
-# 🎯 Kiértékelés
+# 📊 Pontosság kiértékelése
 def evaluate(model, inputs, targets):
     with torch.no_grad():
         predictions = model(inputs).round()
         accuracy = (predictions.eq(targets).sum().item()) / targets.size(0)
     return accuracy, predictions
 
-# 🧠 XOR Predikció modul
+# 🚀 Futtató függvény
 def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
-    st.subheader("🧠 XOR predikció neurális hálóval (Pro)")
-    st.markdown("Ez a modul egy neurális hálót tanít az XOR logikai kapu modellezésére, támogatja a zajkezelést, mentést, exportálást és egyéni predikciókat.")
+    st.subheader("🔁 XOR predikció neurális hálóval")
+    st.markdown("Ez a modul egy egyszerű neurális háló segítségével tanítja meg az XOR függvényt, zajjal, mentéssel és exporttal kiegészítve.")
 
-    # 🌪️ Zaj szintje
+    # 📋 Beállítások
     noise_level = st.slider("Zaj szintje", 0.0, 0.5, 0.1, 0.01)
-
-    # 💡 Beállítások
     export_results = st.checkbox("📤 Eredmények exportálása CSV-be")
     save_model_flag = st.checkbox("💾 Modell mentése")
     custom_input = st.checkbox("🎛️ Egyéni input kipróbálása tanítás után")
+    user_note = st.text_area("📝 Megjegyzésed", value=note)
 
-    # 🧩 Bemeneti adatok
+    # 🔢 Adatok
     X = np.array([[0,0],[0,1],[1,0],[1,1]], dtype=np.float32)
     y = np.array([[0],[1],[1],[0]], dtype=np.float32)
 
     X_noisy = add_noise(X, noise_level)
-    X_tensor = torch.tensor(X_noisy, dtype=torch.float32)
-    y_tensor = torch.tensor(y, dtype=torch.float32)
+    X_tensor = torch.tensor(X_noisy)
+    y_tensor = torch.tensor(y)
 
+    # 📐 Modell, veszteség, optimalizáló
     model = XORNet(hidden_size=hidden_size)
     criterion = nn.BCELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -73,18 +73,19 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
         loss.backward()
         optimizer.step()
 
-        if epoch % (epochs // 100) == 0 or epoch == epochs - 1:
-            percent = int(100 * (epoch + 1) / epochs)
-            progress.progress(min(1.0, (epoch+1)/epochs))
-            progress_text.text(f"⏳ Tanítás folyamata: {percent}%")
+        if epoch % max(1, epochs // 100) == 0 or epoch == epochs - 1:
+            percent = int((epoch+1)/epochs * 100)
+            progress.progress((epoch+1)/epochs)
+            progress_text.text(f"Tanítás folyamatban... {percent}%")
 
     train_time = time.time() - start_time
-    accuracy, predictions = evaluate(model, X_tensor, y_tensor)
 
-    # 📊 Eredmények
+    # 📈 Eredmények
+    accuracy, predictions = evaluate(model, X_tensor, y_tensor)
     st.success(f"✅ Tanítás kész! Pontosság: {accuracy * 100:.2f}%")
     st.info(f"🕒 Tanítás ideje: {train_time:.2f} másodperc")
 
+    # 📤 Exportálás
     if export_results:
         results_df = pd.DataFrame({
             "Input1": X[:,0],
@@ -96,12 +97,14 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
         csv_path = "xor_results.csv"
         results_df.to_csv(csv_path, index=False)
         with open(csv_path, "rb") as f:
-            st.download_button("📁 CSV letöltése", data=f, file_name="xor_results.csv")
+            st.download_button("📁 CSV letöltése", data=f, file_name="xor_results.csv", mime="text/csv")
 
+    # 💾 Modell mentés
     if save_model_flag:
         save_model(model)
         st.success("💾 Modell elmentve `xor_model.pth` néven.")
 
+    # 🎛️ Egyéni input kipróbálása
     if custom_input:
         st.markdown("### 🧪 Egyéni input kipróbálása")
         input1 = st.slider("Input 1", 0.0, 1.0, 0.0)
@@ -111,5 +114,7 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
             prediction = model(input_tensor).item()
         st.write(f"🔮 Predikció: {prediction:.4f} ({'1' if prediction > 0.5 else '0'})")
 
-    if note:
-        st.text_area("📝 Megjegyzésed", value=note)
+    # 📎 Jegyzet megjelenítése
+    if user_note:
+        st.markdown("### 📝 Felhasználói megjegyzés")
+        st.write(user_note)
