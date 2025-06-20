@@ -17,6 +17,7 @@ from modules.insight_learning import run as run_insight_learning
 from modules.generative_kuramoto import run as run_generative_kuramoto
 from modules.memory_landscape import run as run_memory_landscape
 from modules.graph_sync_analysis import run as run_graph_sync
+from modules.graph_sync_analysis import run as run_graph_sync_analysis
 
 # Alkalmazás címe és bevezető
 st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
@@ -114,3 +115,7 @@ elif module_name == "Memória tájkép (Pro)":
 
 elif module_name == "Gráf alapú szinkronanalízis":
     run_graph_sync()
+    
+elif module_name == "Hálózati szinkronizáció (Pro)":
+    run_graph_sync_analysis()
+
