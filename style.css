@@ -1,99 +1,62 @@
-/* Globális betűtípus és háttér */
-html, body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #111827;
-    color: #e5e7eb;
+/* Alap szövegformázás */
+h1, h2, h3 {
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: 700;
+  color: #111;
 }
 
-/* Alkalmazás főcím formázása */
-h1 {
-    font-size: 30px;
-    color: #00ffc8;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #00ffc8;
-}
-
-/* Oldalsáv formázás */
+/* Oldalsáv (sidebar) új stílusa */
 section[data-testid="stSidebar"] {
-    background-color: #1f2937;
-    border-right: 1px solid #374151;
+  background-color: #f9fafb; /* világosabb háttér */
+  color: #111827;
+  padding: 1.5rem;
+  border-right: 2px solid #e5e7eb;
 }
 
-/* Oldalsáv gombok (modulválasztó) */
-section[data-testid="stSidebar"] .stRadio > div {
-    gap: 10px;
-    font-size: 18px;
-    color: #f3f4f6;
+/* Modulválasztó címsor a sidebarban */
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+  color: #0f172a;
 }
 
-.stRadio > label {
-    font-weight: 600;
-    color: #10b981;
+/* "Kérlek válassz" kiemelése */
+.sidebar .stMarkdown p {
+  color: #0f766e;
+  font-weight: 600;
+  margin-top: 1rem;
 }
 
-/* Jegyzet input */
-input[type="text"] {
-    background-color: #1e293b;
-    color: #f1f5f9;
-    border: 1px solid #334155;
-    border-radius: 8px;
-    padding: 8px;
-    font-size: 16px;
+/* Rádiógomb szöveg és kiemelés */
+.stRadio label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
 }
 
-/* Slider stílus */
-.css-1y0tads, .stSlider {
-    color: #10b981 !important;
+.stRadio input[type="radio"]:checked + div {
+  color: #10b981 !important;
+  font-weight: bold;
 }
 
-/* Gomb stílus */
-button {
-    background-color: #10b981;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 16px;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
+/* Konténer padding */
+.block-container {
+  padding-top: 2rem;
 }
 
-button:hover {
-    background-color: #059669;
+/* Plotly chart margó */
+.stPlotlyChart {
+  margin-top: 2rem !important;
+  margin-bottom: 2rem !important;
 }
 
-/* Plotly grafikon térköz */
-div[data-testid="stPlotlyChart"] {
-    padding-top: 30px;
+/* Fejléc (header) világosabb háttérrel */
+div[data-testid="stHeader"] {
+  background-color: white;
+  border-bottom: 1px solid #ddd;
 }
 
-/* Subheader-ek */
-h2, h3 {
-    color: #38bdf8;
-}
-
-/* Hőtérképek, Matplotlib ábrák térközei */
-.css-1kyxreq {
-    margin-top: 20px;
-    margin-bottom: 40px;
-}
-
-/* Ábra alá került szövegek pozíció korrekciója */
-.element-container:has(canvas) + div {
-    margin-top: 20px;
-}
-
-/* Scrollbar design */
-::-webkit-scrollbar {
-    width: 10px;
-}
-::-webkit-scrollbar-track {
-    background: #1f2937;
-}
-::-webkit-scrollbar-thumb {
-    background: #4b5563;
-    border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #6b7280;
+/* Plot felett nagyobb térköz */
+.css-1kyxreq, .css-1v3fvcr {
+  margin-bottom: 30px;
 }
