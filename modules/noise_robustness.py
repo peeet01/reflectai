@@ -15,46 +15,41 @@ def kuramoto_with_noise(N, K, T, noise_std, dt):
     return r if np.isfinite(r) else 0.0
 
 def run():
-    st.subheader("📊 Zajtűrés vizsgálata Kuramoto-modellel – Pro vizualizáció")
+    st.subheader("⚡ Zajtűrés – Optimalizált Kuramoto modell")
 
-    # Beállítható paraméterek
     N = st.slider("🧠 Oszcillátorok száma", 5, 50, 20)
-    T = st.slider("⏱️ Iterációk száma", 100, 300, 150)
+    T = st.slider("⏱️ Iterációk száma", 50, 300, 100)
     dt = st.slider("🔄 Időlépés (dt)", 0.01, 0.1, 0.03)
 
-    k_min, k_max = st.slider("📡 Kapcsolási erősség (K) tartomány", 0.0, 10.0, (1.0, 3.0))
-    noise_min, noise_max = st.slider("🔉 Zaj szórás tartomány", 0.0, 2.0, (0.0, 0.5))
+    grid_size = st.slider("📊 Rács felbontása (gyorsítás: max 10)", 3, 10, 6)
 
-    k_vals = np.linspace(k_min, k_max, 15)
-    noise_vals = np.linspace(noise_min, noise_max, 15)
+    k_min, k_max = st.slider("📡 Kapcsolási erősség (K)", 0.0, 10.0, (1.0, 3.0))
+    noise_min, noise_max = st.slider("🔉 Zaj szórás", 0.0, 2.0, (0.0, 0.5))
 
-    Z = np.zeros((len(noise_vals), len(k_vals)))
+    k_vals = np.linspace(k_min, k_max, grid_size)
+    noise_vals = np.linspace(noise_min, noise_max, grid_size)
+    Z = np.zeros((grid_size, grid_size))
 
     progress = st.progress(0)
-    total = len(noise_vals) * len(k_vals)
-    step = 0
+    total = grid_size ** 2
+    count = 0
 
     for i, noise in enumerate(noise_vals):
         for j, k in enumerate(k_vals):
             Z[i, j] = kuramoto_with_noise(N, k, T, noise, dt)
-            step += 1
-            progress.progress(step / total)
+            count += 1
+            progress.progress(count / total)
 
-    fig = go.Figure(data=[
-        go.Surface(
-            z=Z,
-            x=k_vals,
-            y=noise_vals,
-            colorscale='Viridis'
-        )
-    ])
+    fig = go.Figure(data=[go.Surface(
+        z=Z, x=k_vals, y=noise_vals, colorscale='Viridis'
+    )])
     fig.update_layout(
-        title="🌐 Szinkronizációs index (r) – zaj és K függvényében",
+        title="🌐 Szinkronizációs index – gyors vizualizáció",
         scene=dict(
             xaxis_title='K',
-            yaxis_title='Zaj szórás (σ)',
-            zaxis_title='Szinkronizáció (r)'
+            yaxis_title='Zaj (σ)',
+            zaxis_title='r'
         ),
-        margin=dict(l=10, r=10, b=10, t=50)
+        margin=dict(l=0, r=0, b=0, t=40)
     )
     st.plotly_chart(fig, use_container_width=True)
