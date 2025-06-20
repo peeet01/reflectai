@@ -1,53 +1,66 @@
 /* style.css */
 
-/* Címsorok stílusa */
+/* Címsorok */
 h1, h2, h3 {
   font-family: 'Segoe UI', sans-serif;
   font-weight: 700;
   color: #111;
 }
 
-/* Oldalsáv (sidebar) háttér és padding */
+/* Oldalsáv */
 .sidebar .sidebar-content {
   background-color: #f7f7f7;
   padding: 1rem;
 }
 
-/* Fő blokk padding felül */
+/* Fő konténer */
 .block-container {
   padding-top: 2rem;
 }
 
-/* Plotly grafikonok margója (globálisan) */
+/* Plotly grafikon margó */
 .stPlotlyChart {
   margin-top: 2rem !important;
   margin-bottom: 2rem !important;
 }
 
-/* Fejléc alsó kerete */
+/* Fejléc háttér */
 div[data-testid="stHeader"] {
   background-color: white;
   border-bottom: 1px solid #ddd;
 }
 
-/* Cím és grafikon közti távolság */
+/* Cím alatti tér */
 .css-1kyxreq, .css-1v3fvcr {
   margin-bottom: 30px;
 }
 
-/* === Plotly vezérlőgombok (modebar) lejjebb tolása === */
+/* 📉 Plotly vezérlőgombok lejjebb tolása (ne ütközzön címbe) */
 .js-plotly-plot .modebar {
-  top: 60px !important;
+  top: 80px !important;
+  z-index: 10 !important;
 }
 
-/* Oldalsáv cím (modulválasztó) kiemelés */
+/* Oldalsáv cím kiemelés */
 .sidebar .sidebar-content h1 {
   font-size: 18px;
   color: black;
 }
 
-/* Modulválasztó ikon mérete */
+/* Modulválasztó ikon méret/fekete szín */
 [data-testid="stSidebar"] svg {
   font-size: 30px !important;
   color: black !important;
+}
+
+/* Legenda és szöveg ne ütközzön Plotly gombokkal */
+.plot-container .legend {
+  margin-top: 30px !important;
+}
+
+/* 📱 Mobilnézet extra padding */
+@media only screen and (max-width: 600px) {
+  .js-plotly-plot .modebar {
+    top: 100px !important;
+  }
 }
