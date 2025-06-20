@@ -8,21 +8,24 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
 
-# 🔧 Modell definiálása
-class XORNet(nn.Module):
-    def __init__(self, input_size=2, hidden_size=4):
-        super(XORNet, self).__init__()
-        self.fc1 = nn.Linear(input_size, hidden_size)
-        self.act1 = nn.Tanh()
-        self.fc2 = nn.Linear(hidden_size, 1)
-        self.act2 = nn.Sigmoid()
+# 🔧 Többrétegű háló dinamikusan
+class DeepXORNet(nn.Module):
+    def __init__(self, input_size=2, hidden_sizes=[4]):
+        super(DeepXORNet, self).__init__()
+        layers = []
+        in_size = input_size
+        for h in hidden_sizes:
+            layers.append(nn.Linear(in_size, h))
+            layers.append(nn.Tanh())
+            in_size = h
+        layers.append(nn.Linear(in_size, 1))
+        layers.append(nn.Sigmoid())
+        self.model = nn.Sequential(*layers)
 
     def forward(self, x):
-        x = self.act1(self.fc1(x))
-        x = self.act2(self.fc2(x))
-        return x
+        return self.model(x)
 
-# 🌪️ Zaj hozzáadása a bemenethez
+# 🌪️ Zaj hozzáadása
 def add_noise(data, noise_level):
     noise = noise_level * np.random.randn(*data.shape)
     return data + noise
@@ -38,33 +41,38 @@ def evaluate(model, inputs, targets):
         accuracy = (predictions.eq(targets).sum().item()) / targets.size(0)
     return accuracy, predictions
 
-# 🚀 Fő futtató modul
-def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
+# 🚀 Fő Streamlit modul
+def run(learning_rate=0.1, epochs=1000, note=""):
     st.subheader("🔁 XOR predikció neurális hálóval")
-    st.markdown("Ez a modul egy egyszerű neurális háló segítségével tanítja meg az XOR függvényt, zajjal, mentéssel és exporttal kiegészítve.")
+    st.markdown("Ez a modul egy többrétegű neurális háló segítségével tanítja meg az XOR függvényt, zajjal, mentéssel és exporttal kiegészítve.")
 
-    # 📋 Beállítások
+    # 📋 Paraméterek
     noise_level = st.slider("Zaj szintje", 0.0, 0.5, 0.1, 0.01)
     export_results = st.checkbox("📤 Eredmények exportálása CSV-be")
     save_model_flag = st.checkbox("💾 Modell mentése")
     custom_input = st.checkbox("🎛️ Egyéni input kipróbálása tanítás után")
     user_note = st.text_area("📝 Megjegyzésed", value=note)
 
+    # 🧠 Többrétegű architektúra kiválasztása
+    st.markdown("### 🔧 Rejtett rétegek")
+    hidden_sizes = st.multiselect("Válassz rétegeket", options=[2, 4, 8, 16, 32], default=[4, 4])
+    if not hidden_sizes:
+        st.warning("⚠️ Legalább egy rejtett réteg szükséges!")
+        return
+
     # 🧠 GPU támogatás
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # 🔢 XOR adatok
+    # 🔢 Alap adatok
     X = np.array([[0,0],[0,1],[1,0],[1,1]], dtype=np.float32)
     y = np.array([[0],[1],[1],[0]], dtype=np.float32)
-
     X_noisy = add_noise(X, noise_level)
 
-    # ✅ float32 típus szükséges
     X_tensor = torch.tensor(X_noisy, dtype=torch.float32).to(device)
     y_tensor = torch.tensor(y, dtype=torch.float32).to(device)
 
-    # 📐 Modell, veszteség, optimalizáló
-    model = XORNet(hidden_size=hidden_size).to(device)
+    # 🧠 Modell létrehozása
+    model = DeepXORNet(hidden_sizes=hidden_sizes).to(device)
     criterion = nn.BCELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -89,11 +97,11 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
 
     train_time = time.time() - start_time
 
-    # 📉 Loss grafikon
+    # 📉 Loss görbe
     st.markdown("### 📉 Veszteség alakulása")
     st.line_chart(losses)
 
-    # 📈 Eredmények értékelése
+    # 📈 Eredmények
     accuracy, predictions = evaluate(model, X_tensor, y_tensor)
     st.success(f"✅ Tanítás kész! Pontosság: {accuracy * 100:.2f}%")
     st.info(f"🕒 Tanítás ideje: {train_time:.2f} másodperc")
@@ -107,7 +115,7 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
     ax_cm.set_ylabel("Valós érték")
     st.pyplot(fig_cm)
 
-    # 📤 Eredmények exportja
+    # 📤 CSV export
     if export_results:
         results_df = pd.DataFrame({
             "Input1": X[:, 0],
@@ -118,7 +126,6 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
         })
         csv_path = "xor_results.csv"
         results_df.to_csv(csv_path, index=False)
-
         with open(csv_path, "rb") as f:
             csv_bytes = f.read()
             st.download_button("📁 CSV letöltése", data=csv_bytes, file_name="xor_results.csv", mime="text/csv")
@@ -128,7 +135,7 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
         save_model(model)
         st.success("💾 Modell elmentve `xor_model.pth` néven.")
 
-    # 🎛️ Egyéni input kipróbálása
+    # 🎛️ Egyéni input predikció
     if custom_input:
         st.markdown("### 🧪 Egyéni input kipróbálása")
         input1 = st.slider("Input 1", 0.0, 1.0, 0.0)
@@ -139,7 +146,7 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
         st.write(f"🔮 Predikció valószínűség: {prediction:.4f}")
         st.write(f"🧾 Kategória: {'1' if prediction > 0.5 else '0'}")
 
-    # 📎 Jegyzet megjelenítése
+    # 📝 Jegyzet megjelenítése
     if user_note:
         st.markdown("### 📝 Felhasználói megjegyzés")
         st.write(user_note)
