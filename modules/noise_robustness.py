@@ -1,51 +1,66 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
+import plotly.graph_objects as go
 
-def simulate_sync(N, K, T, noise_level, dt=0.05):
+def kuramoto_with_noise(N, K, T, noise, dt=0.05):
     omega = np.random.normal(0, 1, N)
     theta = np.random.uniform(0, 2*np.pi, N)
-    r_values = []
 
     for _ in range(T):
         dtheta = theta[:, None] - theta
-        interaction = np.sum(np.sin(dtheta), axis=1)
-        theta += (omega + (K / N) * interaction) * dt
-        theta += noise_level * np.random.normal(0, 1, N) * dt
-        r = np.abs(np.sum(np.exp(1j * theta)) / N)
-        r_values.append(r)
+        coupling = np.sum(np.sin(dtheta), axis=1)
+        theta += (omega + (K / N) * coupling) * dt
+        theta += noise * np.random.normal(0, 1, N) * dt
 
-    return np.array(r_values)
+    r = np.abs(np.sum(np.exp(1j * theta)) / N)
+    return r
 
 def run():
-    st.subheader("🧪 Zajtűrés szimuláció (Gyorsított Pro változat)")
+    st.subheader("🧪 Zajtűrés vizsgálata Kuramoto-modellel (3D vizualizációval)")
 
-    N = st.slider("🧠 Oszcillátorok száma", 5, 50, 20)
-    K = st.slider("🔗 Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
-    T = st.slider("📈 Időlépések", 50, 500, 200)
-    dt = st.slider("📏 Időlépés mérete", 0.01, 0.1, 0.05)
+    # Paraméterek
+    N = st.slider("🧠 Oszcillátorok száma", 5, 40, 20)
+    T = st.slider("🕒 Iterációk száma", 50, 300, 100)
+    dt = st.slider("⏱️ Időlépés (dt)", 0.01, 0.1, 0.03)
 
-    noise_levels = [0.0, 0.1, 0.5, 1.0]
-    r_matrix = []
+    k_start, k_end = st.slider("📡 Kapcsolási erősség tartománya (K)", 0.0, 10.0, (1.0, 3.0))
+    noise_start, noise_end = st.slider("🔉 Zaj szórás tartománya", 0.0, 2.0, (0.0, 0.5))
 
-    with st.spinner("Szimuláció..."):
-        for noise in noise_levels:
-            r_vals = simulate_sync(N, K, T, noise, dt)
-            r_matrix.append(r_vals)
+    k_values = np.linspace(k_start, k_end, 20)
+    noise_values = np.linspace(noise_start, noise_end, 20)
 
-    # Ábra
-    fig, ax = plt.subplots(figsize=(10, 5))
-    for i, noise in enumerate(noise_levels):
-        ax.plot(r_matrix[i], label=f"Zaj={noise}", linewidth=2)
-    ax.set_title("📊 Szinkronizáció időbeli alakulása zajszintek szerint")
-    ax.set_xlabel("Időlépés")
-    ax.set_ylabel("r-index")
-    ax.grid(True)
-    ax.legend()
-    st.pyplot(fig)
+    R = np.zeros((len(noise_values), len(k_values)))
 
-    # Stat
-    st.markdown("### 📋 Átlagos szinkronizációs értékek")
-    for i, noise in enumerate(noise_levels):
-        avg_r = np.round(np.mean(r_matrix[i][-50:]), 3)
-        st.write(f"🔉 Zaj={noise} → Átlagos r-index (utolsó 50 lépés): `{avg_r}`")
+    # Szimuláció
+    progress = st.progress(0)
+    total = len(noise_values) * len(k_values)
+    step = 0
+
+    for i, noise in enumerate(noise_values):
+        for j, k in enumerate(k_values):
+            R[i, j] = kuramoto_with_noise(N, k, T, noise, dt)
+            step += 1
+            progress.progress(step / total)
+
+    # 3D Plotly vizualizáció
+    fig = go.Figure(data=[
+        go.Surface(
+            z=R, 
+            x=k_values, 
+            y=noise_values,
+            colorscale="Viridis"
+        )
+    ])
+
+    fig.update_layout(
+        title="🌐 Szinkronizáció mértéke (r) a zaj és kapcsolási erősség függvényében",
+        scene=dict(
+            xaxis_title='Kapcsolási erősség (K)',
+            yaxis_title='Zaj (σ)',
+            zaxis_title='r-index'
+        ),
+        margin=dict(l=0, r=0, b=0, t=30)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
