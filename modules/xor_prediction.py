@@ -4,6 +4,9 @@ import torch
 import torch.nn as nn
 import time
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
 
 # 🔧 Modell definiálása
 class XORNet(nn.Module):
@@ -56,7 +59,7 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
 
     X_noisy = add_noise(X, noise_level)
 
-    # ✅ KÖTELEZŐ: float32 típus a tensorhoz
+    # ✅ float32 típus szükséges
     X_tensor = torch.tensor(X_noisy, dtype=torch.float32).to(device)
     y_tensor = torch.tensor(y, dtype=torch.float32).to(device)
 
@@ -95,6 +98,15 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
     st.success(f"✅ Tanítás kész! Pontosság: {accuracy * 100:.2f}%")
     st.info(f"🕒 Tanítás ideje: {train_time:.2f} másodperc")
 
+    # 🧮 Konfúziós mátrix
+    st.markdown("### 🧮 Konfúziós mátrix")
+    cm = confusion_matrix(y_tensor.cpu().numpy(), predictions.cpu().numpy())
+    fig_cm, ax_cm = plt.subplots()
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=[0, 1], yticklabels=[0, 1])
+    ax_cm.set_xlabel("Predikció")
+    ax_cm.set_ylabel("Valós érték")
+    st.pyplot(fig_cm)
+
     # 📤 Eredmények exportja
     if export_results:
         results_df = pd.DataFrame({
@@ -107,7 +119,6 @@ def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
         csv_path = "xor_results.csv"
         results_df.to_csv(csv_path, index=False)
 
-        # ✅ Letöltés bytes formátumban
         with open(csv_path, "rb") as f:
             csv_bytes = f.read()
             st.download_button("📁 CSV letöltése", data=csv_bytes, file_name="xor_results.csv", mime="text/csv")
