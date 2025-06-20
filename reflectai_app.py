@@ -15,15 +15,14 @@ from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
 from modules.insight_learning import run as run_insight_learning
 from modules.generative_kuramoto import run as run_generative_kuramoto
-from modules.generative_x import run as run_generative_x
 
 # Alkalmazás címe és bevezető
 st.set_page_config(page_title="ReflecAI - Szinkronizáció és MI", layout="wide")
 st.title("🌐 ReflecAI - Szinkronizáció és Mesterséges Intelligencia")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 
-# Megfigyelés/kérdés szövegdoboz (jövőbeli funkciókhoz)
-st.text_input("📝 Írd be megfigyelésed vagy kérdésed (opcionális, nem kerül feldolgozásra jelenleg):", key="observation_input")
+# Üres szövegmező a megfigyelésekhez, nyelvi modultól függetlenül
+st.text_input("📝 Megfigyelés vagy jegyzet (opcionális):")
 
 # Modulválasztó
 st.sidebar.title("📂 Modulválasztó")
@@ -42,8 +41,7 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Hebbian plaszticitás dinamikája",
     "Szinkronfraktál dimenzióanalízis",
     "Belátás alapú tanulás (Insight Learning)",
-    "Generatív Kuramoto",
-    "Generatív X"
+    "Generatív Kuramoto hálózat"
 ))
 
 # Modulok futtatása
@@ -104,14 +102,5 @@ elif module_name == "Belátás alapú tanulás (Insight Learning)":
     complexity = st.selectbox("Feladat komplexitása", ["alacsony", "közepes", "magas"])
     run_insight_learning(trials, pause_time, complexity)
 
-elif module_name == "Generatív Kuramoto":
-    st.subheader("🎨 Generatív Kuramoto szimuláció")
-    diversity = st.slider("Diverzitás mértéke", 0.1, 3.0, 1.0)
-    duration = st.slider("Időtartam", 50, 500, 200)
-    run_generative_kuramoto(diversity, duration)
-
-elif module_name == "Generatív X":
-    st.subheader("🌀 Generatív X modell")
-    iterations = st.slider("Iterációk száma", 10, 500, 100)
-    temperature = st.slider("Hőmérséklet (véletlenszerűség)", 0.1, 2.0, 1.0)
-    run_generative_x(iterations, temperature)
+elif module_name == "Generatív Kuramoto hálózat":
+    run_generative_kuramoto()
