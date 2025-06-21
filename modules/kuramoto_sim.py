@@ -15,12 +15,50 @@ def compute_order_parameter(theta):
     return np.abs(np.sum(np.exp(1j * theta)) / len(theta))
 
 
-def generate_neuron_positions(N, radius=5):
+def neuron_network_3d(theta, radius=5):
+    N = len(theta)
     angles = np.linspace(0, 2 * np.pi, N, endpoint=False)
     x = radius * np.cos(angles)
     y = radius * np.sin(angles)
     z = np.zeros(N)
-    return x, y, z
+
+    phase_colors = [f"hsl({int(np.degrees(t) % 360)}, 100%, 50%)" for t in theta]
+    fig = go.Figure()
+
+    for i in range(N):
+        # Dendrit-szerű kapcsolatok
+        fig.add_trace(go.Scatter3d(
+            x=[x[i], x[i] + 0.4 * np.cos(theta[i])],
+            y=[y[i], y[i] + 0.4 * np.sin(theta[i])],
+            z=[z[i], z[i] + 0.5 * np.sin(theta[i])],
+            mode='lines+markers',
+            marker=dict(size=4, color=phase_colors[i]),
+            line=dict(color=phase_colors[i], width=2),
+            showlegend=False
+        ))
+
+    # Kapcsolatok közöttük
+    for i in range(N):
+        for j in range(i + 1, N):
+            fig.add_trace(go.Scatter3d(
+                x=[x[i], x[j]], y=[y[i], y[j]], z=[z[i], z[j]],
+                mode='lines',
+                line=dict(color='lightgray', width=0.5),
+                hoverinfo="skip",
+                showlegend=False
+            ))
+
+    fig.update_layout(
+        title="🧠 3D Neuronháló Kuramoto-fázisokkal",
+        scene=dict(
+            xaxis=dict(title='X'),
+            yaxis=dict(title='Y'),
+            zaxis=dict(title='Z')
+        ),
+        height=600,
+        margin=dict(l=0, r=0, t=30, b=0)
+    )
+    return fig
 
 
 def run(K=2.0, N=10):
@@ -29,6 +67,7 @@ def run(K=2.0, N=10):
     # Paraméterek
     T = 200
     dt = 0.05
+
     omega = np.random.normal(0, 1, N)
     theta = np.random.uniform(0, 2 * np.pi, N)
     initial_theta = theta.copy()
@@ -41,49 +80,7 @@ def run(K=2.0, N=10):
         r_values.append(compute_order_parameter(theta))
         theta_std.append(np.std(theta))
 
-    # 🌐 3D neuronábra Plotly-vel
-    st.markdown("### 🌐 Interaktív 3D neuronvizualizáció")
-    x, y, z = generate_neuron_positions(N)
-    phase_colors = [f"hsl({int(np.degrees(t) % 360)}, 100%, 50%)" for t in theta]
-
-    fig = go.Figure()
-
-    # Neuron gömbök helyett pontok szín szerint
-    fig.add_trace(go.Scatter3d(
-        x=x, y=y, z=z,
-        mode='markers',
-        marker=dict(size=8, color=phase_colors),
-        text=[f"θ = {t:.2f} rad" for t in theta],
-        hoverinfo="text"
-    ))
-
-    # Kapcsolatok vonalakkal
-    for i in range(N):
-        for j in range(i + 1, N):
-            fig.add_trace(go.Scatter3d(
-                x=[x[i], x[j]],
-                y=[y[i], y[j]],
-                z=[z[i], z[j]],
-                mode='lines',
-                line=dict(color='lightgray', width=1),
-                hoverinfo="skip"
-            ))
-
-    fig.update_layout(
-        margin=dict(l=0, r=0, b=0, t=40),
-        height=500,
-        title="Neuronháló szinkronizációs állapota (θ színezve)",
-        scene=dict(
-            xaxis_title="X",
-            yaxis_title="Y",
-            zaxis_title="Z",
-            aspectmode="cube"
-        )
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-    # 2D Ábrák
+    # 📊 Matplotlib ábrák
     fig1, ax1 = plt.subplots(subplot_kw=dict(polar=True))
     ax1.set_title("🔵 Kezdeti fáziseloszlás")
     ax1.scatter(initial_theta, np.ones(N), c='blue', alpha=0.75)
@@ -108,6 +105,7 @@ def run(K=2.0, N=10):
     ax4.grid(True)
     ax4.legend()
 
+    # 🎯 Megjelenítés
     st.pyplot(fig1)
     st.pyplot(fig2)
     st.pyplot(fig3)
@@ -115,3 +113,8 @@ def run(K=2.0, N=10):
 
     st.markdown(f"**🔎 Végső szinkronizációs index:** `{r_values[-1]:.3f}`")
     st.markdown(f"**📊 Végső szórás:** `{theta_std[-1]:.3f}`")
+
+    # 🧠 3D neuronháló megjelenítés
+    st.markdown("### 🌐 Térbeli neuronháló (fázisszinkronizáció színekkel)")
+    fig3d = neuron_network_3d(theta)
+    st.plotly_chart(fig3d, use_container_width=True)
