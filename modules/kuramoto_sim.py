@@ -26,7 +26,6 @@ def neuron_network_3d(theta, radius=5):
     fig = go.Figure()
 
     for i in range(N):
-        # Dendrit-szerű kapcsolatok
         fig.add_trace(go.Scatter3d(
             x=[x[i], x[i] + 0.4 * np.cos(theta[i])],
             y=[y[i], y[i] + 0.4 * np.sin(theta[i])],
@@ -37,7 +36,6 @@ def neuron_network_3d(theta, radius=5):
             showlegend=False
         ))
 
-    # Kapcsolatok közöttük
     for i in range(N):
         for j in range(i + 1, N):
             fig.add_trace(go.Scatter3d(
@@ -75,10 +73,18 @@ def run(K=2.0, N=10):
     r_values = []
     theta_std = []
 
-    for _ in range(T):
+    progress = st.progress(0)
+    progress_text = st.empty()
+
+    for t in range(T):
         theta = kuramoto_step(theta, omega, K, dt)
         r_values.append(compute_order_parameter(theta))
         theta_std.append(np.std(theta))
+
+        # 🟣 Progress bar frissítése
+        if t % max(1, T // 100) == 0 or t == T - 1:
+            progress.progress((t + 1) / T)
+            progress_text.text(f"⏳ Szimuláció folyamatban... {int((t+1)/T*100)}%")
 
     # 📊 Matplotlib ábrák
     fig1, ax1 = plt.subplots(subplot_kw=dict(polar=True))
@@ -105,7 +111,6 @@ def run(K=2.0, N=10):
     ax4.grid(True)
     ax4.legend()
 
-    # 🎯 Megjelenítés
     st.pyplot(fig1)
     st.pyplot(fig2)
     st.pyplot(fig3)
