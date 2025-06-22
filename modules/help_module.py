@@ -1,142 +1,142 @@
 import streamlit as st
 
-def run(): st.title("❓ Súgó / Modulismertető") st.markdown(""" Itt megtalálod az egyes modulok részletes leírását, célját, tudományos hátterét, valamint a használt matematikai egyenleteket.
-
----
-
-### 🧭 Kuramoto szinkronizáció
-**Cél:** Vizsgálni, hogyan képesek oszcillátorok szinkronizálódni csatolás hatására.  
-**Háttér:** A Kuramoto-modell az egyik legismertebb modell fázis-szinkronizációra komplex rendszerekben.  
-**Egyenlet:**  
-$\dot{\theta}_i = \omega_i + \frac{K}{N} \sum_{j=1}^N \sin(\theta_j - \theta_i)$
+def run():
+    st.title("📚 Segítség és modulismertető")
+    st.markdown("""
+Ez az alkalmazás különféle **neurális és komplex rendszermodelleket** demonstrál. Minden modul célja a biológiai, fizikai vagy mesterséges intelligencia rendszerek egyes dinamikus tulajdonságainak szemléltetése.
 
 ---
 
 ### 🧠 Hebbian tanulás
-**Cél:** Neurális tanulási szabály szimulálása, miszerint együtt aktív neuronok kapcsolatai erősödnek.  
-**Háttér:** Donald Hebb elmélete szerint a tanulás az együttes aktivitás alapján történik.  
-**Szabály:**  
-$\Delta w_{ij} = \eta x_i y_j$
+**Cél:** Megmutatni a Hebb-féle tanulási szabályt: *"Cells that fire together, wire together."*  
+**Egyenlet:**  
+\
+\\Delta w_{ij} = \\eta x_i y_j
+\  
+ahol \w_{ij}\ a szinaptikus súly, \x_i\ a bemenet, \y_j\ a kimenet, és \\\eta\ a tanulási ráta.
 
 ---
 
-### ❌ XOR predikció
-**Cél:** Megtanítani egy egyszerű neurális hálót egy nemlineáris logikai műveletre.  
-**Háttér:** Az XOR probléma nem oldható meg egyetlen lineáris perceptronnal – ez vezette az MLP fejlődését.  
-**Tanítás:** Két bináris bemenetből egy bináris kimenet tanulása MLP-vel.
+### 🤖 XOR predikció
+**Cél:** Egy neurális háló tanítása az XOR logikai kapu megtanulására.  
+**Tudományos háttér:** Az XOR probléma nemlineárisan szeparálható, ezért szükséges rejtett réteg (MLP).  
+**Adatfeltöltés támogatott:** Igen.
 
 ---
 
-### 🌐 Kuramoto–Hebbian hálózat
-**Cél:** Kombinálni a fázisszinkronizációt és a Hebb-féle tanulást.  
-**Háttér:** Dinamikus gráfháló, ahol a kapcsolat erőssége időben változik tanulás hatására.
+### 🔗 Kuramoto szinkronizáció
+**Cél:** Oszcillátorok közötti fázisszinkronizáció modellezése.  
+**Egyenlet:**  
+\
+\\frac{d\\theta_i}{dt} = \\omega_i + \\frac{K}{N} \\sum_{j=1}^{N} \\sin(\\theta_j - \\theta_i)
+\  
+ahol \\\theta_i\ az oszcillátor fázisa, \\\omega_i\ a sajátfrekvencia, és \K\ a csatolás.
 
 ---
 
-### 🧩 Topológiai szinkronizáció
-**Cél:** Megérteni, hogyan befolyásolja a hálózat struktúrája a szinkronizációt.  
-**Háttér:** A gráf topológiája kulcsfontosságú tényező a kollektív dinamika alakulásában.
+### 🧠 Kuramoto–Hebbian hálózat
+**Cél:** Kuramoto és Hebbian dinamikák egyesítése a tanuló szinkronizációs hálózathoz.  
+**Hatás:** Biológiai szinkronizáció és adaptív tanulás modellezése.
+
+---
+
+### 🌐 Topológiai szinkronizáció
+**Cél:** Hálózati topológia hatásának vizsgálata Kuramoto-modellek szinkronizációjára.  
+**Moduláris:** Egyedi gráfstruktúrák is tesztelhetők.
 
 ---
 
 ### 🌪️ Lorenz szimuláció
-**Cél:** A Lorenz-rendszer numerikus integrálása, és káoszos viselkedés megfigyelése.  
-**Háttér:** Meteorológiai eredetű, három differenciálegyenletből álló nemlineáris rendszer.  
+**Cél:** Káoszos Lorenz-rendszer szimulációja.  
 **Egyenletek:**  
-$\dot{x} = \sigma(y - x)$  
-$\dot{y} = x(\rho - z) - y$  
-$\dot{z} = xy - \beta z$
+\
+\\begin{cases}
+\\dot{x} = \\sigma(y - x) \\\\
+\\dot{y} = x(\\rho - z) - y \\\\
+\\dot{z} = xy - \\beta z
+\\end{cases}
+\  
+**Tudományos háttér:** Időjárásmodellezés és determinisztikus káosz.
 
 ---
 
-### 🔮 Lorenz predikció (MLP/ESN)
-**Cél:** A Lorenz-rendszer idősoraiból a jövőbeli értékek előrejelzése.  
-**Háttér:** Idősor-előrejelzés nemlineáris dinamikus rendszereken.  
-**Modellek:** Többrétegű perceptron (MLP) és Echo State Network (ESN).  
-**ESN formula:**  
-$x(t+1) = \tanh(W_{in}u(t) + Wx(t))$
+### 🔮 Lorenz predikció (MLP)
+**Cél:** Többrétegű perceptron tanítása Lorenz-idősor előrejelzésére.  
+**Adatfeltöltés támogatott:** Igen.
 
 ---
 
-### 🛡️ Topológiai védettség (Chern-szám)
-**Cél:** Hálózati topológiai jellemzők (Chern-szám) vizsgálata robusztusság szempontjából.  
-**Háttér:** Kvantum Hall-effektus analógiája diszkrét gráfokban.  
-**Mennyiség:** Topológiai invariáns:  
-$C = \frac{1}{2\pi} \int_{BZ} \Omega(k) \, d^2k$
+### 🔍 Lorenz predikció (ESN)
+**Cél:** Echo State Network alkalmazása időbeli predikcióra Lorenz adatokon.  
+**Tudományos háttér:** Rezonáns tartománytanulás.  
+**Adatfeltöltés támogatott:** Igen.
 
 ---
 
-### 🔢 Chern–szám analízis
-**Cél:** Chern-szám numerikus számítása Berry-görbület alapján.  
-**Háttér:** Kvantummechanikai hullámfüggvény geometriai fázisa.
+### 🔊 Zajtűrés és szinkronizációs robusztusság
+**Cél:** Kuramoto-modell vizsgálata zajos környezetben.  
+**Fő mérőszám:** Átlagos szinkronizációs index \r\.  
+**Adatfeltöltés támogatott:** Igen.
 
 ---
 
-### 🔊 Zajtűrés / Noise robustness
-**Cél:** Kuramoto-szinkronizációs viselkedés vizsgálata különböző zajszinteken.  
-**Háttér:** Valós rendszerekben a szinkronizáció stabilitását zaj befolyásolja.
+### 🧮 Topológiai védettség (Chern-szám)
+**Cél:** Szilárdtestfizikából ismert topológiai fázisok Chern-számának kiszámítása.  
+**Alkalmazás:** Kvantumos Hall-hatás, topológiai szigetelők.  
+**Matematika:** Integrál a Berry-görbületen.
 
 ---
 
-### 🧠 Echo State Network (ESN)
-**Cél:** Nemlineáris idősorok előrejelzése sztochasztikus reservoirok segítségével.  
-**Háttér:** A belső dinamikát nem tanítjuk, csak a kimeneti lineáris olvasó réteget.  
-**Egyenlet:**  
-$x(t+1) = \tanh(W_{in} u(t) + Wx(t))$
+### 🔄 Topológiai Chern-szám analízis
+**Cél:** A Berry-görbület és a Chern-szám numerikus számítása adott mátrixok alapján.  
+**Fizikai jelentőség:** Diszkrét rácsmodellek topológiai tulajdonságai.
 
 ---
 
-### 🔁 Hebbian plaszticitás
-**Cél:** A tanulási szabály időbeli dinamikájának modellezése.  
-**Háttér:** Biológiailag motivált súlyváltozási törvények időfüggéssel.
+### 🧪 Hebbian plaszticitás dinamikája
+**Cél:** A tanulási folyamatok hosszútávú stabilitásának vizsgálata Hebbian alapján.  
+**Hatás:** Túlillesztés és divergens súlyok elemzése.
 
 ---
 
-### 🌀 Szinkronfraktál dimenzióanalízis
-**Cél:** Fraktáldimenzió meghatározása idősor ponteloszlásból.  
-**Háttér:** A fraktáldimenzió a rendszer komplexitását jellemzi.  
-**Becslés:**  
-$D \approx \lim_{\epsilon \to 0} \frac{\log N(\epsilon)}{\log(1/\epsilon)}$
+### 📐 Szinkronfraktál dimenzióanalízis
+**Cél:** Fázisszinkronizációból származó adatok fraktáldimenziójának becslése.  
+**Módszer:** Box-counting algoritmus.  
+**Adatfeltöltés támogatott:** Igen.
 
 ---
 
-### 💡 Insight learning
-**Cél:** Belátás alapú tanulási formák szimulációja.  
-**Háttér:** A megértésen alapuló tanulás különbözik a klasszikus kondicionálástól.
+### 👁️‍🗨️ Belátás alapú tanulás (Insight Learning)
+**Cél:** Problémamegoldás szimulálása belső reprezentáció alapján.  
+**Tudományos háttér:** Köhler majomkísérletei, Gestalt pszichológia.
 
 ---
 
-### 🧬 Generatív Kuramoto hálózat
-**Cél:** Strukturális fejlődés szimulációja Kuramoto-alapú hálóban.  
-**Háttér:** Egyesíti a gráfépítést és tanulást szinkronizációval.
+### 🧬 Generatív Kuramoto-hálózat
+**Cél:** Dinamikus gráfgenerálás és Kuramoto szinkronizáció összeolvasztása.  
+**Használat:** Rendszergenerálás és vizuális szinkronállapotok.
 
 ---
 
-### 🧠 Memória tájkép
-**Cél:** Rekurrens hálózatok stabil állapotainak és memóriájának feltérképezése.  
-**Háttér:** Energiaalapú modellezés (pl. Hopfield-hálók).
+### 🧠 Memória tájkép (Memory Landscape)
+**Cél:** A tárolt emlékek közötti energiatájak vizualizálása.  
+**Inspiráció:** Hopfield-hálózatok és memóriadinamika.
 
 ---
 
 ### 🧩 Gráfalapú szinkronanalízis
-**Cél:** Komplex hálózat szinkronizációs tulajdonságainak vizsgálata topológiai függvényében.
+**Cél:** Általános szinkronanalízis gráfstruktúrák és csatolási erősségek alapján.
 
 ---
 
-### 📉 Lyapunov spektrum
-**Cél:** A káosz mérőszámának (legnagyobb Lyapunov-exponens) becslése Lorenz-pályából.  
-**Háttér:** Egy kis perturbáció időbeli növekedésének logaritmikus mértéke.  
-**Képlet:**  
-$\lambda = \lim_{t \to \infty} \frac{1}{t} \log \frac{\|\delta(t)\|}{\|\delta(0)\|}$
+### 🌀 Lyapunov-spektrum
+**Cél:** A Lorenz-rendszer legnagyobb Lyapunov-exponensének becslése.  
+**Matematika:**  
+\
+\\lambda = \\lim_{t \\to \\infty} \\frac{1}{t} \\sum_{i=1}^{t} \\log \\left( \\frac{\\|\\delta(t+1)\\|}{\\|\\delta(t)\\|} \\right)
+\  
+**Adatfeltöltés támogatott:** Tervezett.
 
 ---
 
-### 📁 Adatfeltöltés modul
-**Cél:** CSV fájlok feltöltése, előnézete, validálása.  
-**Funkció:** Session-ben tárolás, oszlopellenőrzés, fallback adatok kezelése.
-
----
-
-Ha kérdésed van, fordulj bizalommal a fejlesztőhöz! 📬
 """)
-
