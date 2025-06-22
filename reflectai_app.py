@@ -21,8 +21,9 @@ from modules.insight_learning import run as run_insight_learning
 from modules.generative_kuramoto import run as run_generative_kuramoto
 from modules.memory_landscape import run as run_memory_landscape
 from modules.graph_sync_analysis import run as run_graph_sync_analysis
-from modules.help_module import run as run_help  # FONTOS: komment eltávolítva!
+from modules.help_module import run as run_help
 from modules.data_upload import run as run_data_upload
+from modules.lyapunov_spectrum import run as run_lyapunov_spectrum  # ÚJ modul importálása
 
 # Oldal konfiguráció
 st.set_page_config(
@@ -57,6 +58,7 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Generatív Kuramoto hálózat",
     "Memória tájkép (Pro)",
     "Gráfalapú szinkronanalízis",
+    "Lyapunov spektrum",  # ✅ ÚJ modul menüponthoz adva
     "Adatfeltöltés modul",
     "❓ Súgó / Help"
 ))
@@ -69,16 +71,14 @@ if module_name == "Kuramoto szinkronizáció":
     run_kuramoto(coupling, num_osc)
 
 elif module_name == "Hebbian tanulás":
-    st.subheader("🧠 Hebbian paraméterek")
     learning_rate = st.slider("Tanulási ráta", 0.001, 1.0, 0.1)
     num_neurons = st.number_input("Neuronok száma", min_value=2, max_value=100, value=10)
     run_hebbian(learning_rate, num_neurons)
 
 elif module_name == "XOR predikció":
-    st.subheader("🧠 XOR tanítása neurális hálóval")
-    hidden_size = st.slider("Rejtett réteg neuronjainak száma", 1, 10, 2)
+    hidden_size = st.slider("Rejtett réteg mérete", 1, 10, 2)
     learning_rate = st.slider("Tanulási ráta", 0.001, 1.0, 0.1)
-    epochs = st.number_input("Epochok száma", min_value=100, max_value=10000, value=1000, step=100)
+    epochs = st.number_input("Epochok száma", 100, 10000, 1000, step=100)
     note = st.text_input("Megjegyzés (opcionális)")
     run_xor(hidden_size, learning_rate, epochs, note)
 
@@ -113,9 +113,8 @@ elif module_name == "Szinkronfraktál dimenzióanalízis":
     run_fractal()
 
 elif module_name == "Belátás alapú tanulás (Insight Learning)":
-    st.subheader("💡 Belátás alapú tanulási szimuláció")
     trials = st.slider("Próbálkozások száma", 1, 20, 5)
-    pause_time = st.slider("Megállás hossza (másodperc)", 0.0, 5.0, 1.0)
+    pause_time = st.slider("Megállás időtartama (mp)", 0.0, 5.0, 1.0)
     complexity = st.selectbox("Feladat komplexitása", ["alacsony", "közepes", "magas"])
     run_insight_learning(trials, pause_time, complexity)
 
@@ -127,6 +126,9 @@ elif module_name == "Memória tájkép (Pro)":
 
 elif module_name == "Gráfalapú szinkronanalízis":
     run_graph_sync_analysis()
+
+elif module_name == "Lyapunov spektrum":
+    run_lyapunov_spectrum()
 
 elif module_name == "Adatfeltöltés modul":
     run_data_upload()
