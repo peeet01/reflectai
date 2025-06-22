@@ -1,6 +1,8 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+from modules.data_upload import get_uploaded_data, show_data_overview
+
 
 def kuramoto_fast(N, T, dt, K, noise_std):
     theta = np.random.uniform(0, 2 * np.pi, N)
@@ -17,11 +19,29 @@ def kuramoto_fast(N, T, dt, K, noise_std):
 
     return np.mean(order_params)
 
+
 def run():
-    st.subheader("🔊 Zajtűrés és szinkronizáció robusztusság (Gyorsított)")
+    st.title("🔊 Zajtűrés és szinkronizációs robusztusság")
+
+    st.markdown("""
+    Ez a modul azt vizsgálja, hogy különböző zaj- és kapcsolati erősségek mellett mennyire marad szinkronban egy oszcillátorhálózat.
+    Használhatsz saját adatot is (pl. fázisokat tartalmazó `.csv` fájlt), vagy alapértelmezett szimulációt.
+    """)
+
+    df = get_uploaded_data(required_columns=None, allow_default=False)
+
+    if df is not None:
+        st.success("✅ Saját adat betöltve.")
+        show_data_overview(df)
+
+        st.info("🔧 Egyedi adatfeltöltés jelenleg még nem implementált — a jelenlegi verzió csak szimulációval működik.")
+        st.stop()
+
+    # Ha nincs adat, szimulációs móddal folytatjuk
+    st.markdown("### ⚙️ Szimuláció paraméterek")
 
     N = st.slider("🧠 Oszcillátorok száma", 5, 50, 20)
-    T = st.slider("⏱️ Iterációk száma", 50, 200, 100)
+    T = st.slider("⏱️ Iterációk száma", 50, 300, 150)
     dt = st.slider("🕒 Időlépés", 0.01, 0.1, 0.03)
     num_K = st.slider("📈 K felbontás", 5, 15, 8)
     num_noise = st.slider("📉 Zaj felbontás", 5, 15, 8)
@@ -36,6 +56,8 @@ def run():
         for j, noise in enumerate(noise_vals):
             R_matrix[i, j] = kuramoto_fast(N, T, dt, K, noise)
         progress.progress((i + 1) / num_K, text=f"{int((i + 1) / num_K * 100)}% kész")
+
+    st.markdown("### 🔍 Szinkronizációs index hőtérkép")
 
     fig, ax = plt.subplots(figsize=(8, 5))
     im = ax.imshow(R_matrix, origin='lower', aspect='auto',
