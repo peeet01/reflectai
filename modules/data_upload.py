@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-
 @st.cache_data(show_spinner=False)
 def load_data(uploaded_file):
     """CSV fájl beolvasása és cache-elése."""
@@ -17,12 +16,11 @@ def load_data(uploaded_file):
 
 def get_uploaded_data(required_columns=None, allow_default=False, default=None):
     """
-    Adatfeltöltő komponens modulokhoz.
-
-    Paraméterek:
-    - required_columns: kötelező oszlopok listája
-    - allow_default: ha nincs fájl, töltsön-e be alapértelmezett adatot
-    - default: alapértelmezett név (pl. 'xor', 'lorenz', 'kuramoto_sim')
+    Adatfeltöltő komponens, amely:
+    - CSV-t kér be,
+    - ellenőrzi a szükséges oszlopokat (ha van megadva),
+    - ha nincs fájl, fallback adatot tölt be (ha engedélyezett),
+    - session_state-be menti a betöltött adatot.
 
     Visszatér: pandas.DataFrame vagy None
     """
@@ -30,12 +28,11 @@ def get_uploaded_data(required_columns=None, allow_default=False, default=None):
     uploaded_file = st.sidebar.file_uploader("Tölts fel egy CSV fájlt", type=["csv"])
     df = load_data(uploaded_file)
 
-    # Fallback adat
+    # Fallback (pl. XOR, Lorenz stb.)
     if df is None and allow_default and default:
-        st.sidebar.warning(f"⚠️ Nincs fájl, fallback: `{default}`")
+        st.sidebar.warning(f"⚠️ Nincs fájl, fallback: `{default}` adatkészlet")
         df = get_default_data(default)
 
-    # Ellenőrzés
     if df is not None:
         if required_columns:
             missing = [col for col in required_columns if col not in df.columns]
@@ -51,7 +48,7 @@ def get_uploaded_data(required_columns=None, allow_default=False, default=None):
 
 
 def get_default_data(name):
-    """Alapértelmezett szintetikus adatok több modulhoz."""
+    """Beépített alapértelmezett adatok: XOR, Lorenz."""
     if name == "xor":
         return pd.DataFrame({
             "Input1": [0, 0, 1, 1],
@@ -65,21 +62,13 @@ def get_default_data(name):
         y = np.cos(t)
         z = np.sin(0.5 * t)
         return pd.DataFrame({"x": x, "y": y, "z": z})
-    elif name == "fractal":
-        signal = np.sin(np.linspace(0, 50, 1000)) + 0.5 * np.random.randn(1000)
-        return pd.DataFrame({"signal": signal})
-    elif name == "kuramoto_sim":
-        # 10 szimulált oszcillátor fázis
-        steps = 300
-        phases = {f"theta_{i+1}": np.random.uniform(0, 2*np.pi, steps) for i in range(10)}
-        return pd.DataFrame(phases)
     else:
         st.warning(f"⚠️ Nincs ilyen nevű alapértelmezett adat: `{name}`")
         return None
 
 
 def show_data_overview(df, title="📊 Feltöltött adat előnézete"):
-    """Adat előnézet és metaadatok."""
+    """Adatok előnézete: méret, NaN figyelmeztetés."""
     if df is not None:
         st.subheader(title)
         st.write("ℹ️ Méret:", df.shape)
@@ -92,14 +81,16 @@ def show_data_overview(df, title="📊 Feltöltött adat előnézete"):
 
 
 def run():
-    """Menüből elérhető adatfeltöltés oldal."""
+    """Menüből hívható önálló oldal: Adatfeltöltés."""
     st.title("📁 Adatfeltöltés")
     st.markdown("""
-    Tölts fel CSV fájlt, vagy használj előre definiált szintetikus adatokat.
+    Tölts fel `.csv` fájlt, vagy használd az előre definiált alapértelmezett adatkészleteket:  
+    - `xor`: logikai XOR feladat  
+    - `lorenz`: szimulált 3D Lorenz-rendszer
     """)
 
     df = get_uploaded_data(allow_default=True, default="xor")
     if df is not None:
         show_data_overview(df)
     else:
-        st.info("Nem történt betöltés.")
+        st.info("❗ Nincs elérhető adat.")
