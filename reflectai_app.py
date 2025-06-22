@@ -22,6 +22,7 @@ from modules.generative_kuramoto import run as run_generative_kuramoto
 from modules.memory_landscape import run as run_memory_landscape
 from modules.graph_sync_analysis import run as run_graph_sync_analysis
 from modules.help_module import run as run_help  # FONTOS: komment eltávolítva!
+from modules.data_upload import run as run_data_upload
 
 # Oldal konfiguráció
 st.set_page_config(
@@ -56,6 +57,7 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Generatív Kuramoto hálózat",
     "Memória tájkép (Pro)",
     "Gráfalapú szinkronanalízis",
+    "Adatfeltöltés modul",
     "❓ Súgó / Help"
 ))
 
@@ -125,6 +127,9 @@ elif module_name == "Memória tájkép (Pro)":
 
 elif module_name == "Gráfalapú szinkronanalízis":
     run_graph_sync_analysis()
+
+elif module_name == "Adatfeltöltés modul":
+    run_data_upload()
 
 elif module_name == "❓ Súgó / Help":
     run_help()
