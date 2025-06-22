@@ -1,10 +1,12 @@
-
 import streamlit as st
 import pandas as pd
 from io import StringIO
 
 @st.cache_data(show_spinner=False)
 def load_data(uploaded_file):
+    """
+    Feltöltött CSV fájl beolvasása DataFrame-ként.
+    """
     if uploaded_file is not None:
         try:
             df = pd.read_csv(uploaded_file)
@@ -14,6 +16,10 @@ def load_data(uploaded_file):
     return None
 
 def get_uploaded_data():
+    """
+    Adatfeltöltő komponens a Streamlit oldalsávban.
+    Visszaadja a betöltött DataFrame-et vagy None-t.
+    """
     st.sidebar.subheader("📁 Adatfeltöltés")
     uploaded_file = st.sidebar.file_uploader("Tölts fel egy CSV fájlt", type=["csv"])
 
@@ -27,10 +33,14 @@ def get_uploaded_data():
     return df
 
 def show_data_overview(df, title="📊 Feltöltött adat előnézete"):
+    """
+    Megjeleníti a feltöltött adatok első néhány sorát, valamint ellenőrzi a hiányzó értékeket.
+    """
     if df is not None:
         st.subheader(title)
         st.write("ℹ️ Adatok mérete:", df.shape)
         st.dataframe(df.head())
+
         if df.isnull().values.any():
             st.warning("⚠️ Hiányzó értékek találhatók az adathalmazban!")
     else:
