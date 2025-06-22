@@ -17,23 +17,21 @@ def load_data(uploaded_file):
 
 def get_uploaded_data(required_columns=None, allow_default=False, default=None):
     """
-    Általános adatbetöltő komponens:
-    - Oldalsávban fájl feltöltése
-    - Ellenőrzi a kötelező oszlopokat
-    - Automatikus fallback default adatra (pl. lorenz, xor, fractal)
-    - Session state-be ment
+    Általános adatbetöltő Streamlit modulokhoz:
+    - CSV-t kér be,
+    - ellenőrzi a kötelező oszlopokat (ha van),
+    - opcionálisan fallback alapértelmezett adatkészletet tölt be.
+
+    Visszaad egy `DataFrame`-et, vagy `None`-t, ha nincs érvényes adat.
     """
     st.sidebar.subheader("📁 Adatfeltöltés")
     uploaded_file = st.sidebar.file_uploader("Tölts fel egy CSV fájlt", type=["csv"])
-
     df = load_data(uploaded_file)
 
-    # Fallback, ha nincs fájl és engedélyezett
     if df is None and allow_default and default:
         st.sidebar.warning(f"⚠️ Nincs fájl, fallback: `{default}`")
         df = get_default_data(default)
 
-    # Ellenőrzés
     if df is not None:
         if required_columns:
             missing = [col for col in required_columns if col not in df.columns]
@@ -49,14 +47,18 @@ def get_uploaded_data(required_columns=None, allow_default=False, default=None):
 
 
 def get_default_data(name):
-    """Előre definiált példák: XOR, Lorenz, Fractal."""
+    """
+    Előre definiált fallback adatok:
+    - `xor`: klasszikus XOR bemenet/kimenet
+    - `lorenz`: szintetikus Lorenz attraktor x/y/z adatok
+    - `fractal`: mesterséges 1D fraktálsorozat (dummy)
+    """
     if name == "xor":
         return pd.DataFrame({
             "Input1": [0, 0, 1, 1],
             "Input2": [0, 1, 0, 1],
             "Target": [0, 1, 1, 0]
         })
-
     elif name == "lorenz":
         steps = 1000
         t = np.linspace(0, 40, steps)
@@ -64,25 +66,22 @@ def get_default_data(name):
         y = np.cos(t)
         z = np.sin(0.5 * t)
         return pd.DataFrame({"x": x, "y": y, "z": z})
-
     elif name == "fractal":
-        size = 64
-        np.random.seed(42)
-        matrix = np.random.rand(size, size)
-        return pd.DataFrame(matrix)
-
+        x = np.linspace(0, 1, 1000)
+        noise = np.random.normal(0, 0.02, size=1000)
+        f = np.abs(np.sin(2 * np.pi * x * 10)) + noise
+        return pd.DataFrame({"signal": f})
     else:
         st.warning(f"⚠️ Nincs ilyen nevű alapértelmezett adat: `{name}`")
         return None
 
 
 def show_data_overview(df, title="📊 Feltöltött adat előnézete"):
-    """Alapadatok megjelenítése: méret, hiányzó értékek, előnézet."""
+    """Rövid betekintés a betöltött adatokba, NaN figyelmeztetés."""
     if df is not None:
         st.subheader(title)
         st.write("ℹ️ Méret:", df.shape)
         st.dataframe(df.head())
-
         if df.isnull().values.any():
             st.warning("⚠️ Hiányzó értékek találhatók az adathalmazban!")
     else:
@@ -90,14 +89,12 @@ def show_data_overview(df, title="📊 Feltöltött adat előnézete"):
 
 
 def run():
-    """Opcionális menüpont – közvetlen adatfeltöltéshez."""
+    """Külön menüpontként is futtatható a feltöltő modul."""
     st.title("📁 Adatfeltöltés")
-    st.markdown("""
-    Tölts fel CSV fájlt, vagy használj alapértelmezett mintákat (XOR, Lorenz, Fractal).
-    """)
+    st.markdown("Tölts fel CSV fájlt, vagy használj egy előre definiált példát.")
 
     df = get_uploaded_data(allow_default=True, default="xor")
     if df is not None:
         show_data_overview(df)
     else:
-        st.info("Nem történt betöltés.")
+        st.info("❗ Még nincs betöltött adat.")
