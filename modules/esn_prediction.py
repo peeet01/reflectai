@@ -1,8 +1,9 @@
 import streamlit as st
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import Ridge
-import pandas as pd
+from modules.data_upload import get_uploaded_data
 
 def generate_lorenz_data(n_points=1000, dt=0.01):
     def lorenz(x, y, z, s=10, r=28, b=8/3):
@@ -35,7 +36,7 @@ class EchoStateNetwork:
         self.init_weights()
 
     def init_weights(self):
-        self.Win = (np.random.rand(self.n_reservoir, self.n_inputs) - 0.5) * 1
+        self.Win = (np.random.rand(self.n_reservoir, self.n_inputs) - 0.5)
         self.W = np.random.rand(self.n_reservoir, self.n_reservoir) - 0.5
         self.W[np.random.rand(*self.W.shape) < self.sparsity] = 0
         radius = np.max(np.abs(np.linalg.eigvals(self.W)))
@@ -64,29 +65,29 @@ class EchoStateNetwork:
 
 def run():
     st.title("📈 Echo State Network (ESN) predikció")
-    st.markdown("Ez a modul bemutatja, hogyan lehet Echo State Network-öt alkalmazni Lorenz-rendszer vagy feltöltött adatok előrejelzésére.")
 
-    uploaded_file = st.file_uploader("📤 Saját adatok feltöltése (3 oszlop, pl. X Y Z)", type=["csv"])
+    st.markdown("""
+    Ez a modul bemutatja, hogyan lehet Echo State Network-öt alkalmazni Lorenz-rendszer előrejelzésére vagy saját feltöltött adatokon való tanulásra.
+    A feltöltött adatnak legalább 3 oszlopos idősornak kell lennie (pl. x, y, z).
+    """)
 
-    steps = st.slider("Adatpontok száma (ha Lorenz generált)", 500, 3000, 1000)
+    steps = st.slider("Adatpontok száma", 500, 3000, 1000)
     train_fraction = st.slider("Tanítási arány", 0.1, 0.9, 0.5)
     reservoir_size = st.slider("Reservoir méret", 50, 500, 100)
 
-    if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
-        if df.shape[1] < 3:
-            st.error("Legalább 3 oszlopos (X, Y, Z) adat szükséges.")
-            return
-        st.success("Sikeres adatbetöltés")
-        st.write(df.head())
-        data = df.iloc[:, :3].values
+    # Adatfeltöltés vagy Lorenz generálás
+    uploaded_df = get_uploaded_data()
+
+    if uploaded_df is not None and uploaded_df.shape[1] >= 3:
+        st.success("✅ Feltöltött adat sikeresen betöltve.")
+        data = uploaded_df.iloc[:steps, :3].values
     else:
+        st.warning("⚠️ Nem található megfelelő feltöltött adat – Lorenz szimuláció használata.")
         xs, ys, zs = generate_lorenz_data(steps)
         data = np.column_stack([xs, ys, zs])
-        st.info("Alapértelmezett: Lorenz-rendszer szimulált adatai használva.")
 
     X = data[:-1]
-    y = data[1:, 0]
+    y = data[1:, 0]  # Csak az x-et prediktáljuk
 
     split = int(train_fraction * len(X))
     X_train, X_test = X[:split], X[split:]
@@ -94,13 +95,12 @@ def run():
 
     esn = EchoStateNetwork(n_inputs=3, n_reservoir=reservoir_size)
     esn.fit(X_train, y_train)
-
     prediction = esn.predict(X_test)
 
     fig, ax = plt.subplots()
     ax.plot(range(len(y_test)), y_test, label="Valós X")
     ax.plot(range(len(prediction)), prediction, label="Predikció", linestyle="--")
-    ax.set_title("ESN előrejelzés")
+    ax.set_title("ESN előrejelzés Lorenz-rendszerre")
     ax.set_xlabel("Időlépések")
     ax.set_ylabel("X érték")
     ax.legend()
