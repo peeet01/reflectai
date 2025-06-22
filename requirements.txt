@@ -6,4 +6,4 @@ seaborn
 networkx
 plotly
 torch
-panda
+pandas
