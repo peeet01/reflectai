@@ -21,6 +21,7 @@ from modules.insight_learning import run as run_insight_learning
 from modules.generative_kuramoto import run as run_generative_kuramoto
 from modules.memory_landscape import run as run_memory_landscape
 from modules.graph_sync_analysis import run as run_graph_sync_analysis
+from modules.help_module import run as run_help
 
 # ✅ ÚJ APPCÍM
 st.set_page_config(
@@ -54,6 +55,7 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Generatív Kuramoto hálózat",
     "Memória tájkép (Pro)",
     "Gráfalapú szinkronanalízis"
+    "❓ Súgó / Help"
 ))
 
 # Modulok indítása
@@ -122,3 +124,6 @@ elif module_name == "Memória tájkép (Pro)":
 
 elif module_name == "Gráfalapú szinkronanalízis":
     run_graph_sync_analysis()
+
+elif module_name == "❓ Súgó / Help":
+    run_help()
