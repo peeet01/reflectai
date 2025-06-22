@@ -5,155 +5,134 @@ def run():
 
     st.markdown("""
     ## 🔍 Mi ez az alkalmazás?
-
-    A **Neurolab AI** egy nyílt kutatási sandbox, amely lehetővé teszi mesterséges intelligencia modellek, neurális hálók, dinamikai rendszerek és topológiai szimulációk vizsgálatát.  
-    A célközönség: **kutatók, hallgatók, oktatók, fejlesztők**, akik vizuálisan és kvantitatívan szeretnék megérteni az MI-alapú rendszerek működését.
+    A **Neurolab AI** egy interaktív kutatási platform, amely lehetővé teszi különféle mesterséges intelligencia, hálózati dinamika és matematikai modellek vizsgálatát. A cél egy nyitott, vizualizáció-alapú, moduláris sandbox létrehozása kutatók, hallgatók és oktatók számára.
 
     ---
 
-    ## 🧭 Modulismertető (Tudományos + Matematikai kiegészítésekkel)
+    ## 🧭 Modulismertető – Tudományos és történeti háttérrel
     """)
 
-    st.markdown("### 🔁 XOR predikció")
+    st.markdown("### 🔁 XOR predikció neurális hálóval")
     st.markdown("""
-    **Tudományos háttér:** Az XOR probléma nemlineáris, ezért nem tanítható meg egyetlen rétegű perceptronnal. Az MLP (Multi-Layer Perceptron) képes erre rejtett rétegek használatával.
-
-    **Képlet:**  
-    $$ \hat{y} = \sigma(W_2 \cdot \sigma(W_1 \cdot x + b_1) + b_2) $$
+    **Cél:** A klasszikus XOR logikai függvény megtanítása mesterséges neurális hálóval.  
+    **Tudományos háttér:** Az XOR probléma a 80-as években kulcsszerepet játszott a mély tanulás fejlődésében. Egyetlen lineáris réteg nem tudja megoldani, így legalább egy rejtett rétegre van szükség.
+    
+    **Alkalmazott képlet:**  
+    A kimenet:  
+    $$
+    \hat{y} = \sigma\left(W_2 \cdot \tanh(W_1 \cdot x + b_1) + b_2\right)
+    $$
+    ahol $\\sigma$ a szigmoid aktiváció, $W_i$, $b_i$ a hálózat súlyai és biasai.
     """)
 
     st.markdown("### 🧭 Kuramoto szinkronizáció")
-    st.markdown(r"""
-    **Tudományos háttér:** A Kuramoto-modell oszcillátorok közötti fáziskoherenciát vizsgál.
+    st.markdown("""
+    **Cél:** Oszcillátorok kollektív szinkronizációjának vizsgálata.  
+    **Tudományos háttér:** A Kuramoto-modellt Yoshiki Kuramoto japán fizikus vezette be 1975-ben. A modell bemutatja, hogyan képesek egymással kapcsolatban lévő oszcillátorok szinkronizálódni.
 
-    **Képlet:**  
-    $$ \frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} \sin(\theta_j - \theta_i) $$
+    **Kuramoto-egyenlet:**
+    $$
+    \\frac{d\\theta_i}{dt} = \\omega_i + \\frac{K}{N} \\sum_{j=1}^{N} \\sin(\\theta_j - \\theta_i)
+    $$
+
+    A szinkronizáció mértéke:
+    $$
+    r(t) = \\left|\\frac{1}{N} \\sum_{j=1}^N e^{i \\theta_j(t)} \\right|
+    $$
     """)
 
     st.markdown("### 🧠 Hebbian tanulás")
-    st.markdown(r"""
-    **Tudományos háttér:** A tanulás biológiai elve: a szinapszis erősödik, ha a pre- és posztszinaptikus neuron együtt aktiválódik.
+    st.markdown("""
+    **Cél:** A tanulás biológiai modellje – ha két neuron egyidejűleg aktiválódik, akkor kapcsolatuk erősödik.  
+    **Történeti háttér:** Donald Hebb 1949-ben fogalmazta meg ezt az elvet, ami az egyik első formális tanulási szabály volt az agyban.
 
-    **Képlet:**  
-    $$ \Delta w_{ij} = \eta \cdot x_i \cdot y_j $$
+    **Hebb-szabály:**  
+    $$
+    \\Delta w_{ij} = \\eta \\, x_i \\, y_j
+    $$
+    ahol $x_i$ a bemenet, $y_j$ a kimenet, $\\eta$ a tanulási ráta.
     """)
 
-    st.markdown("### ⚡ Kuramoto–Hebbian háló")
-    st.markdown(r"""
-    **Tudományos háttér:** A szinkronizáció és a tanulás dinamikája egyesítve: a kapcsolatok módosulnak a fáziskülönbségek alapján.
+    st.markdown("### ⚡ Kuramoto–Hebbian hálózat")
+    st.markdown("""
+    **Cél:** Dinamikus oszcillátorhálózatok és adaptív tanulási szabály összekapcsolása.  
+    **Magyarázat:** A Kuramoto-dinamika hat a kapcsolat súlyaira, miközben a Hebbian-szabály az összekötések erősségét adaptálja a szinkronizáció függvényében.
 
-    **Képlet:**  
-    $$ \frac{d\theta_i}{dt} = \omega_i + \sum_j K_{ij}(t) \sin(\theta_j - \theta_i) $$
-    $$ \frac{dK_{ij}}{dt} = \eta \cos(\theta_i - \theta_j) $$
-    """)
-
-    st.markdown("### 🔒 Topológiai szinkronizáció")
-    st.markdown(r"""
-    **Tudományos háttér:** A hálózat gráfstruktúrája befolyásolja a szinkronizációs stabilitást.
-
-    **Képlet:**  
-    $$ \lambda_2 > 0 \Rightarrow \text{alapfeltétel a globális szinkronizációhoz (Algebraic connectivity)} $$
+    $$
+    \\Delta w_{ij}(t) \\propto \\cos(\\theta_i(t) - \\theta_j(t))
+    $$
     """)
 
     st.markdown("### 🌀 Lorenz rendszer")
-    st.markdown(r"""
-    **Tudományos háttér:** Kaotikus viselkedésű háromdimenziós rendszer, amely érzékeny a kezdeti feltételekre.
+    st.markdown("""
+    **Cél:** A kaotikus viselkedés vizsgálata determinisztikus rendszerben.  
+    **Történeti háttér:** Edward Lorenz 1963-as meteorológiai modellje volt az egyik első példája a káoszelméletnek.
 
-    **Képlet:**  
+    **Lorenz-egyenletek:**
     $$
-    \begin{aligned}
-    \dot{x} &= \sigma(y - x) \\
-    \dot{y} &= x(\rho - z) - y \\
-    \dot{z} &= xy - \beta z
-    \end{aligned}
+    \\begin{aligned}
+    \\frac{dx}{dt} &= \\sigma(y - x) \\\\
+    \\frac{dy}{dt} &= x(\\rho - z) - y \\\\
+    \\frac{dz}{dt} &= xy - \\beta z
+    \\end{aligned}
     $$
     """)
 
     st.markdown("### 🔮 Lorenz predikció")
-    st.markdown(r"""
-    **Tudományos háttér:** A Lorenz-rendszer idősorainak predikciója MLP vagy RNN segítségével.
+    st.markdown("""
+    **Cél:** Mély neurális hálózat segítségével előrejelezni a Lorenz-rendszer jövőbeli állapotait.  
+    **Magyarázat:** A modell a korábbi állapotokból tanulva jósolja meg a következő lépéseket.
 
-    **Képlet:**  
-    $$ \hat{x}_{t+1} = f(x_t, x_{t-1}, ..., x_{t-n}) $$
+    $$ \hat{x}_{t+1} = f(x_t, x_{t-1}, ...) $$
     """)
 
     st.markdown("### 🧬 Zajtűrés és robusztusság")
-    st.markdown(r"""
-    **Tudományos háttér:** Vizsgáljuk, hogy a hálózat mennyire stabil zajjal szemben.
-
-    **Képlet:**  
-    $$ x_{\text{noisy}} = x + \mathcal{N}(0, \sigma^2) $$
+    st.markdown("""
+    **Cél:** A modellek érzékenységének mérése véletlenszerű zajra.  
+    **Motiváció:** A biológiai rendszerek gyakran robusztusak a hibák ellen, ezt modellezzük mesterséges rendszerekben.
     """)
 
-    st.markdown("### 🧩 Topológiai Chern–szám")
-    st.markdown(r"""
-    **Tudományos háttér:** Kvantált topológiai szám, amely leírja a rendszer globális szerkezetét.
+    st.markdown("### 🧩 Chern–szám analízis")
+    st.markdown("""
+    **Cél:** Kvantumtopológiai jellemzők numerikus vizsgálata (pl. Berry-görbület).  
+    **Képlet:**
+    $$
+    C = \\frac{1}{2\\pi} \\int_{BZ} F(k) \\, d^2k
+    $$
+    ahol $F(k)$ a Berry-görbület, $BZ$ a Brillouin-zóna.
+    """)
 
-    **Képlet:**  
-    $$ C = \frac{1}{2\pi} \int_{\text{BZ}} \mathcal{F}(k) \, d^2k $$
+    st.markdown("### 📈 Echo State Network")
+    st.markdown("""
+    **Cél:** Dinamikus idősorok tanulása visszacsatolt hálóval.  
+    **Képlet:**
+    $$
+    x(t+1) = \\tanh(W_{res} \\, x(t) + W_{in} \\, u(t))
+    $$
     """)
 
     st.markdown("### 🧠 Insight Learning")
     st.markdown("""
-    **Tudományos háttér:** A tanulás egy hirtelen felismerésen (aha-élmény) alapul, nem fokozatos próbálkozásokon.
-
-    (A modul szimuláció alapú, matematikai modell nincs hozzárendelve.)
+    **Cél:** Tanulás, amely hirtelen felismerésből következik, nem fokozatos fejlődésből.  
+    **Pszichológiai alap:** Köhler és a Gestalt-pszichológia elveiből származik.
     """)
 
-    st.markdown("### 📈 Echo State Network (ESN)")
-    st.markdown(r"""
-    **Tudományos háttér:** A visszacsatolt neurális hálók egyik típusa, memóriaeffektusokkal.
-
-    **Képlet:**  
-    $$
-    x(t+1) = \tanh(W_{res} \cdot x(t) + W_{in} \cdot u(t)) \\
-    \hat{y}(t) = W_{out} \cdot x(t)
-    $$
-    """)
-
-    st.markdown("### 🔄 Hebbian plaszticitás")
-    st.markdown(r"""
-    **Tudományos háttér:** A tanulási súlyok időbeli alakulása Hebbian szabály szerint.
-
-    **Képlet:**  
-    $$ \frac{dW_{ij}}{dt} = \eta x_i y_j $$
-    """)
-
-    st.markdown("### 🧮 Szinkronfraktál dimenzióanalízis")
-    st.markdown(r"""
-    **Tudományos háttér:** A szinkronizáció által létrejövő fraktálszerkezetek dimenziójának meghatározása.
-
-    **Képlet (box-counting):**  
-    $$ D = \lim_{\epsilon \to 0} \frac{\log N(\epsilon)}{\log(1/\epsilon)} $$
-    """)
-
-    st.markdown("### 🧠 Generatív Kuramoto háló")
-    st.markdown(r"""
-    **Tudományos háttér:** Random gráfok generálása és szinkronizációs elemzése Kuramoto-dinamikával.
-
-    (Paraméterfüggő sztochasztikus hálózat, explicit képlet nincs.)
+    st.markdown("### 🧠 Generatív Kuramoto hálózat")
+    st.markdown("""
+    **Cél:** Új gráfstruktúrák generálása és szinkronizációjuk vizsgálata Kuramoto-modell segítségével.
     """)
 
     st.markdown("### 🧭 Memória tájkép")
-    st.markdown(r"""
-    **Tudományos háttér:** Az állapottér topográfiája és az energiafelszínek feltérképezése.
-
-    **Képlet (Hopfield-féle energia):**  
-    $$ E = -\frac{1}{2} \sum_{i,j} w_{ij} s_i s_j $$
+    st.markdown("""
+    **Cél:** Neurális hálók stabil állapotainak (memória pontok) feltérképezése.  
+    **Elmélet:** A tájkép lokális minimumai stabil állapotokként viselkednek.
     """)
 
     st.markdown("---")
-    st.markdown("## 📦 Exportálás és mentés")
+    st.markdown("## 👥 Célcsoport")
     st.markdown("""
-    - CSV export: predikciós eredményekhez  
-    - Modellmentés: `.pth` formátumban  
-    - Jegyzetek mentése `.txt` fájlba
-    """)
-
-    st.markdown("## 👥 Célközönség")
-    st.markdown("""
-    - **Kutatók:** elméleti modellvalidálás  
-    - **Oktatók:** szemléltető eszköz  
-    - **Diákok:** tanulási kísérletek  
-    - **Fejlesztők:** moduláris bővíthetőség
+    - **Kutatók:** Topológiai, tanulási vagy dinamikai modellek gyors tesztelése  
+    - **Oktatók:** Vizualizációk és oktatási segédanyagok  
+    - **Hallgatók:** Modellkísérletezés és tanulás  
+    - **Fejlesztők:** Rugalmas és bővíthető Python/Streamlit sandbox
     """)
