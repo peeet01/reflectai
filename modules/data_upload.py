@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 
-# 🔄 Cache-elt CSV beolvasás
+
 @st.cache_data(show_spinner=False)
 def load_data(uploaded_file):
+    """CSV fájl beolvasása és cache-elése."""
     if uploaded_file is not None:
         try:
             df = pd.read_csv(uploaded_file)
@@ -12,36 +14,43 @@ def load_data(uploaded_file):
             st.error(f"Hiba a fájl beolvasásakor: {e}")
     return None
 
-# 📥 Adatfeltöltés és validálás
+
 def get_uploaded_data(required_columns=None, allow_default=False, default=None):
     """
-    Fájlbetöltés, oszlop-ellenőrzés és opcionális fallback támogatás.
+    Adatfeltöltő komponens, ami:
+    - CSV-t kér be,
+    - ellenőrzi a szükséges oszlopokat (ha van ilyen),
+    - ha nincs fájl, fallback adatot tölt be (ha engedélyezett),
+    - és eltárolja session_state-be.
+
+    Visszatér: pandas.DataFrame vagy None
     """
     st.sidebar.subheader("📁 Adatfeltöltés")
     uploaded_file = st.sidebar.file_uploader("Tölts fel egy CSV fájlt", type=["csv"])
-
     df = load_data(uploaded_file)
 
+    # Fallback adat, ha nincs fájl
+    if df is None and allow_default and default:
+        st.sidebar.warning(f"⚠️ Nincs fájl, fallback: `{default}`")
+        df = get_default_data(default)
+
+    # Ellenőrzés
     if df is not None:
-        st.sidebar.success("✅ Fájl betöltve")
         if required_columns:
             missing = [col for col in required_columns if col not in df.columns]
             if missing:
                 st.error(f"❌ Hiányzó oszlop(ok): {', '.join(missing)}")
                 return None
+        st.session_state["uploaded_df"] = df
+        st.sidebar.success("✅ Adat betöltve")
     else:
         st.sidebar.info("📂 Várakozás fájl feltöltésére...")
-        if allow_default and default:
-            st.sidebar.warning(f"⚠️ Alapértelmezett adat használata: `{default}`")
-            df = get_default_data(default)
 
-    if df is not None:
-        st.session_state["uploaded_df"] = df
     return df
 
-# 🧰 Alapértelmezett adat generálás
+
 def get_default_data(name):
-    import numpy as np
+    """Előre definiált adatkészletek (pl. XOR, Lorenz)."""
     if name == "xor":
         return pd.DataFrame({
             "Input1": [0, 0, 1, 1],
@@ -50,19 +59,21 @@ def get_default_data(name):
         })
     elif name == "lorenz":
         steps = 1000
-        xs = np.sin(np.linspace(0, 50, steps))
-        ys = np.cos(np.linspace(0, 50, steps))
-        zs = np.sin(np.linspace(0, 50, steps * 0.5))
-        return pd.DataFrame({"x": xs, "y": ys, "z": zs})
+        t = np.linspace(0, 40, steps)
+        x = np.sin(t)
+        y = np.cos(t)
+        z = np.sin(0.5 * t)
+        return pd.DataFrame({"x": x, "y": y, "z": z})
     else:
-        st.warning("⚠️ Nincs ilyen nevű alapértelmezett adathalmaz.")
+        st.warning(f"⚠️ Nincs ilyen nevű alapértelmezett adat: `{name}`")
         return None
 
-# 👁️ Adatok előnézete
+
 def show_data_overview(df, title="📊 Feltöltött adat előnézete"):
+    """Adatvizualizáció, előnézet + méret és NaN figyelmeztetés."""
     if df is not None:
         st.subheader(title)
-        st.write("ℹ️ Adatok mérete:", df.shape)
+        st.write("ℹ️ Méret:", df.shape)
         st.dataframe(df.head())
 
         if df.isnull().values.any():
@@ -70,16 +81,16 @@ def show_data_overview(df, title="📊 Feltöltött adat előnézete"):
     else:
         st.info("📂 Nincs elérhető adat az előnézethez.")
 
-# 🚀 Streamlit oldal futtatásához (ha menüből hívod)
+
 def run():
-    st.title("📁 Adatfeltöltő modul")
+    """Menüből hívható oldal (Adatfeltöltés menüpont)."""
+    st.title("📁 Adatfeltöltés")
     st.markdown("""
-    Tölts fel CSV fájlt, vagy használj előre definiált (alapértelmezett) adatkészletet pl. XOR vagy Lorenz.
+    Tölts fel CSV fájlt, vagy használj alapértelmezett adatkészletet (pl. XOR, Lorenz).
     """)
 
     df = get_uploaded_data(allow_default=True, default="xor")
-
     if df is not None:
         show_data_overview(df)
     else:
-        st.info("Nincs betöltött vagy alapértelmezett adat.")
+        st.info("Nem történt betöltés.")
