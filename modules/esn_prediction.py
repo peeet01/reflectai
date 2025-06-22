@@ -1,8 +1,8 @@
-
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import Ridge
+import pandas as pd
 
 def generate_lorenz_data(n_points=1000, dt=0.01):
     def lorenz(x, y, z, s=10, r=28, b=8/3):
@@ -37,9 +37,7 @@ class EchoStateNetwork:
     def init_weights(self):
         self.Win = (np.random.rand(self.n_reservoir, self.n_inputs) - 0.5) * 1
         self.W = np.random.rand(self.n_reservoir, self.n_reservoir) - 0.5
-        # Apply sparsity
         self.W[np.random.rand(*self.W.shape) < self.sparsity] = 0
-        # Rescale to spectral radius
         radius = np.max(np.abs(np.linalg.eigvals(self.W)))
         self.W *= self.spectral_radius / radius
 
@@ -66,16 +64,29 @@ class EchoStateNetwork:
 
 def run():
     st.title("📈 Echo State Network (ESN) predikció")
-    st.markdown("Ez a modul bemutatja, hogyan lehet Echo State Network-öt alkalmazni Lorenz-rendszer előrejelzésére.")
+    st.markdown("Ez a modul bemutatja, hogyan lehet Echo State Network-öt alkalmazni Lorenz-rendszer vagy feltöltött adatok előrejelzésére.")
 
-    steps = st.slider("Adatpontok száma", 500, 3000, 1000)
+    uploaded_file = st.file_uploader("📤 Saját adatok feltöltése (3 oszlop, pl. X Y Z)", type=["csv"])
+
+    steps = st.slider("Adatpontok száma (ha Lorenz generált)", 500, 3000, 1000)
     train_fraction = st.slider("Tanítási arány", 0.1, 0.9, 0.5)
     reservoir_size = st.slider("Reservoir méret", 50, 500, 100)
 
-    xs, ys, zs = generate_lorenz_data(steps)
-    data = np.column_stack([xs, ys, zs])
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+        if df.shape[1] < 3:
+            st.error("Legalább 3 oszlopos (X, Y, Z) adat szükséges.")
+            return
+        st.success("Sikeres adatbetöltés")
+        st.write(df.head())
+        data = df.iloc[:, :3].values
+    else:
+        xs, ys, zs = generate_lorenz_data(steps)
+        data = np.column_stack([xs, ys, zs])
+        st.info("Alapértelmezett: Lorenz-rendszer szimulált adatai használva.")
+
     X = data[:-1]
-    y = data[1:, 0]  # Csak az x-et prediktáljuk
+    y = data[1:, 0]
 
     split = int(train_fraction * len(X))
     X_train, X_test = X[:split], X[split:]
@@ -89,7 +100,7 @@ def run():
     fig, ax = plt.subplots()
     ax.plot(range(len(y_test)), y_test, label="Valós X")
     ax.plot(range(len(prediction)), prediction, label="Predikció", linestyle="--")
-    ax.set_title("ESN előrejelzés Lorenz-rendszerre")
+    ax.set_title("ESN előrejelzés")
     ax.set_xlabel("Időlépések")
     ax.set_ylabel("X érték")
     ax.legend()
