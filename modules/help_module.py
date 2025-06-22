@@ -1,202 +1,91 @@
 import streamlit as st
 
-def run():
-    st.title("📘 Súgó – Neurolab AI Scientific Playground Sandbox")
+def run(): st.title("❓ Súgó – Neurolab AI Scientific Playground Sandbox")
 
-    st.markdown("""
+st.markdown("""
 ## 🔍 Mi ez az alkalmazás?
-
-A **Neurolab AI** egy nyílt tudományos sandbox környezet, amely a mesterséges intelligencia és nemlineáris dinamikai rendszerek vizsgálatára szolgál. A cél egy **vizuális, interaktív és bővíthető** felület biztosítása kutatási és oktatási célokra.
-
----
-
-## 🧭 Modulismertető (tudományos háttérrel)
-
-### 🔁 XOR predikció neurális hálóval
-
-**Cél:** A kizáró vagy (XOR) logikai kapu tanítása mesterséges neurális hálóval.
-
-**Tudományos háttér:**
-
-Az XOR probléma nemlineárisan szeparálható, ezért szükséges egy rejtett réteg az alábbi többrétegű perceptronban (MLP):
-
-$$
-y = \\sigma(W_2 \\cdot \\tanh(W_1 x + b_1) + b_2)
-$$
-
-ahol:
-
-- $x ∈ ℝ^2$ a bemenet,
-- $\\tanh$ az aktivációs függvény,
-- $\\sigma$ a kimeneti sigmoid függvény.
-
-**Funkciók:** zajgenerálás, tanítás, predikció, CSV export, tanulási idő, 3D felület, konfúziós mátrix.
+A **Neurolab AI** egy nyílt kutatásorientált interaktív sandbox, amely lehetővé teszi különböző mesterséges intelligencia modellek, dinamikai rendszerek és hálózati szimulációk futtatását és megértését. A cél, hogy **kutatók, hallgatók, oktatók és fejlesztők** számára egy szemléletes, moduláris és bővíthető felület álljon rendelkezésre a gépi tanulás, idegrendszeri dinamika és szinkronizáció területein.
 
 ---
 
-### 🧭 Kuramoto szinkronizáció
+## 🧝‍♂️ Modulismertető (Tudományos + Matematikai leírásokkal)
 
-**Cél:** Szinkronizációs viselkedés vizsgálata egy oszcillátorhálóban.
+### ⭮️ XOR predikció neurális hálóval
+- **Cél:** Egy bináris logikai függvény (XOR) megtanítása MLP-vel.
+- **Képlet:** y = \sigma(W_2 \cdot \tanh(W_1 x + b_1) + b_2)
 
-**Matematikai modell (Kuramoto-egyenlet):**
-
-$$
-\\frac{d\\theta_i}{dt} = \\omega_i + \\frac{K}{N} \\sum_{j=1}^N \\sin(\\theta_j - \\theta_i)
-$$
-
-ahol:
-
-- $\\theta_i$ az $i$-edik oszcillátor fázisa,
-- $\\omega_i$ a sajátfrekvencia,
-- $K$ a kapcsolódási erősség.
-
-**Szinkronizációs mérték (order parameter):**
-
-$$
-r(t) = \\left| \\frac{1}{N} \\sum_{j=1}^N e^{i\\theta_j(t)} \\right|
-$$
-
-**Funkciók:** fáziseloszlás, szórás, szinkronindex, dendritikus 3D vizualizáció.
-
----
+### 🧽 Kuramoto szinkronizáció
+- **Cél:** Oszcillátorok kollektív szinkronizációja.
+- **Egyenlet:** \frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} \sin(\theta_j - \theta_i)
 
 ### 🧠 Hebbian tanulás
-
-**Cél:** A Hebbian tanulás modellezése, amely szerint „az együtt tüzelő neuronok erősítik egymást”.
-
-**Tanulási szabály:**
-
-$$
-\\Delta w_{ij} = \\eta x_i x_j
-$$
-
-ahol:
-
-- $\\eta$ a tanulási ráta,
-- $x_i$, $x_j$ a bemenetek aktivitása.
-
-**Funkciók:** súlymátrix vizualizáció, paraméterezhető tanulás.
-
----
+- **Cél:** Hebb-elv vizualizációja.
+- **Képlet:** \Delta w_{ij} = \eta x_i x_j
 
 ### ⚡ Kuramoto–Hebbian hálózat
-
-**Cél:** A szinkronizáció és plaszticitás kombinálása dinamikus tanulási hálózatban.
-
-**Kombinált szabály (időfüggő):**
-
-$$
-\\frac{d\\theta_i}{dt} = \\omega_i + \\sum_j w_{ij}(t) \\sin(\\theta_j - \\theta_i)
-$$
-
-$$
-\\frac{dw_{ij}}{dt} = \\eta \\cos(\\theta_j - \\theta_i)
-$$
-
-Ez a rendszer képes **tanulni** a szinkronizációból.
-
----
+- **Kombinált modell:** Időbeli fázis + adaptív kapcsolat
+- **Képletek:** Kuramoto + Hebbian kombináció
 
 ### 🔒 Topológiai szinkronizáció
-
-**Cél:** A gráf topológiájának hatása a szinkronizációra.
-
-A szinkronizáció mértéke függ a **Laplacián mátrix** spektrumától:
-
-$$
-L = D - A
-$$
-
-ahol $D$ a fokszám mátrix, $A$ az adjancencia mátrix.
-
----
+- **Cél:** Gráfstruktúrák hatásának vizsgálata
+- **Képlet:** Szomszédsági mátrix alapú Kuramoto
 
 ### 🌀 Lorenz rendszer
-
-**Cél:** A híres kaotikus Lorenz-rendszer szimulációja.
-
-$$
-\\begin{aligned}
-\\frac{dx}{dt} &= \\sigma(y - x) \\\\
-\\frac{dy}{dt} &= x(\\rho - z) - y \\\\
-\\frac{dz}{dt} &= xy - \\beta z
-\\end{aligned}
-$$
-
----
+- **Cél:** Kaotikus dinamika
+- **Képletek:**
+    - \frac{dx}{dt} = \sigma(y - x)
+    - \frac{dy}{dt} = x(\rho - z) - y
+    - \frac{dz}{dt} = xy - \beta z
 
 ### 🔮 Lorenz predikció
+- **Cél:** Idősor becslés neurális hálóval
+- **Módszer:** Regresszió tanulással
 
-**Cél:** Idősoros adatok előrejelzése neurális hálóval, pl. RNN vagy ESN.
+### 🧬 Zajtűrés
+- **Cél:** Zaj hatásának mérése
+- **Képlet:** x_{noisy} = x + \epsilon \cdot N(0,1)
 
----
+### 🧩 Chern-szám analízis
+- **Cél:** Topológiai invariancia
+- **Képlet:** C = \frac{1}{2\pi} \int_{BZ} F_{xy}(k) \, d^2k
 
-### 🧬 Zajtűrés és robusztusság
+### 🧠 Insight Learning
+- **Cél:** Belátás alapú tanulás modellezése
+- **Elv:** Nemlineáris, diszkrét hirtelen váltás
 
-**Cél:** Az MI-modulok érzékenységének vizsgálata bemeneti zajra és szinkronizációs instabilitásra.
+### 📈 ESN predikció
+- **Cél:** Idősorok memóriaalapú predikciója
+- **Képlet:** y(t) = W_{out} x(t)
 
----
+### 🔄 Hebbian plaszticitás
+- **Cél:** Szinaptikus erősség időbeli változása
+- **Képlet:** w_{ij}(t+1) = w_{ij}(t) + \eta x_i x_j
 
-### 🧩 Topológiai Chern–szám analízis
+### 📊 Szinkronfraktál dimenzió
+- **Cél:** Dimenziómérés fraktálszerkezetekben
+- **Módszer:** Box-counting, korrelációs dimenzió
 
-**Cél:** A topológiai fázisok numerikus becslése.
+### 🧠 Generatív Kuramoto
+- **Cél:** Dinamikus gráfgenerálás + Kuramoto
+- **Alap:** Preferenciális csatlakozás + szinkronmodul
 
-**Berry-görbületből számolt Chern-szám:**
-
-$$
-C = \\frac{1}{2\\pi} \\int_{BZ} \\mathcal{F}(k) \\, dk
-$$
-
----
-
-### 🧠 Belátás alapú tanulás
-
-**Cél:** Az "aha" élmény modellezése tanulás közben. Nem fokozatos tanulás, hanem hirtelen áttörés (gestalt switching).
-
----
-
-### 📈 Echo State Network (ESN)
-
-**Cél:** Nemlineáris dinamikus rendszerek előrejelzése "reservoir computing" módszerrel.
-
-**Képlet:**
-
-$$
-x(t+1) = \\tanh(W_{res} x(t) + W_{in} u(t))
-$$
+### 🧽 Memória tájkép
+- **Cél:** Energiafelület vizualizáció memóriában
+- **Elv:** Stabilitásminimumok topológiája
 
 ---
 
-### 🔄 Hebbian plaszticitás dinamikája
-
-**Cél:** A Hebbian súlyok időbeli evolúciója. Vizsgálható stabilitás, konvergencia.
-
----
-
-### 🧮 Szinkronfraktál dimenzióanalízis
-
-**Cél:** Fraktáldimenzió becslése a Kuramoto háló fázisain.
+## 📦 Export és mentés
+- CSV export
+- Modellmentés `.pth` kiterjesztéssel
+- Jegyzetelés környezetben
 
 ---
 
-### 🧠 Generatív Kuramoto hálózat
-
-**Cél:** Új szinkronizációs gráfok automatikus generálása, szimulációja.
-
----
-
-### 🧭 Memória tájkép
-
-**Cél:** Neurális memóriaállapotok vizsgálata és stabilitásuk ábrázolása energiagörbületként.
-
----
-
-## 👩‍🔬 Célközönség
-
-- **Kutatók:** új modellek, elméletek gyors prototípusai
-- **Oktatók:** oktatási szemléltetés
-- **Diákok:** gyakorlati MI- és fizikai rendszerek tanulmányozása
-- **Fejlesztők:** moduláris bővítés, kutatás-alapú kísérletek
-
----
+## 👥 Célközönség
+- **Kutatók**: gyors modellezés és validáció
+- **Oktatók**: interaktív demonstrációk
+- **Hallgatók**: előtanulmányok és kísérletek
+- **Fejlesztők**: moduláris architektúra
 """)
+
