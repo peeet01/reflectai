@@ -1,9 +1,9 @@
-
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import Ridge
 from modules.data_upload import get_uploaded_data, show_data_overview
+
 
 def generate_lorenz_data(n_points=1000, dt=0.01):
     def lorenz(x, y, z, s=10, r=28, b=8/3):
@@ -25,6 +25,7 @@ def generate_lorenz_data(n_points=1000, dt=0.01):
         xs[i], ys[i], zs[i] = x, y, z
 
     return xs, ys, zs
+
 
 class EchoStateNetwork:
     def __init__(self, n_inputs, n_reservoir, spectral_radius=1.25, sparsity=0.1, noise=0.001):
@@ -63,11 +64,12 @@ class EchoStateNetwork:
             states[t] = x
         return self.model.predict(states)
 
+
 def run():
     st.title("📈 Echo State Network (ESN) predikció")
 
     st.markdown("""
-    Ez a modul bemutatja, hogyan lehet Echo State Network-öt alkalmazni Lorenz-rendszer előrejelzésére vagy saját feltöltött adatokon való tanulásra.
+    Ez a modul bemutatja, hogyan lehet Echo State Network-öt alkalmazni Lorenz-rendszer előrejelzésére **vagy saját feltöltött adatokon való tanulásra**.
     A feltöltött adatnak legalább 3 oszlopos idősornak kell lennie (pl. x, y, z).
     """)
 
@@ -87,7 +89,7 @@ def run():
         data = np.column_stack([xs, ys, zs])
 
     X = data[:-1]
-    y = data[1:, 0]
+    y = data[1:, 0]  # Csak az x-et prediktáljuk
 
     split = int(train_fraction * len(X))
     X_train, X_test = X[:split], X[split:]
