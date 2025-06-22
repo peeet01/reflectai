@@ -1,137 +1,171 @@
 import streamlit as st
 import numpy as np
+import torch
+import torch.nn as nn
+import time
+import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.linear_model import Ridge
-from sklearn.preprocessing import StandardScaler
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+import plotly.graph_objects as go
+
 from modules.data_upload import get_uploaded_data, show_data_overview
 
 
-def generate_lorenz_data(n_points=1000, dt=0.01):
-    def lorenz(x, y, z, s=10, r=28, b=8/3):
-        dx = s * (y - x)
-        dy = r * x - y - x * z
-        dz = x * y - b * z
-        return dx, dy, dz
+# 🔧 Neurális háló definíció
+class XORNet(nn.Module):
+    def __init__(self, input_size=2, hidden_size=4):
+        super(XORNet, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.act1 = nn.Tanh()
+        self.fc2 = nn.Linear(hidden_size, 1)
+        self.act2 = nn.Sigmoid()
 
-    xs = np.empty(n_points)
-    ys = np.empty(n_points)
-    zs = np.empty(n_points)
-
-    x, y, z = 0., 1., 1.05
-    for i in range(n_points):
-        dx, dy, dz = lorenz(x, y, z)
-        x += dx * dt
-        y += dy * dt
-        z += dz * dt
-        xs[i], ys[i], zs[i] = x, y, z
-
-    return xs, ys, zs
+    def forward(self, x):
+        x = self.act1(self.fc1(x))
+        x = self.act2(self.fc2(x))
+        return x
 
 
-class EchoStateNetwork:
-    def __init__(self, n_inputs, n_reservoir, spectral_radius=1.0, sparsity=0.05, noise=0.0001):
-        self.n_inputs = n_inputs
-        self.n_reservoir = n_reservoir
-        self.spectral_radius = spectral_radius
-        self.sparsity = sparsity
-        self.noise = noise
-        self.init_weights()
-
-    def init_weights(self):
-        self.Win = (np.random.rand(self.n_reservoir, self.n_inputs) - 0.5)
-        self.W = np.random.rand(self.n_reservoir, self.n_reservoir) - 0.5
-        self.W[np.random.rand(*self.W.shape) < self.sparsity] = 0
-        radius = np.max(np.abs(np.linalg.eigvals(self.W)))
-        self.W *= self.spectral_radius / radius
-
-    def fit(self, inputs, outputs, washout=200, ridge_alpha=1e-6):
-        n_samples = inputs.shape[0]
-        self.states = np.zeros((n_samples, self.n_reservoir))
-        x = np.zeros(self.n_reservoir)
-        for t in range(n_samples):
-            u = inputs[t]
-            x = np.tanh(np.dot(self.Win, u) + np.dot(self.W, x)) + self.noise * (np.random.rand(self.n_reservoir) - 0.5)
-            self.states[t] = x
-        self.model = Ridge(alpha=ridge_alpha)
-        self.model.fit(self.states[washout:], outputs[washout:])
-
-    def predict(self, inputs, initial_state=None):
-        n_samples = inputs.shape[0]
-        x = np.zeros(self.n_reservoir) if initial_state is None else initial_state
-        states = np.zeros((n_samples, self.n_reservoir))
-        for t in range(n_samples):
-            u = inputs[t]
-            x = np.tanh(np.dot(self.Win, u) + np.dot(self.W, x))
-            states[t] = x
-        return self.model.predict(states)
+# 🌪️ Zaj hozzáadása
+def add_noise(data, noise_level):
+    noise = noise_level * np.random.randn(*data.shape)
+    return data + noise
 
 
-def run():
-    st.title("📈 Kiterjesztett Echo State Network (ESN) predikció")
+# 💾 Modell mentése
+def save_model(model, path="xor_model.pth"):
+    torch.save(model.state_dict(), path)
 
-    st.markdown("""
-    Ez a modul bemutatja, hogyan lehet Echo State Network-öt alkalmazni Lorenz-rendszer vagy saját adatok előrejelzésére.  
-    Stabilabb eredmény érdekében a rendszer **adatnormalizálást**, **washout periódust**, és **további finomításokat** használ.
-    """)
 
-    steps = st.slider("Adatpontok száma", 500, 3000, 1000)
-    train_fraction = st.slider("Tanítási arány", 0.1, 0.9, 0.5)
-    reservoir_size = st.slider("Reservoir méret", 50, 500, 200)
-    washout = st.slider("Washout periódus", 10, 500, 200)
+# 📊 Kiértékelés
+def evaluate(model, inputs, targets):
+    with torch.no_grad():
+        predictions = model(inputs).round()
+        accuracy = (predictions.eq(targets).sum().item()) / targets.size(0)
+    return accuracy, predictions
 
-    # 🔁 Adatok betöltése és validálása
-    if "uploaded_df" not in st.session_state:
-        st.session_state["uploaded_df"] = get_uploaded_data()
-    uploaded_df = st.session_state["uploaded_df"]
 
+# 🚀 Fő modul
+def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
+    st.subheader("🔁 XOR predikció neurális hálóval")
+
+    noise_level = st.slider("Zaj szintje", 0.0, 0.5, 0.1, 0.01)
+    export_results = st.checkbox("📤 Eredmények exportálása CSV-be")
+    save_model_flag = st.checkbox("💾 Modell mentése")
+    custom_input = st.checkbox("🎛️ Egyéni input kipróbálása tanítás után")
+    user_note = st.text_area("📝 Megjegyzésed", value=note)
+
+    # 📥 Adatok betöltése fájlból vagy alapértelmezett XOR-ból
+    df = get_uploaded_data(required_columns=["Input1", "Input2", "Target"])
     use_uploaded = False
 
-    if uploaded_df is not None and uploaded_df.shape[1] >= 3:
-        st.success("✅ Feltöltött adat sikeresen betöltve.")
-        show_data_overview(uploaded_df)
-        data = uploaded_df.iloc[:steps, :3].values
+    if df is not None:
+        show_data_overview(df)
+        X = df[["Input1", "Input2"]].values.astype(np.float32)
+        y = df[["Target"]].values.astype(np.float32)
+        st.success("✅ Feltöltött adat használatban.")
         use_uploaded = True
     else:
-        st.info("ℹ️ Lorenz-szimuláció használata.")
-        xs, ys, zs = generate_lorenz_data(steps)
-        data = np.column_stack([xs, ys, zs])
+        X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]], dtype=np.float32)
+        y = np.array([[0], [1], [1], [0]], dtype=np.float32)
+        st.info("ℹ️ Alapértelmezett XOR adat használatban.")
 
-    # ✨ Normalizálás
-    X_raw = data[:-1]
-    y_raw = data[1:, 0].reshape(-1, 1)  # csak x predikció
+    # 🌪️ Zaj hozzáadása
+    X_noisy = add_noise(X, noise_level)
+    X_tensor = torch.tensor(X_noisy, dtype=torch.float32)
+    y_tensor = torch.tensor(y, dtype=torch.float32)
 
-    scaler_X = StandardScaler()
-    scaler_y = StandardScaler()
+    # 🧠 Háló létrehozása
+    model = XORNet(hidden_size=hidden_size)
+    criterion = nn.BCELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-    X = scaler_X.fit_transform(X_raw)
-    y = scaler_y.fit_transform(y_raw).flatten()
+    # ⏱️ Tanítás
+    start_time = time.time()
+    progress = st.progress(0)
+    progress_text = st.empty()
+    losses = []
 
-    # 🔀 Train-test split
-    split = int(train_fraction * len(X))
-    X_train, X_test = X[:split], X[split:]
-    y_train, y_test = y[:split], y[split:]
+    for epoch in range(epochs):
+        optimizer.zero_grad()
+        outputs = model(X_tensor)
+        loss = criterion(outputs, y_tensor)
+        loss.backward()
+        optimizer.step()
+        losses.append(loss.item())
 
-    # 🧠 ESN létrehozása és tanítása
-    esn = EchoStateNetwork(
-        n_inputs=3,
-        n_reservoir=reservoir_size,
-        spectral_radius=0.95,
-        sparsity=0.05,
-        noise=0.0001
-    )
-    esn.fit(X_train, y_train, washout=washout)
-    y_pred_scaled = esn.predict(X_test)
+        if epoch % max(1, epochs // 100) == 0 or epoch == epochs - 1:
+            percent = int((epoch + 1) / epochs * 100)
+            progress.progress((epoch + 1) / epochs)
+            progress_text.text(f"Tanítás... {percent}%")
 
-    # ⏪ Inverz transzformáció
-    y_test_original = scaler_y.inverse_transform(y_test.reshape(-1, 1)).flatten()
-    y_pred_original = scaler_y.inverse_transform(y_pred_scaled.reshape(-1, 1)).flatten()
+    train_time = time.time() - start_time
 
-    # 📊 Ábra
-    fig, ax = plt.subplots()
-    ax.plot(y_test_original, label="Valós X")
-    ax.plot(y_pred_original, label="Predikció", linestyle="--")
-    ax.set_title("ESN előrejelzés (skálázott visszavetítés)")
-    ax.set_xlabel("Időlépések")
-    ax.set_ylabel("X érték")
-    ax.legend()
-    st.pyplot(fig)
+    # 📉 Veszteség görbe
+    st.markdown("### 📉 Veszteség alakulása")
+    st.line_chart(losses)
+
+    # 🌊 3D predikciós tér
+    st.markdown("### 🌊 Interaktív predikciós tér (3D)")
+    grid_size = 100
+    x_vals = np.linspace(0, 1, grid_size)
+    y_vals = np.linspace(0, 1, grid_size)
+    xx, yy = np.meshgrid(x_vals, y_vals)
+    grid_points = np.c_[xx.ravel(), yy.ravel()]
+    grid_tensor = torch.tensor(grid_points, dtype=torch.float32)
+
+    with torch.no_grad():
+        zz = model(grid_tensor).numpy().reshape(xx.shape)
+
+    fig_3d = go.Figure(data=[go.Surface(z=zz, x=xx, y=yy, colorscale='Viridis')])
+    fig_3d.update_layout(title="Predikciós felület", height=500)
+    st.plotly_chart(fig_3d, use_container_width=True)
+
+    # 📊 Kiértékelés
+    accuracy, predictions = evaluate(model, X_tensor, y_tensor)
+    st.success(f"✅ Pontosság: {accuracy * 100:.2f}%")
+    st.info(f"🕒 Tanítás ideje: {train_time:.2f} másodperc")
+
+    # 🧮 Konfúziós mátrix
+    st.markdown("### 🧮 Konfúziós mátrix")
+    cm = confusion_matrix(y_tensor.numpy(), predictions.numpy())
+    fig_cm, ax = plt.subplots()
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=[0, 1], yticklabels=[0, 1])
+    ax.set_xlabel("Predikció")
+    ax.set_ylabel("Valós érték")
+    st.pyplot(fig_cm)
+
+    # 📤 Exportálás
+    if export_results:
+        results_df = pd.DataFrame({
+            "Input1": X[:, 0],
+            "Input2": X[:, 1],
+            "Zaj": noise_level,
+            "Valós kimenet": y.flatten(),
+            "Predikció": predictions.numpy().flatten()
+        })
+        csv_path = "xor_results.csv"
+        results_df.to_csv(csv_path, index=False)
+        with open(csv_path, "rb") as f:
+            st.download_button("📁 CSV letöltése", data=f, file_name="xor_results.csv", mime="text/csv")
+
+    # 💾 Mentés
+    if save_model_flag:
+        save_model(model)
+        st.success("💾 Modell elmentve `xor_model.pth` néven.")
+
+    # 🧪 Egyéni input
+    if custom_input:
+        st.markdown("### 🧪 Egyéni input kipróbálása")
+        input1 = st.slider("Input 1", 0.0, 1.0, 0.0)
+        input2 = st.slider("Input 2", 0.0, 1.0, 0.0)
+        input_tensor = torch.tensor([[input1, input2]], dtype=torch.float32)
+        with torch.no_grad():
+            prediction = model(input_tensor).item()
+        st.write(f"🔮 Predikció: {prediction:.4f} → {'1' if prediction > 0.5 else '0'}")
+
+    # 📝 Jegyzet
+    if user_note:
+        st.markdown("### 📝 Megjegyzés")
+        st.write(user_note)
