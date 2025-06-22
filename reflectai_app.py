@@ -1,6 +1,6 @@
 import streamlit as st
 
-# CSS betöltése globálisan (megtartva korábbi design)
+# CSS betöltése
 with open("style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
@@ -21,9 +21,9 @@ from modules.insight_learning import run as run_insight_learning
 from modules.generative_kuramoto import run as run_generative_kuramoto
 from modules.memory_landscape import run as run_memory_landscape
 from modules.graph_sync_analysis import run as run_graph_sync_analysis
-from modules.help_module import run as run_help  # ✅ Helyes import a súgómodulhoz
+from modules.help_module import run as run_help  # FONTOS: komment eltávolítva!
 
-# ✅ APPCÍM beállítás
+# Oldal konfiguráció
 st.set_page_config(
     page_title="Neurolab AI – Scientific Playground Sandbox",
     page_icon="🧠",
@@ -33,10 +33,10 @@ st.set_page_config(
 st.title("🧠 Neurolab AI – Scientific Playground Sandbox")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 
-# Jegyzetmező (globális)
+# Jegyzetmező
 st.text_input("📝 Megfigyelés vagy jegyzet (opcionális):")
 
-# Oldalsáv modulválasztó
+# Modulválasztó
 st.sidebar.title("📂 Modulválasztó")
 module_name = st.sidebar.radio("Kérlek válassz:", (
     "Kuramoto szinkronizáció",
@@ -59,7 +59,7 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "❓ Súgó / Help"
 ))
 
-# Modulok indítása
+# Modulok futtatása
 if module_name == "Kuramoto szinkronizáció":
     st.subheader("🧭 Kuramoto paraméterek")
     coupling = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
@@ -127,4 +127,4 @@ elif module_name == "Gráfalapú szinkronanalízis":
     run_graph_sync_analysis()
 
 elif module_name == "❓ Súgó / Help":
-    run_help()  # ⬅️ Helyesen meghívott funkció a help modulból
+    run_help()
