@@ -1,88 +1,112 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
-from sklearn.linear_model import Ridge
-from sklearn.preprocessing import StandardScaler
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error
 
-# Adatfeltöltés modul
-def upload_data():
-    st.sidebar.markdown("### 📁 Adatfeltöltés")
-    uploaded_file = st.sidebar.file_uploader("Tölts fel CSV fájlt predikcióhoz", type=["csv"])
-    if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        st.write("📄 Feltöltött adat (első 5 sor):")
-        st.write(df.head())
-        return df
-    return None
-
-# Echo State Network implementáció
+# Egyszerű Echo State Network modell
 class ESN:
-    def __init__(self, n_inputs, n_reservoir=100, spectral_radius=0.95, sparsity=0.2, random_state=42):
+    def __init__(self, n_inputs, n_reservoir=100, spectral_radius=0.95, sparsity=0.1, seed=42):
+        np.random.seed(seed)
         self.n_inputs = n_inputs
         self.n_reservoir = n_reservoir
         self.spectral_radius = spectral_radius
-        self.sparsity = sparsity
-        self.random_state = random_state
-        self._init_weights()
+        self.Win = np.random.uniform(-1, 1, (n_reservoir, n_inputs))
+        W = np.random.rand(n_reservoir, n_reservoir) - 0.5
+        # Sparsity
+        W[np.random.rand(*W.shape) > sparsity] = 0
+        # Spectral radius normalization
+        eigvals = np.linalg.eigvals(W)
+        W *= spectral_radius / np.max(np.abs(eigvals))
+        self.W = W
+        self.Wout = None
 
-    def _init_weights(self):
-        np.random.seed(self.random_state)
-        self.W_in = np.random.uniform(-0.5, 0.5, (self.n_reservoir, self.n_inputs))
-        W = np.random.rand(self.n_reservoir, self.n_reservoir) - 0.5
-        mask = np.random.rand(*W.shape) < self.sparsity
-        W *= mask
-        radius = np.max(np.abs(np.linalg.eigvals(W)))
-        self.W = W * (self.spectral_radius / radius)
+    def _update(self, state, u):
+        return np.tanh(np.dot(self.Win, u) + np.dot(self.W, state))
 
-    def _update(self, state, input_data):
-        pre_activation = np.dot(self.W_in, input_data) + np.dot(self.W, state)
-        return np.tanh(pre_activation)
-
-    def fit(self, inputs, outputs, washout=50, ridge_param=1e-6):
-        states = np.zeros((inputs.shape[0], self.n_reservoir))
+    def fit(self, X, y, washout=50, ridge=1e-6):
+        n_samples = X.shape[0]
+        states = np.zeros((n_samples, self.n_reservoir))
         state = np.zeros(self.n_reservoir)
-        for t in range(inputs.shape[0]):
-            state = self._update(state, inputs[t])
-            states[t] = state
-        self.scaler = StandardScaler().fit(states[washout:])
-        states_scaled = self.scaler.transform(states[washout:])
-        self.ridge = Ridge(alpha=ridge_param)
-        self.ridge.fit(states_scaled, outputs[washout:])
 
-    def predict(self, inputs):
-        states = np.zeros((inputs.shape[0], self.n_reservoir))
-        state = np.zeros(self.n_reservoir)
-        for t in range(inputs.shape[0]):
-            state = self._update(state, inputs[t])
+        for t in range(n_samples):
+            state = self._update(state, X[t])
             states[t] = state
-        states_scaled = self.scaler.transform(states)
-        return self.ridge.predict(states_scaled)
 
-# Streamlit futtató
+        # Elhagyjuk a washout periódust
+        states = states[washout:]
+        y_target = y[washout:]
+
+        # Ridge regression
+        self.Wout = np.dot(np.linalg.pinv(states.T @ states + ridge * np.eye(self.n_reservoir)) @ states.T, y_target)
+
+    def predict(self, X, initial_state=None):
+        n_samples = X.shape[0]
+        predictions = []
+        state = np.zeros(self.n_reservoir) if initial_state is None else initial_state
+
+        for t in range(n_samples):
+            state = self._update(state, X[t])
+            y_pred = np.dot(self.Wout, state)
+            predictions.append(y_pred)
+
+        return np.array(predictions)
+
+
 def run():
-    st.subheader("📈 Echo State Network (ESN) predikció feltöltött adatokkal")
+    st.subheader("📈 Echo State Network (ESN) predikció")
+    st.markdown("Ez a modul egy visszacsatolt neurális hálózatot (ESN) használ dinamikus időbeli minták előrejelzésére. Feltölthetsz saját adatot, vagy használhatod az alapértelmezett szinusz jelet.")
 
-    df = upload_data()
-    if df is None:
-        st.warning("⚠️ Kérlek, tölts fel adatot a kezdéshez.")
-        return
+    # Adatfeltöltés
+    uploaded_file = st.file_uploader("📤 CSV fájl feltöltése (opcionális)", type=["csv"])
+    use_uploaded = False
 
-    input_cols = st.multiselect("Válaszd ki a bemeneti oszlopokat", df.columns.tolist())
-    output_col = st.selectbox("Válaszd ki a predikciós célt", df.columns.tolist())
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+        st.dataframe(df.head())
+        use_uploaded = True
 
-    if not input_cols or not output_col:
-        st.info("ℹ️ Válassz ki bemenetet és célt a folytatáshoz.")
-        return
+        input_cols = st.multiselect("Válaszd ki a bemeneti oszlop(oka)t", df.columns.tolist())
+        output_col = st.selectbox("Válaszd ki a cél (output) oszlopot", df.columns.tolist())
+    else:
+        st.info("⚠️ Nem töltöttél fel adatot. Alapértelmezett szinusz hullámot használunk.")
+        x = np.linspace(0, 20 * np.pi, 1000)
+        y = np.sin(x).reshape(-1, 1)
+        df = pd.DataFrame({'input': x, 'target': y.flatten()})
+        input_cols = ['input']
+        output_col = 'target'
 
-    X = df[input_cols].values
-    y = df[output_col].values.reshape(-1, 1)
+    # Paraméterek
+    n_reservoir = st.slider("Reservoir méret", 10, 500, 100)
+    spectral_radius = st.slider("Spektrális sugár", 0.1, 1.5, 0.95)
+    sparsity = st.slider("Sparsity", 0.01, 1.0, 0.1)
+    washout = st.slider("Washout periódus", 0, 100, 50)
 
-    n_reservoir = st.slider("Reservoir méret", 10, 300, 100, 10)
-    radius = st.slider("Spektrális sugár", 0.1, 1.5, 0.95)
-    sparsity = st.slider("Ritkaság", 0.0, 1.0, 0.2)
+    # Előkészítés
+    scaler_x = MinMaxScaler()
+    scaler_y = MinMaxScaler()
 
-    esn = ESN(n_inputs=len(input_cols), n_reservoir=n_reservoir, spectral_radius=radius, sparsity=sparsity)
-    esn.fit(X, y)
+    X = scaler_x.fit_transform(df[input_cols])
+    y = scaler_y.fit_transform(df[[output_col]])
 
-    preds = esn.predict(X)
-    st.line_chart({"Valós érték": y.flatten(), "Predikció": preds.flatten()})
+    esn = ESN(n_inputs=X.shape[1], n_reservoir=n_reservoir, spectral_radius=spectral_radius, sparsity=sparsity)
+    esn.fit(X, y, washout=washout)
+    y_pred = esn.predict(X)
+
+    # Invertálás vissza az eredeti skálára
+    y_orig = scaler_y.inverse_transform(y)
+    y_pred_orig = scaler_y.inverse_transform(y_pred)
+
+    # Vizualizáció
+    st.markdown("### 🔍 Előrejelzés vs. Valós érték")
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.plot(y_orig, label="Valós", linewidth=2)
+    ax.plot(y_pred_orig, label="ESN előrejelzés", linestyle="--")
+    ax.legend()
+    ax.set_title("Predikció összehasonlítás")
+    st.pyplot(fig)
+
+    # Hibametrika
+    mse = mean_squared_error(y_orig, y_pred_orig)
+    st.markdown(f"**📉 MSE (átl. négyzetes hiba):** `{mse:.6f}`")
