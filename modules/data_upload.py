@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-
+# 🔄 Cache-elt CSV beolvasás
 @st.cache_data(show_spinner=False)
 def load_data(uploaded_file):
     if uploaded_file is not None:
@@ -12,18 +12,10 @@ def load_data(uploaded_file):
             st.error(f"Hiba a fájl beolvasásakor: {e}")
     return None
 
-
+# 📥 Adatfeltöltés és validálás
 def get_uploaded_data(required_columns=None, allow_default=False, default=None):
     """
-    Adatfeltöltés + opcionális struktúra validálás + fallback támogatás.
-
-    Parameters:
-    - required_columns: List[str] – kötelező oszlopnevek (pl. ["Input1", "Input2", "Target"])
-    - allow_default: bool – ha nincs adat, használjunk-e alapértelmezettet?
-    - default: str – "xor" vagy "lorenz" – ha default kell
-
-    Returns:
-    - df (pandas.DataFrame) vagy None
+    Fájlbetöltés, oszlop-ellenőrzés és opcionális fallback támogatás.
     """
     st.sidebar.subheader("📁 Adatfeltöltés")
     uploaded_file = st.sidebar.file_uploader("Tölts fel egy CSV fájlt", type=["csv"])
@@ -32,7 +24,6 @@ def get_uploaded_data(required_columns=None, allow_default=False, default=None):
 
     if df is not None:
         st.sidebar.success("✅ Fájl betöltve")
-
         if required_columns:
             missing = [col for col in required_columns if col not in df.columns]
             if missing:
@@ -41,15 +32,16 @@ def get_uploaded_data(required_columns=None, allow_default=False, default=None):
     else:
         st.sidebar.info("📂 Várakozás fájl feltöltésére...")
         if allow_default and default:
-            st.sidebar.warning(f"⚠️ Nincs fájl – alapértelmezett adathalmaz: `{default}`")
+            st.sidebar.warning(f"⚠️ Alapértelmezett adat használata: `{default}`")
             df = get_default_data(default)
 
     if df is not None:
         st.session_state["uploaded_df"] = df
     return df
 
-
+# 🧰 Alapértelmezett adat generálás
 def get_default_data(name):
+    import numpy as np
     if name == "xor":
         return pd.DataFrame({
             "Input1": [0, 0, 1, 1],
@@ -57,18 +49,16 @@ def get_default_data(name):
             "Target": [0, 1, 1, 0]
         })
     elif name == "lorenz":
-        # Dummy Lorenz data for placeholder purposes
-        import numpy as np
         steps = 1000
         xs = np.sin(np.linspace(0, 50, steps))
         ys = np.cos(np.linspace(0, 50, steps))
-        zs = np.sin(np.linspace(0, 50, steps) * 0.5)
+        zs = np.sin(np.linspace(0, 50, steps * 0.5))
         return pd.DataFrame({"x": xs, "y": ys, "z": zs})
     else:
-        st.warning("⚠️ Nincs ilyen alapértelmezett adathalmaz.")
+        st.warning("⚠️ Nincs ilyen nevű alapértelmezett adathalmaz.")
         return None
 
-
+# 👁️ Adatok előnézete
 def show_data_overview(df, title="📊 Feltöltött adat előnézete"):
     if df is not None:
         st.subheader(title)
@@ -79,3 +69,17 @@ def show_data_overview(df, title="📊 Feltöltött adat előnézete"):
             st.warning("⚠️ Hiányzó értékek találhatók az adathalmazban!")
     else:
         st.info("📂 Nincs elérhető adat az előnézethez.")
+
+# 🚀 Streamlit oldal futtatásához (ha menüből hívod)
+def run():
+    st.title("📁 Adatfeltöltő modul")
+    st.markdown("""
+    Tölts fel CSV fájlt, vagy használj előre definiált (alapértelmezett) adatkészletet pl. XOR vagy Lorenz.
+    """)
+
+    df = get_uploaded_data(allow_default=True, default="xor")
+
+    if df is not None:
+        show_data_overview(df)
+    else:
+        st.info("Nincs betöltött vagy alapértelmezett adat.")
