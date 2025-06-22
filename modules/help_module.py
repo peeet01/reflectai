@@ -1,53 +1,88 @@
 import streamlit as st
 
-def run(): st.title("📘 Súgó – Neurolab AI Scientific Playground Sandbox")
+def run():
+    st.title("❓ Súgó – Neurolab AI Scientific Playground Sandbox")
 
-st.markdown("""
-## 🔍 Mi ez az alkalmazás?
-A **Neurolab AI** egy kutatásorientált sandbox platform, amely lehetővé teszi neurális hálózatok, szinkronizációs rendszerek, topológiai modellek és tanulási folyamatok gyors tesztelését és vizualizációját.
+    st.markdown("""
+    ## 🔍 Mi ez az alkalmazás?
+    A **Neurolab AI** egy nyílt kutatásorientált interaktív sandbox, amely lehetővé teszi különböző mesterséges intelligencia modellek, dinamikai rendszerek és hálózati szimulációk futtatását és megértését. A cél, hogy **kutatók, hallgatók, oktatók és fejlesztők** számára egy szemléletes, moduláris és bővíthető felület álljon rendelkezésre a gépi tanulás, idegrendszeri dinamika és szinkronizáció területein.
 
-Az alkalmazás célja, hogy intuitív felületet biztosítson **kutatóknak, hallgatóknak és fejlesztőknek**, akik Python-alapú MI modellekből és elméletekből szeretnének többet látni – vizuálisan és mérhetően.
+    ---
 
----
+    ## 🧭 Modulismertető (Tudományos leírásokkal)
 
-## 🧭 Modulismertető (tudományos leírásokkal)
+    ### 🔁 XOR predikció neurális hálóval
+    - **Cél:** Egy bináris logikai függvény (XOR) megtanítása egy több rétegű perceptron segítségével.
+    - **Tudományos háttér:** Az XOR nemlineáris problémát jelent, amit egyetlen rétegű háló nem tud megtanulni, de egy rejtett réteggel rendelkező MLP képes rá. A modul a tanulási folyamatot vizsgálja zajos bemeneti adatokkal és visszacsatolással.
+    
+    ### 🧭 Kuramoto szinkronizáció
+    - **Cél:** Az oszcillátorok kollektív szinkronizációs viselkedésének modellezése.
+    - **Tudományos háttér:** A Kuramoto-modell egy klasszikus nemlineáris differenciálegyenlet-rendszer, ami fázisoszcillátorok közötti szinkronizációt ír le. Alkalmas idegi szinkronizáció, biológiai ritmusok vagy hálózati koherencia vizsgálatára.
 
-### 🔁 XOR predikció neurális hálóval
-Ez a modul egy bináris logikai műveletet – az XOR függvényt – tanítja meg egy egyszerű több rétegű perceptron (MLP) segítségével. Zajhozzáadás, predikció, modellmentés, interaktív vizsgálat és 3D felület segíti a megértést.
+    ### 🧠 Hebbian tanulás
+    - **Cél:** A Hebb-féle tanulási szabály szemléltetése.
+    - **Tudományos háttér:** A „neurons that fire together wire together” elv alapján a neuronkapcsolatok erősödnek, ha az aktivációjuk korrelál. Ez az alapja a szinaptikus plaszticitásnak, a hosszú távú memóriaképzésnek.
 
-### 🧭 Kuramoto szinkronizáció
-A Kuramoto-modell egy nemlineáris differenciálegyenleteken alapuló keret, amely oszcillátorok fázisszinkronizációját írja le. 3D dendritikus neuron-vizualizációval és szinkronizációs index méréssel.
+    ### ⚡ Kuramoto–Hebbian hálózat
+    - **Cél:** Dinamikus szinkronizációs és adaptív súlytanulási folyamatok kombinációja.
+    - **Tudományos háttér:** A Kuramoto fázismodell Hebbian tanulással való összekapcsolása bemutatja, hogyan fejlődhet a hálózati konnektivitás a kollektív dinamika hatására.
 
-### 🧠 Hebbian tanulás
-A Hebb-elv alapján ("Neurons that fire together wire together") működő szinaptikus erősödés vizsgálata mátrixszinten. Vizualizációval és paraméterezhetőséggel.
+    ### 🔒 Topológiai szinkronizáció
+    - **Cél:** A hálózati struktúra hatása a szinkronizációs dinamika stabilitására.
+    - **Tudományos háttér:** A szinkronizáció stabilitását nagyban befolyásolja a gráf topológiája. A szimuláció azt vizsgálja, hogy különböző topológiák hogyan hatnak a koherenciára.
 
-### ⚡ Kuramoto–Hebbian hálózat
-Kuramoto dinamikák és Hebbian tanulás integrálása egyetlen rendszerbe, a dinamikus és tanulási kölcsönhatások modellezésére.
+    ### 🌀 Lorenz rendszer (szimuláció)
+    - **Cél:** A determinisztikus káosz bemutatása.
+    - **Tudományos háttér:** A Lorenz-rendszer az időjárás előrejelzésének egyik modellje, amelyet Edward Lorenz dolgozott ki. Nemlineáris, determinisztikus, de kaotikus viselkedést mutat.
 
-### 🔒 Topológiai szinkronizáció
-A hálózati topológia hatásának vizsgálata oszcillátoros szinkronizációra. Strukturális stabilitás, gráfkapcsoltság és szinkronállapotok.
+    ### 🔮 Lorenz predikció
+    - **Cél:** Neurális háló alkalmazása kaotikus rendszer előrejelzésére.
+    - **Tudományos háttér:** Idősor predikció mélytanulással, a nemlineáris dinamikai rendszerek tanulmányozásához.
 
-### 🌀 Lorenz rendszer szimuláció
-A híres háromdimenziós kaotikus rendszer szimulációja. Demonstrálja a determinisztikus káoszt és a rendszer érzékenységét a kezdeti feltételekre.
+    ### 🧬 Zajtűrés és szinkronizációs robusztusság
+    - **Cél:** A szinkronizáció érzékenységének mérése külső zajra.
+    - **Tudományos háttér:** Egy rendszer zajtűrésének vizsgálata elengedhetetlen a valós adatokkal történő alkalmazásokhoz, különösen idegi hálók és fizikai rendszerek esetén.
 
-### 🔮 Lorenz predikció
-Neurális hálóval történő prediktív modellezés kaotikus Lorenz-rendszerre. Használható előrejelzésre időfüggő rendszerekben.
+    ### 🧩 Topológiai Chern–szám analízis
+    - **Cél:** Topológiai invariánsok numerikus meghatározása.
+    - **Tudományos háttér:** A Chern-szám kvantált topológiai mennyiség, amely a Berry-görbület integráljaként jelenik meg a kvantumfizikában és topologikus anyagokban.
 
-### 🧬 Zajtűrés és szinkronizációs robusztusság
-A hálózatok stabilitásának és zajérzékenységének vizsgálata. Megmutatja a szinkronizációs képességek határait.
+    ### 🧠 Belátás alapú tanulás (Insight Learning)
+    - **Cél:** Tanulási szimuláció, ahol a megoldás hirtelen jelenik meg – nem fokozatos tanulás eredménye.
+    - **Tudományos háttér:** A Gestalt-pszichológiából eredő modell, amely bemutatja, hogy a megértés nem mindig tapasztalaton alapuló próbálkozás.
 
-### 🧩 Topológiai Chern–szám analízis
-Kvantumtopológiai modell, amely Chern-számokat becsül Berry-görbület alapján. Vizualizálja a topológiai fázisokat.
+    ### 📈 Echo State Network (ESN) predikció
+    - **Cél:** Dinamikus rendszerek memóriaalapú előrejelzése visszacsatolt hálóval.
+    - **Tudományos háttér:** A Recurrent Neural Network (RNN) egy típusa, amely fixen inicializált rejtett állapotokat használ, és csak a kimeneti súlyokat tanítja.
 
-### 🧠 Belátás alapú tanulás (Insight Learning)
-A megértésen alapuló, hirtelen tanulás szimulációja próbálkozások és kognitív szünetek váltakozása alapján.
+    ### 🔄 Hebbian plaszticitás dinamikája
+    - **Cél:** Szinaptikus súlyváltozások vizsgálata időben.
+    - **Tudományos háttér:** A hosszú távú potenciáció (LTP) és depresszió (LTD) modellezése Hebbian mechanizmus alapján.
 
-### 📈 Echo State Network (ESN) predikció
-Visszacsatolt hálózat fix dinamikával és tanítható kimenettel, időfüggő predikciós feladatokra.
+    ### 🧮 Szinkronfraktál dimenzióanalízis
+    - **Cél:** A fázisszinkronizáció alapján képzett fraktálstruktúrák dimenziójának mérése.
+    - **Tudományos háttér:** A szinkronizáció mintázatainak fraktálszerkezete kulcsfontosságú lehet komplex rendszerek elemzésében.
 
-### 🔄 Hebbian plaszticitás dinamikája
-A Hebbian tanulási szabályon alapuló súlyváltozás időbeli követése és vizualizációja.
+    ### 🧠 Generatív Kuramoto hálózat
+    - **Cél:** Dinamikusan generált gráfstruktúrák Kuramoto-alapú szinkronizációs vizsgálata.
+    - **Tudományos háttér:** Véletlenszerűen épülő oszcillátorhálózatok szinkronizációs tulajdonságainak feltérképezése.
 
-### 🧮 Szinkronfraktál dimenzióanalízis
-Szinkronizált oszcillátorhálózat fraktáldimenziójának numerikus becslése.
+    ### 🧭 Memória tájkép (Memory Landscape)
+    - **Cél:** Memóriaállapotok feltérképezése neurális rendszerekben.
+    - **Tudományos háttér:** Az állapottér topográfiája hatással van a memória stabilitására és hozzáférhetőségére.
 
+    ---
+
+    ## 📦 Export és mentés
+    - CSV export predikciós eredményekhez
+    - Modellmentés `.pth` fájlba újrabetöltéshez
+    - Jegyzetmentés a vizsgálatok dokumentálásához
+
+    ---
+
+    ## 👥 Célközönség
+    - **Kutatók:** Elméleti modellek gyors verifikálása
+    - **Oktatók:** Interaktív szemléltető eszközök
+    - **Diákok:** Vizsgálati és tanulási lehetőség mélytanuláshoz
+    - **Fejlesztők:** Nyílt és bővíthető architektúra kipróbálása
+    """)
