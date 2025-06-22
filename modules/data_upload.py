@@ -1,30 +1,43 @@
-
 import streamlit as st
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def run():
-    st.title("📁 Adatfeltöltés modul – Neurolab AI")
+    st.title("📁 Adatfeltöltés modul")
+
     st.markdown("""
-    Ez a modul lehetővé teszi saját CSV adatok feltöltését és előnézetét. Az adatok később más modulokban is felhasználhatók.
+    Tölts fel egy `.csv` vagy `.xlsx` fájlt, amit a sandbox többi modulja is elérhet.
+    A feltöltött adatot a rendszer automatikusan eltárolja a memóriában (`st.session_state["uploaded_df"]`), így más analitikai vagy prediktív modul használhatja.
     """)
 
-    uploaded_file = st.file_uploader("📤 Tölts fel egy CSV fájlt", type=["csv"])
+    uploaded_file = st.file_uploader("Fájl kiválasztása", type=["csv", "xlsx"])
 
-    if uploaded_file:
+    if uploaded_file is not None:
         try:
-            df = pd.read_csv(uploaded_file)
-            st.success("✅ Fájl sikeresen beolvasva!")
+            if uploaded_file.name.endswith('.csv'):
+                df = pd.read_csv(uploaded_file)
+            else:
+                df = pd.read_excel(uploaded_file)
 
-            st.markdown("### 📊 Előnézet az adatokról")
-            st.dataframe(df)
+            st.session_state["uploaded_df"] = df
+            st.success("✅ Az adat sikeresen betöltve!")
 
-            st.markdown("### 📈 Alap statisztikák")
+            st.subheader("🔍 Adat előnézet")
+            st.dataframe(df.head())
+
+            st.subheader("📊 Alap statisztika")
             st.write(df.describe())
 
-            # Használhatóság más modulokban
-            st.session_state["uploaded_data"] = df
-
-            st.markdown("✅ Az adatok elérhetők más modulokból `st.session_state['uploaded_data']` formában.")
+            if df.select_dtypes(include='number').shape[1] >= 2:
+                st.subheader("📉 Korrelációs hőtérkép")
+                fig, ax = plt.subplots()
+                sns.heatmap(df.corr(), annot=True, fmt=".2f", cmap="coolwarm", ax=ax)
+                st.pyplot(fig)
+            else:
+                st.info("Túl kevés numerikus oszlop a korrelációs mátrixhoz.")
 
         except Exception as e:
-            st.error(f"Hiba történt a fájl feldolgozásakor: {e}")
+            st.error(f"Hiba a fájl feldolgozásakor: {e}")
+    else:
+        st.info("📤 Kérlek, tölts fel egy adatfájlt.")
