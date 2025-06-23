@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import datetime
 
-# MŰKÖDŐ MODULOK – változatlanul
+# --- MINDEN modul hagyományos importja ---
 from modules.kuramoto_sim import run as run_kuramoto
 from modules.hebbian_learning import run as run_hebbian
 from modules.xor_prediction import run as run_xor
@@ -16,55 +16,64 @@ from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
 from modules.memory_landscape import run as run_memory_landscape
 from modules.graph_sync_analysis import run as run_graph_sync_analysis
+from modules.persistent_homology import run as run_homology
 from modules.lyapunov_spectrum import run as run_lyapunov_spectrum
 from modules.insight_learning import run as run_insight_learning
 from modules.generative_kuramoto import run as run_generative_kuramoto
 from modules.data_upload import run as run_data_upload
+from modules.reflection_modul import run as run_reflection
 from modules.help_module import run as run_help
 
-# Streamlit beállítások
-st.set_page_config(page_title="Neurolab AI – Scientific Playground Sandbox", page_icon="🧠", layout="wide")
+# --- Alap beállítások ---
+st.set_page_config(
+    page_title="Neurolab AI – Scientific Playground Sandbox",
+    page_icon="🧠",
+    layout="wide"
+)
 
 st.title("Neurolab AI – Scientific Playground Sandbox")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 st.text_input("Megfigyelés vagy jegyzet (opcionális):")
 
-# Modulválasztó
+# --- Modulválasztó ---
 st.sidebar.title("Modulválasztó")
-module_name = st.sidebar.radio("Kérlek válassz:", (
-    "Kuramoto szinkronizáció",
-    "Hebbian tanulás",
-    "XOR predikció",
-    "Kuramoto–Hebbian háló",
-    "Topológiai szinkronizáció",
-    "Lorenz szimuláció",
-    "Lorenz predikció",
-    "Topológiai védettség (Chern-szám)",
-    "Topológiai Chern–szám analízis",
-    "Zajtűrés és szinkronizációs robusztusság",
-    "Echo State Network (ESN) predikció",
-    "Hebbian plaszticitás dinamikája",
-    "Szinkronfraktál dimenzióanalízis",
-    "Belátás alapú tanulás (Insight Learning)",
-    "Generatív Kuramoto hálózat",
-    "Memória tájkép (Pro)",
-    "Gráfalapú szinkronanalízis",
-    "Perzisztens homológia",
-    "Lyapunov spektrum",
-    "Adatfeltöltés modul",
-    "Napi önreflexió",
-    "Súgó / Help"
-))
+module_name = st.sidebar.radio(
+    "Kérlek válassz:",
+    (
+        "Kuramoto szinkronizáció",
+        "Hebbian tanulás",
+        "XOR predikció",
+        "Kuramoto–Hebbian háló",
+        "Topológiai szinkronizáció",
+        "Lorenz szimuláció",
+        "Lorenz predikció",
+        "Topológiai védettség (Chern-szám)",
+        "Topológiai Chern–szám analízis",
+        "Zajtűrés és szinkronizációs robusztusság",
+        "Echo State Network (ESN) predikció",
+        "Hebbian plaszticitás dinamikája",
+        "Szinkronfraktál dimenzióanalízis",
+        "Belátás alapú tanulás (Insight Learning)",
+        "Generatív Kuramoto hálózat",
+        "Memória tájkép (Pro)",
+        "Gráfalapú szinkronanalízis",
+        "Perzisztens homológia",
+        "Lyapunov spektrum",
+        "Adatfeltöltés modul",
+        "Napi önreflexió",
+        "Súgó / Help"
+    )
+)
 
-# MODULFUTÁS – 20 működő változatlanul
+# --- Modul-kapcsoló logika (22 ág) ---
 if module_name == "Kuramoto szinkronizáció":
     coupling = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
-    num_osc = st.number_input("Oszcillátorok száma", min_value=2, max_value=100, value=10)
+    num_osc = st.number_input("Oszcillátorok száma", 2, 100, 10)
     run_kuramoto(coupling, num_osc)
 
 elif module_name == "Hebbian tanulás":
     learning_rate = st.slider("Tanulási ráta", 0.001, 1.0, 0.1)
-    num_neurons = st.number_input("Neuronok száma", min_value=2, max_value=100, value=10)
+    num_neurons = st.number_input("Neuronok száma", 2, 100, 10)
     run_hebbian(learning_rate, num_neurons)
 
 elif module_name == "XOR predikció":
@@ -119,26 +128,17 @@ elif module_name == "Memória tájkép (Pro)":
 elif module_name == "Gráfalapú szinkronanalízis":
     run_graph_sync_analysis()
 
+elif module_name == "Perzisztens homológia":
+    run_homology()
+
 elif module_name == "Lyapunov spektrum":
     run_lyapunov_spectrum()
 
 elif module_name == "Adatfeltöltés modul":
     run_data_upload()
 
+elif module_name == "Napi önreflexió":
+    run_reflection()
+
 elif module_name == "Súgó / Help":
     run_help()
-
-# HIBÁS MODULOK – Késleltetett biztonságos importtal
-elif module_name == "Perzisztens homológia":
-    try:
-        from modules.persistent_homology import run as run_homology
-        run_homology()
-    except Exception as e:
-        st.error(f"❌ [Perzisztens homológia] modulhiba: {e}")
-
-elif module_name == "Napi önreflexió":
-    try:
-        from modules.reflection_modul import run as run_reflection
-        run_reflection()
-    except Exception as e:
-        st.error(f"❌ [Napi önreflexió] modulhiba: {e}")
