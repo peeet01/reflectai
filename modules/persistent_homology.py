@@ -6,12 +6,11 @@ def run():
     st.title("📊 Perzisztens homológia")
     st.write("Ez a modul bemutatja a perzisztens homológia alapjait szintetikus adatokon.")
 
-    # Szintetikus pontfelhő generálása
+    # Szintetikus adatok generálása
     points = np.random.rand(100, 2)
 
-    # Egyszerű vizualizáció
-    st.subheader("Pontfelhő")
+    st.subheader("Pontfelhő megjelenítése")
     st.scatter_chart(points)
 
-    st.info("Ez csak egy vizualizációs példa a perzisztens homológia bevezetéséhez. "
-            "A TDA részletes analízise külső könyvtárakat (pl. GUDHI, Ripser) igényelne.")
+    st.info("Ez csak egy egyszerű példa a homológia modulhoz. "
+            "Részletes topológiai elemzéshez TDA könyvtárak szükségesek.")
