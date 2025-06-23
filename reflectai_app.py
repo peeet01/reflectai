@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import datetime
 
-# További modulok
+# MŰKÖDŐ MODULOK – változatlanul
 from modules.kuramoto_sim import run as run_kuramoto
 from modules.hebbian_learning import run as run_hebbian
 from modules.xor_prediction import run as run_xor
@@ -22,26 +22,14 @@ from modules.generative_kuramoto import run as run_generative_kuramoto
 from modules.data_upload import run as run_data_upload
 from modules.help_module import run as run_help
 
-# VÉDETT import: persistent_homology
-try:
-    from modules.persistent_homology import run as run_homology
-except Exception as e:
-    def run_homology():
-        st.error(f"[Perzisztens homológia modulhiba] {e}")
-
-# VÉDETT import: reflection_modul
-try:
-    from modules.reflection_modul import run as run_reflection
-except Exception as e:
-    def run_reflection():
-        st.error(f"[Önreflexió modulhiba] {e}")
-
+# Streamlit beállítások
 st.set_page_config(page_title="Neurolab AI – Scientific Playground Sandbox", page_icon="🧠", layout="wide")
 
 st.title("Neurolab AI – Scientific Playground Sandbox")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 st.text_input("Megfigyelés vagy jegyzet (opcionális):")
 
+# Modulválasztó
 st.sidebar.title("Modulválasztó")
 module_name = st.sidebar.radio("Kérlek válassz:", (
     "Kuramoto szinkronizáció",
@@ -68,6 +56,7 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Súgó / Help"
 ))
 
+# MODULFUTÁS – 20 működő változatlanul
 if module_name == "Kuramoto szinkronizáció":
     coupling = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
     num_osc = st.number_input("Oszcillátorok száma", min_value=2, max_value=100, value=10)
@@ -130,17 +119,26 @@ elif module_name == "Memória tájkép (Pro)":
 elif module_name == "Gráfalapú szinkronanalízis":
     run_graph_sync_analysis()
 
-elif module_name == "Perzisztens homológia":
-    run_homology()
-
 elif module_name == "Lyapunov spektrum":
     run_lyapunov_spectrum()
 
 elif module_name == "Adatfeltöltés modul":
     run_data_upload()
 
-elif module_name == "Napi önreflexió":
-    run_reflection()
-
 elif module_name == "Súgó / Help":
     run_help()
+
+# HIBÁS MODULOK – Késleltetett biztonságos importtal
+elif module_name == "Perzisztens homológia":
+    try:
+        from modules.persistent_homology import run as run_homology
+        run_homology()
+    except Exception as e:
+        st.error(f"❌ [Perzisztens homológia] modulhiba: {e}")
+
+elif module_name == "Napi önreflexió":
+    try:
+        from modules.reflection_modul import run as run_reflection
+        run_reflection()
+    except Exception as e:
+        st.error(f"❌ [Napi önreflexió] modulhiba: {e}")
