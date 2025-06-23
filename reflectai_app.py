@@ -135,3 +135,33 @@ elif module_name == "Adatfeltöltés modul":
 
 elif module_name == "❓ Súgó / Help":
     run_help()
+
+# ------------------------------
+# ✅ ÚJ: questions modul beépítése a végén
+# ------------------------------
+from modules.questions import load_questions, get_random_question
+from datetime import datetime
+
+questions = load_questions()
+question = get_random_question(questions)
+
+if question:
+    st.markdown("---")
+    st.markdown("**Napi önreflexiós kérdés:**")
+    st.markdown(f"{question['text']}")
+
+    response = st.text_area("Válaszod:", height=150)
+    if st.button("Válasz elküldése"):
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        st.success("Válasz rögzítve (mentés fejlesztés alatt).")
+        st.markdown("Előnézet:")
+        st.json({
+            "id": question.get("id"),
+            "theme": question.get("theme"),
+            "level": question.get("level"),
+            "question": question.get("text"),
+            "response": response,
+            "timestamp": timestamp
+        })
+else:
+    st.warning("Nem sikerült kérdést betölteni.")
