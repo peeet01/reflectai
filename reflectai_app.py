@@ -1,4 +1,5 @@
 import streamlit as st
+from datetime import datetime
 
 # CSS betöltése
 with open("style.css") as f:
@@ -25,9 +26,8 @@ from modules.help_module import run as run_help
 from modules.data_upload import run as run_data_upload
 from modules.lyapunov_spectrum import run as run_lyapunov_spectrum
 
-# === Questions modul ===
+# + ÚJ kérdésmodul import
 from modules.questions import load_questions, get_random_question
-from datetime import datetime
 
 # Oldal konfiguráció
 st.set_page_config(
@@ -140,20 +140,21 @@ elif module_name == "Adatfeltöltés modul":
 elif module_name == "❓ Súgó / Help":
     run_help()
 
-# === Napi kérdés (sidebarban) ===
+# ======= 💬 KÉRDÉSBLOKK – mindig az oldal alján jelenik meg =======
+
 questions = load_questions()
 question = get_random_question(questions)
 
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 🤔 Napi önreflexiós kérdés")
+st.markdown("---")
+st.markdown("### 🤔 Napi önreflexiós kérdés")
 
 if question:
-    st.sidebar.markdown(f"**{question['text']}**")
-    response = st.sidebar.text_area("✏️ Válaszod:", height=100, key="daily_response")
-    if st.sidebar.button("✅ Válasz rögzítése"):
+    st.markdown(f"**{question['text']}**")
+    response = st.text_area("✏️ Válaszod:", height=150)
+    if st.button("✅ Válasz rögzítése"):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        st.sidebar.success("A válaszod ideiglenesen rögzítve lett.")
-        st.sidebar.json({
+        st.success("A válaszod ideiglenesen rögzítve lett.")
+        st.json({
             "id": question.get("id"),
             "theme": question.get("theme"),
             "level": question.get("level"),
@@ -162,4 +163,4 @@ if question:
             "timestamp": timestamp
         })
 else:
-    st.sidebar.warning("⚠️ Nem található kérdés a kérdésbankban.")
+    st.warning("⚠️ Nem található kérdés a kérdésbankban.")
