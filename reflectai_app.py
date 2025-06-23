@@ -1,4 +1,3 @@
-
 import streamlit as st
 
 # CSS betöltése
@@ -24,7 +23,11 @@ from modules.memory_landscape import run as run_memory_landscape
 from modules.graph_sync_analysis import run as run_graph_sync_analysis
 from modules.help_module import run as run_help
 from modules.data_upload import run as run_data_upload
-from modules.lyapunov_spectrum import run as run_lyapunov_spectrum  # ÚJ modul importálása
+from modules.lyapunov_spectrum import run as run_lyapunov_spectrum
+
+# === Questions modul ===
+from modules.questions import load_questions, get_random_question
+from datetime import datetime
 
 # Oldal konfiguráció
 st.set_page_config(
@@ -137,24 +140,20 @@ elif module_name == "Adatfeltöltés modul":
 elif module_name == "❓ Súgó / Help":
     run_help()
 
-# ======= QUESTIONS MODUL BEMUTATÓ BLOKK (változatlan kód után) =======
-
-from modules.questions import load_questions, get_random_question
-from datetime import datetime
-
+# === Napi kérdés (sidebarban) ===
 questions = load_questions()
 question = get_random_question(questions)
 
-if question:
-    st.markdown("---")
-    st.markdown("### 🤔 Napi önreflexiós kérdés")
-    st.markdown(f"**{question['text']}**")
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🤔 Napi önreflexiós kérdés")
 
-    response = st.text_area("✏️ Válaszod:", height=150)
-    if st.button("✅ Válasz rögzítése"):
+if question:
+    st.sidebar.markdown(f"**{question['text']}**")
+    response = st.sidebar.text_area("✏️ Válaszod:", height=100, key="daily_response")
+    if st.sidebar.button("✅ Válasz rögzítése"):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        st.success("A válaszod ideiglenesen rögzítve lett.")
-        st.json({
+        st.sidebar.success("A válaszod ideiglenesen rögzítve lett.")
+        st.sidebar.json({
             "id": question.get("id"),
             "theme": question.get("theme"),
             "level": question.get("level"),
@@ -163,4 +162,4 @@ if question:
             "timestamp": timestamp
         })
 else:
-    st.warning("⚠️ Nem található kérdés a kérdésbankban.")
+    st.sidebar.warning("⚠️ Nem található kérdés a kérdésbankban.")
