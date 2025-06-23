@@ -25,6 +25,7 @@ from modules.graph_sync_analysis import run as run_graph_sync_analysis
 from modules.help_module import run as run_help
 from modules.data_upload import run as run_data_upload
 from modules.lyapunov_spectrum import run as run_lyapunov_spectrum
+from modules.reflection_modul import run as run_reflection
 
 # Kérdésmodul importálása
 from modules.questions import load_questions, get_random_question
