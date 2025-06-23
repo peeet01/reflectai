@@ -24,6 +24,9 @@ from modules.graph_sync_analysis import run as run_graph_sync_analysis
 from modules.help_module import run as run_help
 from modules.data_upload import run as run_data_upload
 from modules.lyapunov_spectrum import run as run_lyapunov_spectrum
+from modules.questions import load_questions, get_random_question  # 🔹 ÚJ
+
+from datetime import datetime
 
 # Oldal konfiguráció
 st.set_page_config(
@@ -135,9 +138,6 @@ elif module_name == "Adatfeltöltés modul":
     run_data_upload()
 
 elif module_name == "🧠 Napi önreflexió":
-    from modules.questions import load_questions, get_random_question
-    from datetime import datetime
-
     questions = load_questions()
     question = get_random_question(questions)
 
