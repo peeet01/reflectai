@@ -25,7 +25,7 @@ from modules.graph_sync_analysis import run as run_graph_sync_analysis
 from modules.help_module import run as run_help
 from modules.data_upload import run as run_data_upload
 from modules.lyapunov_spectrum import run as run_lyapunov_spectrum
-from modules.questions import load_questions, get_random_question
+from modules.questions import load_questions, get_random_question  # 🔹 NAPI ÖNREFLEXIÓHOZ
 
 # Oldal konfiguráció
 st.set_page_config(
@@ -62,7 +62,7 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Gráfalapú szinkronanalízis",
     "Lyapunov spektrum",
     "Adatfeltöltés modul",
-    "🧠 Napi önreflexió",
+    "🧠 Napi önreflexió",  # 🔹 EZ ITT FONTOS
     "❓ Súgó / Help"
 ))
 
@@ -137,7 +137,7 @@ elif module_name == "Adatfeltöltés modul":
     run_data_upload()
 
 elif module_name == "🧠 Napi önreflexió":
-    questions = load_questions(filepath="data/questions.json")
+    questions = load_questions()
     question = get_random_question(questions)
 
     if question:
@@ -146,7 +146,7 @@ elif module_name == "🧠 Napi önreflexió":
         response = st.text_area("✏️ Válaszod:", height=150)
         if st.button("✅ Válasz rögzítése"):
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            st.success("✅ A válaszod ideiglenesen rögzítve lett.")
+            st.success("A válaszod ideiglenesen rögzítve lett.")
             st.json({
                 "id": question.get("id"),
                 "theme": question.get("theme"),
