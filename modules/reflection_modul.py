@@ -1,40 +1,32 @@
-
 import streamlit as st
 import json
-import os
 import random
-
-def load_questions(filepath="data/questions.json"):
-    if not os.path.exists(filepath):
-        st.warning("A kérdésfájl nem található.")
-        return []
-
-    with open(filepath, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def get_random_reflection_question(questions):
-    reflection_qs = [q for q in questions if q.get("theme") == "önreflexió"]
-    if not reflection_qs:
-        return None
-    return random.choice(reflection_qs)
+import os
 
 def run():
-    st.header("🧭 Napi önreflexió")
+    st.title("🪞 Napi önreflexió")
 
-    questions = load_questions()
-    if not questions:
-        st.error("Nincs betölthető kérdés.")
+    json_path = os.path.join("data", "questions.json")
+    if not os.path.exists(json_path):
+        st.error("A kérdésfájl (questions.json) nem található.")
         return
 
-    question = get_random_reflection_question(questions)
-    if not question:
-        st.warning("Nincs 'önreflexió' témájú kérdés a listában.")
+    with open(json_path, "r", encoding="utf-8") as f:
+        questions = json.load(f)
+
+    # Szűrés témakör szerint
+    filtered = [q for q in questions if q["theme"].lower() == "önreflexió"]
+    if not filtered:
+        st.warning("Nincs elérhető önreflexiós kérdés a fájlban.")
         return
 
-    st.subheader("Kérdés:")
-    st.write(f"**{question['text']}**")
+    q = random.choice(filtered)
+    st.subheader("Mai kérdésed:")
+    st.write(f"🧠 *{q['text']}*")
 
-    answer = st.text_area("Válaszod:", height=150)
-
-    if st.button("Válasz mentése"):
-        st.success("✅ Válasz elmentve (vagy legalábbis elképzeltük).")
+    response = st.text_area("Válaszod:", "")
+    if st.button("Mentés"):
+        if response.strip():
+            st.success("Válaszod rögzítve. Köszönjük az önreflexiódat!")
+        else:
+            st.warning("Kérlek, írj választ mielőtt mentenél.")
