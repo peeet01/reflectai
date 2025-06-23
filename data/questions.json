@@ -12,26 +12,5 @@
     "level": 3,
     "theme": "tanulás",
     "type": "kognitív"
-  },
-  {
-    "id": "Q003",
-    "text": "Milyen szokásod gátol a fejlődésben?",
-    "level": 3,
-    "theme": "személyiség",
-    "type": "önismeret"
-  },
-  {
-    "id": "Q004",
-    "text": "Ha most újrakezdhetnéd a mai napod, mit csinálnál másképp?",
-    "level": 1,
-    "theme": "napi reflexió",
-    "type": "időkezelés"
-  },
-  {
-    "id": "Q005",
-    "text": "Melyik témában szeretnél mélyebben elmélyülni a következő héten?",
-    "level": 2,
-    "theme": "tervezés",
-    "type": "motiváció"
   }
 ]
