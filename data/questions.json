@@ -1,62 +1,37 @@
 [
-    {
-        "id": 1,
-        "theme": "siker",
-        "level": "könnyű",
-        "text": "Mi volt a mai nap legnagyobb sikere számodra?"
-    },
-    {
-        "id": 2,
-        "theme": "tanulás",
-        "level": "könnyű",
-        "text": "Mit tanultál ma, ami új vagy meglepő volt?"
-    },
-    {
-        "id": 3,
-        "theme": "hangulat",
-        "level": "közepes",
-        "text": "Milyen volt ma a hangulatod, és mi befolyásolta?"
-    },
-    {
-        "id": 4,
-        "theme": "célok",
-        "level": "közepes",
-        "text": "Tettél ma egy lépést egy hosszú távú célod felé? Ha igen, mit?"
-    },
-    {
-        "id": 5,
-        "theme": "hála",
-        "level": "könnyű",
-        "text": "Miért vagy ma hálás?"
-    },
-    {
-        "id": 6,
-        "theme": "kihívás",
-        "level": "nehéz",
-        "text": "Mi volt a legnagyobb kihívás, amellyel ma szembesültél, és hogyan birkóztál meg vele?"
-    },
-    {
-        "id": 7,
-        "theme": "döntés",
-        "level": "nehéz",
-        "text": "Hoztál ma egy fontos döntést? Mi alapján döntöttél?"
-    },
-    {
-        "id": 8,
-        "theme": "önismeret",
-        "level": "közepes",
-        "text": "Mit tanultál ma saját magadról?"
-    },
-    {
-        "id": 9,
-        "theme": "segítség",
-        "level": "könnyű",
-        "text": "Segítettél ma valakinek, vagy kértél segítséget? Hogyan történt?"
-    },
-    {
-        "id": 10,
-        "theme": "jövő",
-        "level": "közepes",
-        "text": "Hogyan készülsz a holnapra a mai nap tanulságai alapján?"
-    }
+  {
+    "id": "Q001",
+    "text": "Mi volt ma a legnagyobb kihívásod?",
+    "level": 2,
+    "theme": "önreflexió",
+    "type": "érzelmi"
+  },
+  {
+    "id": "Q002",
+    "text": "Mikor érezted utoljára, hogy valóban tanultál valami újat?",
+    "level": 3,
+    "theme": "tanulás",
+    "type": "kognitív"
+  },
+  {
+    "id": "Q003",
+    "text": "Milyen szokásod gátol a fejlődésben?",
+    "level": 3,
+    "theme": "személyiség",
+    "type": "önismeret"
+  },
+  {
+    "id": "Q004",
+    "text": "Ha most újrakezdhetnéd a mai napod, mit csinálnál másképp?",
+    "level": 1,
+    "theme": "önreflexió",
+    "type": "időkezelés"
+  },
+  {
+    "id": "Q005",
+    "text": "Melyik témában szeretnél mélyebben elmélyülni a következő héten?",
+    "level": 2,
+    "theme": "önreflexió",
+    "type": "motiváció"
+  }
 ]
