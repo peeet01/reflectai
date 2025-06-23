@@ -12,7 +12,7 @@ def run():
         response = st.text_area("✏️ Válaszod:", height=150)
         if st.button("✅ Válasz rögzítése"):
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            st.success("✅ A válaszod ideiglenesen rögzítve lett.")
+            st.success("✅ A válaszod rögzítve lett.")
             st.json({
                 "id": question.get("id"),
                 "theme": question.get("theme"),
