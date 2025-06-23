@@ -1,5 +1,4 @@
 import streamlit as st
-from datetime import datetime
 
 # CSS betöltése
 with open("style.css") as f:
@@ -25,9 +24,6 @@ from modules.graph_sync_analysis import run as run_graph_sync_analysis
 from modules.help_module import run as run_help
 from modules.data_upload import run as run_data_upload
 from modules.lyapunov_spectrum import run as run_lyapunov_spectrum
-
-# + ÚJ kérdésmodul import
-from modules.questions import load_questions, get_random_question
 
 # Oldal konfiguráció
 st.set_page_config(
@@ -64,6 +60,7 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Gráfalapú szinkronanalízis",
     "Lyapunov spektrum",
     "Adatfeltöltés modul",
+    "🧠 Napi önreflexió",  # 🔹 ÚJ MENÜPONT
     "❓ Súgó / Help"
 ))
 
@@ -137,30 +134,30 @@ elif module_name == "Lyapunov spektrum":
 elif module_name == "Adatfeltöltés modul":
     run_data_upload()
 
+elif module_name == "🧠 Napi önreflexió":
+    from modules.questions import load_questions, get_random_question
+    from datetime import datetime
+
+    questions = load_questions()
+    question = get_random_question(questions)
+
+    if question:
+        st.markdown("### 🤔 Napi önreflexiós kérdés")
+        st.markdown(f"**{question['text']}**")
+        response = st.text_area("✏️ Válaszod:", height=150)
+        if st.button("✅ Válasz rögzítése"):
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            st.success("A válaszod ideiglenesen rögzítve lett.")
+            st.json({
+                "id": question.get("id"),
+                "theme": question.get("theme"),
+                "level": question.get("level"),
+                "question": question.get("text"),
+                "response": response,
+                "timestamp": timestamp
+            })
+    else:
+        st.warning("⚠️ Nem található kérdés a kérdésbankban.")
+
 elif module_name == "❓ Súgó / Help":
     run_help()
-
-# ======= 💬 KÉRDÉSBLOKK – mindig az oldal alján jelenik meg =======
-
-questions = load_questions()
-question = get_random_question(questions)
-
-st.markdown("---")
-st.markdown("### 🤔 Napi önreflexiós kérdés")
-
-if question:
-    st.markdown(f"**{question['text']}**")
-    response = st.text_area("✏️ Válaszod:", height=150)
-    if st.button("✅ Válasz rögzítése"):
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        st.success("A válaszod ideiglenesen rögzítve lett.")
-        st.json({
-            "id": question.get("id"),
-            "theme": question.get("theme"),
-            "level": question.get("level"),
-            "question": question.get("text"),
-            "response": response,
-            "timestamp": timestamp
-        })
-else:
-    st.warning("⚠️ Nem található kérdés a kérdésbankban.")
