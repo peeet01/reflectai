@@ -1,8 +1,5 @@
 import streamlit as st
 from datetime import datetime
-import os
-import json
-import random
 
 # CSS betöltése
 with open("style.css") as f:
@@ -28,6 +25,9 @@ from modules.graph_sync_analysis import run as run_graph_sync_analysis
 from modules.help_module import run as run_help
 from modules.data_upload import run as run_data_upload
 from modules.lyapunov_spectrum import run as run_lyapunov_spectrum
+
+# Kérdésmodul importálása
+from modules.questions import load_questions, get_random_question
 
 # Oldal konfiguráció
 st.set_page_config(
@@ -67,18 +67,6 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "🧠 Napi önreflexió",
     "❓ Súgó / Help"
 ))
-
-# ÖNREFLEXIÓ segédfüggvények
-def load_questions(filepath="data/questions.json"):
-    if not os.path.exists(filepath):
-        return []
-    with open(filepath, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def get_random_question(questions):
-    if not questions:
-        return None
-    return random.choice(questions)
 
 # Modulok futtatása
 if module_name == "Kuramoto szinkronizáció":
@@ -151,7 +139,7 @@ elif module_name == "Adatfeltöltés modul":
     run_data_upload()
 
 elif module_name == "🧠 Napi önreflexió":
-    questions = load_questions()
+    questions = load_questions("data/questions.json")
     question = get_random_question(questions)
 
     if question:
@@ -160,7 +148,7 @@ elif module_name == "🧠 Napi önreflexió":
         response = st.text_area("✏️ Válaszod:", height=150)
         if st.button("✅ Válasz rögzítése"):
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            st.success("A válaszod rögzítve lett.")
+            st.success("✅ A válaszod ideiglenesen rögzítve lett.")
             st.json({
                 "id": question.get("id"),
                 "theme": question.get("theme"),
