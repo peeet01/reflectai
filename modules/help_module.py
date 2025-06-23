@@ -89,105 +89,32 @@ def run():
     - Bioinspirált hálózatok
     """)
 
-    st.markdown("### 🌀 Lorenz rendszer")
+    st.markdown("#### 📘 Napi önreflexió")
     st.markdown("""
-    **Cél:** Káosz és determinisztikus dinamika vizsgálata.  
-    **Háttér:** Edward Lorenz (1963) – meteorológiai modellekből kiindulva.
+    **Cél:** A napi tanulási és érzelmi állapotok tudatosítása, kognitív metareflexió fejlesztése.  
+    **Tudományos háttér:** Metakogníció, önszabályozott tanulás, pszichológiai naplózás.
 
-    **Lorenz-egyenletek:**  
-    $$
-    \\begin{aligned}
-    \\frac{dx}{dt} &= \\sigma(y - x) \\\\
-    \\frac{dy}{dt} &= x(\\rho - z) - y \\\\
-    \\frac{dz}{dt} &= xy - \\beta z
-    \\end{aligned}
-    $$
+    **Koncepció:** A kérdések különböző kognitív és érzelmi szinteken aktiválják a tanulót.
+
+    **Adat:** A modul a `questions.json` fájlból dolgozik.
 
     **Alkalmazások:**  
-    - Idősor szimuláció  
-    - Káoszelmélet oktatása
+    - Mentálhigiénés gyakorlatok  
+    - Oktatási önértékelések  
+    - AI-támogatott coaching modulok
     """)
 
-    st.markdown("### 🔮 Lorenz predikció")
+    st.markdown("#### 🧮 Perzisztens homológia")
     st.markdown("""
-    **Cél:** Mély hálózatokkal előrejelezni a Lorenz dinamikát.  
-    **Elv:** Korábbi állapotok alapján tanulható nemlineáris viselkedés.
+    **Cél:** Topológiai Data Analysis (TDA) eszközeként a rejtett adatstruktúrák vizsgálata.  
+    **Tudományos háttér:** Algebrai topológia, Vietoris–Rips komplexumok, Betti-számok.
 
-    $$
-    \\hat{x}_{t+1} = f(x_t, x_{t-1}, ...)
-    $$
+    **Módszer:** A szintetikus pontfelhők topológiai jellemzőinek analízise.
 
     **Alkalmazások:**  
-    - Idősor-előrejelzés  
-    - Káoszdetekció gépi tanulással
-    """)
-
-    st.markdown("### 🧬 Zajtűrés és robusztusság")
-    st.markdown("""
-    **Cél:** Mesterséges rendszerek érzékenysége a zajra.  
-    **Motiváció:** Biológiai rendszerek gyakran robusztusak hibák ellen.
-
-    **Alkalmazások:**  
-    - Hibatűrő rendszerek  
-    - Szimulációk érzékenységi vizsgálata
-    """)
-
-    st.markdown("### 🧩 Chern–szám analízis")
-    st.markdown("""
-    **Cél:** Topológiai invariánsok számítása kvantumrácsokon.
-
-    **Képlet:**  
-    $$
-    C = \\frac{1}{2\\pi} \\int_{BZ} F(k) \\, d^2k
-    $$  
-    $F(k)$: Berry-görbület
-
-    **Alkalmazások:**  
-    - Topológiai szigetelők modellezése  
-    - Kvantum számítási struktúrák
-    """)
-
-    st.markdown("### 📈 Echo State Network (ESN)")
-    st.markdown("""
-    **Cél:** Időfüggő mintázatok megtanulása visszacsatolt hálókkal.
-
-    **Képlet:**  
-    $$
-    x(t+1) = \\tanh(W_{res}x(t) + W_{in}u(t))
-    $$
-
-    **Alkalmazások:**  
-    - Idősorok előrejelzése  
-    - Viselkedésminták tanulása
-    """)
-
-    st.markdown("### 🧠 Insight Learning")
-    st.markdown("""
-    **Cél:** Belátás-alapú tanulás szimulációja.  
-    **Háttér:** Köhler és Gestalt pszichológia elvein alapul.
-
-    **Alkalmazások:**  
-    - Hirtelen felismerések modellezése  
-    - Tanulási áttörések
-    """)
-
-    st.markdown("### 🧠 Generatív Kuramoto hálózat")
-    st.markdown("""
-    **Cél:** Dinamikus gráfok generálása és szinkronizációs tulajdonságaik vizsgálata.
-
-    **Alkalmazások:**  
-    - Véletlen hálók dinamika szerinti evolúciója  
-    - Gráfelméleti szinkronizáció
-    """)
-
-    st.markdown("### 🧭 Memória tájkép")
-    st.markdown("""
-    **Cél:** Neurális hálók stabil állapotainak feltérképezése.  
-    **Elv:** A háló energiatájképének minimumai jelzik a memóriapontokat.
-
-    **Alkalmazások:**  
-    - Hopfield-hálók vizsgálata  
-    - Attractor-alapú tanulás
+    - Orvosi képalkotás  
+    - Hálózatelemzés  
+    - Gépi tanulási előfeldolgozás
     """)
 
     st.markdown("### 📊 Lyapunov spektrum")
@@ -212,3 +139,5 @@ def run():
     - **Hallgatók:** Interaktív tanulás, paraméterkísérletezés, önálló kutatási projektek  
     - **Fejlesztők:** Moduláris és nyílt rendszer új ötletek prototipizálására
     """)
+
+    st.caption("Frissítve: 2025-06-23 16:46")
