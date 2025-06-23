@@ -136,9 +136,8 @@ elif module_name == "Adatfeltöltés modul":
 elif module_name == "❓ Súgó / Help":
     run_help()
 
-# ------------------------------
-# ✅ ÚJ: questions modul beépítése a végén
-# ------------------------------
+# ======= QUESTIONS MODUL BEMUTATÓ BLOKK (változatlan kód után) =======
+
 from modules.questions import load_questions, get_random_question
 from datetime import datetime
 
@@ -147,14 +146,13 @@ question = get_random_question(questions)
 
 if question:
     st.markdown("---")
-    st.markdown("**Napi önreflexiós kérdés:**")
-    st.markdown(f"{question['text']}")
+    st.markdown("### 🤔 Napi önreflexiós kérdés")
+    st.markdown(f"**{question['text']}**")
 
-    response = st.text_area("Válaszod:", height=150)
-    if st.button("Válasz elküldése"):
+    response = st.text_area("✏️ Válaszod:", height=150)
+    if st.button("✅ Válasz rögzítése"):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        st.success("Válasz rögzítve (mentés fejlesztés alatt).")
-        st.markdown("Előnézet:")
+        st.success("A válaszod ideiglenesen rögzítve lett.")
         st.json({
             "id": question.get("id"),
             "theme": question.get("theme"),
@@ -164,4 +162,4 @@ if question:
             "timestamp": timestamp
         })
 else:
-    st.warning("Nem sikerült kérdést betölteni.")
+    st.warning("⚠️ Nem található kérdés a kérdésbankban.")
