@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import datetime
 
-# Meglévő modulok importálása (minden modult tartalmaz!)
+# További modulok
 from modules.kuramoto_sim import run as run_kuramoto
 from modules.hebbian_learning import run as run_hebbian
 from modules.xor_prediction import run as run_xor
@@ -16,26 +16,32 @@ from modules.plasticity_dynamics import run as run_plasticity
 from modules.fractal_dimension import run as run_fractal
 from modules.memory_landscape import run as run_memory_landscape
 from modules.graph_sync_analysis import run as run_graph_sync_analysis
-from modules.help_module import run as run_help
-from modules.data_upload import run as run_data_upload
 from modules.lyapunov_spectrum import run as run_lyapunov_spectrum
 from modules.insight_learning import run as run_insight_learning
 from modules.generative_kuramoto import run as run_generative_kuramoto
-from modules.persistent_homology import run as run_homology
-from modules.reflection_modul import run as run_reflection
+from modules.data_upload import run as run_data_upload
+from modules.help_module import run as run_help
 
-# Streamlit oldalbeállítás
-st.set_page_config(
-    page_title="Neurolab AI – Scientific Playground Sandbox",
-    layout="wide"
-)
+# VÉDETT import: persistent_homology
+try:
+    from modules.persistent_homology import run as run_homology
+except Exception as e:
+    def run_homology():
+        st.error(f"[Perzisztens homológia modulhiba] {e}")
 
-# Oldal címe
+# VÉDETT import: reflection_modul
+try:
+    from modules.reflection_modul import run as run_reflection
+except Exception as e:
+    def run_reflection():
+        st.error(f"[Önreflexió modulhiba] {e}")
+
+st.set_page_config(page_title="Neurolab AI – Scientific Playground Sandbox", page_icon="🧠", layout="wide")
+
 st.title("Neurolab AI – Scientific Playground Sandbox")
 st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
 st.text_input("Megfigyelés vagy jegyzet (opcionális):")
 
-# Oldalsáv modulválasztó
 st.sidebar.title("Modulválasztó")
 module_name = st.sidebar.radio("Kérlek válassz:", (
     "Kuramoto szinkronizáció",
@@ -55,14 +61,13 @@ module_name = st.sidebar.radio("Kérlek válassz:", (
     "Generatív Kuramoto hálózat",
     "Memória tájkép (Pro)",
     "Gráfalapú szinkronanalízis",
+    "Perzisztens homológia",
     "Lyapunov spektrum",
     "Adatfeltöltés modul",
-    "Perzisztens homológia",
     "Napi önreflexió",
     "Súgó / Help"
 ))
 
-# Modulválasztás és futtatás
 if module_name == "Kuramoto szinkronizáció":
     coupling = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
     num_osc = st.number_input("Oszcillátorok száma", min_value=2, max_value=100, value=10)
@@ -125,14 +130,14 @@ elif module_name == "Memória tájkép (Pro)":
 elif module_name == "Gráfalapú szinkronanalízis":
     run_graph_sync_analysis()
 
+elif module_name == "Perzisztens homológia":
+    run_homology()
+
 elif module_name == "Lyapunov spektrum":
     run_lyapunov_spectrum()
 
 elif module_name == "Adatfeltöltés modul":
     run_data_upload()
-
-elif module_name == "Perzisztens homológia":
-    run_homology()
 
 elif module_name == "Napi önreflexió":
     run_reflection()
