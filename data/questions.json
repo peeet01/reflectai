@@ -33,5 +33,26 @@
     "level": 2,
     "theme": "tervezés",
     "type": "motiváció"
+  },
+  {
+    "id": "Q006",
+    "text": "Milyen visszajelzést kaptál mostanában, ami elgondolkodtatott?",
+    "level": 2,
+    "theme": "kapcsolatok",
+    "type": "interperszonális"
+  },
+  {
+    "id": "Q007",
+    "text": "Mi az, amit ma megtettél magadért?",
+    "level": 1,
+    "theme": "önszeretet",
+    "type": "pozitív megerősítés"
+  },
+  {
+    "id": "Q008",
+    "text": "Melyik döntésedre vagy a legbüszkébb a héten?",
+    "level": 2,
+    "theme": "döntéshozatal",
+    "type": "értékalapú"
   }
 ]
