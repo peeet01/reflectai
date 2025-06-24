@@ -1,1 +1,18 @@
-
+{
+  "title": "Echo State Network (ESN) predikció",
+  "description": "Az ESN visszacsatolt neurális háló modell segítségével idősorokat lehet előrejelezni. A reservoir réteg dinamikus reprezentációt épít ki, amely lineárisan olvasható ki.",
+  "equations": [
+    "x(t+1) = \\tanh(W_{in} u(t) + W x(t))",
+    "y(t) = W_{out} x(t)"
+  ],
+  "parameters": {
+    "Reservoir méret": "A belső állapottér dimenziója",
+    "Spektrális sugár": "A súlymátrix spektrális sugara (stabilitási feltétel)",
+    "Szivárgási ráta": "Az állapotfrissítés mértéke"
+  },
+  "applications": [
+    "Nemlineáris idősorok előrejelzése",
+    "Káoszelmélet és predikció",
+    "Viselkedésminták tanulása visszacsatolt hálókkal"
+  ]
+}
