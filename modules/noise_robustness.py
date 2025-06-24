@@ -1,32 +1,45 @@
-import streamlit as st import numpy as np import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
+import streamlit as st
+import networkx as nx
 
-def simulate_kuramoto_with_noise(N=100, K=1.0, noise_strength=0.1, T=10, dt=0.01): time = np.arange(0, T, dt) theta = np.random.uniform(0, 2 * np.pi, N) omega = np.random.normal(0, 1, N) sync_history = []
+def simulate_kuramoto(N, K, noise_level, steps=500, dt=0.05):
+    """Egyszerű Kuramoto-modell zajjal."""
+    theta = np.random.uniform(0, 2*np.pi, N)
+    omega = np.random.normal(1.0, 0.1, N)
 
-for t in time:
-    noise = noise_strength * np.random.normal(0, 1, N)
-    coupling = (K / N) * np.sum(np.sin(np.subtract.outer(theta, theta)), axis=1)
-    dtheta = omega + coupling + noise
-    theta += dtheta * dt
-    order_param = np.abs(np.mean(np.exp(1j * theta)))
-    sync_history.append(order_param)
+    for _ in range(steps):
+        interaction = np.sum(np.sin(np.subtract.outer(theta, theta)), axis=1)
+        theta += (omega + (K / N) * interaction + np.random.normal(0, noise_level, N)) * dt
 
-return time, sync_history
+    return theta
 
-def run(): st.header("🔊 Zajtűrés és szinkronizációs robusztusság")
+def order_parameter(theta):
+    """Rendparaméter számítása."""
+    return np.abs(np.mean(np.exp(1j * theta)))
 
-N = st.slider("Oszcillátorok száma (N)", 10, 300, 100)
-K = st.slider("Kapcsolási erősség (K)", 0.0, 5.0, 1.0)
-noise_strength = st.slider("Zaj erőssége", 0.0, 1.0, 0.1)
-T = st.slider("Szimuláció ideje", 1, 50, 10)
-dt = 0.01
+def run():
+    st.title("📉 Zajtűrés és szinkronizációs robusztusság")
 
-time, sync_history = simulate_kuramoto_with_noise(N, K, noise_strength, T, dt)
+    N = st.slider("🎯 Oszcillátorok száma", 5, 100, 20)
+    K = st.slider("🔗 Kapcsolódási erősség (K)", 0.0, 10.0, 2.0, step=0.1)
+    max_noise = st.slider("🌀 Maximális zajszint", 0.0, 2.0, 1.0, step=0.05)
+    steps = st.slider("⏱️ Iterációk száma", 100, 2000, 500, step=100)
 
-fig, ax = plt.subplots()
-ax.plot(time, sync_history, label="Szinkronizációs fok (r)")
-ax.set_xlabel("Idő")
-ax.set_ylabel("Szinkronizációs fok")
-ax.set_title("Zaj hatása a szinkronizációra")
-ax.grid(True)
-st.pyplot(fig)
+    noise_levels = np.linspace(0, max_noise, 30)
+    order_params = []
 
+    st.write("🔁 Szimuláció zajlik...")
+
+    for noise in noise_levels:
+        theta = simulate_kuramoto(N, K, noise, steps=steps)
+        r = order_parameter(theta)
+        order_params.append(r)
+
+    fig, ax = plt.subplots()
+    ax.plot(noise_levels, order_params, marker="o")
+    ax.set_xlabel("Zajszint")
+    ax.set_ylabel("Rendparaméter (r)")
+    ax.set_title("Szinkronizáció robusztussága zajjal szemben")
+    ax.grid(True)
+    st.pyplot(fig)
