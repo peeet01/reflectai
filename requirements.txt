@@ -10,4 +10,4 @@ pandas
 ripser
 persim
 streamlit-authenticator
-PyYAML
+pyjaml
