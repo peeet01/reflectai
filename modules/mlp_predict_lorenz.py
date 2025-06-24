@@ -1,64 +1,62 @@
 import streamlit as st
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPRegressor
-from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
 
-from modules.data_upload import get_uploaded_data, show_data_overview
+def generate_lorenz_data(n_steps=1000, dt=0.01):
+    def lorenz(t, state, sigma=10, rho=28, beta=8/3):
+        x, y, z = state
+        dx = sigma * (y - x)
+        dy = x * (rho - z) - y
+        dz = x * y - beta * z
+        return [dx, dy, dz]
 
+    t_span = (0, n_steps * dt)
+    y0 = [1.0, 1.0, 1.0]
+    t_eval = np.linspace(*t_span, n_steps)
+    sol = solve_ivp(lorenz, t_span, y0, t_eval=t_eval)
+    return sol.y.T  # shape: (n_steps, 3)
+
+def create_dataset(data, window=10):
+    X, y = [], []
+    for i in range(len(data) - window):
+        X.append(data[i:i+window].flatten())
+        y.append(data[i+window][0])  # x komponens előrejelzése
+    return np.array(X), np.array(y)
 
 def run():
-    st.title("🧠 MLP előrejelzés Lorenz-rendszerre vagy feltöltött adatra")
-
+    st.header("🔮 Lorenz rendszer MLP-predikció")
     st.markdown("""
-    Ez a modul egy több rétegű perceptronnal (MLP) tanít előrejelzést 3D dinamikus rendszerből.  
-    Használhatsz saját CSV-t is, amely 3 oszlopot tartalmaz (`x`, `y`, `z`).
+    Ez a modul egy **MLP (Multi-Layer Perceptron)** modellt tanít a Lorenz rendszer múltbeli állapotai alapján, hogy előre jelezze a jövőbeli **x-komponens** értékét.
+
+    A cél a nemlineáris dinamikák tanulása és előrejelzése.
     """)
 
-    # 🔽 Adatok betöltése
-    df = get_uploaded_data(required_columns=["x", "y", "z"], allow_default=True, default="lorenz")
+    steps = st.slider("Szimulációs lépések", 200, 3000, 1000, 100)
+    window = st.slider("Ablakméret (window size)", 5, 30, 10)
+    hidden_layer_size = st.slider("Rejtett réteg méret", 5, 100, 50)
+    test_ratio = st.slider("Tesztelési arány", 0.1, 0.5, 0.2)
 
-    if df is None:
-        st.warning("⚠️ Nem áll rendelkezésre megfelelő adat a predikcióhoz.")
-        return
+    data = generate_lorenz_data(n_steps=steps)
+    X, y = create_dataset(data, window=window)
 
-    st.success("✅ Adat betöltve.")
-    show_data_overview(df)
+    split_idx = int(len(X) * (1 - test_ratio))
+    X_train, X_test = X[:split_idx], X[split_idx:]
+    y_train, y_test = y[:split_idx], y[split_idx:]
 
-    max_len = len(df)
-    if max_len < 2:
-        st.error("❌ Az adathalmaz túl rövid előrejelzéshez.")
-        return
-
-    # ⚙️ Paraméterek
-    steps = st.slider("Adatpontok száma", 100, min(3000, max_len), min(1000, max_len))
-    train_frac = st.slider("Tanítási arány", 0.1, 0.9, 0.7)
-
-    data = df[["x", "y", "z"]].values[:steps]
-
-    X = data[:-1]
-    y = data[1:, 0]  # a következő időpillanat x komponense
-
-    split = int(train_frac * len(X))
-    X_train, X_test = X[:split], X[split:]
-    y_train, y_test = y[:split], y[split:]
-
-    # 🤖 Modell tanítása
-    model = MLPRegressor(hidden_layer_sizes=(50, 50), max_iter=1000, random_state=42)
+    model = MLPRegressor(hidden_layer_sizes=(hidden_layer_size,), max_iter=500, random_state=42)
     model.fit(X_train, y_train)
+    predictions = model.predict(X_test)
 
-    prediction = model.predict(X_test)
-    mse = mean_squared_error(y_test, prediction)
-
-    # 📈 Eredmények megjelenítése
+    st.subheader("📉 Előrejelzés vizualizáció")
     fig, ax = plt.subplots()
-    ax.plot(y_test, label="Valós x", linewidth=2)
-    ax.plot(prediction, label="Predikció", linestyle="--")
-    ax.set_title("MLP előrejelzés – Lorenz rendszer (x komponens)")
+    ax.plot(y_test, label="Valódi", linewidth=2)
+    ax.plot(predictions, label="MLP predikció", linestyle='dashed')
     ax.set_xlabel("Időlépések")
-    ax.set_ylabel("x érték")
+    ax.set_ylabel("x komponens")
     ax.legend()
     st.pyplot(fig)
 
-    st.markdown(f"### 📉 Átlagos négyzetes hiba (MSE): `{mse:.6f}`")
+    score = model.score(X_test, y_test)
+    st.success(f"Modell pontosság (R²): {score:.3f}")
