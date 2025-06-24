@@ -1,1 +1,17 @@
-
+{
+  "title": "Topológiai védettség és Berry-görbület",
+  "description": "A modul a Berry-görbület kiszámításával vizsgálja a topológiai fázisokat kvantumos rendszerekben.",
+  "equations": [
+    "H(k) = d(k) · σ",
+    "Ω(k) = ∂kx⟨u_k|∂ky u_k⟩ - ∂ky⟨u_k|∂kx u_k⟩"
+  ],
+  "parameters": {
+    "kx, ky": "A Brillouin-zóna pontjai",
+    "N": "Diszkretizálási lépések száma"
+  },
+  "applications": [
+    "Topológiai szigetelők modellezése",
+    "Kvantum Hall-hatás szimulációja",
+    "Topológiai kvantuminformációs kódok vizsgálata"
+  ]
+}
