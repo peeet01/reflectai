@@ -1,46 +1,43 @@
-
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 def run():
-    st.subheader("🔄 Plaszticitási dinamika szimuláció")
-    st.write("Hebbian elvű súlyváltozási dinamika bemutatása egy tanulási ciklusban.")
+    st.markdown("## Hebbian Plaszticitás Dinamikája")
 
-    st.markdown("**Paraméterek**:")
-    epochs = st.slider("Epoch-ok száma", min_value=10, max_value=200, value=100, step=10)
-    lr = st.slider("Tanulási ráta", min_value=0.001, max_value=0.1, value=0.01, step=0.001)
-    noise_level = st.slider("Zaj mértéke", min_value=0.0, max_value=1.0, value=0.2, step=0.05)
+    st.markdown(
+        "A Hebbian-tanulás egy olyan szinaptikus módosítási szabály, ahol a szinapszis erőssége nő, "
+        "ha a pre- és posztszinaptikus neuronok egyidejűleg aktívak. Itt egy egyszerű modellt használunk "
+        "a tanulási dinamika szimulációjához."
+    )
 
-    # Szintetikus bemenetek és célok
-    X = np.random.randint(0, 2, (5, 10))  # 5 bemenet, 10 mintán
-    Y = np.random.randint(0, 2, (3, 10))  # 3 kimenet, 10 mintán
+    # Paraméterek
+    time_steps = st.slider("Időlépések száma", min_value=100, max_value=1000, value=500, step=50)
+    learning_rate = st.slider("Tanulási ráta (η)", min_value=0.001, max_value=0.1, value=0.01, step=0.001)
+    decay = st.slider("Szinaptikus hanyatlás (λ)", min_value=0.0, max_value=0.1, value=0.01, step=0.005)
 
-    weight_history = []
+    st.divider()
 
-    W = np.zeros((3, 5))  # 3 kimenet × 5 bemenet
+    # Inicializálás
+    np.random.seed(42)
+    w = 0.5  # Kezdeti szinaptikus súly
+    weights = [w]
 
-    for epoch in range(epochs):
-        noisy_X = X + noise_level * np.random.randn(*X.shape)
-        W += lr * Y @ noisy_X.T
-        weight_history.append(W.copy())
+    # Pre- és posztszinaptikus aktivitás
+    pre_activity = np.random.rand(time_steps)
+    post_activity = np.random.rand(time_steps)
 
-    # Vizualizáció
-    final_weights = weight_history[-1]
+    # Dinamika
+    for t in range(1, time_steps):
+        dw = learning_rate * pre_activity[t] * post_activity[t] - decay * w
+        w += dw
+        weights.append(w)
 
-    st.markdown("### 🔍 Végső súlymátrix")
+    # Eredmények megjelenítése
     fig, ax = plt.subplots()
-    sns.heatmap(final_weights, annot=True, cmap='coolwarm', ax=ax)
+    ax.plot(weights, label="Szinaptikus súly")
+    ax.set_xlabel("Időlépések")
+    ax.set_ylabel("Súly érték")
+    ax.set_title("Hebbian szinaptikus súlyváltozás")
+    ax.legend()
     st.pyplot(fig)
-
-    # Súlyváltozási trend egy adott kapcsolat esetén
-    w_trend = [W[0, 0] for W in weight_history]
-    fig2, ax2 = plt.subplots()
-    ax2.plot(w_trend)
-    ax2.set_title("Súlyváltozás trend (Neuron 0 – Bemenet 0)")
-    ax2.set_xlabel("Epoch")
-    ax2.set_ylabel("Súlyérték")
-    st.pyplot(fig2)
-
-    st.success("Plaszticitás szimuláció sikeresen lefutott.")
