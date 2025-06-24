@@ -1,35 +1,36 @@
 import streamlit as st
 import numpy as np
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+
+def generate_landscape(size, n_memories, noise_level):
+    landscape = np.zeros((size, size))
+    for _ in range(n_memories):
+        cx, cy = np.random.randint(0, size, size=2)
+        intensity = np.random.uniform(0.5, 1.0)
+        sigma = np.random.uniform(2, size // 6)
+        x, y = np.meshgrid(np.arange(size), np.arange(size))
+        blob = intensity * np.exp(-((x - cx)**2 + (y - cy)**2) / (2 * sigma**2))
+        landscape += blob
+
+    noise = noise_level * np.random.randn(size, size)
+    return landscape + noise
+
+def plot_landscape(landscape):
+    plt.figure(figsize=(6, 6))
+    plt.imshow(landscape, cmap='viridis', origin='lower')
+    plt.colorbar(label='Memória intenzitás')
+    plt.title("🧠 Memória tájkép")
+    st.pyplot(plt.gcf())
+    plt.clf()
 
 def run():
-    st.subheader("🧠 Memória tájkép (Pro) – Domborzati térkép")
+    st.header("🌄 Memória tájkép (Pro)")
+    st.write("Ez a modul szintetikus memóriaintenzitás-térképeket generál és jelenít meg.")
 
-    delay_range = st.slider("Késleltetés tartomány", 1, 20, (2, 10))
-    noise_range = st.slider("Zaj szórás tartomány", 0.0, 2.0, (0.1, 1.0))
+    size = st.slider("Rács mérete", 20, 200, 100)
+    n_memories = st.slider("Memória pontok száma", 1, 20, 5)
+    noise_level = st.slider("Zajszint", 0.0, 2.0, 0.2)
 
-    delay_values = np.arange(delay_range[0], delay_range[1] + 1)
-    noise_values = np.linspace(noise_range[0], noise_range[1], 20)
-    delay_grid, noise_grid = np.meshgrid(delay_values, noise_values)
-
-    # Mesterséges memória modell – szinuszos viselkedéssel és exponenciális zajhatással
-    memory_capacity = np.exp(-noise_grid) * np.sin(delay_grid / 2) + 0.1 * np.random.rand(*delay_grid.shape)
-
-    fig = go.Figure(data=[go.Surface(
-        z=memory_capacity,
-        x=delay_grid,
-        y=noise_grid,
-        colorscale='Viridis'
-    )])
-
-    fig.update_layout(
-        title="🗺️ Memória domborzat",
-        scene=dict(
-            xaxis_title='Késleltetés',
-            yaxis_title='Zaj szórás',
-            zaxis_title='Memória kapacitás'
-        ),
-        margin=dict(l=10, r=10, t=40, b=10)
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
+    if st.button("Térkép generálása"):
+        landscape = generate_landscape(size, n_memories, noise_level)
+        plot_landscape(landscape)
