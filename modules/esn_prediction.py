@@ -1,171 +1,32 @@
-import streamlit as st
-import numpy as np
-import torch
-import torch.nn as nn
-import time
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.metrics import confusion_matrix
-import plotly.graph_objects as go
+import streamlit as st import numpy as np import matplotlib.pyplot as plt
 
-from modules.data_upload import get_uploaded_data, show_data_overview
+def generate_lorenz(T=100, dt=0.01, sigma=10.0, rho=28.0, beta=8/3): N = int(T / dt) x = np.zeros(N) y = np.zeros(N) z = np.zeros(N) x[0], y[0], z[0] = 1.0, 1.0, 1.0 for i in range(1, N): x[i] = x[i-1] + dt * sigma * (y[i-1] - x[i-1]) y[i] = y[i-1] + dt * (x[i-1] * (rho - z[i-1]) - y[i-1]) z[i] = z[i-1] + dt * (x[i-1] * y[i-1] - beta * z[i-1]) return x, y, z
 
+def esn_train_predict(data, reservoir_size=500, spectral_radius=0.9, leaking_rate=0.3): from sklearn.linear_model import Ridge N = len(data) in_size = 1 out_size = 1 Win = np.random.rand(reservoir_size, in_size) * 2 - 1 W = np.random.rand(reservoir_size, reservoir_size) - 0.5 rho_W = np.max(np.abs(np.linalg.eigvals(W))) W *= spectral_radius / rho_W
 
-# 🔧 Neurális háló definíció
-class XORNet(nn.Module):
-    def __init__(self, input_size=2, hidden_size=4):
-        super(XORNet, self).__init__()
-        self.fc1 = nn.Linear(input_size, hidden_size)
-        self.act1 = nn.Tanh()
-        self.fc2 = nn.Linear(hidden_size, 1)
-        self.act2 = nn.Sigmoid()
+X = np.zeros((reservoir_size, N))
+x = np.zeros((reservoir_size,))
 
-    def forward(self, x):
-        x = self.act1(self.fc1(x))
-        x = self.act2(self.fc2(x))
-        return x
+for t in range(1, N):
+    u = data[t - 1]
+    x = (1 - leaking_rate) * x + leaking_rate * np.tanh(np.dot(Win, u) + np.dot(W, x))
+    X[:, t] = x
 
+ridge = Ridge(alpha=1e-6)
+ridge.fit(X[:, :-1].T, data[1:])
+Wout = ridge.coef_.reshape(1, -1)
+pred = Wout @ X
+return pred.flatten()
 
-# 🌪️ Zaj hozzáadása
-def add_noise(data, noise_level):
-    noise = noise_level * np.random.randn(*data.shape)
-    return data + noise
+def run(): st.title("📈 Echo State Network (ESN) predikció") T = st.slider("Szimuláció hossza (időegység)", 10, 200, 100) reservoir_size = st.slider("Reservoir méret", 100, 1000, 500, step=100) spectral_radius = st.slider("Spektrális sugár", 0.1, 1.5, 0.9) leaking_rate = st.slider("Szivárgási ráta", 0.0, 1.0, 0.3)
 
+x, _, _ = generate_lorenz(T)
+prediction = esn_train_predict(x, reservoir_size, spectral_radius, leaking_rate)
 
-# 💾 Modell mentése
-def save_model(model, path="xor_model.pth"):
-    torch.save(model.state_dict(), path)
+fig, ax = plt.subplots()
+ax.plot(x, label="Eredeti", linewidth=2)
+ax.plot(prediction, label="ESN predikció", linestyle='--')
+ax.set_title("Lorenz idősor ESN predikcióval")
+ax.legend()
+st.pyplot(fig)
 
-
-# 📊 Kiértékelés
-def evaluate(model, inputs, targets):
-    with torch.no_grad():
-        predictions = model(inputs).round()
-        accuracy = (predictions.eq(targets).sum().item()) / targets.size(0)
-    return accuracy, predictions
-
-
-# 🚀 Fő modul
-def run(hidden_size=4, learning_rate=0.1, epochs=1000, note=""):
-    st.subheader("🔁 XOR predikció neurális hálóval")
-
-    noise_level = st.slider("Zaj szintje", 0.0, 0.5, 0.1, 0.01)
-    export_results = st.checkbox("📤 Eredmények exportálása CSV-be")
-    save_model_flag = st.checkbox("💾 Modell mentése")
-    custom_input = st.checkbox("🎛️ Egyéni input kipróbálása tanítás után")
-    user_note = st.text_area("📝 Megjegyzésed", value=note)
-
-    # 📥 Adatok betöltése fájlból vagy alapértelmezett XOR-ból
-    df = get_uploaded_data(required_columns=["Input1", "Input2", "Target"])
-    use_uploaded = False
-
-    if df is not None:
-        show_data_overview(df)
-        X = df[["Input1", "Input2"]].values.astype(np.float32)
-        y = df[["Target"]].values.astype(np.float32)
-        st.success("✅ Feltöltött adat használatban.")
-        use_uploaded = True
-    else:
-        X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]], dtype=np.float32)
-        y = np.array([[0], [1], [1], [0]], dtype=np.float32)
-        st.info("ℹ️ Alapértelmezett XOR adat használatban.")
-
-    # 🌪️ Zaj hozzáadása
-    X_noisy = add_noise(X, noise_level)
-    X_tensor = torch.tensor(X_noisy, dtype=torch.float32)
-    y_tensor = torch.tensor(y, dtype=torch.float32)
-
-    # 🧠 Háló létrehozása
-    model = XORNet(hidden_size=hidden_size)
-    criterion = nn.BCELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-
-    # ⏱️ Tanítás
-    start_time = time.time()
-    progress = st.progress(0)
-    progress_text = st.empty()
-    losses = []
-
-    for epoch in range(epochs):
-        optimizer.zero_grad()
-        outputs = model(X_tensor)
-        loss = criterion(outputs, y_tensor)
-        loss.backward()
-        optimizer.step()
-        losses.append(loss.item())
-
-        if epoch % max(1, epochs // 100) == 0 or epoch == epochs - 1:
-            percent = int((epoch + 1) / epochs * 100)
-            progress.progress((epoch + 1) / epochs)
-            progress_text.text(f"Tanítás... {percent}%")
-
-    train_time = time.time() - start_time
-
-    # 📉 Veszteség görbe
-    st.markdown("### 📉 Veszteség alakulása")
-    st.line_chart(losses)
-
-    # 🌊 3D predikciós tér
-    st.markdown("### 🌊 Interaktív predikciós tér (3D)")
-    grid_size = 100
-    x_vals = np.linspace(0, 1, grid_size)
-    y_vals = np.linspace(0, 1, grid_size)
-    xx, yy = np.meshgrid(x_vals, y_vals)
-    grid_points = np.c_[xx.ravel(), yy.ravel()]
-    grid_tensor = torch.tensor(grid_points, dtype=torch.float32)
-
-    with torch.no_grad():
-        zz = model(grid_tensor).numpy().reshape(xx.shape)
-
-    fig_3d = go.Figure(data=[go.Surface(z=zz, x=xx, y=yy, colorscale='Viridis')])
-    fig_3d.update_layout(title="Predikciós felület", height=500)
-    st.plotly_chart(fig_3d, use_container_width=True)
-
-    # 📊 Kiértékelés
-    accuracy, predictions = evaluate(model, X_tensor, y_tensor)
-    st.success(f"✅ Pontosság: {accuracy * 100:.2f}%")
-    st.info(f"🕒 Tanítás ideje: {train_time:.2f} másodperc")
-
-    # 🧮 Konfúziós mátrix
-    st.markdown("### 🧮 Konfúziós mátrix")
-    cm = confusion_matrix(y_tensor.numpy(), predictions.numpy())
-    fig_cm, ax = plt.subplots()
-    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=[0, 1], yticklabels=[0, 1])
-    ax.set_xlabel("Predikció")
-    ax.set_ylabel("Valós érték")
-    st.pyplot(fig_cm)
-
-    # 📤 Exportálás
-    if export_results:
-        results_df = pd.DataFrame({
-            "Input1": X[:, 0],
-            "Input2": X[:, 1],
-            "Zaj": noise_level,
-            "Valós kimenet": y.flatten(),
-            "Predikció": predictions.numpy().flatten()
-        })
-        csv_path = "xor_results.csv"
-        results_df.to_csv(csv_path, index=False)
-        with open(csv_path, "rb") as f:
-            st.download_button("📁 CSV letöltése", data=f, file_name="xor_results.csv", mime="text/csv")
-
-    # 💾 Mentés
-    if save_model_flag:
-        save_model(model)
-        st.success("💾 Modell elmentve `xor_model.pth` néven.")
-
-    # 🧪 Egyéni input
-    if custom_input:
-        st.markdown("### 🧪 Egyéni input kipróbálása")
-        input1 = st.slider("Input 1", 0.0, 1.0, 0.0)
-        input2 = st.slider("Input 2", 0.0, 1.0, 0.0)
-        input_tensor = torch.tensor([[input1, input2]], dtype=torch.float32)
-        with torch.no_grad():
-            prediction = model(input_tensor).item()
-        st.write(f"🔮 Predikció: {prediction:.4f} → {'1' if prediction > 0.5 else '0'}")
-
-    # 📝 Jegyzet
-    if user_note:
-        st.markdown("### 📝 Megjegyzés")
-        st.write(user_note)
