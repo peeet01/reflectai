@@ -1,4 +1,3 @@
-# modules/modules_registry.py
 import importlib
 import streamlit as st
 
@@ -25,7 +24,7 @@ MODULES = {
     "Lyapunov spektrum": ("lyapunov_spectrum", "run"),
     "Adatfeltöltés modul": ("data_upload", "run"),
     "Napi önreflexió": ("reflection_modul", "run"),
-    "Súgó / Help": ("help_module", "run"),
+    "Súgó / Help": ("help_module", "run")
 }
 
 def safe_run(module_key):
