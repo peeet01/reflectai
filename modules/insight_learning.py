@@ -2,43 +2,67 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
+def run():
+    st.markdown("## 🧠 Belátás alapú tanulás (Insight Learning)")
+    st.markdown(
+        "Ez a modul egy egyszerű környezetben mutatja be a belátás alapú tanulást, "
+        "ahol egy ügynök hirtelen megtalálja a megoldást a próbálkozások után."
+    )
 
-def generate_problem(complexity):
-    if complexity == "alacsony":
-        return 2
-    elif complexity == "közepes":
-        return 3
-    else:  # "magas"
-        return 4
+    st.markdown("### 🧩 Feladat leírása")
+    st.write("Az ügynöknek át kell ugrania egy akadályt, hogy elérje a célt.")
 
+    grid_size = 7
+    env = np.zeros((grid_size, grid_size))
+    agent_pos = [grid_size - 1, 0]
+    goal_pos = [0, grid_size - 1]
+    obstacle_pos = [3, 3]
 
-def simulate_trial(num_elements, insight_step, t):
-    if t < insight_step:
-        return np.random.rand() < 0.1
-    else:
-        return np.random.rand() < (0.5 + 0.1 * num_elements)
+    env[tuple(goal_pos)] = 2
+    env[tuple(obstacle_pos)] = -1
+    env[tuple(agent_pos)] = 1
 
+    st.markdown("### 🔁 Tanulás futtatása")
 
-def run(trials=5, pause_time=1.0, complexity="közepes"):
-    st.header("💡 Belátás-alapú tanulási szimuláció")
+    steps = []
+    found = False
+    for episode in range(50):
+        pos = agent_pos.copy()
+        path = [tuple(pos)]
+        for _ in range(20):
+            if pos == goal_pos:
+                found = True
+                break
+            if pos[1] < obstacle_pos[1] and pos[0] == obstacle_pos[0]:
+                pos[0] -= 1  # Ugrás
+            else:
+                if pos[1] < grid_size - 1:
+                    pos[1] += 1
+                elif pos[0] > 0:
+                    pos[0] -= 1
+            path.append(tuple(pos))
+        steps.append(path)
 
-    num_elements = generate_problem(complexity)
-    insight_step = np.random.randint(2, trials)
-    st.markdown(f"🔍 **A belátás várhatóan a(z) {insight_step}. próbálkozás körül történik.**")
+    fig, ax = plt.subplots(figsize=(5, 5))
+    ax.set_xlim(-0.5, grid_size - 0.5)
+    ax.set_ylim(-0.5, grid_size - 0.5)
+    ax.invert_yaxis()
+    ax.grid(True)
 
-    success_history = []
+    for x in range(grid_size):
+        for y in range(grid_size):
+            if [x, y] == goal_pos:
+                ax.text(y, x, '🏁', ha='center', va='center')
+            elif [x, y] == obstacle_pos:
+                ax.text(y, x, '🧱', ha='center', va='center')
 
-    for t in range(1, trials + 1):
-        success = simulate_trial(num_elements, insight_step, t)
-        success_history.append(success)
-        st.write(f"🧪 Próbálkozás {t}: {'✅ Sikeres' if success else '❌ Sikertelen'}")
+    for path in steps[-5:]:
+        xs, ys = zip(*path)
+        ax.plot(ys, xs, alpha=0.6)
 
-    success_rate = np.mean(success_history)
-    st.markdown(f"📈 **Sikerességi arány:** {success_rate:.2f}")
-
-    fig, ax = plt.subplots()
-    ax.plot(range(1, trials + 1), success_history, marker="o")
-    ax.set_xlabel("Próbálkozás")
-    ax.set_ylabel("Siker (1) / Sikertelenség (0)")
-    ax.set_title("Belátás-alapú tanulás szimuláció")
     st.pyplot(fig)
+
+    if found:
+        st.success("🎉 Az ügynök megtalálta a célt – belátás révén ugrással kerülte ki az akadályt.")
+    else:
+        st.warning("🤔 Az ügynök még nem talált megoldást.")
