@@ -13,4 +13,4 @@ from modules.fractal_dimension import run as run_fractal
 from modules.persistent_homology import run as run_homology
 from modules.lyapunov_spectrum import run as run_lyapunov  # ✅ ABSZOLÚT import!
 from modules.memory_landscape import run as run_memory_landscape
-from modules.noise_robustness import main as run_noise
+from modules.noise_robustness import run as run_noise
