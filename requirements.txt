@@ -7,3 +7,5 @@ networkx
 plotly
 torch
 pandas
+ripser
+persim
