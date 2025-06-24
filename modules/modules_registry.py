@@ -1,7 +1,6 @@
 import importlib
 import streamlit as st
 
-# Kulcs: modul neve a UI-ban, Érték: modulpath és futtató függvény
 MODULES = {
     "Kuramoto szinkronizáció": ("kuramoto_sim", "run"),
     "Hebbian tanulás": ("hebbian_learning", "run"),
@@ -9,7 +8,7 @@ MODULES = {
     "Kuramoto–Hebbian háló": ("kuramoto_hebbian_sim", "run"),
     "Topológiai szinkronizáció": ("topo_protect", "run"),
     "Lorenz szimuláció": ("lorenz_sim", "run"),
-    "Lorenz predikció": ("mlp_predict_lorenz", "run"),
+    "Lorenz predikció": ("predict_lorenz", "run"),
     "Topológiai védettség (Chern-szám)": ("berry_curvature", "run"),
     "Topológiai Chern–szám analízis": ("berry_curvature", "run"),
     "Zajtűrés és szinkronizációs robusztusság": ("noise_robustness", "run"),
