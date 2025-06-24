@@ -1,1 +1,14 @@
-
+{
+  "title": "Belátás alapú tanulás (Insight Learning)",
+  "description": "Az ügynök hirtelen 'belátja' a megoldást a feladatra próbálkozás után. Ez egy példa a nem-asszociatív tanulásra.",
+  "equations": [],
+  "parameters": {
+    "Grid méret": "A szimulációs környezet rácsának mérete",
+    "Episódok száma": "A tanulási kísérletek száma"
+  },
+  "applications": [
+    "Kognitív pszichológia",
+    "Tanulás modellezése neurális hálózatokkal",
+    "Problémamegoldási viselkedés vizsgálata"
+  ]
+}
