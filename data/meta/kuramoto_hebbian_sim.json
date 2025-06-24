@@ -1,1 +1,19 @@
-
+{
+  "title": "Kuramoto–Hebbian háló",
+  "description": "Szinkronizáció és Hebbian tanulás kombinálása. A gráf kapcsolatai dinamikusan változnak a fáziskülönbségek alapján.",
+  "equations": [
+    "dθᵢ/dt = ωᵢ + (K/N) ∑ Wᵢⱼ sin(θⱼ − θᵢ)",
+    "ΔWᵢⱼ ∝ cos(θᵢ − θⱼ)"
+  ],
+  "parameters": {
+    "N": "Oszcillátorok száma",
+    "K": "Kapcsolási erősség",
+    "η": "Hebbian tanulási ráta",
+    "T": "Szimuláció időtartama"
+  },
+  "applications": [
+    "Adaptív szinkronizáció modellezése",
+    "Bioinspirált hálózatok",
+    "Szinaptikus plaszticitás vizsgálata"
+  ]
+}
