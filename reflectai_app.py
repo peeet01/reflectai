@@ -4,8 +4,11 @@ import streamlit_authenticator as stauth
 from yaml.loader import SafeLoader
 from utils.metadata_loader import load_metadata
 
+# Oldal beállítások
+st.set_page_config(page_title="Neurolab AI – Scientific Reflection", layout="wide")
+
 # --- Konfiguráció betöltése ---
-with open("config.yaml") as file:
+with open("config.yaml", "r", encoding="utf-8") as file:
     config = yaml.load(file, Loader=SafeLoader)
 
 # --- Autentikáció beállítása ---
@@ -18,32 +21,29 @@ authenticator = stauth.Authenticate(
 )
 
 # --- Bejelentkezés ---
-auth_result = authenticator.login("main", "Bejelentkezés")
+name, authentication_status, username = authenticator.login("main", "Bejelentkezés")
 
 # --- Hitelesítési állapot kezelése ---
-if auth_result is None:
-    st.warning("⚠️ Kérlek jelentkezz be.")
-elif not auth_result['authenticated']:
+if authentication_status is False:
     st.error("❌ Hibás felhasználónév vagy jelszó.")
+elif authentication_status is None:
+    st.warning("⚠️ Kérlek jelentkezz be.")
 else:
-    name = auth_result['name']
-    username = auth_result['username']
-
-    # Oldal beállítások
-    st.set_page_config(page_title="Neurolab AI – Scientific Reflection", layout="wide")
+    # Sikeres bejelentkezés után
     st.sidebar.success(f"✅ Bejelentkezve mint: {name} ({username})")
 
     st.title("🧠 Neurolab AI – Scientific Reflection")
     st.markdown("Válassz egy modult a bal oldali menüből.")
 
-    # Modulválasztó
+    # --- Modulválasztó ---
     st.sidebar.title("📂 Modulválasztó")
     module_key = st.sidebar.radio("Kérlek válassz modult:", ["Kutatási napló", "Reflexió sablon"])
 
-    # Metaadat bekérés
+    # --- Metaadat bekérés ---
     st.text_input("📝 Megfigyelés vagy jegyzet címe:", key="metadata_title")
 
-    # Metaadat betöltés
+    # --- Metaadat betöltés ---
     metadata_key = module_key.replace(" ", "_").lower()
     metadata = load_metadata(metadata_key)
-    st.write("📄 Modul metaadatai:", metadata)
+    st.subheader("📄 Modul metaadatai")
+    st.json(metadata)
