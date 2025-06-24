@@ -1,1 +1,18 @@
 
+{
+  "title": "Kuramoto szinkronizáció",
+  "description": "Oszcillátorok kollektív szinkronizációjának vizsgálata Yoshiki Kuramoto modellje alapján.",
+  "equations": [
+    "dθᵢ/dt = ωᵢ + (K/N) ∑ sin(θⱼ − θᵢ)",
+    "r(t) = |(1/N) ∑ e^(iθⱼ)|"
+  ],
+  "parameters": {
+    "K": "Kapcsolási erősség",
+    "N": "Oszcillátorok száma"
+  },
+  "applications": [
+    "Idegi ritmusok vizsgálata",
+    "Biológiai oszcillációk elemzése",
+    "Szinkronizációs zavarok modellezése"
+  ]
+}
