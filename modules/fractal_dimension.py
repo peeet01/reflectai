@@ -1,68 +1,48 @@
 import streamlit as st
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.ndimage import zoom
-
-from modules.data_upload import get_uploaded_data, show_data_overview
-
-
-def fractal_dimension(Z, threshold=0.9):
-    assert len(Z.shape) == 2
-
-    def boxcount(Z, k):
-        S = zoom(Z, (1.0 / k, 1.0 / k), order=0)
-        return np.sum(S > threshold)
-
-    sizes = 2 ** np.arange(1, 7)
-    counts = [boxcount(Z, size) for size in sizes]
-
-    coeffs = np.polyfit(np.log(1.0 / sizes), np.log(counts), 1)
-    return -coeffs[0], sizes, counts
-
+from sklearn.linear_model import LinearRegression
 
 def run():
-    st.title("🧮 Fraktáldimenzió becslés (dobozolásos módszerrel)")
+    st.markdown("## Szinkronfraktál dimenzióanalízis")
 
-    st.markdown("""
-    Ez a modul 2D bináris képen vagy mátrixon becsli a fraktáldimenziót.  
-    Tölthetsz fel saját CSV-t is, ahol a cellák értékei 0–1 közötti számok.
-    """)
+    st.markdown(
+        "Ez a modul a hálózat szinkronizációs mintázatainak fraktál dimenzióját méri a doboz-számlálási módszerrel "
+        "egy binarizált fázistér alapján."
+    )
 
-    df = get_uploaded_data(allow_default=True, default="fractal", required_columns=None)
+    size = st.slider("Mátrix méret (NxN)", 50, 300, 100, step=10)
+    threshold = st.slider("Küszöb a binarizáláshoz", 0.1, 1.0, 0.5, step=0.1)
 
-    if df is None:
-        st.warning("⚠️ Nem áll rendelkezésre megfelelő mátrix.")
-        return
+    # Véletlenszerű "szinkron" mátrix generálása
+    np.random.seed(0)
+    matrix = np.random.rand(size, size)
+    binary_matrix = (matrix > threshold).astype(int)
 
-    show_data_overview(df)
+    # Fraktál dimenzió számítás (box-counting)
+    def boxcount(Z, k):
+        S = np.add.reduceat(
+            np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0),
+                               np.arange(0, Z.shape[1], k), axis=1)
+        return len(np.where(S > 0)[0])
 
-    try:
-        data = df.values.astype(float)
-        if np.isnan(data).any():
-            st.error("❌ Az adathalmaz NaN értékeket tartalmaz.")
-            return
-        if data.ndim != 2:
-            st.error("❌ A fraktáldimenzió csak 2D mátrixokra alkalmazható.")
-            return
-    except Exception as e:
-        st.error(f"Hiba az adat értelmezésekor: {e}")
-        return
+    Z = binary_matrix
+    sizes = 2**np.arange(1, int(np.log2(size)))
+    counts = [boxcount(Z, s) for s in sizes]
 
-    threshold = st.slider("Küszöb érték (binárosításhoz)", 0.0, 1.0, 0.9, 0.01)
+    coeffs = np.polyfit(np.log(sizes), np.log(counts), 1)
+    fd = -coeffs[0]
 
-    dim, sizes, counts = fractal_dimension(data, threshold=threshold)
+    # Ábra
+    fig, ax = plt.subplots(1, 2, figsize=(10, 4))
+    ax[0].imshow(binary_matrix, cmap='binary')
+    ax[0].set_title("Binarizált mátrix")
 
-    st.markdown(f"### 📏 Becsült fraktáldimenzió: `{dim:.4f}`")
+    ax[1].plot(np.log(sizes), np.log(counts), 'o-', label=f"FD ≈ {fd:.2f}")
+    ax[1].set_title("Fraktál dimenzió log–log skálán")
+    ax[1].set_xlabel("log(doboz méret)")
+    ax[1].set_ylabel("log(doboz száma)")
+    ax[1].legend()
 
-    fig, ax = plt.subplots()
-    ax.plot(np.log(1.0 / sizes), np.log(counts), 'o-', label='Box count')
-    ax.set_xlabel("log(1/box size)")
-    ax.set_ylabel("log(count)")
-    ax.set_title("Fraktáldimenzió becslés")
-    ax.grid(True)
-    ax.legend()
     st.pyplot(fig)
-
-    st.markdown("### 🖼️ Binárosított bemenet (vizualizáció)")
-    st.image((data > threshold).astype(float), use_column_width=True)
+    st.success(f"🔢 Becsült fraktál dimenzió: **{fd:.3f}**")
