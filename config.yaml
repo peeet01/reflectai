@@ -19,9 +19,3 @@ cookie:
   name: reflectai_auth
   key: some_signature_key
   expiry_days: 30
-
-preauthorized:
-  emails:
-    - peeet01@gmail.com
-    - admin@reflectai.hu
-    - kutato1@reflectai.hu
