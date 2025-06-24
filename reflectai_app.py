@@ -1,35 +1,35 @@
 import streamlit as st
-import yaml
 import streamlit_authenticator as stauth
+import yaml
+import os
+from yaml.loader import SafeLoader
+
 from modules.modules_registry import MODULES, safe_run
 from utils.metadata_loader import load_metadata
 
-# Alkalmazás beállítása
-st.set_page_config(page_title="Neurolab AI – Scientific Playground Sandbox", page_icon="🧠", layout="wide")
-
-# Konfiguráció betöltése
+# Hitelesítési konfiguráció betöltése
 with open("config.yaml") as file:
-    config = yaml.safe_load(file)
+    config = yaml.load(file, Loader=SafeLoader)
 
-# Hitelesítés inicializálása
 authenticator = stauth.Authenticate(
     config['credentials'],
     config['cookie']['name'],
     config['cookie']['key'],
-    config['cookie']['expiry_days']
+    config['cookie']['expiry_days'],
+    config['preauthorized']
 )
 
-# Bejelentkezés megjelenítése
-name, authentication_status, username = authenticator.login("main", "Bejelentkezés")
+# Belépés
+name, auth_status, _ = authenticator.login("main", "Bejelentkezés")
 
-# Hitelesítési állapot alapján megjelenítés
-if authentication_status is False:
-    st.error("Hibás felhasználónév vagy jelszó")
-elif authentication_status is None:
-    st.warning("Kérlek jelentkezz be a folytatáshoz")
-elif authentication_status:
-    # Fő tartalom csak hitelesített felhasználónak
-    authenticator.logout("Kijelentkezés", "sidebar")
+if auth_status is False:
+    st.error("Hibás felhasználónév vagy jelszó.")
+elif auth_status is None:
+    st.warning("Kérlek jelentkezz be.")
+elif auth_status:
+    st.sidebar.success(f"Bejelentkezve mint: {name}")
+
+    st.set_page_config(page_title="Neurolab AI – Scientific Playground Sandbox", page_icon="🧠", layout="wide")
 
     st.title("🧠 Neurolab AI – Scientific Playground Sandbox")
     st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
