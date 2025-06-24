@@ -1,1 +1,17 @@
-
+{
+  "title": "Memória tájkép (Pro)",
+  "description": "Szintetikus memóriaintenzitás-térképek generálása és megjelenítése különböző paraméterek alapján.",
+  "equations": [
+    "L(x, y) = ∑ Iᵢ exp(-((x - xᵢ)² + (y - yᵢ)²) / (2σᵢ²)) + ζ(x, y)"
+  ],
+  "parameters": {
+    "size": "A generált térkép mérete (rácsháló)",
+    "n_memories": "Emlékpontok száma",
+    "noise_level": "A hozzáadott zaj szintje"
+  },
+  "applications": [
+    "Memóriadisztribúció modellezése",
+    "Tanulási folyamatok vizualizációja",
+    "Plaszticitás és zaj hatásainak szimulációja"
+  ]
+}
