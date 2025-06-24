@@ -1,1 +1,18 @@
-
+{
+  "title": "Lyapunov spektrum",
+  "description": "Ez a modul a logisztikus leképezés Lyapunov-exponensének spektrumát számolja ki különböző r paraméterek mellett. A pozitív Lyapunov-értékek kaotikus viselkedésre utalnak.",
+  "equations": [
+    "x_{n+1} = r x_n (1 - x_n)",
+    "\\lambda = \\lim_{N \\to \\infty} \\frac{1}{N} \\sum_{i=1}^N \\ln |f'(x_i)|"
+  ],
+  "parameters": {
+    "r": "Növekedési ráta a logisztikus leképezésben",
+    "x₀": "Kezdeti érték",
+    "N": "Iterációk száma"
+  },
+  "applications": [
+    "Kaotikus rendszerek azonosítása",
+    "Determinista káosz vizsgálata",
+    "Populációdinamika modellezése"
+  ]
+}
