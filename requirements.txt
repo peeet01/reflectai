@@ -11,3 +11,7 @@ ripser
 persim
 streamlit-authenticator
 PyYAML
+streamlit==1.33.0
+pyyaml==6.0.1
+bcrypt==4.1.2
+streamlit-authenticator==0.3.2
