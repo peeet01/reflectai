@@ -1,68 +1,45 @@
 import streamlit as st
-import streamlit_authenticator as stauth
 import yaml
-import os
+import streamlit_authenticator as stauth
 from yaml.loader import SafeLoader
+from utils import load_metadata  # biztosítsd, hogy ez a függvény létezik
 
-from modules.modules_registry import MODULES, safe_run
-from utils.metadata_loader import load_metadata
-
-# Hitelesítési konfiguráció betöltése
+# --- Beállítások betöltése ---
 with open("config.yaml") as file:
     config = yaml.load(file, Loader=SafeLoader)
 
+# --- Autentikáció beállítása ---
 authenticator = stauth.Authenticate(
     config['credentials'],
     config['cookie']['name'],
     config['cookie']['key'],
-    config['cookie']['expiry_days'],
-    config['preauthorized']
+    config['cookie']['expiry_days']
 )
 
-# Belépés
-name, auth_status, _ = authenticator.login("main", "Bejelentkezés")
+# --- Bejelentkezés ---
+name, auth_status, username, _ = authenticator.login("main", "Bejelentkezés")
 
+# --- Hitelesítés kezelése ---
 if auth_status is False:
     st.error("Hibás felhasználónév vagy jelszó.")
 elif auth_status is None:
     st.warning("Kérlek jelentkezz be.")
 elif auth_status:
-    st.sidebar.success(f"Bejelentkezve mint: {name}")
+    st.sidebar.success(f"Bejelentkezve mint: {name} ({username})")
 
-    st.set_page_config(page_title="Neurolab AI – Scientific Playground Sandbox", page_icon="🧠", layout="wide")
-
-    st.title("🧠 Neurolab AI – Scientific Playground Sandbox")
-    st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
-    st.text_input("📝 Megfigyelés vagy jegyzet (opcionális):")
+    # Oldal beállítások
+    st.set_page_config(page_title="Neurolab AI - Scientific Reflection", layout="wide")
+    st.title("🧠 Neurolab AI – Scientific Reflection")
+    st.markdown("Válassz egy modult a bal oldali menüből.")
 
     # Modulválasztó
-    st.sidebar.title("🗂️ Modulválasztó")
-    module_key = st.sidebar.radio("Kérlek válassz egy modult:", list(MODULES.keys()))
+    st.sidebar.title("📂 Modulválasztó")
+    module_key = st.sidebar.radio("Kérlek válassz modult:", ("Kutatási napló", "Reflexió sablon"))
 
-    # Metaadat betöltés
+    # Metaadat bekérés
+    st.text_input("📝 Megfigyelés vagy jegyzet címe:", key="metadata_title")
+
+    # Metaadat betöltés (dummy logika példa)
     metadata_key = module_key.replace(" ", "_").lower()
     metadata = load_metadata(metadata_key)
-
-    # Metaadat megjelenítés
-    st.subheader(f"📘 {metadata.get('title', module_key)}")
-    st.write(metadata.get("description", ""))
-
-    if metadata.get("equations"):
-        st.markdown("#### 🧮 Egyenletek:")
-        for eq in metadata["equations"]:
-            st.latex(eq)
-
-    if metadata.get("parameters"):
-        st.markdown("#### 🎛️ Paraméterek:")
-        for param, desc in metadata["parameters"].items():
-            st.markdown(f"- **{param}**: {desc}")
-
-    if metadata.get("applications"):
-        st.markdown("#### 🔬 Alkalmazási területek:")
-        for app in metadata["applications"]:
-            st.markdown(f"- {app}")
-
-    st.divider()
-
-    # Modul futtatása
-    safe_run(module_key)
+    st.write("🔍 Modul metaadatai:", metadata)
