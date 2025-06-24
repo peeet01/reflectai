@@ -1,1 +1,18 @@
-
+{
+  "title": "Generatív Kuramoto hálózat",
+  "description": "Véletlenszerűen generált gráfokon vizsgálhatjuk a Kuramoto szinkronizációs modellt.",
+  "equations": [
+    "dθᵢ/dt = ωᵢ + (K/N) ∑ Aᵢⱼ sin(θⱼ − θᵢ)",
+    "r(t) = |(1/N) ∑ e^(iθⱼ)|"
+  ],
+  "parameters": {
+    "N": "Csomópontok száma",
+    "p": "Valószínűség él létrehozására",
+    "K": "Kapcsolási erősség"
+  },
+  "applications": [
+    "Hálózati dinamikák vizsgálata",
+    "Szinkronizációs küszöbök elemzése",
+    "Topológiai hatások Kuramoto szinkronizációra"
+  ]
+}
