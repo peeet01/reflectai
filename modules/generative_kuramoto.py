@@ -1,44 +1,55 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import streamlit as st
+import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def generate_graph(n_nodes, p):
+    return nx.erdos_renyi_graph(n_nodes, p)
+
+def simulate_kuramoto(G, K, t_max=10, dt=0.05):
+    N = len(G.nodes)
+    A = nx.to_numpy_array(G)
+    theta = np.random.uniform(0, 2*np.pi, N)
+    omega = np.random.normal(1.0, 0.1, N)
+    t = np.arange(0, t_max, dt)
+    sync = []
+
+    for _ in t:
+        dtheta = omega + K / N * np.sum(A * np.sin(theta[:, None] - theta), axis=1)
+        theta += dtheta * dt
+        order_param = np.abs(np.sum(np.exp(1j * theta)) / N)
+        sync.append(order_param)
+
+    return t, sync, G
+
+def plot_graph(G):
+    pos = nx.spring_layout(G)
+    nx.draw(G, pos, with_labels=True, node_color='lightblue', edge_color='gray')
+    st.pyplot(plt.gcf())
+    plt.clf()
+
+def plot_sync(t, sync):
+    plt.plot(t, sync)
+    plt.xlabel("Idő")
+    plt.ylabel("Szinkronizáció (r)")
+    plt.title("Kuramoto szinkronizációs dinamikája")
+    st.pyplot(plt.gcf())
+    plt.clf()
 
 def run():
-    st.subheader("🎛️ Generatív Kuramoto szimuláció – Fázisfejlődés és Szinkronizáció")
+    st.header("🎲 Generatív Kuramoto hálózat")
+    st.write("Hozz létre véletlenszerű hálózatokat, és vizsgáld a Kuramoto modell szinkronizációs viselkedését.")
 
-    # Paraméterek
-    N = st.slider("Oszcillátorok száma (N)", 5, 100, 20)
+    n_nodes = st.slider("Csomópontok száma", 5, 100, 20)
+    p = st.slider("Élképzési valószínűség (p)", 0.0, 1.0, 0.1)
     K = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
-    T = st.slider("Szimulációs idő (lépések)", 10, 500, 200)
 
-    omega = np.random.normal(0, 1, N)
-    theta = np.random.uniform(0, 2*np.pi, N)
-    initial_theta = theta.copy()
+    if st.button("Szimuláció indítása"):
+        G = generate_graph(n_nodes, p)
+        t, sync, G = simulate_kuramoto(G, K)
+        
+        st.subheader("🧠 Generált gráf")
+        plot_graph(G)
 
-    dt = 0.05
-    r_values = []
-
-    for _ in range(T):
-        theta_matrix = np.subtract.outer(theta, theta)
-        coupling = np.sum(np.sin(theta_matrix), axis=1)
-        theta += (omega + (K / N) * coupling) * dt
-        r = np.abs(np.sum(np.exp(1j * theta)) / N)
-        r_values.append(r)
-
-    final_theta = theta.copy()
-
-    # Ábrák
-    fig1, axes = plt.subplots(1, 2, figsize=(10, 5), subplot_kw=dict(polar=True))
-    axes[0].set_title("🌀 Kezdeti fáziseloszlás")
-    axes[0].scatter(initial_theta, np.ones(N), c='blue', alpha=0.75)
-    axes[1].set_title(f"🔄 Végső fáziseloszlás\nSzinkronizációs index: r = {r_values[-1]:.2f}")
-    axes[1].scatter(final_theta, np.ones(N), c='red', alpha=0.75)
-    st.pyplot(fig1)
-
-    # Szinkronizáció időbeli változása
-    fig2, ax2 = plt.subplots()
-    ax2.plot(r_values, color='green')
-    ax2.set_title("📈 Szinkronizációs index időben")
-    ax2.set_xlabel("Lépések")
-    ax2.set_ylabel("r érték")
-    ax2.grid(True)
-    st.pyplot(fig2)
+        st.subheader("📈 Szinkronizációs dinamika")
+        plot_sync(t, sync)
