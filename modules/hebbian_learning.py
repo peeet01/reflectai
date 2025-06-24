@@ -1,51 +1,34 @@
+# modules/hebbian_learning.py
+
+import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import streamlit as st
 
-def run(learning_rate=0.1, num_neurons=10):
-    st.subheader("🧠 Hebbian tanulás vizualizáció")
+def hebbian_learning(inputs, targets, learning_rate):
+    n_features = inputs.shape[1]
+    weights = np.zeros((n_features,))
+    for x, t in zip(inputs, targets):
+        weights += learning_rate * x * t
+    return weights
 
-    # Véletlenszerű bemenetek generálása
-    num_inputs = num_neurons
-    inputs = np.random.rand(num_inputs, num_neurons)
+def run():
+    st.header("🧠 Hebbian tanulás – szinaptikus súlytanulás")
+    learning_rate = st.slider("Tanulási ráta (η)", 0.01, 1.0, 0.1)
+    num_neurons = st.slider("Bemenetek száma", 2, 10, 3)
 
-    # Kezdeti súlyok
-    weights = np.zeros((num_neurons, num_neurons))
-    snapshots = []
+    # Bemeneti adatok és célértékek
+    inputs = np.random.randint(0, 2, size=(10, num_neurons))
+    targets = np.random.choice([-1, 1], size=10)
 
-    epochs = 10
-    for epoch in range(epochs):
-        for x in inputs:
-            x = x.reshape(-1, 1)
-            weights += learning_rate * np.dot(x, x.T)
+    st.subheader("🔢 Bemenetek és célértékek")
+    st.write("Inputs:", inputs)
+    st.write("Célértékek:", targets)
 
-        # Snapshot minden 2. epoch után
-        if epoch % 2 == 0 or epoch == epochs - 1:
-            snapshots.append(weights.copy())
+    weights = hebbian_learning(inputs, targets, learning_rate)
 
-    # 🔥 Súlymátrix (heatmap) kirajzolása
-    st.markdown("### 🔁 Súlymátrix változása")
-    for i, w in enumerate(snapshots):
-        fig, ax = plt.subplots()
-        cax = ax.matshow(w, cmap="viridis")
-        plt.title(f"Epoch {i*2}")
-        plt.colorbar(cax)
-        st.pyplot(fig)
-
-    # 📊 Végső súlymátrix
-    st.markdown("### 🧮 Végső súlymátrix")
+    st.subheader("📊 Tanult súlyok")
     fig, ax = plt.subplots()
-    cax = ax.matshow(weights, cmap='plasma')
-    plt.title("Végső Hebbian súlymátrix")
-    plt.colorbar(cax)
-    st.pyplot(fig)
-
-    # Aktiváció megjelenítése
-    st.markdown("### ⚡ Neuronaktivációk példája")
-    activation = np.dot(weights, inputs.T).T
-    fig, ax = plt.subplots()
-    ax.plot(activation)
-    plt.title("Neuronaktivációk")
-    plt.xlabel("Minta index")
-    plt.ylabel("Aktiváció szint")
+    ax.bar(range(len(weights)), weights)
+    ax.set_xlabel("Bemenet indexe")
+    ax.set_ylabel("Súly érték")
     st.pyplot(fig)
