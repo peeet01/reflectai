@@ -9,3 +9,4 @@ torch
 pandas
 ripser
 persim
+pip install streamlit-authenticator
