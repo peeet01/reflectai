@@ -7,10 +7,11 @@ def load_metadata(module_key):
     if os.path.exists(filepath):
         with open(filepath, "r", encoding="utf-8") as f:
             return json.load(f)
-    return {
-        "title": module_key,
-        "description": "Nincs elérhető leírás ehhez a modulhoz.",
-        "equations": [],
-        "parameters": {},
-        "applications": []
-    }
+    else:
+        return {
+            "title": module_key,
+            "description": "Nincs elérhető leírás ehhez a modulhoz.",
+            "equations": [],
+            "parameters": {},
+            "applications": []
+        }
