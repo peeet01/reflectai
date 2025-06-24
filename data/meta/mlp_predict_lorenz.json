@@ -1,1 +1,20 @@
-
+{
+  "title": "Lorenz predikció",
+  "description": "Mély tanulás alapú előrejelzés a Lorenz rendszer x-komponensére MLP-vel.",
+  "equations": [
+    "dx/dt = σ(y − x)",
+    "dy/dt = x(ρ − z) − y",
+    "dz/dt = xy − βz",
+    "x̂_{t+1} = f(x_t, x_{t−1}, …)"
+  ],
+  "parameters": {
+    "window": "Ablakméret – hány múltbeli lépést vesz figyelembe",
+    "hidden_layer_size": "MLP rejtett réteg mérete",
+    "test_ratio": "Tesztelési adatarány"
+  },
+  "applications": [
+    "Nemlineáris időfüggő rendszerek predikciója",
+    "Káoszdetekció gépi tanulással",
+    "MLP-regresszió gyakorlása komplex rendszeren"
+  ]
+}
