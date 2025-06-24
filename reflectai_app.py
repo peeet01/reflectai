@@ -1,41 +1,70 @@
 import streamlit as st
 import yaml
 import streamlit_authenticator as stauth
-from yaml.loader import SafeLoader
-
 from modules.modules_registry import MODULES, safe_run
+from utils.metadata_loader import load_metadata
+from pathlib import Path
 
-# ⬇️ Betöltjük a konfigurációt
-with open('config.yaml') as file:
-    config = yaml.load(file, Loader=SafeLoader)
+# Beállítások
+st.set_page_config(page_title="Neurolab AI – Scientific Playground Sandbox", page_icon="🧠", layout="wide")
 
-# ⬇️ Hitelesítő inicializálása
+# 🔐 Hitelesítés betöltése
+with open(Path("config.yaml"), "r") as file:
+    config = yaml.safe_load(file)
+
 authenticator = stauth.Authenticate(
     config['credentials'],
     config['cookie']['name'],
     config['cookie']['key'],
-    config['cookie']['expiry_days'],
-    config['preauthorized']
+    config['cookie']['expiry_days']
 )
 
-# ⬇️ Bejelentkezés mezők
-name, authentication_status, username = authenticator.login('Bejelentkezés', 'main')
+name, authentication_status, username = authenticator.login("Bejelentkezés", "main")
 
+# 🔐 Belépés ellenőrzése
 if authentication_status is False:
-    st.error('Hibás felhasználónév vagy jelszó')
-
+    st.error("Hibás felhasználónév vagy jelszó.")
 elif authentication_status is None:
-    st.warning('Kérlek jelentkezz be az alkalmazás használatához.')
-
+    st.warning("Kérlek add meg a bejelentkezési adataidat.")
 elif authentication_status:
-    # ⬇️ Oldalcím és kijelentkezés gomb
-    st.set_page_config(page_title="ReflectAI")
-    authenticator.logout('Kijelentkezés', 'oldalsáv')
-    st.sidebar.title(f"Üdv, {name}!")
-    st.title("ReflectAI modulválasztó")
 
-    # ⬇️ Modul kiválasztása
-    module_name = st.sidebar.radio("Válassz modult:", list(MODULES.keys()))
+    # Fejléc
+    st.title("🧠 Neurolab AI – Scientific Playground Sandbox")
+    st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
+    st.text_input("📝 Megfigyelés vagy jegyzet (opcionális):")
 
-    # ⬇️ Modul futtatása biztonságosan
-    safe_run(module_name)
+    # Modulválasztó
+    st.sidebar.title("🗂️ Modulválasztó")
+    module_key = st.sidebar.radio("Kérlek válassz egy modult:", list(MODULES.keys()))
+
+    # Metaadat betöltés
+    metadata_key = module_key.replace(" ", "_").lower()
+    metadata = load_metadata(metadata_key)
+
+    # Metaadat megjelenítés
+    st.subheader(f"📘 {metadata.get('title', module_key)}")
+    st.write(metadata.get("description", ""))
+
+    if metadata.get("equations"):
+        st.markdown("#### 🧮 Egyenletek:")
+        for eq in metadata["equations"]:
+            st.latex(eq)
+
+    if metadata.get("parameters"):
+        st.markdown("#### 🎛️ Paraméterek:")
+        for param, desc in metadata["parameters"].items():
+            st.markdown(f"- **{param}**: {desc}")
+
+    if metadata.get("applications"):
+        st.markdown("#### 🔬 Alkalmazási területek:")
+        for app in metadata["applications"]:
+            st.markdown(f"- {app}")
+
+    st.divider()
+
+    # Modul futtatása
+    safe_run(module_key)
+
+    # Kijelentkezés gomb
+    authenticator.logout("Kijelentkezés", "sidebar")
+    st.sidebar.success(f"Bejelentkezve: {name}")
