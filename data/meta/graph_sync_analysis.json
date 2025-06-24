@@ -1,1 +1,20 @@
-
+{
+  "title": "Gráfalapú szinkronanalízis",
+  "description": "Kuramoto-modell gráfstruktúrákra alkalmazva, szinkronizációs folyamatok vizsgálatára.",
+  "equations": [
+    "dθᵢ/dt = ωᵢ + (K/N) ∑ Aᵢⱼ sin(θⱼ − θᵢ)",
+    "r(t) = |(1/N) ∑ e^(iθⱼ)|"
+  ],
+  "parameters": {
+    "graph_type": "A használt gráf típusa (pl. kör, rács, stb.)",
+    "N": "Csomópontok száma",
+    "K": "Kapcsolási erősség",
+    "dt": "Időlépés mérete",
+    "steps": "Szimulációs lépések száma"
+  },
+  "applications": [
+    "Komplex hálózatok dinamikai vizsgálata",
+    "Szinkronizációs küszöbök elemzése különböző gráftípusokon",
+    "Hálózattopológia hatása a kollektív viselkedésre"
+  ]
+}
