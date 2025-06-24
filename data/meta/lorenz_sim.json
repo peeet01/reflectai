@@ -1,19 +1,19 @@
 {
   "title": "Lorenz szimuláció",
-  "description": "A Lorenz-rendszer determinisztikus káoszát modellezi egyszerű differenciálegyenletekkel.",
+  "description": "A Lorenz-rendszer determinisztikus káoszt modellez, egyszerű háromváltozós differenciálegyenletekkel. Edward Lorenz meteorológus 1963-ban vezette be.",
   "equations": [
     "dx/dt = σ(y - x)",
     "dy/dt = x(ρ - z) - y",
     "dz/dt = xy - βz"
   ],
   "parameters": {
-    "σ": "Prandtl-szám (hővezetés)",
+    "σ": "Prandtl-szám (hővezetési paraméter)",
     "ρ": "Rayleigh-szám (konvekciós instabilitás)",
-    "β": "geometriai állandó"
+    "β": "Geometriai állandó"
   },
   "applications": [
     "Káoszelmélet oktatása",
-    "Meteorológiai szimulációk",
-    "Nemlineáris rendszerek bemutatása"
+    "Nemlineáris rendszerek szemléltetése",
+    "Meteorológiai szimulációs alapmodellek"
   ]
 }
