@@ -1,4 +1,4 @@
-streamlit
+streamlit==1.33.0
 numpy
 matplotlib
 scikit-learn
@@ -9,9 +9,6 @@ torch
 pandas
 ripser
 persim
-streamlit-authenticator
-PyYAML
-streamlit==1.33.0
+streamlit-authenticator==0.3.2
 pyyaml==6.0.1
 bcrypt==4.1.2
-streamlit-authenticator==0.3.2
