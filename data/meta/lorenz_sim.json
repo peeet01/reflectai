@@ -1,1 +1,19 @@
-
+{
+  "title": "Lorenz szimuláció",
+  "description": "A Lorenz-rendszer determinisztikus káoszát modellezi egyszerű differenciálegyenletekkel.",
+  "equations": [
+    "dx/dt = σ(y - x)",
+    "dy/dt = x(ρ - z) - y",
+    "dz/dt = xy - βz"
+  ],
+  "parameters": {
+    "σ": "Prandtl-szám (hővezetés)",
+    "ρ": "Rayleigh-szám (konvekciós instabilitás)",
+    "β": "geometriai állandó"
+  },
+  "applications": [
+    "Káoszelmélet oktatása",
+    "Meteorológiai szimulációk",
+    "Nemlineáris rendszerek bemutatása"
+  ]
+}
