@@ -1,32 +1,59 @@
-import streamlit as st import numpy as np import matplotlib.pyplot as plt
+import streamlit as st
+import numpy as np
+from sklearn.linear_model import Ridge
+import matplotlib.pyplot as plt
 
-def generate_lorenz(T=100, dt=0.01, sigma=10.0, rho=28.0, beta=8/3): N = int(T / dt) x = np.zeros(N) y = np.zeros(N) z = np.zeros(N) x[0], y[0], z[0] = 1.0, 1.0, 1.0 for i in range(1, N): x[i] = x[i-1] + dt * sigma * (y[i-1] - x[i-1]) y[i] = y[i-1] + dt * (x[i-1] * (rho - z[i-1]) - y[i-1]) z[i] = z[i-1] + dt * (x[i-1] * y[i-1] - beta * z[i-1]) return x, y, z
+def generate_lorenz_data(n_points=2000, dt=0.01, sigma=10.0, beta=8/3, rho=28.0):
+    def lorenz_step(x, y, z):
+        dx = sigma * (y - x)
+        dy = x * (rho - z) - y
+        dz = x * y - beta * z
+        return dx, dy, dz
 
-def esn_train_predict(data, reservoir_size=500, spectral_radius=0.9, leaking_rate=0.3): from sklearn.linear_model import Ridge N = len(data) in_size = 1 out_size = 1 Win = np.random.rand(reservoir_size, in_size) * 2 - 1 W = np.random.rand(reservoir_size, reservoir_size) - 0.5 rho_W = np.max(np.abs(np.linalg.eigvals(W))) W *= spectral_radius / rho_W
+    x, y, z = 1.0, 1.0, 1.0
+    data = []
+    for _ in range(n_points):
+        dx, dy, dz = lorenz_step(x, y, z)
+        x += dx * dt
+        y += dy * dt
+        z += dz * dt
+        data.append([x, y, z])
+    return np.array(data)
 
-X = np.zeros((reservoir_size, N))
-x = np.zeros((reservoir_size,))
+def run():
+    st.title("ESN Lorenz-pálya predikció")
 
-for t in range(1, N):
-    u = data[t - 1]
-    x = (1 - leaking_rate) * x + leaking_rate * np.tanh(np.dot(Win, u) + np.dot(W, x))
-    X[:, t] = x
+    n_points = st.slider("Adatpontok száma", 1000, 5000, 2000, step=100)
+    washout = st.slider("Washout szakasz hossza", 50, 500, 100, step=10)
+    res_size = st.slider("Reservoir méret", 50, 500, 200, step=10)
+    spectral_radius = st.slider("Spektrálsugár", 0.1, 2.0, 0.9, step=0.1)
 
-ridge = Ridge(alpha=1e-6)
-ridge.fit(X[:, :-1].T, data[1:])
-Wout = ridge.coef_.reshape(1, -1)
-pred = Wout @ X
-return pred.flatten()
+    data = generate_lorenz_data(n_points)
+    input_data = data[:-1]
+    target_data = data[1:]
 
-def run(): st.title("📈 Echo State Network (ESN) predikció") T = st.slider("Szimuláció hossza (időegység)", 10, 200, 100) reservoir_size = st.slider("Reservoir méret", 100, 1000, 500, step=100) spectral_radius = st.slider("Spektrális sugár", 0.1, 1.5, 0.9) leaking_rate = st.slider("Szivárgási ráta", 0.0, 1.0, 0.3)
+    np.random.seed(42)
+    Win = (np.random.rand(res_size, 3) - 0.5) * 1.0
+    W = np.random.rand(res_size, res_size) - 0.5
+    radius = np.max(np.abs(np.linalg.eigvals(W)))
+    W *= spectral_radius / radius
 
-x, _, _ = generate_lorenz(T)
-prediction = esn_train_predict(x, reservoir_size, spectral_radius, leaking_rate)
+    states = np.zeros((n_points - 1, res_size))
+    x = np.zeros(res_size)
 
-fig, ax = plt.subplots()
-ax.plot(x, label="Eredeti", linewidth=2)
-ax.plot(prediction, label="ESN predikció", linestyle='--')
-ax.set_title("Lorenz idősor ESN predikcióval")
-ax.legend()
-st.pyplot(fig)
+    for t in range(n_points - 1):
+        u = input_data[t]
+        x = np.tanh(np.dot(Win, u) + np.dot(W, x))
+        states[t] = x
 
+    model = Ridge(alpha=1e-6)
+    model.fit(states[washout:], target_data[washout:])
+
+    predictions = model.predict(states)
+
+    fig, ax = plt.subplots()
+    ax.plot(target_data[:, 0], label="Valódi", linewidth=1.5)
+    ax.plot(predictions[:, 0], label="ESN predikció", linestyle="--")
+    ax.set_title("X komponens predikciója")
+    ax.legend()
+    st.pyplot(fig)
