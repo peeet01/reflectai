@@ -1,1 +1,18 @@
-
+{
+  "title": "Topológiai szinkronizáció",
+  "description": "A hálózat topológiájának hatása a Kuramoto-szinkronizációs dinamikára.",
+  "equations": [
+    "dθᵢ/dt = ωᵢ + (K/N) ∑ⱼ Aᵢⱼ sin(θⱼ − θᵢ)",
+    "r(t) = |(1/N) ∑ⱼ e^(iθⱼ)|"
+  ],
+  "parameters": {
+    "N": "Oszcillátorok száma",
+    "K": "Kapcsolási erősség",
+    "Aᵢⱼ": "Hálózat szomszédsági mátrixa"
+  },
+  "applications": [
+    "Hálózati dinamika kutatása",
+    "Szinkronizációs mintázatok modellezése",
+    "Strukturális befolyás vizsgálata oszcillációs rendszerekben"
+  ]
+}
