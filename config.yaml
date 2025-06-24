@@ -17,5 +17,11 @@ credentials:
 
 cookie:
   name: reflectai_auth
-  key: some_signature_key
+  key: some_signature_key  # 🔑 FONTOS: Ez okozta a hibát, most benne van!
   expiry_days: 30
+
+preauthorized:
+  emails:
+    - peeet01@gmail.com
+    - admin@reflectai.hu
+    - kutato1@reflectai.hu
