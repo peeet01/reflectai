@@ -9,5 +9,5 @@ torch
 pandas
 ripser
 persim
-streamlit_authenticator
-pyjaml
+streamlit-authenticator
+PyYAML
