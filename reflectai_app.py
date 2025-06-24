@@ -2,7 +2,7 @@ import streamlit as st
 import yaml
 import streamlit_authenticator as stauth
 from yaml.loader import SafeLoader
-from utils import load_metadata  # Ez legyen implementálva a saját utils modulodban
+from utils import load_metadata  # vagy: from utils.load_metadata import load_metadata
 
 # --- Konfiguráció betöltése ---
 with open("config.yaml") as file:
