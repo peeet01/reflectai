@@ -1,1 +1,17 @@
-
+{
+  "title": "Szinkronfraktál dimenzióanalízis",
+  "description": "A szinkronizációs mintázatok fraktál dimenziójának becslése doboz-számlálási módszerrel binarizált fázisterek alapján.",
+  "equations": [
+    "FD = - \\frac{d \\log(N(ε))}{d \\log(ε)}",
+    "N(ε): az ε méretű dobozok száma a mintában"
+  ],
+  "parameters": {
+    "Mátrix méret": "A szimulált bináris fázistér mérete (NxN)",
+    "Küszöb": "A binarizálási küszöb, amely felett 1 értéket kap a mátrix"
+  },
+  "applications": [
+    "Szinkronizációs mintázatok struktúrájának elemzése",
+    "Fraktál jellemzők becslése hálózatokban",
+    "Dinamika komplexitásának kvantifikálása"
+  ]
+}
