@@ -1,19 +1,19 @@
 credentials:
   usernames:
-    tesztuser:
-      email: testuser@example.com
-      name: Teszt Felhasználó
-      password: '$2b$12$KIXiOJnFMRHxVWZNUXy8guB2aA4RbDcGm9ik9x8XVkGBiRzjG9NNe'  # példajelszó: Teszt123
+    peeet01:
+      email: peeet01@gmail.com
+      name: peeet01
+      password: '$2b$12$KIXiOJnFMRHxVWZNUXy8guB2aA4RbDcGm9ik9x8XVkGBiRzjG9NNe'  # Teszt123
 
     admin:
       email: admin@reflectai.hu
       name: Admin Felhasználó
-      password: '$2b$12$7ZPaF1YXUkOWbClyxyRU4ub16H8HZs1NCEfw8dyUO9z5HTGv01oQO'  # példajelszó: Admin123
+      password: '$2b$12$7ZPaF1YXUkOWbClyxyRU4ub16H8HZs1NCEfw8dyUO9z5HTGv01oQO'  # Admin123
 
     kutato1:
       email: kutato1@reflectai.hu
       name: Kutató Felhasználó
-      password: '$2b$12$xNmCfzEYm4.qgrWqDdByEux3WkOiHV/dk9xAWhuRYvlQW8A.9gPZa'  # példajelszó: Kutato2024
+      password: '$2b$12$xNmCfzEYm4.qgrWqDdByEux3WkOiHV/dk9xAWhuRYvlQW8A.9gPZa'  # Kutato2024
 
 cookie:
   name: reflectai_auth
@@ -22,6 +22,6 @@ cookie:
 
 preauthorized:
   emails:
-    - testuser@example.com
+    - peeet01@gmail.com
     - admin@reflectai.hu
     - kutato1@reflectai.hu
