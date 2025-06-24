@@ -9,7 +9,6 @@ MODULES = {
     "Topológiai szinkronizáció": ("topo_protect", "run"),
     "Lorenz szimuláció": ("lorenz_sim", "run"),
     "Lorenz predikció": ("predict_lorenz", "run"),
-    "Topológiai védettség (Chern-szám)": ("berry_curvature", "run"),
     "Topológiai Chern–szám analízis": ("berry_curvature", "run"),
     "Zajtűrés és szinkronizációs robusztusság": ("noise_robustness", "run"),
     "Echo State Network (ESN) predikció": ("esn_prediction", "run"),
@@ -23,7 +22,7 @@ MODULES = {
     "Lyapunov spektrum": ("lyapunov_spectrum", "run"),
     "Adatfeltöltés modul": ("data_upload", "run"),
     "Napi önreflexió": ("reflection_modul", "run"),
-    "Súgó / Help": ("help_module", "run")
+    "Súgó / Help": ("help_module", "run"),
 }
 
 def safe_run(module_key):
