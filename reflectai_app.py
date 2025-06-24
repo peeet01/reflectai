@@ -1,54 +1,58 @@
 import streamlit as st
-import yaml
 import streamlit_authenticator as stauth
+import yaml
 from yaml.loader import SafeLoader
+import importlib
+import os
 from utils.metadata_loader import load_metadata
 
-# --- Konfiguráció betöltése ---
-with open("config.yaml", "r", encoding="utf-8") as file:
+# Streamlit oldalbeállítás
+st.set_page_config(page_title="ReflectAI", page_icon="🧠", layout="wide")
+
+# Konfiguráció betöltése
+with open("config.yaml") as file:
     config = yaml.load(file, Loader=SafeLoader)
 
-# --- Autentikáció beállítása ---
+# Hitelesítő inicializálása
 authenticator = stauth.Authenticate(
     credentials=config["credentials"],
     cookie_name=config["cookie"]["name"],
     key=config["cookie"]["key"],
     cookie_expiry_days=config["cookie"]["expiry_days"],
-    preauthorized=config["preauthorized"]
+    preauthorized=config.get("preauthorized", {})
 )
 
-# --- Bejelentkezési űrlap ---
-auth_result = authenticator.login("main", "Bejelentkezés")
+# Bejelentkezési felület
+name, authentication_status, username = authenticator.login("Login", "main")
 
-# --- Hitelesítési állapot kezelés ---
-if auth_result is None:
+if authentication_status is False:
+    st.error("Hibás felhasználónév vagy jelszó.")
+elif authentication_status is None:
     st.warning("⚠️ Kérlek jelentkezz be.")
-elif not auth_result["authenticated"]:
-    st.error("❌ Hibás felhasználónév vagy jelszó.")
-else:
-    name = auth_result["name"]
-    username = auth_result["username"]
+elif authentication_status:
+    authenticator.logout("Kijelentkezés", "sidebar")
+    st.sidebar.markdown(f"👤 **{name}** bejelentkezve")
 
-    # Oldal beállítások
-    st.set_page_config(page_title="Neurolab AI – Scientific Reflection", layout="wide")
-    st.sidebar.success(f"✅ Bejelentkezve mint: {name} ({username})")
+    st.title("ReflectAI - Modulválasztó")
 
-    st.title("🧠 Neurolab AI – Scientific Reflection")
-    st.markdown("Válassz egy modult a bal oldali menüből.")
+    # Modulok listázása
+    module_files = [
+        f for f in os.listdir("modules")
+        if f.endswith(".py") and not f.startswith("__")
+    ]
 
-    # Modulválasztó
-    st.sidebar.title("📂 Modulválasztó")
-    module_key = st.sidebar.radio(
-        "Kérlek válassz modult:",
-        ["Kutatási napló", "Reflexió sablon"]
-    )
+    module_keys = [f.replace(".py", "") for f in module_files]
+    selected_module = st.sidebar.selectbox("📚 Modul kiválasztása", module_keys)
 
-    # Metaadat mező
-    st.text_input("📝 Megfigyelés vagy jegyzet címe:", key="metadata_title")
+    # Metaadat betöltés
+    metadata = load_metadata(selected_module)
 
-    # Metaadatok betöltése
-    metadata_key = module_key.replace(" ", "_").lower()
-    metadata = load_metadata(metadata_key)
+    st.header(f"🧩 {metadata.get('title', selected_module)}")
+    st.markdown(metadata.get("description", "Nincs leírás."))
 
-    st.header("📄 Modul metaadatai")
-    st.write(metadata)
+    # Modul betöltése
+    try:
+        module = importlib.import_module(f"modules.{selected_module}")
+        module.run()
+    except Exception as e:
+        st.error(f"Hiba a modul betöltése közben: {e}")
