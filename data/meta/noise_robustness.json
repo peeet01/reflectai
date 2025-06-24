@@ -1,1 +1,17 @@
-
+{
+  "title": "Zajtűrés és szinkronizációs robusztusság",
+  "description": "A Kuramoto-modell szinkronizációs képességeinek vizsgálata különböző zajszintek mellett. Ez segít megérteni, hogyan befolyásolja a zaj a kollektív viselkedést és a fáziszáródást.",
+  "equations": [
+    "dθᵢ/dt = ωᵢ + (K/N) ∑ sin(θⱼ − θᵢ) + ηᵢ(t)"
+  ],
+  "parameters": {
+    "K": "Kapcsolási erősség",
+    "N": "Oszcillátorok száma",
+    "Zajszint": "A sztochasztikus zaj intenzitása"
+  },
+  "applications": [
+    "Idegi hálózatok zajtűrésének elemzése",
+    "Robusztus kollektív dinamika vizsgálata",
+    "Biológiai és mesterséges rendszerek stabilitásának tanulmányozása"
+  ]
+}
