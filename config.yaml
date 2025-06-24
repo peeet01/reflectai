@@ -15,7 +15,7 @@ credentials:
 
 cookie:
   name: reflectai_auth
-  key: some_signature_key  # ezt cseréld le .env vagy titkos tárolóra élesben
+  key: some_signature_key
   expiry_days: 30
 
 preauthorized:
