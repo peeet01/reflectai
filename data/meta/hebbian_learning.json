@@ -1,1 +1,17 @@
-
+{
+  "title": "Hebbian tanulás",
+  "description": "Biológiai ihletésű tanulási szabály, amely szerint a neurális kapcsolatok megerősödnek, ha a neuronok egyszerre aktiválódnak.",
+  "equations": [
+    "Δwᵢⱼ = η * xᵢ * yⱼ"
+  ],
+  "parameters": {
+    "η": "Tanulási ráta",
+    "xᵢ": "Bemeneti neuron aktivitása",
+    "yⱼ": "Kimeneti neuron válasza"
+  },
+  "applications": [
+    "Szinaptikus plaszticitás modellezése",
+    "Memóriaminták tanulása",
+    "Biológiai hálózatok szimulációja"
+  ]
+}
