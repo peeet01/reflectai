@@ -9,7 +9,7 @@ MODULES = {
     "Kuramoto–Hebbian háló": ("kuramoto_hebbian_sim", "run"),
     "Topológiai szinkronizáció": ("topo_protect", "run"),
     "Lorenz szimuláció": ("lorenz_sim", "run"),
-    "Lorenz predikció": ("predict_lorenz", "run"),
+    "Lorenz predikció": ("mlp_predict_lorenz", "run"),
     "Topológiai védettség (Chern-szám)": ("berry_curvature", "run"),
     "Topológiai Chern–szám analízis": ("berry_curvature", "run"),
     "Zajtűrés és szinkronizációs robusztusság": ("noise_robustness", "run"),
