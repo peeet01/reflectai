@@ -1,1 +1,16 @@
 
+credentials:
+  usernames:
+    testuser:
+      email: testuser@example.com
+      name: Teszt Felhasználó
+      password: '$2b$12$KIXiOJnFNYHytzY3k1qK9eMi4h7XDc5T8c5i1GokQ/rmHgqvQJdMq'  # hashed jelszó
+
+cookie:
+  name: reflectai_auth
+  key: some_signature_key
+  expiry_days: 30
+
+preauthorized:
+  emails:
+    - testuser@example.com
