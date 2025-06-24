@@ -1,1 +1,7 @@
-
+{
+  "title": "Reflexió sablon",
+  "description": "Ez egy példa reflexiós sablon leírása.",
+  "equations": [],
+  "parameters": {},
+  "applications": ["neurofeedback", "kognitív tréning"]
+}
