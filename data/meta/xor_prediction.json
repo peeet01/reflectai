@@ -1,1 +1,17 @@
-
+{
+  "title": "XOR predikció neurális hálóval",
+  "description": "Az XOR logikai kapu megtanulása mesterséges neurális hálóval – nemlineáris probléma, amely bemutatja a mélytanulás szükségességét.",
+  "equations": [
+    "ŷ = σ(W₂ ⋅ tanh(W₁ ⋅ x + b₁) + b₂)"
+  ],
+  "parameters": {
+    "Rejtett réteg mérete": "A köztes neuronok száma",
+    "Tanulási ráta": "A súlyfrissítés intenzitása",
+    "Epochok száma": "A teljes tanítási ciklusok száma"
+  },
+  "applications": [
+    "Nemlineáris problémák megoldása",
+    "Döntési határ modellezése",
+    "Gépi tanulás oktatása"
+  ]
+}
