@@ -32,3 +32,4 @@ def run():
     ax.set_xlabel("Bemenet indexe")
     ax.set_ylabel("Súly érték")
     st.pyplot(fig)
+app = run
