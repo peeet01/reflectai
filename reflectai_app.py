@@ -18,8 +18,8 @@ authenticator = stauth.Authenticate(
     preauthorized=config.get('preauthorized', {})
 )
 
-# --- Bejelentkezés (HIBAJAVÍTOTT SOR) ---
-name, authentication_status, username = authenticator.login("Bejelentkezés", "main")
+# --- Bejelentkezés (helyes paramétersorrend!) ---
+name, authentication_status, username = authenticator.login("main", "Bejelentkezés")
 
 # --- Hitelesítés állapot kezelése ---
 if authentication_status is False:
@@ -33,14 +33,14 @@ elif authentication_status:
     st.title("🧠 ReflectAI – Scientific Reflection")
     st.markdown("Válassz egy modult a bal oldali menüből.")
 
-    # --- Modulválasztó ---
+    # Modulválasztó
     st.sidebar.title("📂 Modulválasztó")
     selected_module_name = st.sidebar.radio("Modul kiválasztása:", list(MODULES.keys()))
 
-    # --- Metaadat mező ---
+    # Metaadat mező
     st.text_input("📝 Megfigyelés vagy jegyzet címe:", key="metadata_title")
 
-    # --- Modul betöltés és futtatás ---
+    # Modul betöltés és futtatás
     module_func = MODULES.get(selected_module_name)
     if module_func:
         module_func()
