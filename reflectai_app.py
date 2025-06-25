@@ -4,9 +4,9 @@ from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
 from modules.journal import journal_module
 from modules.reflection_template import reflection_template_module
-from utils.metadata_loader import load_metadata  # <-- ez a helyes útvonal!
+from utils.metadata_loader import load_metadata
 
-# 🔐 Konfiguráció betöltése
+# Konfiguráció betöltése
 with open("config.yaml") as file:
     config = yaml.load(file, Loader=SafeLoader)
 
@@ -14,35 +14,33 @@ authenticator = stauth.Authenticate(
     credentials=config['credentials'],
     cookie_name=config['cookie']['name'],
     cookie_key=config['cookie']['key'],
-    cookie_expiry_days=config['cookie']['expiry_days']
+    cookie_expiry_days=config['cookie']['expiry_days'],
+    preauthorized=config.get('preauthorized', {})
 )
 
-# 🔐 Bejelentkezés
-name, authentication_status, username = authenticator.login("Login", "main")  # << FONTOS: form_name helyett pozíciós!
+name, authentication_status, username = authenticator.login("Bejelentkezés", "main")
 
 if authentication_status is False:
-    st.error("Hibás felhasználónév vagy jelszó.")
+    st.error("❌ Hibás felhasználónév vagy jelszó.")
 elif authentication_status is None:
-    st.warning("Kérlek add meg a bejelentkezési adataidat.")
+    st.warning("⚠️ Kérlek jelentkezz be.")
 elif authentication_status:
     authenticator.logout("Kijelentkezés", "sidebar")
-    st.sidebar.success(f"Bejelentkezve mint {name}")
+    st.sidebar.success(f"✅ Bejelentkezve mint: {name}")
 
-    # Oldalválasztó
-    st.sidebar.title("Navigáció")
-    page = st.sidebar.selectbox("Válassz oldalt", ["Kutatási napló", "Reflexió sablon"])
+    st.title("🧠 ReflectAI – Scientific Reflection")
+    st.markdown("Válassz egy modult a bal oldali menüből.")
 
+    page = st.sidebar.selectbox("📂 Modul kiválasztása", ["Kutatási napló", "Reflexió sablon"])
     MODULES = {
         "Kutatási napló": journal_module,
         "Reflexió sablon": reflection_template_module,
     }
 
-    # Modul betöltése
     if page in MODULES:
-        MODULES[page]()
+        MODULES[page]()  # modul meghívása
 
-    # Metaadatok
     metadata = load_metadata(page)
     st.sidebar.markdown("---")
-    st.sidebar.markdown(f"**Verzió:** {metadata['version']}")
-    st.sidebar.markdown(f"**Fejlesztő:** {metadata['author']}")
+    st.sidebar.markdown(f"**Verzió:** {metadata.get('version', '1.0')}")
+    st.sidebar.markdown(f"**Fejlesztő:** {metadata.get('author', 'ReflectAI')}")
