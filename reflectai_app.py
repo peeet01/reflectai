@@ -18,7 +18,8 @@ authenticator = stauth.Authenticate(
 )
 
 # 🔐 Bejelentkezés
-name, authentication_status, username = authenticator.login(form_name="Login", location="main")
+name, authentication_status, username = authenticator.login("Login", "main")
+if authentication_status is False:r.login(form_name="Login", location="main")
 if authentication_status is False:
     st.error("Hibás felhasználónév vagy jelszó.")
 elif authentication_status is None:
