@@ -141,3 +141,4 @@ def run():
     """)
 
     st.caption("Frissítve: 2025-06-23 16:46")
+app = run
