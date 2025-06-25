@@ -18,7 +18,7 @@ authenticator = stauth.Authenticate(
     preauthorized=config.get('preauthorized', {})
 )
 
-# --- Bejelentkezés (helyes paramétersorrend!) ---
+# --- Bejelentkezés (KIZÁRÓLAG így működik helyesen) ---
 name, authentication_status, username = authenticator.login("main", "Bejelentkezés")
 
 # --- Hitelesítés állapot kezelése ---
