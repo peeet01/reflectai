@@ -40,3 +40,4 @@ def run():
     ax.set_ylabel("Szinkronizáció mértéke")
     ax.set_title("Kuramoto–Hebbian szinkronizáció")
     st.pyplot(fig)
+app = run
