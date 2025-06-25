@@ -1,4 +1,4 @@
-reflectai_app.py - 22 modul indító app, kutatási napló és autentikáció nélkül
+# reflectai_app.py - 22 modul indító app, kutatási napló és autentikáció nélkül
 
 import streamlit as st from datetime import datetime
 
