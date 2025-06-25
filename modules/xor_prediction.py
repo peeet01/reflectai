@@ -1,70 +1,62 @@
-# modules/xor_prediction.py
-
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+from sklearn.neural_network import MLPClassifier
+from sklearn.datasets import make_classification
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
+def create_data(n_samples=500, noise=0.2):
+    X = np.random.uniform(-1, 1, (n_samples, 2))
+    y = np.logical_xor(X[:, 0] > 0, X[:, 1] > 0).astype(int)
+    return X, y
 
-def sigmoid_deriv(x):
-    return sigmoid(x) * (1 - sigmoid(x))
+def train_model(X, y, hidden_layer_sizes=(10,), alpha=0.01, max_iter=1000):
+    clf = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation='tanh',
+                        solver='adam', alpha=alpha, max_iter=max_iter, random_state=42)
+    clf.fit(X, y)
+    return clf
 
-def train_xor(hidden_size, learning_rate, epochs):
-    X = np.array([[0,0],[0,1],[1,0],[1,1]])
-    y = np.array([[0],[1],[1],[0]])
+def plot_3d_decision_boundary(model, X, y, resolution=50):
+    xx, yy = np.meshgrid(np.linspace(-1, 1, resolution), np.linspace(-1, 1, resolution))
+    grid = np.c_[xx.ravel(), yy.ravel()]
+    zz = model.predict_proba(grid)[:, 1].reshape(xx.shape)
 
-    input_size = 2
-    output_size = 1
+    fig = go.Figure()
 
-    np.random.seed(42)
-    W1 = np.random.randn(input_size, hidden_size)
-    b1 = np.zeros((1, hidden_size))
-    W2 = np.random.randn(hidden_size, output_size)
-    b2 = np.zeros((1, output_size))
+    fig.add_trace(go.Scatter3d(
+        x=X[:, 0], y=X[:, 1], z=y,
+        mode='markers',
+        marker=dict(size=4, color=y, colorscale='Viridis'),
+        name='Adatpontok'
+    ))
 
-    losses = []
+    fig.add_trace(go.Surface(
+        x=xx, y=yy, z=zz,
+        colorscale='RdBu', opacity=0.7, showscale=False,
+        name='Döntési határ'
+    ))
 
-    for epoch in range(epochs):
-        z1 = np.dot(X, W1) + b1
-        a1 = np.tanh(z1)
-        z2 = np.dot(a1, W2) + b2
-        a2 = sigmoid(z2)
+    fig.update_layout(
+        scene=dict(
+            xaxis_title='X1',
+            yaxis_title='X2',
+            zaxis_title='Kimenet',
+        ),
+        margin=dict(l=0, r=0, t=0, b=0)
+    )
 
-        loss = np.mean((y - a2) ** 2)
-        losses.append(loss)
-
-        dz2 = (a2 - y) * sigmoid_deriv(z2)
-        dW2 = np.dot(a1.T, dz2)
-        db2 = np.sum(dz2, axis=0, keepdims=True)
-
-        dz1 = np.dot(dz2, W2.T) * (1 - a1 ** 2)
-        dW1 = np.dot(X.T, dz1)
-        db1 = np.sum(dz1, axis=0)
-
-        W2 -= learning_rate * dW2
-        b2 -= learning_rate * db2
-        W1 -= learning_rate * dW1
-        b1 -= learning_rate * db1
-
-    return losses, a2
+    st.plotly_chart(fig, use_container_width=True)
 
 def run():
-    st.header("🔁 XOR predikció neurális hálóval")
-    hidden_size = st.slider("Rejtett réteg mérete", 1, 10, 2)
-    learning_rate = st.slider("Tanulási ráta", 0.001, 1.0, 0.1)
-    epochs = st.number_input("Epochok száma", 100, 10000, 1000, step=100)
+    st.header("🧩 XOR Predikció – 3D Döntési Határ Vizualizáció")
+    st.markdown("Ez a szimuláció egy neurális hálóval tanulja meg az XOR logikai kaput, és vizualizálja a döntési felületet 3D-ben.")
 
-    losses, predictions = train_xor(hidden_size, learning_rate, epochs)
+    n_samples = st.slider("Minták száma", 100, 1000, 500, 50)
+    hidden_neurons = st.slider("Rejtett neuronok száma", 2, 20, 10, 1)
+    alpha = st.slider("Regularizációs erő (alpha)", 0.0001, 0.1, 0.01, 0.0001)
 
-    st.subheader("📉 Tanulási veszteség")
-    fig, ax = plt.subplots()
-    ax.plot(losses)
-    ax.set_xlabel("Epoch")
-    ax.set_ylabel("Veszteség")
-    st.pyplot(fig)
+    X, y = create_data(n_samples)
+    model = train_model(X, y, hidden_layer_sizes=(hidden_neurons,), alpha=alpha)
+    plot_3d_decision_boundary(model, X, y)
 
-    st.subheader("📊 Predikciók")
-    st.write("Predikált értékek az XOR bemenetre:")
-    st.dataframe(predictions.round(3))
+# Kötelező az app dinamikus betöltéséhez:
 app = run
