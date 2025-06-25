@@ -123,3 +123,4 @@ def run(K=2.0, N=10):
     st.markdown("### 🌐 Térbeli neuronháló (fázisszinkronizáció színekkel)")
     fig3d = neuron_network_3d(theta)
     st.plotly_chart(fig3d, use_container_width=True)
+app = run
