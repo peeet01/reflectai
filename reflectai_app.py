@@ -5,11 +5,11 @@ import streamlit_authenticator as stauth
 from utils.metadata_loader import load_metadata
 from modules.modules_registry import MODULES
 
-# Konfiguráció betöltése
+# --- Konfiguráció betöltése ---
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
-# Autentikátor (❗ kulcsszó nélkül!)
+# --- Autentikáció ---
 authenticator = stauth.Authenticate(
     config['credentials'],
     config['cookie']['name'],
@@ -18,10 +18,10 @@ authenticator = stauth.Authenticate(
     config.get('preauthorized', {})
 )
 
-# Login helyesen (❗ a második paraméter CSAK: 'main', 'sidebar', vagy 'unrendered')
-name, authentication_status, username = authenticator.login("Bejelentkezés", "main")
+# --- Login (csak helyes paraméter: 'main' vagy 'sidebar') ---
+name, authentication_status, username = authenticator.login("main")
 
-# Hitelesítés állapota
+# --- Hitelesítés állapot ---
 if authentication_status is False:
     st.error("❌ Hibás felhasználónév vagy jelszó.")
 elif authentication_status is None:
