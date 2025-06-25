@@ -47,3 +47,4 @@ MODULES = {
     "Scientific Reflection": reflection_modul.main,
     "XOR Prediction": xor_prediction.main
 }
+app = run
