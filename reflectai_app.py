@@ -5,7 +5,7 @@ import yaml
 import streamlit_authenticator as stauth 
 from modules import *  # Feltételezve, hogy minden modul ide van rendezve from utils import *
 
--- Betöltjük a configot --
+# Betöltjük a configot 
 
 with open('config.yaml') as file: config = yaml.safe_load(file)
 
