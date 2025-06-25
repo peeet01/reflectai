@@ -1,25 +1,14 @@
 credentials:
   usernames:
     peeet01:
-      email: peeet01@gmail.com
-      name: Péter
-      password: '$2b$12$KIXiOJnFMRHxVWZNUXy8guB2aA4RbDcGm9ik9x8XVkGBiRzjG9NNe'
-    admin:
-      email: admin@reflectai.hu
-      name: Admin Felhasználó
-      password: '$2b$12$7ZPaF1YXUkOWbClyxyRU4ub16H8HZs1NCEfw8dyUO9z5HTGv01oQO'
-    kutato1:
-      email: kutato1@reflectai.hu
-      name: Kutató Felhasználó
-      password: '$2b$12$xNmCfzEYm4.qgrWqDdByEux3WkOiHV/dk9xAWhuRYvlQW8A.9gPZa'
+      name: peeet01
+      password: '$2b$12$RUSUCXvIyxK1OeYKr5P1eOBuD8TL8QUCZ5WqdqO9SD0eQlxra9IkS'
 
 cookie:
-  name: reflectai_auth
+  name: reflectai_cookie
   key: some_signature_key
-  expiry_days: 30
+  expiry_days: 3
 
 preauthorized:
   emails:
-    - peeet01@gmail.com
-    - admin@reflectai.hu
-    - kutato1@reflectai.hu
+    - peeet01@domain.com
