@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import datetime
 import importlib
 
+# 🧠 Modul-regiszter (címsor -> modulfájlnév)
 modules = {
     "Berry Curvature": "berry_curvature",
     "Data Upload": "data_upload",
@@ -27,16 +28,23 @@ modules = {
     "XOR Prediction": "xor_prediction"
 }
 
-# --- Streamlit oldal ---
 st.set_page_config(page_title="ReflectAI", layout="wide")
+
+# 📅 Fejléc
 st.title("🧠 ReflectAI Modulválasztó")
+st.caption("Válaszd ki, melyik modult szeretnéd használni az oldalsávon.")
 
-# Modulválasztó a sidebar-ban
-selected_label = st.sidebar.selectbox("Válassz modult", list(modules.keys()))
-selected_module = modules[selected_label]
+# 📚 Oldalsáv modulválasztó (radio!)
+selected_title = st.sidebar.radio("ReflectAI Modulválasztó", list(modules.keys()))
+selected_module_name = modules[selected_title]
 
+# 🔄 Modul betöltés és futtatás
 try:
-    mod = importlib.import_module(f"modules.{selected_module}")
-    mod.app()  # 🔧 Fontos: minden modul végén legyen: app = run
+    module = importlib.import_module(selected_module_name)
+    if hasattr(module, "app"):
+        module.app()
+    else:
+        st.error(f"A(z) `{selected_module_name}` modul nem tartalmaz `app` függvényt.")
 except Exception as e:
-    st.error(f"Hiba történt a(z) {selected_label} betöltésekor:\n\n{e}")
+    st.error(f"❌ Hiba történt a modul betöltésekor: `{selected_module_name}`")
+    st.exception(e)
