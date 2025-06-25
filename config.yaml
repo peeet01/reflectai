@@ -1,14 +1,15 @@
 credentials:
   usernames:
     peeet01:
-      name: peeet01
-      password: '$2b$12$RUSUCXvIyxK1OeYKr5P1eOBuD8TL8QUCZ5WqdqO9SD0eQlxra9IkS'
+      email: "peeet01@example.com"
+      name: "peeet01"
+      password: "pbkdf2:sha256:260000$Xz...tW"  # Titkosított 'Teszt123'
 
 cookie:
-  name: reflectai_cookie
-  key: some_signature_key
-  expiry_days: 3
+  name: "reflectai_cookie"
+  key: "random_signature_key"
+  expiry_days: 30
 
 preauthorized:
   emails:
-    - peeet01@domain.com
+    - "peeet01@example.com"
