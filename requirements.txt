@@ -1,7 +1,7 @@
-streamlit==1.33.0
-streamlit-authenticator==0.3.2
-bcrypt==4.1.2
-pyyaml==6.0.1
+streamlit
+streamlit-authenticator
+bcrypt
+pyyaml
 numpy
 matplotlib
 scikit-learn
