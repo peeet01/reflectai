@@ -36,3 +36,4 @@ def run():
     ax.plot(x, y, z, lw=0.5)
     ax.set_title("Lorenz attraktor")
     st.pyplot(fig)
+app = run
