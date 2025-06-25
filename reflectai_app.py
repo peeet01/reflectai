@@ -1,10 +1,8 @@
-# reflectai_app.py - ReflectAI főfájl (22 modul dinamikus betöltéssel)
-
 import streamlit as st
 from datetime import datetime
 import importlib
 
-# Modul-regiszter: kulcs = megjelenő név, érték = modulnév (fájlnév)
+# 🧠 Modul-regiszter (címsor -> modulnév)
 modules = {
     "Berry Curvature": "berry_curvature",
     "Data Upload": "data_upload",
@@ -16,7 +14,7 @@ modules = {
     "Hebbian Learning Viz": "hebbian_learning_viz",
     "Help": "help_module",
     "Insight Learning": "insight_learning",
-    "Kuramoto Hebbian Sim": "kuramoto_hebbian",
+    "Kuramoto Hebbian Sim": "kuramoto_hebbian_sim",
     "Kuramoto Sim": "kuramoto_sim",
     "Lorenz Sim": "lorenz_sim",
     "Lyapunov Spectrum": "lyapunov_spectrum",
@@ -27,20 +25,22 @@ modules = {
     "Plasticity Dynamics": "plasticity_dynamics",
     "Questions": "questions",
     "Reflection Modul": "reflection_modul",
-    "XOR Prediction": "xor_prediction",
+    "XOR Prediction": "xor_prediction"
 }
 
-st.set_page_config(page_title="ReflectAI", layout="wide")
+# 🎛️ Oldalsáv modulválasztó
 st.sidebar.title("ReflectAI Modulválasztó")
-selected = st.sidebar.selectbox("Válassz modult", list(modules.values()))
+selected_label = st.sidebar.selectbox("Válassz modult", list(modules.keys()))
+selected = modules[selected_label]
 
+# 🚀 Modul betöltés és futtatás
 try:
     mod = importlib.import_module(f"modules.{selected}")
     app_fn = getattr(mod, "app", None)
     if app_fn:
         app_fn()
     else:
-        st.error(f"A(z) `{selected}` modul nem tartalmaz `app` függvényt.")
+        st.error(f"A(z) `{selected}` modul nem tartalmaz `app` nevű függvényt.")
 except ModuleNotFoundError:
     st.error(f"A(z) `{selected}` modul nem található.")
 except Exception as e:
