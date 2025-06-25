@@ -2,7 +2,14 @@ import streamlit as st
 from datetime import datetime
 import importlib
 
-# 🧠 Modul-regiszter (címsor -> modulfájlnév)
+# 🌐 Alkalmazás metaadatai
+st.set_page_config(page_title="Neurolab AI", layout="wide")
+
+# 🧪 Cím és leírás
+st.title("🧪 Neurolab AI – Scientific Playground Sandbox")
+st.caption("Moduláris kutatási felület neurális szimulációkhoz és tanulási mechanizmusokhoz.")
+
+# 📦 Modul-regiszter (modulnév: fájlnév)
 modules = {
     "Berry Curvature": "berry_curvature",
     "Data Upload": "data_upload",
@@ -28,17 +35,11 @@ modules = {
     "XOR Prediction": "xor_prediction"
 }
 
-st.set_page_config(page_title="ReflectAI", layout="wide")
-
-# 📅 Fejléc
-st.title("🧠 ReflectAI Modulválasztó")
-st.caption("Válaszd ki, melyik modult szeretnéd használni az oldalsávon.")
-
-# 📚 Oldalsáv modulválasztó (radio!)
-selected_title = st.sidebar.radio("ReflectAI Modulválasztó", list(modules.keys()))
+# 🧭 Modulválasztó az oldalsávban
+selected_title = st.sidebar.radio("🔬 Modulválasztó", list(modules.keys()))
 selected_module_name = modules[selected_title]
 
-# 🔄 Modul betöltés és futtatás
+# 🔄 Modul betöltése
 try:
     module = importlib.import_module(selected_module_name)
     if hasattr(module, "app"):
@@ -46,5 +47,5 @@ try:
     else:
         st.error(f"A(z) `{selected_module_name}` modul nem tartalmaz `app` függvényt.")
 except Exception as e:
-    st.error(f"❌ Hiba történt a modul betöltésekor: `{selected_module_name}`")
+    st.error(f"❌ Hiba történt a(z) `{selected_title}` modul betöltésekor:")
     st.exception(e)
