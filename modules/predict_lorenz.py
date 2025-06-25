@@ -89,3 +89,4 @@ def run():
     ax2.legend()
 
     st.pyplot(fig)
+app = run
