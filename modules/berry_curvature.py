@@ -16,7 +16,7 @@ def compute_berry_curvature(kx, ky):
     # Berry-görbület numerikus közelítése
     return 0.5 * d_hat[2] / (norm**2 + 1e-8)
 
-def main():
+def run():
     st.header("🌀 Topológiai védettség és Berry-görbület")
     st.markdown("Ez a szimuláció a 2D Brillouin-zónában vizsgálja a Berry-görbület eloszlását.")
 
