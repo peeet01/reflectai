@@ -30,3 +30,4 @@ def run():
             st.success("Válaszod mentve. Köszönjük!")
         else:
             st.warning("Kérlek, írj be valamit előbb.")
+app = run
