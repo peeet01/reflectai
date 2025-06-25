@@ -60,3 +60,4 @@ def run():
 
     score = model.score(X_test, y_test)
     st.success(f"Modell pontosság (R²): {score:.3f}")
+app = run
