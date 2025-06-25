@@ -3,13 +3,12 @@ credentials:
     peeet01:
       email: "peeet01@example.com"
       name: "peeet01"
-      password: "pbkdf2:sha256:260000$Xz...tW"  # Titkosított 'Teszt123'
+      password: "$2b$12$p6GxAzvZC6e4cN9sZnwhzOdTm/FAaU0GxuM6V9e0wKOTdLF6IefgO"  # jelszó: Teszt123
 
 cookie:
-  name: "reflectai_cookie"
-  key: "random_signature_key"
-  expiry_days: 30
+  name: some_cookie_name
+  key: some_signature_key
+  expiry_days: 3
 
 preauthorized:
-  emails:
-    - "peeet01@example.com"
+  emails: []
