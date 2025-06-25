@@ -1,4 +1,11 @@
-import streamlit as st import yaml import streamlit_authenticator as stauth import os import pandas as pd import seaborn as sns import matplotlib.pyplot as plt import logging
+import streamlit as st 
+import yaml
+import streamlit_authenticator as stauth 
+import os 
+import pandas as pd 
+import seaborn as sns 
+import matplotlib.pyplot as plt 
+import logging
 
 from modules.hebbian_learning import run_hebbian_learning from modules.kohonen_som import run_kohonen_som from modules.reflection_module import run_reflection_module from modules.context_modeling import run_context_model
 
