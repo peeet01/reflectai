@@ -13,11 +13,11 @@ def compute_order_parameter(theta):
 
 def run():
     st.header("🌼 Kuramoto Pitypang Szinkronizáció")
-    st.markdown("Egy vizuálisan természetes, pitypang-stílusú megjelenítés szinkronizáló oszcillátorokkal.")
+    st.markdown("A kapcsolati erősség most színekkel van vizualizálva a szálak mentén.")
 
     N = st.slider("🌱 Oszcillátorok száma", 5, 80, 30)
-    K = st.slider("💫 Kapcsolódás erőssége", 0.0, 10.0, 3.0, 0.1)
-    steps = st.slider("⏱️ Iterációk", 100, 1500, 500, 100)
+    K = st.slider("💫 Kapcsolódási erősség", 0.0, 10.0, 3.0, 0.1)
+    steps = st.slider("⏱️ Iterációk száma", 100, 1500, 500, 100)
     dt = 0.05
 
     np.random.seed(42)
@@ -30,8 +30,7 @@ def run():
         theta = kuramoto_step(theta, K, A, omega, dt)
         order_params.append(compute_order_parameter(theta))
 
-    # Sugaras elrendezés: pitypang-hatás
-    G = nx.complete_graph(N)
+    # 🌼 Pitypang elrendezés - körsugár irány
     angles = np.linspace(0, 2 * np.pi, N, endpoint=False)
     radius = 1.5
     pos = {
@@ -42,38 +41,39 @@ def run():
         ] for i, angle in enumerate(angles)
     }
 
-    node_x, node_y, node_z = zip(*[pos[n] for n in G.nodes()])
-    edge_x, edge_y, edge_z = [], [], []
-
+    node_x, node_y, node_z = zip(*[pos[n] for n in range(N)])
     center = [0, 0, 0]
-    for i in range(N):
-        x1, y1, z1 = pos[i]
-        edge_x += [center[0], x1, None]
-        edge_y += [center[1], y1, None]
-        edge_z += [center[2], z1, None]
 
     fig = go.Figure()
 
-    # 🌾 Szálak a középpontból – sugarak
-    fig.add_trace(go.Scatter3d(
-        x=edge_x, y=edge_y, z=edge_z,
-        mode='lines',
-        line=dict(color='gray', width=1),
-        opacity=0.5,
-        name='Szálak'
-    ))
+    # 🎨 Színezett szálak a fáziskülönbség alapján
+    for i in range(N):
+        x1, y1, z1 = pos[i]
+        phase_diff = np.abs(np.sin(theta[i] - np.mean(theta)))
+        color_val = int(255 * phase_diff)
+        fig.add_trace(go.Scatter3d(
+            x=[center[0], x1, None],
+            y=[center[1], y1, None],
+            z=[center[2], z1, None],
+            mode='lines',
+            line=dict(
+                color=f'rgba({color_val}, 0, {255 - color_val}, 0.6)',
+                width=2
+            ),
+            showlegend=False
+        ))
 
-    # 🌼 „Pitypang szirmok” – kis kereszt vagy csillag forma
+    # 🌸 Pitypang-virág oszcillátor pontok
     fig.add_trace(go.Scatter3d(
         x=node_x, y=node_y, z=node_z,
         mode='markers',
         marker=dict(
-            size=4,
+            size=6,
             color='black',
             symbol='cross',
-            opacity=0.8
+            opacity=0.9
         ),
-        name='Sziromcsomópontok'
+        name='Oszcillátorok'
     ))
 
     fig.update_layout(
@@ -91,10 +91,10 @@ def run():
 
     st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader("🌡️ Szinkronizációs index (R)")
+    st.subheader("📈 Szinkronizációs index (R)")
     st.line_chart(order_params)
 
-    st.text_area("📝 Megjegyzés", placeholder="Figyeld meg a természetes formák szinkronizációját...")
+    st.text_area("📝 Megjegyzés", placeholder="Figyeld meg, hol van nagy fáziskülönbség a kapcsolatok színéből...")
 
 # Kötelező ReflectAI-hoz
 app = run
