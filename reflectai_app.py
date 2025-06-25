@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), 'modules'))
+
 # reflectai_app.py - ReflectAI: 22 modulos kutatóalkalmazás
 
 import streamlit as st
