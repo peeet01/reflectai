@@ -41,3 +41,4 @@ def run():
     ax.set_title("Hebbian szinaptikus súlyváltozás")
     ax.legend()
     st.pyplot(fig)
+app = run
