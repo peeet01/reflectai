@@ -9,7 +9,7 @@ from modules.modules_registry import MODULES
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
-# Autentikáció beállítása
+# Autentikáció
 authenticator = stauth.Authenticate(
     credentials=config['credentials'],
     cookie_name=config['cookie']['name'],
@@ -35,10 +35,8 @@ elif authentication_status:
     st.sidebar.title("📂 Modulválasztó")
     selected_module_name = st.sidebar.radio("Modul kiválasztása:", list(MODULES.keys()))
     
-    # Metaadat mező
     st.text_input("📝 Megfigyelés vagy jegyzet címe:", key="metadata_title")
 
-    # Modul betöltés és futtatás
     module_func = MODULES.get(selected_module_name)
     if module_func:
         module_func()
