@@ -1,4 +1,10 @@
-import streamlit as st import yaml from yaml.loader import SafeLoader import streamlit_authenticator as stauth from utils.metadata_loader import load_metadata from modules.modules_registry import MODULES
+import streamlit as st 
+import yaml 
+from yaml.loader 
+import SafeLoader 
+import streamlit_authenticator as stauth from utils.metadata_loader 
+import load_metadata from modules.modules_registry 
+import MODULES
 
 --- Konfiguráció betöltése ---
 
