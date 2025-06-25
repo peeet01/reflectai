@@ -1,4 +1,5 @@
-import streamlit as st import importlib import os
+import streamlit as st 
+import importlib import os
 
 --- Alkalmazás fejléc ---
 
