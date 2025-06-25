@@ -34,3 +34,4 @@ def run():
     if st.button("Térkép generálása"):
         landscape = generate_landscape(size, n_memories, noise_level)
         plot_landscape(landscape)
+app = run
