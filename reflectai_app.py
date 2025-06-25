@@ -1,6 +1,8 @@
 reflectai_app.py
 
-import streamlit as st import yaml import streamlit_authenticator as stauth from modules import *  # Feltételezve, hogy minden modul ide van rendezve from utils import *
+import streamlit as st
+import yaml 
+import streamlit_authenticator as stauth from modules import *  # Feltételezve, hogy minden modul ide van rendezve from utils import *
 
 -- Betöltjük a configot --
 
