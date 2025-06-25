@@ -50,3 +50,4 @@ def run():
         ax.set_xlabel("Időlépések")
         ax.set_ylabel("r")
         st.pyplot(fig)
+app = run
