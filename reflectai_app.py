@@ -9,15 +9,15 @@ from modules import *  # Feltételezve, hogy minden modul ide van rendezve from 
 
 with open('config.yaml') as file: config = yaml.safe_load(file)
 
--- Authentikáció beállítása --
+# Authentikáció beállítása 
 
 authenticator = stauth.Authenticate( config['credentials'], config['cookie']['name'], config['cookie']['key'], config['cookie']['expiry_days'], config['preauthorized'] )
 
--- Login mező --
+# Login mező 
 
 authentication_status = None name, authentication_status, username = authenticator.login( fields={"Form name": "Bejelentkezés"} )
 
--- Felhasználói állapot kezelése --
+# Felhasználói állapot kezelése 
 
 if authentication_status: authenticator.logout("Kijelentkezés", "sidebar") st.sidebar.success(f"Bejelentkezve: {username}")
 
