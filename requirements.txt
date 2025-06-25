@@ -1,13 +1,37 @@
+# Streamlit keretrendszer és autentikáció
+streamlit==1.35.0
 streamlit-authenticator==0.2.2
-bcrypt
-PyJAML
-numpy
-matplotlib
-scikit-learn
-seaborn
-networkx
-plotly
-torch
-pandas
-ripser
-persim
+PyYAML==6.0.1
+
+# Adatkezelés
+pandas==2.2.2
+numpy==1.26.4
+
+# Gépi tanulás, modellezés
+scikit-learn==1.4.2
+xgboost==2.0.3
+tensorflow==2.16.1
+torch==2.3.0
+joblib==1.4.2
+
+# Számítási és tudományos csomagok
+scipy==1.13.0
+sympy==1.12
+
+# Vizualizáció
+matplotlib==3.9.0
+seaborn==0.13.2
+plotly==5.22.0
+
+# Gráfok és hálózati analízis
+networkx==3.3
+
+# Topológiai adatfeldolgozás és fraktál elemzés
+ripser==0.6.1
+persim==0.3.1
+scikit-tda==1.0.0
+
+# Egyéb hasznos csomagok
+opencv-python==4.9.0.80
+tqdm==4.66.4
+requests==2.32.3
