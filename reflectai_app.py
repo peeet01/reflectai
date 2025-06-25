@@ -1,19 +1,34 @@
-import streamlit as st 
-import importlib import os
+import streamlit as st
+import yaml
+from yaml.loader import SafeLoader
+from utils.metadata_loader import load_metadata
+from modules.journal import journal_module
+from modules.reflection_template import reflection_template_module
 
---- Alkalmazás fejléc ---
+# Konfiguráció betöltése
+with open("config.yaml") as file:
+    config = yaml.load(file, Loader=SafeLoader)
 
-st.set_page_config(page_title="ReflectAI - Modul Választó", layout="wide") st.title("🧠 ReflectAI - Tudományos Modul Választó") st.markdown("Válassz egy modult a bal oldali menüből.")
+st.set_page_config(page_title="ReflectAI – Scientific Reflection", layout="wide")
+st.title("🧠 ReflectAI – Scientific Reflection")
 
---- Modulok listázása ---
+# Navigációs menü
+st.sidebar.title("Navigáció")
+page = st.sidebar.selectbox("Válassz modult:", ["Kutatási napló", "Reflexió sablon"])
 
-MODULE_PATH = "." module_files = [f for f in os.listdir(MODULE_PATH) if f.endswith(".py") and f not in ("reflectai_app.py", "init.py")]
+MODULES = {
+    "Kutatási napló": journal_module,
+    "Reflexió sablon": reflection_template_module,
+}
 
-Modul nevek szépen formázva
+# Metaadatok betöltése és megjelenítése
+metadata = load_metadata(page)
+st.sidebar.markdown("---")
+st.sidebar.markdown(f"**Verzió:** {metadata.get('version', 'N/A')}")
+st.sidebar.markdown(f"**Fejlesztő:** {metadata.get('author', 'Ismeretlen')}")
 
-module_names = {f: f.replace(".py", "").replace("_", " ").title() for f in module_files} selected_label = st.sidebar.selectbox("📂 Modul kiválasztása:", list(module_names.values())) selected_file = [k for k, v in module_names.items() if v == selected_label][0]
-
---- Modul betöltése dinamikusan ---
-
-module_name = selected_file.replace(".py", "") try: module = importlib.import_module(module_name) if hasattr(module, "main"): module.main() else: st.error(f"A(z) {module_name} modul nem tartalmaz main() függvényt.") except Exception as e: st.error(f"Hiba történt a modul betöltése során: {e}")
-
+# Modul futtatása
+if page in MODULES:
+    MODULES[page]()
+else:
+    st.error("❌ Modul nem található.")
