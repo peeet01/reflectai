@@ -66,3 +66,4 @@ def run():
         st.success("🎉 Az ügynök megtalálta a célt – belátás révén ugrással kerülte ki az akadályt.")
     else:
         st.warning("🤔 Az ügynök még nem talált megoldást.")
+app = run
