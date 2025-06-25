@@ -22,3 +22,4 @@ def run():
     fig, ax = plt.subplots()
     sns.heatmap(w, annot=True, cmap='coolwarm', ax=ax)
     st.pyplot(fig)
+app = run
