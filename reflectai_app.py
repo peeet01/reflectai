@@ -1,6 +1,7 @@
 # reflectai_app.py - foindito fajl (emoji- es unicode-mentes)
 
-import streamlit as st from datetime import datetime
+import streamlit as st 
+from datetime import datetime
 
 Modulok importálása
 
