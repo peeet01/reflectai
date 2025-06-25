@@ -1,4 +1,4 @@
-# reflectai_app.py - foindito fajl (emoji- es unicode-mentes)
+reflectai_app.py - foindito fajl (emoji- es unicode-mentes)
 
 import streamlit as st from datetime import datetime
 
@@ -8,7 +8,7 @@ from modules.kuramoto_sim import run as run_kuramoto from modules.hebbian_learni
 
 Streamlit beállítások
 
-st.set_page_config(page_title="Neurolab AI - Scientific Playground Sandbox", page_icon="🧠", layout="wide") st.title("Neurolab AI - Scientific Playground Sandbox") st.markdown("Valassz egy modult a bal oldali savbol a vizualizacio inditasahoz.") st.text_input("Megfigyeles vagy jegyzet (opcionalis):")
+st.set_page_config(page_title="Neurolab AI - Scientific Playground Sandbox", layout="wide") st.title("Neurolab AI - Scientific Playground Sandbox") st.markdown("Valassz egy modult a bal oldali savbol a vizualizacio inditasahoz.") st.text_input("Megfigyeles vagy jegyzet (opcionalis):")
 
 Modulvalaszto
 
