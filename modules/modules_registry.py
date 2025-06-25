@@ -1,7 +1,49 @@
-from modules.journal import journal_module
-from modules.reflection_template import reflection_template_module
+from modules import (
+    berry_curvature,
+    data_upload,
+    esn_prediction,
+    fractal_dimension,
+    generative_kuramoto,
+    graph_sync_analysis,
+    hebbian_learning,
+    hebbian_learning_viz,
+    insight_learning,
+    kuramoto_hebbian_sim,
+    kuramoto_sim,
+    lorenz_sim,
+    lyapunov_spectrum,
+    memory_landscape,
+    mlp_predict_lorenz,
+    noise_robustness,
+    persistent_homology,
+    plasticity_dynamics,
+    predict_lorenz,
+    questions,
+    reflection_modul,
+    xor_prediction
+)
 
 MODULES = {
-    "Kutatási napló": journal_module,
-    "Reflexió sablon": reflection_template_module,
+    "Berry Curvature": berry_curvature.main,
+    "Data Upload": data_upload.main,
+    "Esn Prediction": esn_prediction.main,
+    "Fractal Dimension": fractal_dimension.main,
+    "Generative Kuramoto": generative_kuramoto.main,
+    "Graph Sync Analysis": graph_sync_analysis.main,
+    "Hebbian Learning": hebbian_learning.main,
+    "Hebbian Learning Viz": hebbian_learning_viz.main,
+    "Insight Learning": insight_learning.main,
+    "Kuramoto Hebbian Sim": kuramoto_hebbian_sim.main,
+    "Kuramoto Sim": kuramoto_sim.main,
+    "Lorenz Sim": lorenz_sim.main,
+    "Lyapunov Spectrum": lyapunov_spectrum.main,
+    "Memory Landscape": memory_landscape.main,
+    "Mlp Predict Lorenz": mlp_predict_lorenz.main,
+    "Noise Robustness": noise_robustness.main,
+    "Persistent Homology": persistent_homology.main,
+    "Plasticity Dynamics": plasticity_dynamics.main,
+    "Predict Lorenz": predict_lorenz.main,
+    "Questions": questions.main,
+    "Reflection Modul": reflection_modul.main,
+    "Xor Prediction": xor_prediction.main
 }
