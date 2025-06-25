@@ -12,3 +12,4 @@ def get_random_question(questions):
     if not questions:
         return None
     return random.choice(questions)
+app = run
