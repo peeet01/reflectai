@@ -43,3 +43,4 @@ def run():
     ax.set_title("Szinkronizáció robusztussága zajjal szemben")
     ax.grid(True)
     st.pyplot(fig)
+app = run
