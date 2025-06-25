@@ -60,3 +60,4 @@ def run():
     nx.draw_circular(G, node_color=theta, cmap=plt.cm.hsv, with_labels=False, node_size=100, ax=ax2)
     ax2.set_title("Hálózat topológiája – Fázis színezéssel")
     st.pyplot(fig2)
+app = run
