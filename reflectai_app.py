@@ -5,22 +5,23 @@ import streamlit_authenticator as stauth
 from utils.metadata_loader import load_metadata
 from modules.modules_registry import MODULES
 
-# --- Konfiguráció betöltése ---
-with open("config.yaml") as file:
+# Konfiguráció betöltése
+with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
-# --- Autentikáció beállítása ---
+# Autentikátor (❗ kulcsszó nélkül!)
 authenticator = stauth.Authenticate(
-    credentials=config['credentials'],
-    cookie_name=config['cookie']['name'],
-    key=config['cookie']['key'],
-    cookie_expiry_days=config['cookie']['expiry_days'],
-    preauthorized=config.get('preauthorized', {})
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days'],
+    config.get('preauthorized', {})
 )
 
-# ✅ HELYES: label, location
+# Login helyesen (❗ a második paraméter CSAK: 'main', 'sidebar', vagy 'unrendered')
 name, authentication_status, username = authenticator.login("Bejelentkezés", "main")
 
+# Hitelesítés állapota
 if authentication_status is False:
     st.error("❌ Hibás felhasználónév vagy jelszó.")
 elif authentication_status is None:
@@ -32,14 +33,11 @@ elif authentication_status:
     st.title("🧠 ReflectAI – Scientific Reflection")
     st.markdown("Válassz egy modult a bal oldali menüből.")
 
-    # Modulválasztó
     st.sidebar.title("📂 Modulválasztó")
     selected_module_name = st.sidebar.radio("Modul kiválasztása:", list(MODULES.keys()))
 
-    # Metaadat mező
     st.text_input("📝 Megfigyelés vagy jegyzet címe:", key="metadata_title")
 
-    # Modul betöltés és futtatás
     module_func = MODULES.get(selected_module_name)
     if module_func:
         module_func()
