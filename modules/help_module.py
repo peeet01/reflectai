@@ -1,144 +1,99 @@
 import streamlit as st
 
 def run():
-    st.title("❓ Súgó – Neurolab AI Scientific Playground Sandbox")
-
+    st.title("❓ Súgó és Dokumentáció – Neurolab AI")
     st.markdown("""
-    ## 🔍 Mi ez az alkalmazás?
-    A **Neurolab AI** egy interaktív kutatási platform, amely lehetővé teszi különféle mesterséges intelligencia, hálózati dinamika és matematikai modellek vizsgálatát. A cél egy nyitott, vizualizáció-alapú, moduláris sandbox létrehozása kutatók, hallgatók és oktatók számára.
+    Üdvözlünk a **Neurolab AI Scientific Playground** alkalmazásban!  
+    Ez a sandbox környezet lehetőséget ad különféle idegtudományi, hálózati és tanulási modellek vizsgálatára.
+
+    ---
+    ## 🔢 Alapvető matematikai képletek
+
+    ### 🕸️ Kuramoto Modell
+    A Kuramoto-modell oszcillátorok szinkronizációját írja le:
+
+    """)
+    st.latex(r"""
+    \frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} A_{ij} \sin(\theta_j - \theta_i)
     """)
 
-    st.markdown("## 🧭 Modulismertető – Tudományos és történeti háttérrel")
-
-    st.markdown("### 🔁 XOR predikció neurális hálóval")
     st.markdown("""
-    **Cél:** A klasszikus XOR logikai függvény megtanítása mesterséges neurális hálóval.  
-    **Tudományos háttér:** Az XOR probléma a 80-as években kulcsszerepet játszott a mély tanulás fejlődésében. Egyetlen lineáris réteg nem tudja megoldani, így legalább egy rejtett rétegre van szükség.
+    **Jelölések**:  
+    - \\\theta_i \: az \i\-edik oszcillátor fázisa  
+    - \\\omega_i \: természetes frekvencia  
+    - \K\: kapcsolódási erősség  
+    - \A_{ij}\: kapcsolódási mátrix  
+    - \N\: oszcillátorok száma  
 
-    **Alkalmazott képlet:**  
-    $$
-    \\hat{y} = \\sigma\\left(W_2 \\cdot \\tanh(W_1 \\cdot x + b_1) + b_2\\right)
-    $$
-
-    **Paraméterek:**  
-    - Rejtett réteg mérete  
-    - Tanulási ráta  
-    - Epochok száma
-
-    **Alkalmazások:**  
-    - Nemlineáris problémák tanítása  
-    - Aktivációs függvények hatása  
-    - Gépi tanulás alapjai
+    A szinkronizációs mérték:  
+    """)
+    st.latex(r"""
+    R(t) = \left| \frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j(t)} \right|
     """)
 
-    st.markdown("### 🧭 Kuramoto szinkronizáció")
-    st.markdown("""
-    **Cél:** Oszcillátorok kollektív szinkronizációjának vizsgálata.  
-    **Tudományos háttér:** Yoshiki Kuramoto japán fizikus 1975-ben írta le a modellt.
+    ---
 
-    **Kuramoto-egyenlet:**  
-    $$
-    \\frac{d\\theta_i}{dt} = \\omega_i + \\frac{K}{N} \\sum_{j=1}^{N} \\sin(\\theta_j - \\theta_i)
-    $$
+    ### ❌ XOR predikció – neurális hálózat
+    A cél, hogy megtanítsuk egy hálózatnak az XOR logikai műveletet:
 
-    **Order parameter:**  
-    $$
-    r(t) = \\left|\\frac{1}{N} \\sum_{j=1}^N e^{i \\theta_j(t)} \\right|
-    $$
+    | x1 | x2 | XOR |
+    |----|----|-----|
+    | 0  | 0  |  0  |
+    | 0  | 1  |  1  |
+    | 1  | 0  |  1  |
+    | 1  | 1  |  0  |
 
-    **Paraméterek:**  
-    - Kapcsolási erősség  
-    - Oszcillátorok száma
-
-    **Alkalmazások:**  
-    - Idegi ritmusok  
-    - Biológiai oszcillációk  
-    - Szinkronizációs zavarok elemzése
+    Egy egyszerű MLP esetén:
+    """)
+    st.latex(r"""
+    \hat{y} = \sigma\left( W^{(2)} \cdot \sigma(W^{(1)} \cdot x + b^{(1)}) + b^{(2)} \right)
     """)
 
-    st.markdown("### 🧠 Hebbian tanulás")
     st.markdown("""
-    **Cél:** Biológiai ihletésű tanulási szabály vizsgálata.  
-    **Háttér:** Donald Hebb (1949) – „ami együtt tüzel, összekapcsolódik”.
+    Ahol \\\sigma(x) = \\frac{1}{1 + e^{-x}} \ a szigmoid aktiváció.  
+    A tanulás célja: minimalizálni az átlagos kvadratikus hibát:
 
-    **Hebb-szabály:**  
-    $$
-    \\Delta w_{ij} = \\eta \\, x_i \\, y_j
-    $$
-
-    **Paraméterek:**  
-    - Tanulási ráta  
-    - Neuronok száma
-
-    **Alkalmazások:**  
-    - Szinaptikus plaszticitás modellezése  
-    - Egyszerű memóriahálók
+    """)
+    st.latex(r"""
+    \mathcal{L} = \frac{1}{N} \sum_{i=1}^N (y_i - \hat{y}_i)^2
     """)
 
-    st.markdown("### ⚡ Kuramoto–Hebbian hálózat")
-    st.markdown("""
-    **Cél:** Szinkronizáció és tanulás egyesítése.  
-    **Elv:** Dinamikus gráf súlyainak változása Hebbian szabály szerint, Kuramoto fáziskülönbségek alapján.
+    ---
 
-    $$
-    \\Delta w_{ij}(t) \\propto \\cos(\\theta_i(t) - \\theta_j(t))
-    $$
+    ### 🌐 Berry-görbület
+    A topológiai védelem szimulációjához Berry-görbületet számítunk:
 
-    **Alkalmazások:**  
-    - Adaptív szinkronizáció  
-    - Bioinspirált hálózatok
+    """)
+    st.latex(r"""
+    \Omega(\mathbf{k}) = \nabla_{\mathbf{k}} \times \mathbf{A}(\mathbf{k})
     """)
 
-    st.markdown("#### 📘 Napi önreflexió")
     st.markdown("""
-    **Cél:** A napi tanulási és érzelmi állapotok tudatosítása, kognitív metareflexió fejlesztése.  
-    **Tudományos háttér:** Metakogníció, önszabályozott tanulás, pszichológiai naplózás.
-
-    **Koncepció:** A kérdések különböző kognitív és érzelmi szinteken aktiválják a tanulót.
-
-    **Adat:** A modul a `questions.json` fájlból dolgozik.
-
-    **Alkalmazások:**  
-    - Mentálhigiénés gyakorlatok  
-    - Oktatási önértékelések  
-    - AI-támogatott coaching modulok
+    Ahol az **Berry-kapcsolat**:  
+    """)
+    st.latex(r"""
+    \mathbf{A}(\mathbf{k}) = -i \langle u(\mathbf{k}) | \nabla_{\mathbf{k}} | u(\mathbf{k}) \rangle
     """)
 
-    st.markdown("#### 🧮 Perzisztens homológia")
-    st.markdown("""
-    **Cél:** Topológiai Data Analysis (TDA) eszközeként a rejtett adatstruktúrák vizsgálata.  
-    **Tudományos háttér:** Algebrai topológia, Vietoris–Rips komplexumok, Betti-számok.
+    Ezek a képletek kvantumtopológiai rendszerek vizsgálatához szükségesek.
 
-    **Módszer:** A szintetikus pontfelhők topológiai jellemzőinek analízise.
+    ---
 
-    **Alkalmazások:**  
-    - Orvosi képalkotás  
-    - Hálózatelemzés  
-    - Gépi tanulási előfeldolgozás
+    ## 🧪 Bizonyítási ötletek
+    - A Kuramoto-modell globális szinkronizációját **analitikus módon** a kapcsolati gráf és \K\ értéke alapján lehet igazolni (Strogatz-féle egyensúlyi stabilitás).
+    - Az XOR taníthatósága nem lineáris, tehát **legalább 1 rejtett réteg** szükséges (univerzális approximátor tétel alapján).
+    - A Berry-görbület invariánsai (Chern-szám) **topológiai kvantumállapotokat** különböztetnek meg – numerikus szimulációval is ellenőrizhető.
+
+    ---
+
+    ## ✍️ Javaslat
+    Használd a képleteket referencia vagy bemutató célra – vagy a `Reflection Modul` segítségével fűzd hozzá saját értelmezésedet és megfigyelésedet.
+
+    ---
+
+    Verzió: 2025.06  
+    Készítette: ReflectAI fejlesztői és a közösség
     """)
 
-    st.markdown("### 📊 Lyapunov spektrum")
-    st.markdown("""
-    **Cél:** Egy rendszer kaotikusságának számszerűsítése.
-
-    **Definíció:**  
-    $$
-    \\lambda = \\lim_{t \\to \\infty} \\frac{1}{t} \\ln \\frac{\\delta(t)}{\\delta(0)}
-    $$
-
-    **Alkalmazások:**  
-    - Káoszdetekció  
-    - Stabilitásvizsgálat
-    """)
-
-    st.markdown("---")
-    st.markdown("## 👥 Célcsoport")
-    st.markdown("""
-    - **Kutatók:** Gyors modelltesztelés, vizualizációk, elméleti kísérletek  
-    - **Oktatók:** Oktatási szemléltető eszköz, matematikai és gépi tanulási példák  
-    - **Hallgatók:** Interaktív tanulás, paraméterkísérletezés, önálló kutatási projektek  
-    - **Fejlesztők:** Moduláris és nyílt rendszer új ötletek prototipizálására
-    """)
-
-    st.caption("Frissítve: 2025-06-23 16:46")
+# ReflectAI integrációhoz kötelező
 app = run
