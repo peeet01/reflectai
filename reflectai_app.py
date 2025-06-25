@@ -18,10 +18,9 @@ authenticator = stauth.Authenticate(
     preauthorized=config.get('preauthorized', {})
 )
 
-# --- Bejelentkezés (KIZÁRÓLAG így működik helyesen) ---
-name, authentication_status, username = authenticator.login("main", "Bejelentkezés")
+# ✅ HELYES: label, location
+name, authentication_status, username = authenticator.login("Bejelentkezés", "main")
 
-# --- Hitelesítés állapot kezelése ---
 if authentication_status is False:
     st.error("❌ Hibás felhasználónév vagy jelszó.")
 elif authentication_status is None:
