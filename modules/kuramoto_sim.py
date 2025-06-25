@@ -1,126 +1,74 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import streamlit as st
+import numpy as np
+import networkx as nx
 import plotly.graph_objects as go
 
-
-def kuramoto_step(theta, omega, K, dt):
+def kuramoto_step(theta, K, A, omega, dt):
     N = len(theta)
-    theta_diff = np.subtract.outer(theta, theta)
-    coupling = np.sum(np.sin(theta_diff), axis=1)
-    return theta + dt * (omega + (K / N) * coupling)
-
+    dtheta = omega + (K / N) * np.sum(A * np.sin(theta[:, None] - theta), axis=1)
+    return theta + dt * dtheta
 
 def compute_order_parameter(theta):
-    return np.abs(np.sum(np.exp(1j * theta)) / len(theta))
+    return np.abs(np.mean(np.exp(1j * theta)))
 
+def run():
+    st.header("🕸️ Kuramoto Szinkronizációs Modell")
+    st.markdown("Vizualizációs szimuláció oszcillátorok szinkronizációjára.")
 
-def neuron_network_3d(theta, radius=5):
-    N = len(theta)
-    angles = np.linspace(0, 2 * np.pi, N, endpoint=False)
-    x = radius * np.cos(angles)
-    y = radius * np.sin(angles)
-    z = np.zeros(N)
-
-    phase_colors = [f"hsl({int(np.degrees(t) % 360)}, 100%, 50%)" for t in theta]
-    fig = go.Figure()
-
-    for i in range(N):
-        fig.add_trace(go.Scatter3d(
-            x=[x[i], x[i] + 0.4 * np.cos(theta[i])],
-            y=[y[i], y[i] + 0.4 * np.sin(theta[i])],
-            z=[z[i], z[i] + 0.5 * np.sin(theta[i])],
-            mode='lines+markers',
-            marker=dict(size=4, color=phase_colors[i]),
-            line=dict(color=phase_colors[i], width=2),
-            showlegend=False
-        ))
-
-    for i in range(N):
-        for j in range(i + 1, N):
-            fig.add_trace(go.Scatter3d(
-                x=[x[i], x[j]], y=[y[i], y[j]], z=[z[i], z[j]],
-                mode='lines',
-                line=dict(color='lightgray', width=0.5),
-                hoverinfo="skip",
-                showlegend=False
-            ))
-
-    fig.update_layout(
-        title="🧠 3D Neuronháló Kuramoto-fázisokkal",
-        scene=dict(
-            xaxis=dict(title='X'),
-            yaxis=dict(title='Y'),
-            zaxis=dict(title='Z')
-        ),
-        height=600,
-        margin=dict(l=0, r=0, t=30, b=0)
-    )
-    return fig
-
-
-def run(K=2.0, N=10):
-    st.subheader("🧭 Kuramoto szinkronizáció szimuláció")
-
-    # Paraméterek
-    T = 200
+    N = st.slider("Oszcillátorok száma", 5, 50, 20)
+    K = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0, 0.1)
+    steps = st.slider("Iterációk száma", 100, 1000, 300, 50)
     dt = 0.05
 
-    omega = np.random.normal(0, 1, N)
+    np.random.seed(42)
     theta = np.random.uniform(0, 2 * np.pi, N)
-    initial_theta = theta.copy()
+    omega = np.random.normal(0, 1, N)
+    A = np.ones((N, N)) - np.eye(N)  # Teljes gráf
 
-    r_values = []
-    theta_std = []
+    order_params = []
 
-    progress = st.progress(0)
-    progress_text = st.empty()
+    for _ in range(steps):
+        theta = kuramoto_step(theta, K, A, omega, dt)
+        order_params.append(compute_order_parameter(theta))
 
-    for t in range(T):
-        theta = kuramoto_step(theta, omega, K, dt)
-        r_values.append(compute_order_parameter(theta))
-        theta_std.append(np.std(theta))
+    # Hálózat vizualizálása
+    G = nx.complete_graph(N)
+    pos = nx.spring_layout(G, seed=42, dim=3)
 
-        # 🟣 Progress bar frissítése
-        if t % max(1, T // 100) == 0 or t == T - 1:
-            progress.progress((t + 1) / T)
-            progress_text.text(f"⏳ Szimuláció folyamatban... {int((t+1)/T*100)}%")
+    node_x, node_y, node_z = zip(*[pos[n] for n in G.nodes()])
+    edge_x, edge_y, edge_z = [], [], []
 
-    # 📊 Matplotlib ábrák
-    fig1, ax1 = plt.subplots(subplot_kw=dict(polar=True))
-    ax1.set_title("🔵 Kezdeti fáziseloszlás")
-    ax1.scatter(initial_theta, np.ones(N), c='blue', alpha=0.75)
+    for u, v in G.edges():
+        x0, y0, z0 = pos[u]
+        x1, y1, z1 = pos[v]
+        edge_x += [x0, x1, None]
+        edge_y += [y0, y1, None]
+        edge_z += [z0, z1, None]
 
-    fig2, ax2 = plt.subplots(subplot_kw=dict(polar=True))
-    ax2.set_title("🔴 Végső fáziseloszlás")
-    ax2.scatter(theta, np.ones(N), c='red', alpha=0.75)
+    fig = go.Figure()
 
-    fig3, ax3 = plt.subplots()
-    ax3.plot(r_values, label="Szinkronizációs index r(t)", color='purple')
-    ax3.set_xlabel("Időlépések")
-    ax3.set_ylabel("r érték")
-    ax3.set_title("📈 Szinkronizációs index időfüggése")
-    ax3.grid(True)
-    ax3.legend()
+    fig.add_trace(go.Scatter3d(
+        x=edge_x, y=edge_y, z=edge_z,
+        mode='lines', line=dict(color='gray', width=1),
+        name='Kötések'
+    ))
 
-    fig4, ax4 = plt.subplots()
-    ax4.plot(theta_std, label="Fázis szórása", color='green')
-    ax4.set_xlabel("Időlépések")
-    ax4.set_ylabel("Szórás")
-    ax4.set_title("📉 Fáziseloszlás szórása időben")
-    ax4.grid(True)
-    ax4.legend()
+    fig.add_trace(go.Scatter3d(
+        x=node_x, y=node_y, z=node_z,
+        mode='markers',
+        marker=dict(size=6, color=theta, colorscale='hsv', colorbar=dict(title='Fázis')),
+        name='Oszcillátorok'
+    ))
 
-    st.pyplot(fig1)
-    st.pyplot(fig2)
-    st.pyplot(fig3)
-    st.pyplot(fig4)
+    fig.update_layout(
+        margin=dict(l=0, r=0, b=0, t=0),
+        scene=dict(xaxis=dict(title=''), yaxis=dict(title=''), zaxis=dict(title=''))
+    )
 
-    st.markdown(f"**🔎 Végső szinkronizációs index:** `{r_values[-1]:.3f}`")
-    st.markdown(f"**📊 Végső szórás:** `{theta_std[-1]:.3f}`")
+    st.plotly_chart(fig, use_container_width=True)
 
-    # 🧠 3D neuronháló megjelenítés
-    st.markdown("### 🌐 Térbeli neuronháló (fázisszinkronizáció színekkel)")
-    fig3d = neuron_network_3d(theta)
-    st.plotly_chart(fig3d, use_container_width=True)
-app = run
+    st.subheader("📈 Szinkronizációs index (R)")
+    st.line_chart(order_params)
+
+# Kötelező ReflectAI-hoz
+app
