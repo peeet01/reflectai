@@ -1,6 +1,6 @@
 streamlit-authenticator==0.2.2
 bcrypt
-PyJaml
+PyJAML
 numpy
 matplotlib
 scikit-learn
