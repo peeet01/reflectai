@@ -1,4 +1,4 @@
-📁 reflectai_app.py – főindító fájl
+reflectai_app.py – főindító fájl
 
 import streamlit as st from datetime import datetime
 
