@@ -1,34 +1,17 @@
 import streamlit as st
-import yaml
-from yaml.loader import SafeLoader
-from utils.metadata_loader import load_metadata
-from modules.journal import journal_module
-from modules.reflection_template import reflection_template_module
+from modules.modules_registry import MODULES
 
-# Konfiguráció betöltése
-with open("config.yaml") as file:
-    config = yaml.load(file, Loader=SafeLoader)
+# Oldal beállítás
+st.set_page_config(page_title="Neurolab AI – Scientific Reflection", layout="wide")
+st.title("🧠 Neurolab AI – Scientific Reflection")
+st.markdown("Válassz egy modult a bal oldali menüből.")
 
-st.set_page_config(page_title="ReflectAI – Scientific Reflection", layout="wide")
-st.title("🧠 ReflectAI – Scientific Reflection")
+# Oldalsáv – Modulválasztó
+st.sidebar.title("📂 Modulválasztó")
+module_key = st.sidebar.selectbox("Válaszd ki a betölteni kívánt modult:", list(MODULES.keys()))
 
-# Navigációs menü
-st.sidebar.title("Navigáció")
-page = st.sidebar.selectbox("Válassz modult:", ["Kutatási napló", "Reflexió sablon"])
-
-MODULES = {
-    "Kutatási napló": journal_module,
-    "Reflexió sablon": reflection_template_module,
-}
-
-# Metaadatok betöltése és megjelenítése
-metadata = load_metadata(page)
-st.sidebar.markdown("---")
-st.sidebar.markdown(f"**Verzió:** {metadata.get('version', 'N/A')}")
-st.sidebar.markdown(f"**Fejlesztő:** {metadata.get('author', 'Ismeretlen')}")
-
-# Modul futtatása
-if page in MODULES:
-    MODULES[page]()
+# Modul betöltése
+if module_key in MODULES:
+    MODULES[module_key]()
 else:
-    st.error("❌ Modul nem található.")
+    st.error("❌ A kiválasztott modul nem található.")
