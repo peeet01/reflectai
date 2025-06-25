@@ -53,3 +53,4 @@ def run():
 
         st.subheader("📈 Szinkronizációs dinamika")
         plot_sync(t, sync)
+app = run
