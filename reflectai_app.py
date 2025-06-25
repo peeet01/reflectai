@@ -4,7 +4,7 @@ from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
 from modules.journal import journal_module
 from modules.reflection_template import reflection_template_module
-from modules.metadata import load_metadata
+from utils.metadata_loader import load_metadata
 
 # 🔐 Hitelesítési konfiguráció betöltése
 with open("config.yaml") as file:
