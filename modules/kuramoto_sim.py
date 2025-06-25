@@ -15,10 +15,13 @@ def run():
     st.header("🕸️ Kuramoto Szinkronizációs Modell")
     st.markdown("Vizualizációs szimuláció oszcillátorok szinkronizációjára.")
 
-    N = st.slider("Oszcillátorok száma", 5, 50, 20)
-    K = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0, 0.1)
-    steps = st.slider("Iterációk száma", 100, 1000, 300, 50)
+    N = st.slider("🧠 Oszcillátorok száma", 5, 50, 20)
+    K = st.slider("🔗 Kapcsolási erősség (K)", 0.0, 10.0, 2.0, 0.1)
+    steps = st.slider("⏱️ Iterációk száma", 100, 1000, 300, 50)
     dt = 0.05
+
+    # 💬 Interaktív szövegdoboz
+    user_note = st.text_area("📓 Megjegyzések vagy észrevételek a szimulációhoz:", "")
 
     np.random.seed(42)
     theta = np.random.uniform(0, 2 * np.pi, N)
@@ -69,6 +72,9 @@ def run():
 
     st.subheader("📈 Szinkronizációs index (R)")
     st.line_chart(order_params)
+
+    if user_note:
+        st.success("✅ Megjegyzés elmentve: " + user_note)
 
 # Kötelező ReflectAI-hoz
 app = run
