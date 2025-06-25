@@ -30,6 +30,11 @@ def run():
     """)
 
     st.markdown("""
+    **Tudományos háttér**:  
+    A Kuramoto-modell klasszikus példa a kollektív viselkedés vizsgálatára komplex rendszerekben.  
+    Olyan kérdésekre ad választ, mint hogy mikor válik egy rendszer rendezetlenné vagy szinkronizálttá.  
+    Alkalmazása kiterjed az agyhullámokra, hálózati áramkörökre, biológiai ritmusokra és szociodinamikai modellekre.
+
     ---
     ### ❌ XOR Predikció – Neurális Hálózat
     A cél, hogy megtanítsuk egy hálózatnak az XOR logikai műveletet:
@@ -55,6 +60,11 @@ def run():
     """)
 
     st.markdown("""
+    **Tudományos háttér**:  
+    Az XOR probléma egy klasszikus példa a nemlineárisan szeparálható problémákra.  
+    A perceptronok egy rétegben nem képesek ezt megtanulni, ezért több rétegre van szükség – innen ered a mélytanulás gondolata.  
+    A modul demonstrálja a rejtett rétegek szerepét és a nemlinearitás fontosságát.
+
     ---
     ### 🌐 Berry-görbület
     A topológiai védelem szimulációjához Berry-görbületet számítunk:
@@ -68,6 +78,12 @@ def run():
     """)
 
     st.markdown("""
+    **Tudományos háttér**:  
+    A Berry-görbület a kvantummechanika topológiai aspektusait tárja fel.  
+    Szerepe kulcsfontosságú a topológiai szigetelők és kvantum Hall-effektus megértésében.  
+    A számított Chern-szám invariáns mennyiségként viselkedik, amely kvantált fizikai válaszokat eredményez.  
+    E modul célja ezek numerikus szimulációja és szemléltetése.
+
     ---
     ## 🧪 Bizonyítási ötletek
     - A Kuramoto-modell globális szinkronizációja analitikusan igazolható a gráf és \K \ értéke alapján.
