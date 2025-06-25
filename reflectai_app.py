@@ -1,60 +1,134 @@
-import streamlit as st 
-import yaml
-import streamlit_authenticator as stauth 
-import os 
-import pandas as pd 
-import seaborn as sns 
-import matplotlib.pyplot as plt 
-import logging
+# reflectai_app.py
+import streamlit as st
+from datetime import datetime
 
-from modules.hebbian_learning import run_hebbian_learning 
-from modules.kohonen_som import run_kohonen_som 
-from modules.reflection_module import run_reflection_module 
-from modules.context_modeling import run_context_model
+# Modulimportok (22)
+from modules.kuramoto_sim import run as run_kuramoto
+from modules.hebbian_learning import run as run_hebbian
+from modules.xor_prediction import run as run_xor
+from modules.kuramoto_hebbian_sim import run as run_kuramoto_hebbian
+from modules.topo_protect import run as run_topo_protect
+from modules.lorenz_sim import run as run_lorenz_sim
+from modules.predict_lorenz import run as run_lorenz_pred
+from modules.berry_curvature import run as run_berry
+from modules.noise_robustness import run as run_noise
+from modules.esn_prediction import run as run_esn
+from modules.plasticity_dynamics import run as run_plasticity
+from modules.fractal_dimension import run as run_fractal
+from modules.memory_landscape import run as run_memory_landscape
+from modules.graph_sync_analysis import run as run_graph_sync_analysis
+from modules.persistent_homology import run as run_homology
+from modules.help_module import run as run_help
+from modules.data_upload import run as run_data_upload
+from modules.lyapunov_spectrum import run as run_lyapunov_spectrum
+from modules.insight_learning import run as run_insight_learning
+from modules.generative_kuramoto import run as run_generative_kuramoto
+from modules.reflection_modul import run as run_reflection
 
-Naplózás beállítása
+# UI konfiguráció
+st.set_page_config(page_title="Neurolab AI – Scientific Playground Sandbox", page_icon="🧠", layout="wide")
+st.title("Neurolab AI – Scientific Playground Sandbox")
+st.markdown("Válassz egy modult a bal oldali sávból a vizualizáció indításához.")
+st.text_input("Megfigyelés vagy jegyzet (opcionális):")
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s') logger = logging.getLogger(name)
+# Sidebar – modulválasztó
+st.sidebar.title("Modulválasztó")
+module_name = st.sidebar.radio("Kérlek válassz:", (
+    "Kuramoto szinkronizáció",
+    "Hebbian tanulás",
+    "XOR predikció",
+    "Kuramoto–Hebbian háló",
+    "Topológiai szinkronizáció",
+    "Lorenz szimuláció",
+    "Lorenz predikció",
+    "Topológiai védettség (Chern-szám)",
+    "Topológiai Chern–szám analízis",
+    "Zajtűrés és szinkronizációs robusztusság",
+    "Echo State Network (ESN) predikció",
+    "Hebbian plaszticitás dinamikája",
+    "Szinkronfraktál dimenzióanalízis",
+    "Belátás alapú tanulás (Insight Learning)",
+    "Generatív Kuramoto hálózat",
+    "Memória tájkép (Pro)",
+    "Gráfalapú szinkronanalízis",
+    "Perzisztens homológia",
+    "Lyapunov spektrum",
+    "Adatfeltöltés modul",
+    "Napi önreflexió",
+    "Súgó / Help"
+))
 
-Hitelesítési konfiguráció betöltése
+# Modulhívások
+if module_name == "Kuramoto szinkronizáció":
+    coupling = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
+    num_osc = st.number_input("Oszcillátorok száma", min_value=2, max_value=100, value=10)
+    run_kuramoto(coupling, num_osc)
 
-with open("config.yaml") as file: config = yaml.safe_load(file)
+elif module_name == "Hebbian tanulás":
+    learning_rate = st.slider("Tanulási ráta", 0.001, 1.0, 0.1)
+    num_neurons = st.number_input("Neuronok száma", min_value=2, max_value=100, value=10)
+    run_hebbian(learning_rate, num_neurons)
 
-authenticator = stauth.Authenticate( config['credentials'], config['cookie']['name'], config['cookie']['key'], config['cookie']['expiry_days'] )
+elif module_name == "XOR predikció":
+    hidden_size = st.slider("Rejtett réteg mérete", 1, 10, 2)
+    learning_rate = st.slider("Tanulási ráta", 0.001, 1.0, 0.1)
+    epochs = st.number_input("Epochok száma", 100, 10000, 1000, step=100)
+    note = st.text_input("Megjegyzés (opcionális)")
+    run_xor(hidden_size, learning_rate, epochs, note)
 
-Beléptetés
+elif module_name == "Kuramoto–Hebbian háló":
+    run_kuramoto_hebbian()
 
-name, authentication_status, username = authenticator.login("Bejelentkezés", "main")
+elif module_name == "Topológiai szinkronizáció":
+    run_topo_protect()
 
-if authentication_status is False: st.error("❌ Hibás felhasználónév vagy jelszó.") elif authentication_status is None: st.warning("⚠️ Kérlek add meg a bejelentkezési adatokat.") elif authentication_status: authenticator.logout("Kijelentkezés", "sidebar") st.sidebar.title(f"🚀 Üdv, {name}!")
+elif module_name == "Lorenz szimuláció":
+    run_lorenz_sim()
 
-st.title("ReflectAI - Moduláris tanulási rendszer")
+elif module_name == "Lorenz predikció":
+    run_lorenz_pred()
 
-# Modul választás
-modul_valasztas = st.sidebar.selectbox(
-    "Válassz modult:",
-    (
-        "Hebbian tanulás",
-        "Kohonen SOM",
-        "Reflexiós modul",
-        "Kontextus modell"
-    )
-)
+elif module_name in ["Topológiai védettség (Chern-szám)", "Topológiai Chern–szám analízis"]:
+    run_berry()
 
-try:
-    if modul_valasztas == "Hebbian tanulás":
-        run_hebbian_learning()
-    elif modul_valasztas == "Kohonen SOM":
-        run_kohonen_som()
-    elif modul_valasztas == "Reflexiós modul":
-        run_reflection_module()
-    elif modul_valasztas == "Kontextus modell":
-        run_context_model()
-    else:
-        st.warning("⚠️ Válassz modult a bal oldali menüben.")
-except Exception as e:
-    st.error(f"Hiba történt a modul futtatása közben: {e}")
-    logger.exception("Modulhiba")
+elif module_name == "Zajtűrés és szinkronizációs robusztusság":
+    run_noise()
 
-else: st.warning("Bejelentkezés szükséges a folytatáshoz.")
+elif module_name == "Echo State Network (ESN) predikció":
+    run_esn()
 
+elif module_name == "Hebbian plaszticitás dinamikája":
+    run_plasticity()
+
+elif module_name == "Szinkronfraktál dimenzióanalízis":
+    run_fractal()
+
+elif module_name == "Belátás alapú tanulás (Insight Learning)":
+    trials = st.slider("Próbálkozások száma", 1, 20, 5)
+    pause_time = st.slider("Megállás időtartama (mp)", 0.0, 5.0, 1.0)
+    complexity = st.selectbox("Feladat komplexitása", ["alacsony", "közepes", "magas"])
+    run_insight_learning(trials, pause_time, complexity)
+
+elif module_name == "Generatív Kuramoto hálózat":
+    run_generative_kuramoto()
+
+elif module_name == "Memória tájkép (Pro)":
+    run_memory_landscape()
+
+elif module_name == "Gráfalapú szinkronanalízis":
+    run_graph_sync_analysis()
+
+elif module_name == "Perzisztens homológia":
+    run_homology()
+
+elif module_name == "Lyapunov spektrum":
+    run_lyapunov_spectrum()
+
+elif module_name == "Adatfeltöltés modul":
+    run_data_upload()
+
+elif module_name == "Napi önreflexió":
+    run_reflection()
+
+elif module_name == "Súgó / Help":
+    run_help()
