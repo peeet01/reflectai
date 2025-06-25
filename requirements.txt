@@ -9,4 +9,3 @@ torch
 pandas
 ripser
 persim
-streamlit-authenticator
