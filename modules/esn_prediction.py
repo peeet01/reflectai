@@ -1,59 +1,72 @@
 import streamlit as st
 import numpy as np
-from sklearn.linear_model import Ridge
 import matplotlib.pyplot as plt
 
-def generate_lorenz_data(n_points=2000, dt=0.01, sigma=10.0, beta=8/3, rho=28.0):
-    def lorenz_step(x, y, z):
-        dx = sigma * (y - x)
-        dy = x * (rho - z) - y
-        dz = x * y - beta * z
-        return dx, dy, dz
+def generate_esn_input(data, delay):
+    X = []
+    y = []
+    for i in range(len(data) - delay):
+        X.append(data[i:i+delay])
+        y.append(data[i+delay])
+    return np.array(X), np.array(y)
 
-    x, y, z = 1.0, 1.0, 1.0
-    data = []
-    for _ in range(n_points):
-        dx, dy, dz = lorenz_step(x, y, z)
-        x += dx * dt
-        y += dy * dt
-        z += dz * dt
-        data.append([x, y, z])
-    return np.array(data)
+def esn_predict(X, y, reservoir_size=100, spectral_radius=0.95):
+    input_size = X.shape[1]
+    Win = np.random.rand(reservoir_size, input_size) - 0.5
+    W = np.random.rand(reservoir_size, reservoir_size) - 0.5
+    # Spectral radius scaling
+    rho = max(abs(np.linalg.eigvals(W)))
+    W *= spectral_radius / rho
 
-def run():
-    st.title("ESN Lorenz-pálya predikció")
-
-    n_points = st.slider("Adatpontok száma", 1000, 5000, 2000, step=100)
-    washout = st.slider("Washout szakasz hossza", 50, 500, 100, step=10)
-    res_size = st.slider("Reservoir méret", 50, 500, 200, step=10)
-    spectral_radius = st.slider("Spektrálsugár", 0.1, 2.0, 0.9, step=0.1)
-
-    data = generate_lorenz_data(n_points)
-    input_data = data[:-1]
-    target_data = data[1:]
-
-    np.random.seed(42)
-    Win = (np.random.rand(res_size, 3) - 0.5) * 1.0
-    W = np.random.rand(res_size, res_size) - 0.5
-    radius = np.max(np.abs(np.linalg.eigvals(W)))
-    W *= spectral_radius / radius
-
-    states = np.zeros((n_points - 1, res_size))
-    x = np.zeros(res_size)
-
-    for t in range(n_points - 1):
-        u = input_data[t]
+    states = np.zeros((X.shape[0], reservoir_size))
+    x = np.zeros(reservoir_size)
+    for t in range(X.shape[0]):
+        u = X[t]
         x = np.tanh(np.dot(Win, u) + np.dot(W, x))
         states[t] = x
 
-    model = Ridge(alpha=1e-6)
-    model.fit(states[washout:], target_data[washout:])
+    Wout = np.dot(np.linalg.pinv(states), y)
+    y_pred = np.dot(states, Wout)
+    return y_pred
 
-    predictions = model.predict(states)
+def run():
+    st.title("🔁 Echo State Network (ESN) időbeli predikció")
+    st.markdown("Az ESN egy visszacsatolt hálózat, amelyet gyakran használnak időfüggő adatok előrejelzésére.")
 
+    st.sidebar.header("Paraméterek")
+    series_length = st.sidebar.slider("Idősor hossza", 100, 1000, 300, step=50)
+    delay = st.sidebar.slider("Késleltetés (delay)", 2, 50, 10)
+    reservoir_size = st.sidebar.slider("Reservoir mérete", 10, 500, 100, step=10)
+    spectral_radius = st.sidebar.slider("Spektrális sugár", 0.1, 1.5, 0.95, step=0.05)
+
+    freq = st.sidebar.slider("Szinusz frekvencia", 0.5, 5.0, 1.0, step=0.1)
+    noise_level = st.sidebar.slider("Zajszint", 0.0, 0.5, 0.05, step=0.01)
+
+    # Idősor generálás (szinusz + zaj)
+    t = np.linspace(0, 10, series_length)
+    data = np.sin(2 * np.pi * freq * t) + np.random.normal(0, noise_level, series_length)
+
+    # Bemenet és cél adatok generálása
+    X, y = generate_esn_input(data, delay)
+
+    # Predikció
+    y_pred = esn_predict(X, y, reservoir_size, spectral_radius)
+
+    # Eredmények kirajzolása
+    st.subheader("📈 Predikciós eredmények")
     fig, ax = plt.subplots()
-    ax.plot(target_data[:, 0], label="Valódi", linewidth=1.5)
-    ax.plot(predictions[:, 0], label="ESN predikció", linestyle="--")
-    ax.set_title("X komponens predikciója")
+    ax.plot(y, label="Valós")
+    ax.plot(y_pred, label="ESN predikció", linestyle='--')
+    ax.set_xlabel("Időlépések")
+    ax.set_ylabel("Érték")
     ax.legend()
     st.pyplot(fig)
+
+    # Jegyzet hozzáadás
+    user_note = st.text_area("📝 Írd le a megfigyeléseid", height=150)
+    if user_note:
+        st.markdown("### 💬 Megjegyzésed:")
+        st.write(user_note)
+
+# 🔧 Dinamikus modulbetöltéshez szükséges
+app = run
