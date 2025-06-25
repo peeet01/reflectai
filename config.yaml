@@ -2,15 +2,15 @@ credentials:
   usernames:
     peeet01:
       email: peeet01@gmail.com
-      name: peeet01
+      name: Péter
       password: '$2b$12$KIXiOJnFMRHxVWZNUXy8guB2aA4RbDcGm9ik9x8XVkGBiRzjG9NNe'
     admin:
       email: admin@reflectai.hu
-      name: Admin Felhasználó
+      name: Admin
       password: '$2b$12$7ZPaF1YXUkOWbClyxyRU4ub16H8HZs1NCEfw8dyUO9z5HTGv01oQO'
     kutato1:
       email: kutato1@reflectai.hu
-      name: Kutató Felhasználó
+      name: Kutató
       password: '$2b$12$xNmCfzEYm4.qgrWqDdByEux3WkOiHV/dk9xAWhuRYvlQW8A.9gPZa'
 
 cookie:
