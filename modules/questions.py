@@ -1,15 +1,8 @@
-import json
-import os
-import random
+import streamlit as st
 
-def load_questions(filepath="data/questions.json"):
-    if not os.path.exists(filepath):
-        return []
-    with open(filepath, "r", encoding="utf-8") as f:
-        return json.load(f)
+def run():
+    st.header("❓ Kérdések modul")
+    st.markdown("Ez egy teszt kérdésmodul. Ide jönnek majd az interaktív kérdések.")
 
-def get_random_question(questions):
-    if not questions:
-        return None
-    return random.choice(questions)
-
+# FONTOS! Ez kell ahhoz, hogy a modul dinamikusan működjön:
+app = run
