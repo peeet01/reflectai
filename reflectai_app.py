@@ -4,9 +4,9 @@ from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
 from modules.journal import journal_module
 from modules.reflection_template import reflection_template_module
-from utils.metadata_loader import load_metadata
+from utils.metadata_loader import load_metadata  # <-- ez a helyes útvonal!
 
-# 🔐 Hitelesítési konfiguráció betöltése
+# 🔐 Konfiguráció betöltése
 with open("config.yaml") as file:
     config = yaml.load(file, Loader=SafeLoader)
 
@@ -18,8 +18,8 @@ authenticator = stauth.Authenticate(
 )
 
 # 🔐 Bejelentkezés
-name, authentication_status, username = authenticator.login("Login", "main")
-if authentication_status is False:r.login(form_name="Login", location="main")
+name, authentication_status, username = authenticator.login("Login", "main")  # << FONTOS: form_name helyett pozíciós!
+
 if authentication_status is False:
     st.error("Hibás felhasználónév vagy jelszó.")
 elif authentication_status is None:
@@ -39,9 +39,9 @@ elif authentication_status:
 
     # Modul betöltése
     if page in MODULES:
-        MODULES[page]()  # modul függvény meghívása
+        MODULES[page]()
 
-    # Metaadatok (opcionális megjelenítés)
+    # Metaadatok
     metadata = load_metadata(page)
     st.sidebar.markdown("---")
     st.sidebar.markdown(f"**Verzió:** {metadata['version']}")
