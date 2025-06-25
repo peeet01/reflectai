@@ -67,3 +67,4 @@ def run():
     st.subheader("📊 Predikciók")
     st.write("Predikált értékek az XOR bemenetre:")
     st.dataframe(predictions.round(3))
+app = run
