@@ -34,3 +34,4 @@ def run():
     st.pyplot(fig2)
 
     st.info("A H0 komponensek a kapcsolódó klasztereket, a H1 komponensek a ciklusokat reprezentálják.")
+app = run
