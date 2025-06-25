@@ -37,3 +37,4 @@ def run():
     ax.set_xlabel("kx")
     ax.set_ylabel("ky")
     st.pyplot(fig)
+    app = run
