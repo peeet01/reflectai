@@ -11,3 +11,4 @@ sympy
 scipy
 scikit-tda
 gudhi
+seaborn
