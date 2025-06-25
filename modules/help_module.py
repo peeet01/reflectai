@@ -17,19 +17,21 @@ def run():
     """)
     st.markdown("""
     **Jelölések**:  
-    - $\\theta_i$: az *i*-edik oszcillátor fázisa  
-    - $\\omega_i$: természetes frekvencia  
-    - $K$: kapcsolódási erősség  
-    - $A_{ij}$: kapcsolódási mátrix  
-    - $N$: oszcillátorok száma  
+    - \\\theta_i \: az *i*-edik oszcillátor fázisa  
+    - \\\omega_i \: természetes frekvencia  
+    - \K \: kapcsolódási erősség  
+    - \A_{ij} \: kapcsolódási mátrix  
+    - \N \: oszcillátorok száma
+
+    A szinkronizációs mérték:
     """)
-    st.markdown("A szinkronizációs mérték:")
     st.latex(r"""
     R(t) = \left| \frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j(t)} \right|
     """)
 
-    st.markdown("---\n### ❌ XOR predikció – neurális hálózat")
     st.markdown("""
+    ---
+    ### ❌ XOR Predikció – Neurális Hálózat
     A cél, hogy megtanítsuk egy hálózatnak az XOR logikai műveletet:
 
     | x₁ | x₂ | XOR |
@@ -45,15 +47,18 @@ def run():
     \hat{y} = \sigma\left( W^{(2)} \cdot \sigma(W^{(1)} \cdot x + b^{(1)}) + b^{(2)} \right)
     """)
     st.markdown("""
-    Ahol $\\sigma(x) = \\frac{1}{1 + e^{-x}}$ a szigmoid aktiváció.  
+    Ahol \\\sigma(x) = \\frac{1}{1 + e^{-x}} \ a szigmoid aktiváció.  
     A tanulás célja: minimalizálni az átlagos kvadratikus hibát:
     """)
     st.latex(r"""
     \mathcal{L} = \frac{1}{N} \sum_{i=1}^N (y_i - \hat{y}_i)^2
     """)
 
-    st.markdown("---\n### 🌐 Berry-görbület")
-    st.markdown("A topológiai védelem szimulációjához Berry-görbületet számítunk:")
+    st.markdown("""
+    ---
+    ### 🌐 Berry-görbület
+    A topológiai védelem szimulációjához Berry-görbületet számítunk:
+    """)
     st.latex(r"""
     \Omega(\mathbf{k}) = \nabla_{\mathbf{k}} \times \mathbf{A}(\mathbf{k})
     """)
@@ -62,21 +67,21 @@ def run():
     \mathbf{A}(\mathbf{k}) = -i \langle u(\mathbf{k}) | \nabla_{\mathbf{k}} | u(\mathbf{k}) \rangle
     """)
 
-    st.markdown("---\n## 🧪 Bizonyítási ötletek")
     st.markdown("""
-    - A Kuramoto-modell globális szinkronizációja analitikus módon is igazolható a kapcsolati gráf és $K$ értéke alapján (*Strogatz-féle stabilitási feltétel*).
-    - Az XOR taníthatósága nem lineáris, tehát **legalább egy rejtett réteg** szükséges az univerzális approximátor tétel alapján.
-    - A Berry-görbület invariánsai (Chern-szám) **topológiai kvantumállapotokat** különböztetnek meg – numerikus szimulációval is kimutathatók.
+    ---
+    ## 🧪 Bizonyítási ötletek
+    - A Kuramoto-modell globális szinkronizációja analitikusan igazolható a gráf és \K \ értéke alapján.
+    - Az XOR taníthatósága nem lineáris, ezért **legalább egy rejtett réteg** szükséges.
+    - A Berry-görbület invariánsai (Chern-szám) topológiai kvantumállapotokat különböztetnek meg.
+
+    ---
+    ## ✍️ Javaslat
+    Használd a képleteket referencia vagy bemutató célra – vagy a `Reflection Modul` segítségével fűzd hozzá saját értelmezésedet és megfigyelésedet.
+
+    ---
+    Verzió: **2025.06**  
+    Készítette: *ReflectAI fejlesztői és közösség*
     """)
 
-    st.markdown("---\n## ✍️ Javaslat")
-    st.markdown("""
-    Használd a képleteket referencia vagy bemutató célra –  
-    vagy a `Reflection Modul` segítségével fűzd hozzá saját értelmezésedet és megfigyelésedet.
-    """)
-
-    st.markdown("---\nVerzió: **2025.06**  
-    Készítette: *ReflectAI fejlesztői és közösség*")
-
-# ReflectAI integrációhoz szükséges
+# Kötelező ReflectAI-hoz
 app = run
