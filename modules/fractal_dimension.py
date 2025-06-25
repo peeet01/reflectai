@@ -46,3 +46,4 @@ def run():
 
     st.pyplot(fig)
     st.success(f"🔢 Becsült fraktál dimenzió: **{fd:.3f}**")
+app = run
