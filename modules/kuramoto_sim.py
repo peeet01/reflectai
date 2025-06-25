@@ -71,4 +71,4 @@ def run():
     st.line_chart(order_params)
 
 # Kötelező ReflectAI-hoz
-app
+app = run
