@@ -44,3 +44,4 @@ def run():
     ax.set_ylabel("Lyapunov-exponens")
     ax.set_title("Lyapunov spektrum a logisztikus térképre")
     st.pyplot(fig)
+app = run
