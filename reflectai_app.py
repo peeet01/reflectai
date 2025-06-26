@@ -8,7 +8,7 @@ st.set_page_config(page_title="Neurolab AI", layout="wide")
 # 🧪 Cím és leírás
 st.title("🧪 Neurolab AI – Scientific Playground Sandbox")
 st.caption("Moduláris kutatási felület neurális szimulációkhoz és tanulási mechanizmusokhoz.")
-st.image("static/nyitokep (1).gif", use_column_width=True)
+st.image("static/nyitokep (1).gif", use_container_width=True)
 
 # 📦 Modul-regiszter (modulnév: fájlnév)
 modules = {
