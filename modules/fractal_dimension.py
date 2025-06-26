@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import streamlit as st
-from skimage import data, color
+from skimage import data, color, util
 from skimage.transform import resize
 from scipy.stats import entropy
 
@@ -46,7 +46,7 @@ def visualize_3d(Z, threshold=0.9):
     Z_bin = Z < threshold
     x, y = np.meshgrid(np.arange(Z.shape[1]), np.arange(Z.shape[0]))
     fig = go.Figure(data=[go.Surface(z=Z.astype(float), x=x, y=y, colorscale='Plasma')])
-    fig.update_layout(title="3D Thresholded Surface", scene=dict(zaxis_title="Intensity"))
+    fig.update_layout(title="3D Surface (Binarized)", scene=dict(zaxis_title="Intensity"))
     st.plotly_chart(fig, use_container_width=True)
 
 def run():
@@ -57,9 +57,10 @@ def run():
     img_gray = resize(color.rgb2gray(img) if img.ndim == 3 else img, (256, 256))
 
     threshold = st.slider("Binarizálási küszöb", 0.0, 1.0, 0.9)
-    show_2d = st.checkbox("📈 Log–Log Plot megjelenítése", value=True)
-    show_3d = st.checkbox("🌀 3D felületvizualizáció")
-    show_entropy = st.checkbox("🧠 Shannon-entropia kiszámítása")
+    show_2d = st.checkbox("📈 Log–Log Plot")
+    show_3d = st.checkbox("🌀 3D megjelenítés")
+    show_entropy = st.checkbox("🧠 Shannon-entropia")
+    analyze_noise = st.checkbox("📉 Zajérzékenység vizsgálat")
 
     fd = fractal_dimension(img_gray, threshold=threshold, visualize=show_2d)
     st.success(f"💡 Fraktáldimenzió: {fd:.4f}")
@@ -71,5 +72,23 @@ def run():
     if show_3d:
         visualize_3d(img_gray, threshold)
 
-# Kötelező ReflectAI integrációhoz
+    if analyze_noise:
+        noise_levels = st.slider("Max zajszint (%)", 0, 50, 20, 5)
+        step = 5
+        levels = np.arange(0, noise_levels + step, step)
+        fds = []
+
+        for lvl in levels:
+            noisy = util.random_noise(img_gray, mode='gaussian', var=(lvl / 100)**2)
+            fd_noisy = fractal_dimension(noisy, threshold=threshold)
+            fds.append(fd_noisy)
+
+        fig, ax = plt.subplots()
+        ax.plot(levels, fds, marker='o', color='orange')
+        ax.set_xlabel("Zajszint (%)")
+        ax.set_ylabel("Fraktáldimenzió")
+        ax.set_title("Fraktáldimenzió változása zaj függvényében")
+        st.pyplot(fig)
+
+# Kötelező ReflectAI-hoz
 app = run
