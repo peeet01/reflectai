@@ -1,106 +1,69 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage import io, color
-from skimage.util import img_as_ubyte
-from skimage.filters import threshold_otsu
-import nibabel as nib
-import tempfile
-import os
+from skimage import data, color, filters
+from skimage.transform import resize
+import plotly.graph_objects as go
 
-def boxcount(Z, k):
-    S = np.add.reduceat(
-        np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0),
-                               np.arange(0, Z.shape[1], k), axis=1)
-    return len(np.where(S > 0)[0])
+def fractal_dimension(Z, threshold=0.9):
+    assert(len(Z.shape) == 2)
+    def boxcount(Z, k):
+        S = np.add.reduceat(
+                np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0),
+                                   np.arange(0, Z.shape[1], k), axis=1)
+        return len(np.where(S > 0)[0])
 
-def compute_2d_fractal_dimension(Z):
-    Z = Z > threshold_otsu(Z)
+    Z = Z < threshold
     p = min(Z.shape)
-    n = 2**np.floor(np.log2(p)).astype(int)
+    n = 2**np.floor(np.log2(p))
+    n = int(n)
     sizes = 2**np.arange(int(np.log2(n)), 1, -1)
     counts = [boxcount(Z, size) for size in sizes]
-    coeffs = np.polyfit(np.log(1/sizes), np.log(counts), 1)
+    coeffs = np.polyfit(np.log(sizes), np.log(counts), 1)
     return -coeffs[0], sizes, counts
 
-def compute_3d_fractal_dimension(volume):
-    """Egyszerű 3D box-counting fraktáldimenzió"""
-    from scipy.ndimage import zoom
-
-    vol = (volume > volume.mean()).astype(int)
-    original_shape = vol.shape
-    N = min(original_shape)
-    M = 2**int(np.floor(np.log2(N)))
-    vol = zoom(vol, (M/original_shape[0], M/original_shape[1], M/original_shape[2]), order=0)
-
-    sizes = 2**np.arange(int(np.log2(M)), 1, -1)
-    counts = []
-
-    for size in sizes:
-        new_shape = (vol.shape[0]//size, vol.shape[1]//size, vol.shape[2]//size)
-        reduced = vol.reshape(new_shape[0], size, new_shape[1], size, new_shape[2], size)
-        reduced = reduced.max(axis=(1,3,5))
-        counts.append(np.sum(reduced > 0))
-
-    coeffs = np.polyfit(np.log(1/sizes), np.log(counts), 1)
-    return -coeffs[0], sizes, counts
-
-def extract_roi(image, center, size):
-    x, y = center
-    half = size // 2
-    x1, x2 = max(0, x - half), min(image.shape[1], x + half)
-    y1, y2 = max(0, y - half), min(image.shape[0], y + half)
-    return image[y1:y2, x1:x2]
+def plot_3d_voxel(binary_image):
+    fig = go.Figure(data=go.Volume(
+        x=np.repeat(np.arange(binary_image.shape[0]), binary_image.shape[1]),
+        y=np.tile(np.arange(binary_image.shape[1]), binary_image.shape[0]),
+        z=np.zeros(binary_image.size),
+        value=binary_image.flatten().astype(float),
+        opacity=0.1,
+        surface_count=20,
+        colorscale="Viridis"
+    ))
+    fig.update_layout(
+        scene=dict(zaxis=dict(visible=False)),
+        margin=dict(l=0, r=0, b=0, t=0),
+        title="3D Voxel Binarizált Fraktál"
+    )
+    st.plotly_chart(fig)
 
 def run():
-    st.title("🧠 Fraktáldimenzió Analízis – 2D & 3D")
+    st.title("🧩 Fraktáldimenzió Számítás")
+    st.markdown("Ez a modul binarizált képből számít fraktáldimenziót box-counting módszerrel.")
 
-    mode = st.radio("Mód kiválasztása:", ["2D ROI kép", "3D MRI térfogat"])
-    
-    if mode == "2D ROI kép":
-        uploaded = st.file_uploader("Tölts fel agyképet (jpg/png)", type=["jpg", "png"])
-        if uploaded:
-            img = io.imread(uploaded, as_gray=True)
-            img = img_as_ubyte(img)
-            st.image(img, caption="Eredeti kép", use_column_width=True)
+    image = data.coins()
+    image = resize(image, (256, 256))
+    gray_image = color.rgb2gray(image) if image.ndim == 3 else image
+    binary = gray_image > filters.threshold_otsu(gray_image)
 
-            x = st.slider("Középpont X", 0, img.shape[1]-1, img.shape[1]//2)
-            y = st.slider("Középpont Y", 0, img.shape[0]-1, img.shape[0]//2)
-            size = st.slider("ROI méret", 32, 256, 128, 16)
+    st.image(binary.astype(float), caption="Binarizált kép", use_column_width=True)
 
-            roi = extract_roi(img, (x, y), size)
-            if roi.size == 0:
-                st.error("A kivágás üres")
-                return
+    D, sizes, counts = fractal_dimension(binary)
+    st.markdown(f"**Becsült fraktáldimenzió:** `{D:.4f}`")
 
-            D, sizes, counts = compute_2d_fractal_dimension(roi)
-            st.success(f"🧮 Fraktáldimenzió (2D): **{D:.4f}**")
-            st.image(roi, caption="ROI kép", clamp=True)
+    fig, ax = plt.subplots()
+    ax.plot(np.log(sizes), np.log(counts), 'o', label="Adatok")
+    ax.plot(np.log(sizes), np.poly1d(np.polyfit(np.log(sizes), np.log(counts), 1))(np.log(sizes)), '-', label="Illesztés")
+    ax.set_xlabel("log(Box size)")
+    ax.set_ylabel("log(Count)")
+    ax.legend()
+    ax.set_title("Box-counting módszer")
+    st.pyplot(fig)
 
-            fig, ax = plt.subplots()
-            ax.plot(np.log(1/sizes), np.log(counts), 'o-')
-            ax.set_title("Box-counting skála – 2D")
-            st.pyplot(fig)
+    if st.checkbox("📦 3D binarizált voxel vizualizáció"):
+        plot_3d_voxel(binary)
 
-    elif mode == "3D MRI térfogat":
-        uploaded = st.file_uploader("Tölts fel NIfTI fájlt (.nii/.nii.gz)", type=["nii", "nii.gz"])
-        if uploaded:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".nii") as tmp:
-                tmp.write(uploaded.read())
-                img = nib.load(tmp.name)
-                data = img.get_fdata()
-                os.unlink(tmp.name)
-
-            mid_slice = int(data.shape[2] / 2)
-            st.image(data[:, :, mid_slice], caption=f"Középső szelet (z={mid_slice})", clamp=True)
-
-            D3, sizes, counts = compute_3d_fractal_dimension(data)
-            st.success(f"🧮 Fraktáldimenzió (3D térfogat): **{D3:.4f}**")
-
-            fig, ax = plt.subplots()
-            ax.plot(np.log(1/sizes), np.log(counts), 'o-')
-            ax.set_title("Box-counting skála – 3D")
-            st.pyplot(fig)
-
-# ReflectAI integráció
+# Kötelező ReflectAI-hoz
 app = run
