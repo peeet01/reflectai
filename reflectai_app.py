@@ -7,8 +7,7 @@ st.set_page_config(page_title="Neurolab AI", layout="wide")
 
 # 🧪 Cím és leírás
 
-st.caption("Moduláris kutatási felület neurális szimulációkhoz és tanulási mechanizmusokhoz.")
-st.image("static/nyitokep (1).gif", use_container_width=700)
+st.image("static/nyitokep (1).gif", use_container_width=900)
 
 # 📦 Modul-regiszter (modulnév: fájlnév)
 modules = {
