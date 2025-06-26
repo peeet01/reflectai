@@ -8,7 +8,7 @@ from skimage.transform import resize
 def boxcount(Z, k):
     S = np.add.reduceat(
         np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0),
-                           np.arange(0, Z.shape[1], k), axis=1)
+        np.arange(0, Z.shape[1], k), axis=1)
     return len(np.where(S > 0)[0])
 
 def fractal_dimension(Z, threshold=0.9, visualize=False):
@@ -67,30 +67,53 @@ def compute_multifractal_spectrum(Z, qs=np.linspace(-5, 5, 21)):
     ax.set_title("Multifractal Spectrum")
     st.pyplot(fig)
 
+def generate_sierpinski(size=256):
+    Z = np.ones((size, size))
+    for i in range(size):
+        for j in range(size):
+            x, y = i, j
+            while x > 0 or y > 0:
+                if x % 2 == 1 and y % 2 == 1:
+                    Z[i, j] = 0
+                    break
+                x //= 2
+                y //= 2
+    return Z
+
 def run():
     st.title("🧠 Fractal Dimension Analyzer")
     st.markdown("### Box-Counting, Noise Analysis, 3D and Multifractal Spectrum")
 
-    img = data.coins()
-    img_gray = resize(color.rgb2gray(img) if img.ndim == 3 else img, (256, 256))
+    tab1, tab2 = st.tabs(["📊 Saját adat", "📐 Benchmark"])
 
-    sigma = st.slider("Add Gaussian Noise (σ)", 0.0, 1.0, 0.0, 0.01)
-    threshold = st.slider("Threshold", 0.0, 1.0, 0.9)
-    show_3d = st.checkbox("Show 3D Visualization")
-    show_2d = st.checkbox("Show 2D Log-Log Plot")
-    show_multifractal = st.checkbox("Show Multifractal Spectrum")
+    with tab1:
+        img = data.coins()
+        img_gray = resize(color.rgb2gray(img) if img.ndim == 3 else img, (256, 256))
 
-    if sigma > 0.0:
-        img_gray = util.random_noise(img_gray, mode='gaussian', var=sigma**2)
+        sigma = st.slider("Add Gaussian Noise (σ)", 0.0, 1.0, 0.0, 0.01)
+        threshold = st.slider("Threshold", 0.0, 1.0, 0.9)
+        show_3d = st.checkbox("Show 3D Visualization")
+        show_2d = st.checkbox("Show 2D Log-Log Plot")
+        show_multifractal = st.checkbox("Show Multifractal Spectrum")
 
-    fd = fractal_dimension(img_gray, threshold=threshold, visualize=show_2d)
-    st.success(f"Estimated Fractal Dimension: {fd:.4f}")
+        if sigma > 0.0:
+            img_gray = util.random_noise(img_gray, mode='gaussian', var=sigma**2)
 
-    if show_3d:
-        visualize_3d(img_gray, threshold=threshold)
+        fd = fractal_dimension(img_gray, threshold=threshold, visualize=show_2d)
+        st.success(f"Estimated Fractal Dimension: {fd:.4f}")
 
-    if show_multifractal:
-        compute_multifractal_spectrum(img_gray)
+        if show_3d:
+            visualize_3d(img_gray, threshold=threshold)
 
-# Kötelező ReflectAI integrációhoz
+        if show_multifractal:
+            compute_multifractal_spectrum(img_gray)
+
+    with tab2:
+        st.markdown("A **Sierpinski-háromszög** egy klasszikus fraktál, ismert dimenzióval.")
+        Z = generate_sierpinski()
+        threshold = st.slider("Threshold (Benchmark)", 0.0, 1.0, 0.5)
+        fd = fractal_dimension(Z, threshold=threshold, visualize=True)
+        st.success(f"Benchmark (Sierpinski): {fd:.4f} (Elméletileg: log(3)/log(2) ≈ 1.5849)")
+
+# ReflectAI integrációhoz kötelező
 app = run
