@@ -42,7 +42,7 @@ def fractal_dimension(Z, threshold=0.9, visualize=False):
 def visualize_3d(Z, threshold=0.9):
     Z_bin = Z < threshold
     x, y = np.meshgrid(np.arange(Z.shape[1]), np.arange(Z.shape[0]))
-    fig = go.Figure(data=[go.Surface(z=Z.astype(float), x=x, y=y, colorscale='Viridis')])
+    fig = go.Figure(data=[go.Surface(z=Z.astype(float), x=x, y=y, colorscale='Inferno')])
     fig.update_layout(title="3D Representation of Input", autosize=True)
     st.plotly_chart(fig)
 
