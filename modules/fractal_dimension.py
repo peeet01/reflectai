@@ -1,94 +1,31 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
-import streamlit as st
-from skimage import data, color, util
-from skimage.transform import resize
-from scipy.stats import entropy
+import numpy as np import matplotlib.pyplot as plt import plotly.graph_objects as go import streamlit as st from skimage import data, color from skimage.transform import resize
 
-def boxcount(Z, k):
-    S = np.add.reduceat(
-        np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0),
-                           np.arange(0, Z.shape[1], k), axis=1)
-    return len(np.where(S > 0)[0])
+def boxcount(Z, k): S = np.add.reduceat( np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0), np.arange(0, Z.shape[1], k), axis=1) return len(np.where(S > 0)[0])
 
-def fractal_dimension(Z, threshold=0.9, visualize=False):
-    Z = Z < threshold
-    assert len(Z.shape) == 2
+def fractal_dimension(Z, threshold=0.9, visualize=False): Z = Z < threshold assert len(Z.shape) == 2 p = min(Z.shape) n = 2np.floor(np.log2(p)) n = int(n) Z = Z[:n, :n] sizes = 2np.arange(int(np.log2(n)), 1, -1) counts = [boxcount(Z, size) for size in sizes] coeffs = np.polyfit(np.log(1.0 / sizes), np.log(counts), 1) fd = -coeffs[0] if visualize: fig, ax = plt.subplots() ax.plot(np.log(1.0 / sizes), np.log(counts), 'o', mfc='none') ax.plot(np.log(1.0 / sizes), np.polyval(coeffs, np.log(1.0 / sizes)), 'r') ax.set_title(f"Fractal Dimension = {fd:.4f}") st.pyplot(fig) return fd
 
-    p = min(Z.shape)
-    n = 2**np.floor(np.log2(p)).astype(int)
-    Z = Z[:n, :n]
+def visualize_3d(Z, threshold=0.9): Z_bin = Z < threshold x, y = np.meshgrid(np.arange(Z.shape[1]), np.arange(Z.shape[0])) fig = go.Figure(data=[go.Surface(z=Z.astype(float), x=x, y=y, colorscale='Inferno')]) fig.update_layout(title="3D Representation of Input", autosize=True) st.plotly_chart(fig)
 
-    sizes = 2**np.arange(int(np.log2(n)), 1, -1)
-    counts = [boxcount(Z, size) for size in sizes]
+def compute_multifractal_spectrum(Z, qs=np.linspace(-5, 5, 21)): Z = Z / np.sum(Z) epsilons = 2np.arange(1, int(np.log2(Z.shape[0])) - 1) taus = [] for q in qs: chi_q = [] for e in epsilons: blocks = Z.reshape(Z.shape[0]//e, e, Z.shape[1]//e, e).sum(axis=(1, 3)) P = blocks[blocks > 0].flatten() if q == 1: chi_q.append(np.sum(P * np.log(P))) else: chi_q.append(np.sum(Pq)) if q == 1: taus.append(-np.polyfit(np.log(epsilons), chi_q, 1)[0]) else: taus.append(np.polyfit(np.log(epsilons), np.log(chi_q), 1)[0]) alphas = np.gradient(taus, qs) f_alphas = qs * alphas - np.array(taus) fig, ax = plt.subplots() ax.plot(alphas, f_alphas, 'o-') ax.set_xlabel("Alpha") ax.set_ylabel("f(Alpha)") ax.set_title("Multifractal Spectrum") st.pyplot(fig)
 
-    coeffs = np.polyfit(np.log(1.0 / sizes), np.log(counts), 1)
-    fd = -coeffs[0]
+def run(): st.title("Fractal Dimension Analyzer") st.markdown("### Box-Counting Method & Multifractal Spectrum")
 
-    if visualize:
-        fig, ax = plt.subplots()
-        ax.plot(np.log(1.0 / sizes), np.log(counts), 'o', mfc='none')
-        ax.plot(np.log(1.0 / sizes), np.polyval(coeffs, np.log(1.0 / sizes)), 'r')
-        ax.set_title(f"Fractal Dimension = {fd:.4f}")
-        ax.set_xlabel("log(1 / ε)")
-        ax.set_ylabel("log(N(ε))")
-        st.pyplot(fig)
+img = data.coins()
+img_gray = resize(color.rgb2gray(img) if img.ndim == 3 else img, (256, 256))
 
-    return fd
+threshold = st.slider("Threshold", 0.0, 1.0, 0.9)
+show_3d = st.checkbox("Show 3D Visualization")
+show_2d = st.checkbox("Show 2D Log-Log Plot")
+show_multifractal = st.checkbox("Show Multifractal Spectrum")
 
-def shannon_entropy(Z):
-    hist, _ = np.histogram(Z.flatten(), bins=256, range=(0, 1), density=True)
-    hist = hist[hist > 0]
-    return entropy(hist)
+fd = fractal_dimension(img_gray, threshold=threshold, visualize=show_2d)
+st.success(f"Estimated Fractal Dimension: {fd:.4f}")
 
-def visualize_3d(Z, threshold=0.9):
-    Z_bin = Z < threshold
-    x, y = np.meshgrid(np.arange(Z.shape[1]), np.arange(Z.shape[0]))
-    fig = go.Figure(data=[go.Surface(z=Z.astype(float), x=x, y=y, colorscale='Plasma')])
-    fig.update_layout(title="3D Surface (Binarized)", scene=dict(zaxis_title="Intensity"))
-    st.plotly_chart(fig, use_container_width=True)
+if show_3d:
+    visualize_3d(img_gray, threshold=threshold)
 
-def run():
-    st.title("📐 Fractal Dimension Analyzer")
-    st.markdown("A fraktáldimenzióval a komplex struktúrák térkitöltő képességét mérjük.")
+if show_multifractal:
+    compute_multifractal_spectrum(img_gray)
 
-    img = data.coins()
-    img_gray = resize(color.rgb2gray(img) if img.ndim == 3 else img, (256, 256))
-
-    threshold = st.slider("Binarizálási küszöb", 0.0, 1.0, 0.9)
-    show_2d = st.checkbox("📈 Log–Log Plot")
-    show_3d = st.checkbox("🌀 3D megjelenítés")
-    show_entropy = st.checkbox("🧠 Shannon-entropia")
-    analyze_noise = st.checkbox("📉 Zajérzékenység vizsgálat")
-
-    fd = fractal_dimension(img_gray, threshold=threshold, visualize=show_2d)
-    st.success(f"💡 Fraktáldimenzió: {fd:.4f}")
-
-    if show_entropy:
-        ent = shannon_entropy(img_gray)
-        st.info(f"📊 Shannon-entropia: {ent:.4f}")
-
-    if show_3d:
-        visualize_3d(img_gray, threshold)
-
-    if analyze_noise:
-        noise_levels = st.slider("Max zajszint (%)", 0, 50, 20, 5)
-        step = 5
-        levels = np.arange(0, noise_levels + step, step)
-        fds = []
-
-        for lvl in levels:
-            noisy = util.random_noise(img_gray, mode='gaussian', var=(lvl / 100)**2)
-            fd_noisy = fractal_dimension(noisy, threshold=threshold)
-            fds.append(fd_noisy)
-
-        fig, ax = plt.subplots()
-        ax.plot(levels, fds, marker='o', color='orange')
-        ax.set_xlabel("Zajszint (%)")
-        ax.set_ylabel("Fraktáldimenzió")
-        ax.set_title("Fraktáldimenzió változása zaj függvényében")
-        st.pyplot(fig)
-
-# Kötelező ReflectAI-hoz
 app = run
+
