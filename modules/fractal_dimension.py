@@ -62,3 +62,4 @@ def run():
 
     if show_3d:
         visualize_3d(img_gray, threshold=threshold)
+app = run
