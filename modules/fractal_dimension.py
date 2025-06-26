@@ -15,10 +15,9 @@ def fractal_dimension(Z, threshold=0.9, visualize=False):
     Z = Z < threshold
     assert len(Z.shape) == 2
     p = min(Z.shape)
-    n = 2 * np.floor(np.log2(p))
+    n = 2 ** np.floor(np.log2(p))
     n = int(n)
     Z = Z[:n, :n]
-
     sizes = 2 ** np.arange(int(np.log2(n)), 1, -1)
     counts = [boxcount(Z, size) for size in sizes]
     coeffs = np.polyfit(np.log(1.0 / sizes), np.log(counts), 1)
@@ -33,40 +32,31 @@ def fractal_dimension(Z, threshold=0.9, visualize=False):
 
     return fd
 
-def visualize_3d(Z, threshold=0.9):
-    Z_bin = Z < threshold
+def visualize_3d(Z, threshold=0.9, colorscale="Inferno"):
     x, y = np.meshgrid(np.arange(Z.shape[1]), np.arange(Z.shape[0]))
-    fig = go.Figure(data=[go.Surface(z=Z.astype(float), x=x, y=y, colorscale='Inferno')])
+    fig = go.Figure(data=[go.Surface(z=Z.astype(float), x=x, y=y, colorscale=colorscale)])
     fig.update_layout(title="3D Representation of Input", autosize=True)
     st.plotly_chart(fig)
 
 def compute_multifractal_spectrum(Z, qs=np.linspace(-5, 5, 21)):
     Z = Z / np.sum(Z)
-    N = Z.shape[0]
-    max_scale = int(np.log2(N)) - 2
-    epsilons = 2 ** np.arange(1, max_scale)
-
+    epsilons = 2 ** np.arange(1, int(np.log2(Z.shape[0])) - 1)
     taus = []
     for q in qs:
         chi_q = []
         for e in epsilons:
-            e = int(e)
-            if N % e != 0:
-                continue
-            blocks = Z.reshape(N//e, e, N//e, e).sum(axis=(1, 3))
+            blocks = Z.reshape(Z.shape[0] // e, e, Z.shape[1] // e, e).sum(axis=(1, 3))
             P = blocks[blocks > 0].flatten()
             if q == 1:
                 chi_q.append(np.sum(P * np.log(P)))
             else:
                 chi_q.append(np.sum(P ** q))
         if q == 1:
-            taus.append(-np.polyfit(np.log(epsilons[:len(chi_q)]), chi_q, 1)[0])
+            taus.append(-np.polyfit(np.log(epsilons), chi_q, 1)[0])
         else:
-            taus.append(np.polyfit(np.log(epsilons[:len(chi_q)]), np.log(chi_q), 1)[0])
-
+            taus.append(np.polyfit(np.log(epsilons), np.log(chi_q), 1)[0])
     alphas = np.gradient(taus, qs)
     f_alphas = qs * alphas - np.array(taus)
-
     fig, ax = plt.subplots()
     ax.plot(alphas, f_alphas, 'o-')
     ax.set_xlabel("Alpha")
@@ -74,9 +64,14 @@ def compute_multifractal_spectrum(Z, qs=np.linspace(-5, 5, 21)):
     ax.set_title("Multifractal Spectrum")
     st.pyplot(fig)
 
+def add_noise(image, amount=0.1):
+    noisy = image + np.random.normal(0, amount, image.shape)
+    noisy = np.clip(noisy, 0, 1)
+    return noisy
+
 def run():
     st.title("Fractal Dimension Analyzer")
-    st.markdown("### Box-Counting Method & Multifractal Spectrum")
+    st.markdown("### Box-Counting, 3D View, Multifractal Spectrum & Noise Sensitivity")
 
     img = data.coins()
     img_gray = resize(color.rgb2gray(img) if img.ndim == 3 else img, (256, 256))
@@ -85,12 +80,18 @@ def run():
     show_3d = st.checkbox("Show 3D Visualization")
     show_2d = st.checkbox("Show 2D Log-Log Plot")
     show_multifractal = st.checkbox("Show Multifractal Spectrum")
+    add_noise_flag = st.checkbox("Add Gaussian Noise")
+    noise_amount = st.slider("Noise Amount", 0.0, 1.0, 0.1) if add_noise_flag else 0.0
+    colorscale = st.selectbox("3D Plot Color Scale", ["Viridis", "Cividis", "Inferno", "Plasma", "Magma"])
+
+    if add_noise_flag:
+        img_gray = add_noise(img_gray, noise_amount)
 
     fd = fractal_dimension(img_gray, threshold=threshold, visualize=show_2d)
     st.success(f"Estimated Fractal Dimension: {fd:.4f}")
 
     if show_3d:
-        visualize_3d(img_gray, threshold=threshold)
+        visualize_3d(img_gray, threshold=threshold, colorscale=colorscale)
 
     if show_multifractal:
         compute_multifractal_spectrum(img_gray)
