@@ -1,49 +1,45 @@
-import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
+import streamlit as st import numpy as np import matplotlib.pyplot as plt from PIL import Image from skimage.color import rgb2gray from skimage import data import io import math
 
-def run():
-    st.markdown("## Szinkronfraktál dimenzióanalízis")
+def box_count(img, box_size): h, w = img.shape count = 0 for y in range(0, h, box_size): for x in range(0, w, box_size): if np.any(img[y:y + box_size, x:x + box_size]): count += 1 return count
 
-    st.markdown(
-        "Ez a modul a hálózat szinkronizációs mintázatainak fraktál dimenzióját méri a doboz-számlálási módszerrel "
-        "egy binarizált fázistér alapján."
-    )
+def fractal_dimension(img, box_sizes): counts = [] for size in box_sizes: counts.append(box_count(img, size)) coeffs = np.polyfit(np.log(box_sizes), np.log(counts), 1) return -coeffs[0], counts
 
-    size = st.slider("Mátrix méret (NxN)", 50, 300, 100, step=10)
-    threshold = st.slider("Küszöb a binarizáláshoz", 0.1, 1.0, 0.5, step=0.1)
+def run(): st.title("🌌 Fraktáldimenzió Vizsgálat") st.markdown("Interaktív fraktál analízis box-counting módszerrel.")
 
-    # Véletlenszerű "szinkron" mátrix generálása
-    np.random.seed(0)
-    matrix = np.random.rand(size, size)
-    binary_matrix = (matrix > threshold).astype(int)
+option = st.radio("Forrás kiválasztása:", ["Minta fraktál", "Saját kép feltöltése"])
 
-    # Fraktál dimenzió számítás (box-counting)
-    def boxcount(Z, k):
-        S = np.add.reduceat(
-            np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0),
-                               np.arange(0, Z.shape[1], k), axis=1)
-        return len(np.where(S > 0)[0])
+if option == "Minta fraktál":
+    image = rgb2gray(data.coins())  # Sierpinski helyett coin minta
+    image = image < 0.5
+else:
+    uploaded = st.file_uploader("Tölts fel fekete-fehér képet", type=["png", "jpg", "jpeg"])
+    if uploaded:
+        image = Image.open(uploaded).convert("L").resize((256, 256))
+        image = np.array(image) < 128
+    else:
+        st.stop()
 
-    Z = binary_matrix
-    sizes = 2**np.arange(1, int(np.log2(size)))
-    counts = [boxcount(Z, s) for s in sizes]
+st.image(image.astype(float), caption="Elemzett bináris kép", width=300)
 
-    coeffs = np.polyfit(np.log(sizes), np.log(counts), 1)
-    fd = -coeffs[0]
+st.markdown("---")
+st.markdown("## 📐 Fraktáldimenzió számítása")
+sizes = np.array([2, 4, 8, 16, 32, 64])
+D, counts = fractal_dimension(image, sizes)
 
-    # Ábra
-    fig, ax = plt.subplots(1, 2, figsize=(10, 4))
-    ax[0].imshow(binary_matrix, cmap='binary')
-    ax[0].set_title("Binarizált mátrix")
+fig, ax = plt.subplots()
+ax.plot(np.log(sizes), np.log(counts), 'o-', label=f'D ≈ {D:.2f}')
+ax.set_xlabel("log(Box size)")
+ax.set_ylabel("log(Count)")
+ax.set_title("Fraktáldimenzió (box-counting)")
+ax.legend()
+st.pyplot(fig)
 
-    ax[1].plot(np.log(sizes), np.log(counts), 'o-', label=f"FD ≈ {fd:.2f}")
-    ax[1].set_title("Fraktál dimenzió log–log skálán")
-    ax[1].set_xlabel("log(doboz méret)")
-    ax[1].set_ylabel("log(doboz száma)")
-    ax[1].legend()
+st.markdown("---")
+st.markdown("### 🧠 Matematikai háttér")
+st.latex(r"N(s) \sim s^{-D} \Rightarrow D = -\frac{\log N(s)}{\log s}")
+st.markdown("Ahol $s$ a dobozméret, $N(s)$ a lefedő dobozok száma.")
 
-    st.pyplot(fig)
-    st.success(f"🔢 Becsült fraktál dimenzió: **{fd:.3f}**")
+ReflectAI modulkompatibilitás
+
 app = run
+
