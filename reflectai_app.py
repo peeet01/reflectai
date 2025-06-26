@@ -7,7 +7,7 @@ st.set_page_config(page_title="Neurolab AI", layout="wide")
 
 # 🧪 Cím és leírás
 
-st.image("static/nyitokep (1).gif", use_container_width=900)
+st.image("static/nyitokep (1).gif", use_container_width=1500)
 
 # 📦 Modul-regiszter (modulnév: fájlnév)
 modules = {
