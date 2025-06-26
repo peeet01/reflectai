@@ -2,7 +2,7 @@ import numpy as np import matplotlib.pyplot as plt import plotly.graph_objects a
 
 def boxcount(Z, k): S = np.add.reduceat( np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0), np.arange(0, Z.shape[1], k), axis=1) return len(np.where(S > 0)[0])
 
-def fractal_dimension(Z, threshold=0.9, visualize=False): Z = Z < threshold assert len(Z.shape) == 2 p = min(Z.shape) n = 2np.floor(np.log2(p)) n = int(n) Z = Z[:n, :n] sizes = 2np.arange(int(np.log2(n)), 1, -1) counts = [boxcount(Z, size) for size in sizes] coeffs = np.polyfit(np.log(1.0 / sizes), np.log(counts), 1) fd = -coeffs[0]
+def fractal_dimension(Z, threshold=0.9, visualize=False): Z = Z < threshold assert len(Z.shape) == 2 p = min(Z.shape) n = 2 * np.floor(np.log2(p)) n = int(n) Z = Z[:n, :n] sizes = 2np.arange(int(np.log2(n)), 1, -1) counts = [boxcount(Z, size) for size in sizes] coeffs = np.polyfit(np.log(1.0 / sizes), np.log(counts), 1) fd = -coeffs[0]
 
 if visualize:
     fig, ax = plt.subplots()
