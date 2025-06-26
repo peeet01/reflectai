@@ -27,5 +27,55 @@ for q in qs:
         else:
             chi_q.append(np.sum(P**q))
     if q == 1:
-        taus.append(-np.polyfit(np
+        taus.append(-np.polyfit(np.log(epsilons), chi_q, 1)[0])
+    else:
+        taus.append(np.polyfit(np.log(epsilons), np.log(chi_q), 1)[0])
+
+alphas = np.gradient(taus, qs)
+f_alphas = qs * alphas - np.array(taus)
+
+fig, ax = plt.subplots()
+ax.plot(alphas, f_alphas, 'o-')
+ax.set_xlabel("Alpha")
+ax.set_ylabel("f(Alpha)")
+ax.set_title("Multifractal Spectrum")
+st.pyplot(fig)
+
+def run(): st.title("🧠 Fractal Dimension Analyzer") st.markdown("### Box-Counting, Noise Analysis, 3D and Multifractal Spectrum")
+
+img = data.coins()
+img_gray = resize(color.rgb2gray(img) if img.ndim == 3 else img, (256, 256))
+
+sigma = st.slider("Add Gaussian Noise (σ)", 0.0, 1.0, 0.0, 0.01)
+threshold = st.slider("Threshold", 0.0, 1.0, 0.9)
+show_3d = st.checkbox("Show 3D Visualization")
+show_2d = st.checkbox("Show 2D Log-Log Plot")
+show_multifractal = st.checkbox("Show Multifractal Spectrum")
+show_benchmark = st.checkbox("Show Noise Sensitivity Benchmark")
+
+if sigma > 0.0:
+    img_gray = util.random_noise(img_gray, mode='gaussian', var=sigma**2)
+
+fd = fractal_dimension(img_gray, threshold=threshold, visualize=show_2d)
+st.success(f"Estimated Fractal Dimension: {fd:.4f}")
+
+if show_3d:
+    visualize_3d(img_gray, threshold=threshold)
+
+if show_multifractal:
+    compute_multifractal_spectrum(img_gray)
+
+if show_benchmark:
+    noisy = util.random_noise(img_gray, mode='gaussian', var=0.01)
+    clean_fd = fractal_dimension(img_gray, threshold=threshold)
+    noisy_fd = fractal_dimension(noisy, threshold=threshold)
+    st.markdown("#### 📊 Noise Sensitivity Benchmark")
+    st.write(f"Clean Image FD: `{clean_fd:.4f}`")
+    st.write(f"Noisy Image FD: `{noisy_fd:.4f}`")
+    delta = abs(clean_fd - noisy_fd)
+    st.warning(f"Difference due to noise: `{delta:.4f}`")
+
+Kötelező ReflectAI integrációhoz
+
+app = run
 
