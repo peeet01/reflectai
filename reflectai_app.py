@@ -6,7 +6,7 @@ import importlib
 st.set_page_config(page_title="Neurolab AI", layout="wide")
 
 # 🔰 Nyitókép (ellenőrizd, hogy létezik a fájl)
-st.image("static/nyitokep.png", use_container_width=True)
+st.image("static/nyitokep1.png", use_container_width=True)
 
 # 📦 Modul-regiszter (modulnév: fájlnév)
 modules = {
