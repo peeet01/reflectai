@@ -63,16 +63,31 @@ def run():
     ax_loss.set_title("📉 Loss-görbe")
     st.pyplot(fig_loss)
 
-    # 3D vizualizáció
+    # 3D vizualizáció (fejlesztett)
     if show_3d:
-        xx, yy = np.meshgrid(np.linspace(0,1,50), np.linspace(0,1,50))
-        zz = np.array([model.predict([[x,y]])[0] for x,y in zip(np.ravel(xx), np.ravel(yy))]).reshape(xx.shape)
-        fig3d = go.Figure(data=[go.Surface(z=zz, x=xx, y=yy, colorscale='Viridis')])
-        fig3d.update_layout(title="🧠 3D előrejelzési felszín", scene=dict(
-            xaxis_title='X1',
-            yaxis_title='X2',
-            zaxis_title='Kimenet'
-        ))
+        xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
+        input_grid = np.c_[xx.ravel(), yy.ravel()]
+        zz_prob = model.predict_proba(input_grid)[:, 1].reshape(xx.shape)  # valószínűség a pozitív osztályra
+
+        fig3d = go.Figure(data=[
+            go.Surface(
+                z=zz_prob,
+                x=xx,
+                y=yy,
+                colorscale='Cividis',  # Lehet 'Viridis', 'Electric', 'Inferno', 'Turbo' stb.
+                opacity=0.9,
+                showscale=True
+            )
+        ])
+        fig3d.update_layout(
+            title="🧠 3D valószínűségi előrejelzés",
+            scene=dict(
+                xaxis_title='X1',
+                yaxis_title='X2',
+                zaxis_title='P(osztály=1)',
+                zaxis=dict(range=[0, 1])
+            )
+        )
         st.plotly_chart(fig3d)
 
 # Kötelező ReflectAI kompatibilitás
