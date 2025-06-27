@@ -1,93 +1,98 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import streamlit as st
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-import seaborn as sns
+import numpy as np
+import plotly.graph_objects as go
+from sklearn.metrics import accuracy_score
 import pandas as pd
 
-def app():
-    st.title("🧠 XOR Prediction - Pro Version")
-    st.markdown("Klasszikus XOR probléma modern, mélytanulás-alapú megoldása vizualizációval és elemzéssel.")
+# ----- Adatok (XOR) -----
+X = torch.tensor([[0., 0.],
+                  [0., 1.],
+                  [1., 0.],
+                  [1., 1.]], dtype=torch.float32)
 
-    # Adatok
-    X = torch.tensor([[0,0],[0,1],[1,0],[1,1]], dtype=torch.float32)
-    Y = torch.tensor([[0],[1],[1],[0]], dtype=torch.float32)
+y = torch.tensor([[0.],
+                  [1.],
+                  [1.],
+                  [0.]], dtype=torch.float32)
 
-    # UI
-    hidden_size = st.slider("Rejtett réteg méret", 2, 16, 4)
-    activation_name = st.selectbox("Aktivációs függvény", ["Sigmoid", "ReLU", "Tanh"])
-    loss_fn_name = st.selectbox("Loss függvény", ["MSE", "Binary Crossentropy"])
-    epochs = st.slider("Epoch-ok száma", 100, 5000, 1000)
-    learning_rate = st.number_input("Tanulási ráta", 0.001, 1.0, 0.1)
+# ----- Hálózat -----
+class XORNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(2, 4),
+            nn.Tanh(),
+            nn.Linear(4, 1),
+            nn.Sigmoid()
+        )
 
-    # Aktiváció kiválasztása
-    if activation_name == "Sigmoid":
-        activation = nn.Sigmoid()
-    elif activation_name == "ReLU":
-        activation = nn.ReLU()
-    else:
-        activation = nn.Tanh()
+    def forward(self, x):
+        return self.net(x)
 
-    class XORModel(nn.Module):
-        def __init__(self):
-            super(XORModel, self).__init__()
-            self.fc1 = nn.Linear(2, hidden_size)
-            self.fc2 = nn.Linear(hidden_size, 1)
-
-        def forward(self, x):
-            x = activation(self.fc1(x))
-            x = torch.sigmoid(self.fc2(x))
-            return x
-
-    # Loss kiválasztása
-    if loss_fn_name == "MSE":
-        loss_fn = nn.MSELoss()
-    else:
-        loss_fn = nn.BCELoss()
-
-    model = XORModel()
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+# ----- Tanítás -----
+def train_model(model, X, y, epochs=2000, lr=0.1):
+    loss_fn = nn.BCELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     losses = []
-
     for epoch in range(epochs):
-        y_pred = model(X)
-        loss = loss_fn(y_pred, Y)
         optimizer.zero_grad()
+        output = model(X)
+        loss = loss_fn(output, y)
         loss.backward()
         optimizer.step()
         losses.append(loss.item())
+    return losses
 
-    # Előrejelzés
-    predicted = model(X).detach().numpy().round()
-    accuracy = (predicted == Y.numpy()).mean()
-    st.success(f"✅ Pontosság: {accuracy*100:.2f}%")
+# ----- 3D Vizualizáció -----
+def plot_decision_surface(model):
+    xx, yy = torch.meshgrid(torch.linspace(0, 1, 100), torch.linspace(0, 1, 100), indexing='ij')
+    grid = torch.stack([xx.flatten(), yy.flatten()], dim=1)
+    with torch.no_grad():
+        zz = model(grid).reshape(100, 100).numpy()
 
-    # Loss plot
-    fig1, ax1 = plt.subplots()
-    ax1.plot(losses)
-    ax1.set_title("Loss görbe")
-    ax1.set_xlabel("Epoch")
-    ax1.set_ylabel("Loss")
-    st.pyplot(fig1)
+    fig = go.Figure(data=[
+        go.Surface(z=zz, x=xx.numpy(), y=yy.numpy(), colorscale='Viridis', showscale=True),
+        go.Scatter3d(x=X[:, 0], y=X[:, 1], z=y.flatten(), mode='markers',
+                     marker=dict(size=5, color='red'), name='XOR pontok')
+    ])
+    fig.update_layout(title="XOR – 3D döntési felület", scene=dict(
+        xaxis_title='x₁',
+        yaxis_title='x₂',
+        zaxis_title='output'
+    ))
+    st.plotly_chart(fig)
 
-    # Confusion matrix
-    cm = confusion_matrix(Y.numpy(), predicted)
-    fig2, ax2 = plt.subplots()
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
-    disp.plot(ax=ax2)
-    st.pyplot(fig2)
+# ----- Streamlit App -----
+def run():
+    st.title("🔀 XOR Prediction – Pro Modul")
+    st.markdown("""
+    A **XOR probléma** egy klasszikus példa a nemlineáris osztályozási feladatra, amit egy 
+    egyszerű MLP hálózat képes megtanulni. Itt egy 3D döntési felület is látható.
+    """)
 
-    # Eredmények táblázatban
-    df = pd.DataFrame({
-        "Input 1": X[:,0],
-        "Input 2": X[:,1],
-        "Célérték": Y.flatten(),
-        "Előrejelzés": predicted.flatten()
-    })
+    model = XORNet()
+    losses = train_model(model, X, y)
+
+    # Eredmények
+    with torch.no_grad():
+        preds = (model(X) > 0.5).float()
+    acc = accuracy_score(y, preds)
+
+    st.success(f"🎯 Pontosság: {acc * 100:.2f}%")
+
+    # 3D Plot
+    st.subheader("📊 3D döntési felület")
+    plot_decision_surface(model)
+
+    # Loss görbe
+    st.subheader("📉 Tanulási görbe")
+    st.line_chart(losses)
+
+    # Eredmények táblázat
+    df = pd.DataFrame(torch.cat([X, preds], dim=1).numpy(), columns=["x₁", "x₂", "Predikció"])
     st.dataframe(df)
 
-# Kötelező ReflectAI kompatibilitáshoz
-app()
+# ReflectAI kompatibilitás
+app = run
