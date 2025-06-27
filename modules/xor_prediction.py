@@ -1,93 +1,76 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-import seaborn as sns
-import pandas as pd
+import time
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+import plotly.graph_objects as go
+from sklearn.model_selection import train_test_split
 
-def app():
-    st.title("🧠 XOR Prediction - Pro Version")
-    st.markdown("Klasszikus XOR probléma modern, mélytanulás-alapú megoldása vizualizációval és elemzéssel.")
+# XOR dataset
+X = np.array([[0,0],[0,1],[1,0],[1,1]])
+y = np.array([0,1,1,0])
 
-    # Adatok
-    X = torch.tensor([[0,0],[0,1],[1,0],[1,1]], dtype=torch.float32)
-    Y = torch.tensor([[0],[1],[1],[0]], dtype=torch.float32)
+# Train/test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
 
-    # UI
-    hidden_size = st.slider("Rejtett réteg méret", 2, 16, 4)
-    activation_name = st.selectbox("Aktivációs függvény", ["Sigmoid", "ReLU", "Tanh"])
-    loss_fn_name = st.selectbox("Loss függvény", ["MSE", "Binary Crossentropy"])
-    epochs = st.slider("Epoch-ok száma", 100, 5000, 1000)
-    learning_rate = st.number_input("Tanulási ráta", 0.001, 1.0, 0.1)
+# Streamlit UI
+st.title("🔁 XOR Prediction – Scientific Neural Network Playground")
+st.markdown("""
+Ez a modul egy mesterséges neurális hálózat segítségével jósolja meg az XOR logikai művelet eredményét.  
+A hálózat működése valós időben követhető, beleértve a tanulási folyamatot, vizuális visszajelzésekkel és egy 3D-s reprezentációval.
+""")
 
-    # Aktiváció kiválasztása
-    if activation_name == "Sigmoid":
-        activation = nn.Sigmoid()
-    elif activation_name == "ReLU":
-        activation = nn.ReLU()
-    else:
-        activation = nn.Tanh()
+# Model setup
+hidden_layer_sizes = st.slider("Hidden layer size", 2, 10, 4)
+max_iter = st.slider("Maximum iterations", 100, 1000, 300, 50)
+show_3d = st.checkbox("Show 3D surface visualization")
 
-    class XORModel(nn.Module):
-        def __init__(self):
-            super(XORModel, self).__init__()
-            self.fc1 = nn.Linear(2, hidden_size)
-            self.fc2 = nn.Linear(hidden_size, 1)
+# Progress bar
+progress_bar = st.progress(0)
+status_text = st.empty()
 
-        def forward(self, x):
-            x = activation(self.fc1(x))
-            x = torch.sigmoid(self.fc2(x))
-            return x
+model = MLPClassifier(hidden_layer_sizes=(hidden_layer_sizes,), activation='tanh', solver='adam', max_iter=1, warm_start=True)
 
-    # Loss kiválasztása
-    if loss_fn_name == "MSE":
-        loss_fn = nn.MSELoss()
-    else:
-        loss_fn = nn.BCELoss()
+losses = []
 
-    model = XORModel()
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
-    losses = []
+# Training loop with progress
+for i in range(max_iter):
+    model.fit(X_train, y_train)
+    losses.append(model.loss_)
+    progress_bar.progress((i+1)/max_iter)
+    status_text.text(f"Iteration {i+1}/{max_iter} - Loss: {model.loss_:.4f}")
 
-    for epoch in range(epochs):
-        y_pred = model(X)
-        loss = loss_fn(y_pred, Y)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        losses.append(loss.item())
+# Results
+y_pred = model.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
+st.success(f"✅ Model Accuracy: {acc:.2f}")
 
-    # Előrejelzés
-    predicted = model(X).detach().numpy().round()
-    accuracy = (predicted == Y.numpy()).mean()
-    st.success(f"✅ Pontosság: {accuracy*100:.2f}%")
+# Confusion Matrix
+cm = confusion_matrix(y_test, y_pred, labels=[0,1])
+fig_cm, ax_cm = plt.subplots()
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["0", "1"])
+disp.plot(ax=ax_cm)
+st.pyplot(fig_cm)
 
-    # Loss plot
-    fig1, ax1 = plt.subplots()
-    ax1.plot(losses)
-    ax1.set_title("Loss görbe")
-    ax1.set_xlabel("Epoch")
-    ax1.set_ylabel("Loss")
-    st.pyplot(fig1)
+# Loss curve
+fig_loss, ax_loss = plt.subplots()
+ax_loss.plot(losses)
+ax_loss.set_title("Loss Curve")
+ax_loss.set_xlabel("Epoch")
+ax_loss.set_ylabel("Loss")
+st.pyplot(fig_loss)
 
-    # Confusion matrix
-    cm = confusion_matrix(Y.numpy(), predicted)
-    fig2, ax2 = plt.subplots()
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
-    disp.plot(ax=ax2)
-    st.pyplot(fig2)
+# 3D Visualization
+if show_3d:
+    xx, yy = np.meshgrid(np.linspace(0,1,50), np.linspace(0,1,50))
+    zz = np.array([model.predict([[x,y]])[0] for x,y in zip(np.ravel(xx), np.ravel(yy))])
+    zz = zz.reshape(xx.shape)
 
-    # Eredmények táblázatban
-    df = pd.DataFrame({
-        "Input 1": X[:,0],
-        "Input 2": X[:,1],
-        "Célérték": Y.flatten(),
-        "Előrejelzés": predicted.flatten()
-    })
-    st.dataframe(df)
+    fig3d = go.Figure(data=[go.Surface(z=zz, x=xx, y=yy, colorscale='Viridis')])
+    fig3d.update_layout(title='3D Prediction Surface', autosize=True)
+    st.plotly_chart(fig3d)
 
-# Kötelező ReflectAI kompatibilitáshoz
-app()
+# ReflectAI integráció
+app = lambda: None
+app.__code__ = run.__code__
