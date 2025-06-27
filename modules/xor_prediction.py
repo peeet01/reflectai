@@ -65,48 +65,43 @@ def run():
 
     
     # 3D vizualizáció (fejlesztett)
-    import numpy as np
-import plotly.graph_objects as go
+    if show_3d:
+        xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
+        X_vis = np.c_[xx.ravel(), yy.ravel()]
+        Z = model.predict(X_vis).reshape(xx.shape)
 
-# 3D predikciós mátrix létrehozása
-xx, yy = np.meshgrid(np.linspace(0, 1, 50), np.linspace(0, 1, 50))
-X = np.c_[xx.ravel(), yy.ravel()]
-Z = np.logical_xor(X[:, 0] > 0.5, X[:, 1] > 0.5).astype(float).reshape(xx.shape)
+        fig = go.Figure()
 
-# 3D ábra kombinált surface és kontúros megjelenítéssel
-fig = go.Figure()
+        # Felület
+        fig.add_trace(go.Surface(
+            z=Z, x=xx, y=yy,
+            colorscale='Viridis',
+            opacity=0.9,
+            showscale=False
+        ))
 
-# Felület hozzáadása
-fig.add_trace(go.Surface(
-    z=Z, x=xx, y=yy,
-    colorscale='Viridis',
-    opacity=0.85,
-    showscale=False
-))
+        # Kontúrok
+        fig.add_trace(go.Contour(
+            z=Z, x=np.linspace(0, 1, 100), y=np.linspace(0, 1, 100),
+            contours=dict(start=0.0, end=1.0, size=0.5),
+            line=dict(width=2, color='black'),
+            showscale=False,
+            opacity=0.3
+        ))
 
-# Kontúr réteg hozzáadása
-fig.add_trace(go.Contour(
-    z=Z, x=np.linspace(0, 1, 50), y=np.linspace(0, 1, 50),
-    contours=dict(start=0.0, end=1.0, size=0.5),
-    line=dict(width=3, color='black'),
-    showscale=False,
-    opacity=0.4
-))
+        # Megjelenítés
+        fig.update_layout(
+            title="🧠 XOR – 3D Surface & Contour",
+            scene=dict(
+                xaxis_title='X1',
+                yaxis_title='X2',
+                zaxis_title='Output',
+                zaxis=dict(nticks=4, range=[0, 1])
+            ),
+            margin=dict(l=10, r=10, t=50, b=10)
+        )
 
-# Megjelenítési beállítások
-fig.update_layout(
-    title="🧠 XOR – 3D Surface & Contour",
-    scene=dict(
-        xaxis_title='X1',
-        yaxis_title='X2',
-        zaxis_title='Output',
-        zaxis=dict(nticks=4, range=[0, 1])
-    ),
-    margin=dict(l=0, r=0, t=60, b=0)
-)
-
-# Streamlit-kompatibilis
-st.plotly_chart(fig, use_container_width=True) 
+        st.plotly_chart(fig, use_container_width=True)
    
 
 # Kötelező ReflectAI kompatibilitás
