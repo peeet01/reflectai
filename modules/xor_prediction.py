@@ -64,8 +64,7 @@ def run():
     st.pyplot(fig_loss)
 
     
-    # 3D vizualizáció – kontúrvonalak nélkül, szép tengelyekkel
-if show_3d:
+    if show_3d:
     xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
     zz = np.array([
         model.predict([[x, y]])[0] for x, y in zip(np.ravel(xx), np.ravel(yy))
@@ -77,18 +76,22 @@ if show_3d:
             x=xx,
             y=yy,
             colorscale='Viridis',
-            opacity=0.85,
+            opacity=0.9,
             showscale=True,
-            contours={"z": {"show": False}}
+            contours=dict(
+                x=dict(show=False),
+                y=dict(show=False),
+                z=dict(show=False)
+            )
         )
     ])
 
     fig.update_layout(
         title="🧠 XOR – 3D Surface from Neural Network",
         scene=dict(
-            xaxis=dict(title='X1', showgrid=False),
-            yaxis=dict(title='X2', showgrid=False),
-            zaxis=dict(title='Output', showgrid=False, nticks=4, range=[0, 1])
+            xaxis=dict(title='X1'),
+            yaxis=dict(title='X2'),
+            zaxis=dict(title='Output', nticks=4, range=[0, 1])
         ),
         margin=dict(l=0, r=0, t=60, b=0)
     )
