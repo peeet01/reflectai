@@ -63,36 +63,44 @@ def run():
     ax_loss.set_title("📉 Loss-görbe")
     st.pyplot(fig_loss)
 
+    
     # 3D vizualizáció (fejlesztett)
     if show_3d:
-        xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
-        zz = np.array([model.predict([[x, y]])[0] for x, y in zip(np.ravel(xx), np.ravel(yy))])
-        zz = zz.reshape(xx.shape)
+        from scipy.interpolate import griddata
 
+        # Finom rács a simább megjelenítéshez
+        grid_x, grid_y = np.mgrid[0:1:200j, 0:1:200j]
+        points = np.array([[x[0], x[1]] for x in X_train])
+        values = model.predict(X_train)
+
+        # Interpoláció a simább felszínhez
+        grid_z = griddata(points, values, (grid_x, grid_y), method='cubic')
+
+        # Plotly surface plot
         fig3d = go.Figure(data=[go.Surface(
-            z=zz,
-            x=xx,
-            y=yy,
-            colorscale='Electric',
-            opacity=0.9,
-            lighting=dict(ambient=0.5, diffuse=0.8, specular=0.4, roughness=0.3),
+            z=grid_z,
+            x=grid_x,
+            y=grid_y,
+            colorscale='Viridis',
+            opacity=0.95,
+            lighting=dict(ambient=0.5, diffuse=0.9, specular=1.0, roughness=0.2),
             lightposition=dict(x=100, y=200, z=100),
             showscale=True
         )])
 
         fig3d.update_layout(
-            title="🧠 3D Előrejelzési Felszín (XOR)",
+            title="🧠 3D Előrejelzési Felszín (Simított XOR)",
             scene=dict(
                 xaxis_title='X1',
                 yaxis_title='X2',
                 zaxis_title='Kimenet',
-                camera=dict(eye=dict(x=1.3, y=1.2, z=0.8)),
+                camera=dict(eye=dict(x=1.3, y=1.2, z=1.1)),
                 aspectmode='cube'
             ),
             margin=dict(l=0, r=0, t=50, b=0)
         )
 
-        st.plotly_chart(fig3d)
+        st.plotly_chart(fig3d) 
    
 
 # Kötelező ReflectAI kompatibilitás
