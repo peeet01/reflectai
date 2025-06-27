@@ -65,48 +65,48 @@ def run():
 
     
     # 3D vizualizáció (fejlesztett)
-    if show_3d:
-        from scipy.interpolate import griddata
+    import numpy as np
+import plotly.graph_objects as go
 
-        # Finom rács a simább, részletes felszínhez
-        grid_x, grid_y = np.mgrid[0:1:250j, 0:1:250j]
-        train_points = np.array([[x[0], x[1]] for x in X_train])
-        train_values = model.predict(X_train)
+# 3D predikciós mátrix létrehozása
+xx, yy = np.meshgrid(np.linspace(0, 1, 50), np.linspace(0, 1, 50))
+X = np.c_[xx.ravel(), yy.ravel()]
+Z = np.logical_xor(X[:, 0] > 0.5, X[:, 1] > 0.5).astype(float).reshape(xx.shape)
 
-        # Kimenetek simítása
-        grid_z = griddata(train_points, train_values, (grid_x, grid_y), method='cubic')
+# 3D ábra kombinált surface és kontúros megjelenítéssel
+fig = go.Figure()
 
-        # Felszín létrehozása
-        fig3d = go.Figure(data=[go.Surface(
-            z=grid_z,
-            x=grid_x,
-            y=grid_y,
-            colorscale='Electric',
-            opacity=0.98,
-            lighting=dict(ambient=0.6, diffuse=1, specular=1, roughness=0.15, fresnel=0.2),
-            lightposition=dict(x=100, y=200, z=0),
-            contours={"z": {"show": True, "start": 0, "end": 1, "size": 0.1, "color":"white"}},
-            showscale=True
-        )])
+# Felület hozzáadása
+fig.add_trace(go.Surface(
+    z=Z, x=xx, y=yy,
+    colorscale='Viridis',
+    opacity=0.85,
+    showscale=False
+))
 
-        # Kamera és jelenet finomhangolás
-        fig3d.update_layout(
-            title="🧠 Szuperfinomított 3D Előrejelzési Térkép",
-            scene=dict(
-                xaxis_title='X1',
-                yaxis_title='X2',
-                zaxis_title='Predikció',
-                camera=dict(eye=dict(x=1.4, y=1.4, z=1.2)),
-                xaxis=dict(nticks=5, backgroundcolor="black", gridcolor="gray"),
-                yaxis=dict(nticks=5, backgroundcolor="black", gridcolor="gray"),
-                zaxis=dict(nticks=5, backgroundcolor="black", gridcolor="gray"),
-            ),
-            paper_bgcolor="black",
-            font=dict(color="white"),
-            margin=dict(l=0, r=0, t=50, b=0)
-        )
+# Kontúr réteg hozzáadása
+fig.add_trace(go.Contour(
+    z=Z, x=np.linspace(0, 1, 50), y=np.linspace(0, 1, 50),
+    contours=dict(start=0.0, end=1.0, size=0.5),
+    line=dict(width=3, color='black'),
+    showscale=False,
+    opacity=0.4
+))
 
-        st.plotly_chart(fig3d, use_container_width=True) 
+# Megjelenítési beállítások
+fig.update_layout(
+    title="🧠 XOR – 3D Surface & Contour",
+    scene=dict(
+        xaxis_title='X1',
+        yaxis_title='X2',
+        zaxis_title='Output',
+        zaxis=dict(nticks=4, range=[0, 1])
+    ),
+    margin=dict(l=0, r=0, t=60, b=0)
+)
+
+# Streamlit-kompatibilis
+st.plotly_chart(fig, use_container_width=True) 
    
 
 # Kötelező ReflectAI kompatibilitás
