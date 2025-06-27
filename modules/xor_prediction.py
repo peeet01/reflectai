@@ -63,7 +63,38 @@ def run():
     ax_loss.set_title("📉 Loss-görbe")
     st.pyplot(fig_loss)
 
-    
+    # Működésmagyarázat
+    with st.expander("ℹ️ Működésmagyarázat – Hogyan tanulja meg a hálózat az XOR-t?"):
+        st.markdown("""
+        Az XOR művelet kimenete csak akkor igaz (1), ha a két bemenet eltérő:
+        - `XOR(0,0) = 0`
+        - `XOR(0,1) = 1`
+        - `XOR(1,0) = 1`
+        - `XOR(1,1) = 0`
+
+        Ez **nem lineárisan szétválasztható** probléma, ezért egyetlen rétegű perceptron nem elég.  
+        A hálózatod egy vagy több **rejtett neuront** tartalmaz, amelyek különböző súlyokat és aktivációkat tanulnak.
+
+        ### 🧠 Mit csinál a neurális hálózat?
+        - A bemeneti párokhoz (X1, X2) **egy kimeneti értéket jósol** (0 vagy 1 között).
+        - A cél, hogy az előrejelzés **minél közelebb legyen** a valódi értékhez.
+        - A tanulási folyamat során a súlyokat frissítjük, hogy **csökkenjen a hiba** (loss).
+
+        ### 🛰️ Mit látunk a 3D ábrán?
+        A 3D felszín azt mutatja, hogy a neurális hálózat **milyen valószínűséggel** jósol 1-et a bemeneti tér egyes pontjaira.
+
+        - A `Z` tengelyen a kimeneti valószínűség van (0-tól 1-ig).
+        - Ahol magas a felszín, ott a modell **1-re tippel**, ahol alacsony, ott **0-ra**.
+        - A döntési határvonal (decision boundary) egy **átmenet a domb és völgy között**.
+
+        ### 🔄 Miért változik az alak?
+        A beállításaid (rejtett réteg, aktiváció, solver stb.) befolyásolják a tanulást.  
+        Néhány beállítás gyorsabban konvergál, mások érzékenyebbek.
+
+        Próbálkozz különböző paraméterekkel, és figyeld, **hogyan alakul át a felszín**!
+        """)
+
+    # 3D vizualizáció
     if show_3d:
         xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
         zz = np.array([
@@ -97,7 +128,6 @@ def run():
         )
 
         st.plotly_chart(fig, use_container_width=True)
-   
 
 # Kötelező ReflectAI kompatibilitás
 app = run
