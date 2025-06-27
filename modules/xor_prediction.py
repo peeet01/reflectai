@@ -64,11 +64,11 @@ def run():
     st.pyplot(fig_loss)
 
     
-    # 3D vizualizáció (fejlesztett)
+    # 3D vizualizáció (továbbfejlesztett – valós modell alapján)
     if show_3d:
         xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
         X_vis = np.c_[xx.ravel(), yy.ravel()]
-        Z = model.predict(X_vis).reshape(xx.shape)
+        Z = model.predict_proba(X_vis)[:, 1].reshape(xx.shape)
 
         fig = go.Figure()
 
@@ -77,26 +77,25 @@ def run():
             z=Z, x=xx, y=yy,
             colorscale='Viridis',
             opacity=0.9,
-            showscale=False
+            showscale=True
         ))
 
-        # Kontúrok
+        # Kontúr réteg (opcionális)
         fig.add_trace(go.Contour(
             z=Z, x=np.linspace(0, 1, 100), y=np.linspace(0, 1, 100),
-            contours=dict(start=0.0, end=1.0, size=0.5),
+            contours=dict(start=0.0, end=1.0, size=0.1),
             line=dict(width=2, color='black'),
             showscale=False,
-            opacity=0.3
+            opacity=0.4
         ))
 
-        # Megjelenítés
         fig.update_layout(
-            title="🧠 XOR – 3D Surface & Contour",
+            title="🧠 XOR – 3D Surface from Neural Network",
             scene=dict(
                 xaxis_title='X1',
                 yaxis_title='X2',
-                zaxis_title='Output',
-                zaxis=dict(nticks=4, range=[0, 1])
+                zaxis_title='Output (probabilistic)',
+                zaxis=dict(nticks=5, range=[0, 1])
             ),
             margin=dict(l=10, r=10, t=50, b=10)
         )
