@@ -1,62 +1,93 @@
-import streamlit as st
 import numpy as np
-import plotly.graph_objects as go
-from sklearn.neural_network import MLPClassifier
-from sklearn.datasets import make_classification
+import matplotlib.pyplot as plt
+import streamlit as st
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import seaborn as sns
+import pandas as pd
 
-def create_data(n_samples=500, noise=0.2):
-    X = np.random.uniform(-1, 1, (n_samples, 2))
-    y = np.logical_xor(X[:, 0] > 0, X[:, 1] > 0).astype(int)
-    return X, y
+def app():
+    st.title("🧠 XOR Prediction - Pro Version")
+    st.markdown("Klasszikus XOR probléma modern, mélytanulás-alapú megoldása vizualizációval és elemzéssel.")
 
-def train_model(X, y, hidden_layer_sizes=(10,), alpha=0.01, max_iter=1000):
-    clf = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, activation='tanh',
-                        solver='adam', alpha=alpha, max_iter=max_iter, random_state=42)
-    clf.fit(X, y)
-    return clf
+    # Adatok
+    X = torch.tensor([[0,0],[0,1],[1,0],[1,1]], dtype=torch.float32)
+    Y = torch.tensor([[0],[1],[1],[0]], dtype=torch.float32)
 
-def plot_3d_decision_boundary(model, X, y, resolution=50):
-    xx, yy = np.meshgrid(np.linspace(-1, 1, resolution), np.linspace(-1, 1, resolution))
-    grid = np.c_[xx.ravel(), yy.ravel()]
-    zz = model.predict_proba(grid)[:, 1].reshape(xx.shape)
+    # UI
+    hidden_size = st.slider("Rejtett réteg méret", 2, 16, 4)
+    activation_name = st.selectbox("Aktivációs függvény", ["Sigmoid", "ReLU", "Tanh"])
+    loss_fn_name = st.selectbox("Loss függvény", ["MSE", "Binary Crossentropy"])
+    epochs = st.slider("Epoch-ok száma", 100, 5000, 1000)
+    learning_rate = st.number_input("Tanulási ráta", 0.001, 1.0, 0.1)
 
-    fig = go.Figure()
+    # Aktiváció kiválasztása
+    if activation_name == "Sigmoid":
+        activation = nn.Sigmoid()
+    elif activation_name == "ReLU":
+        activation = nn.ReLU()
+    else:
+        activation = nn.Tanh()
 
-    fig.add_trace(go.Scatter3d(
-        x=X[:, 0], y=X[:, 1], z=y,
-        mode='markers',
-        marker=dict(size=4, color=y, colorscale='Viridis'),
-        name='Adatpontok'
-    ))
+    class XORModel(nn.Module):
+        def __init__(self):
+            super(XORModel, self).__init__()
+            self.fc1 = nn.Linear(2, hidden_size)
+            self.fc2 = nn.Linear(hidden_size, 1)
 
-    fig.add_trace(go.Surface(
-        x=xx, y=yy, z=zz,
-        colorscale='RdBu', opacity=0.7, showscale=False,
-        name='Döntési határ'
-    ))
+        def forward(self, x):
+            x = activation(self.fc1(x))
+            x = torch.sigmoid(self.fc2(x))
+            return x
 
-    fig.update_layout(
-        scene=dict(
-            xaxis_title='X1',
-            yaxis_title='X2',
-            zaxis_title='Kimenet',
-        ),
-        margin=dict(l=0, r=0, t=0, b=0)
-    )
+    # Loss kiválasztása
+    if loss_fn_name == "MSE":
+        loss_fn = nn.MSELoss()
+    else:
+        loss_fn = nn.BCELoss()
 
-    st.plotly_chart(fig, use_container_width=True)
+    model = XORModel()
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+    losses = []
 
-def run():
-    st.header("🧩 XOR Predikció – 3D Döntési Határ Vizualizáció")
-    st.markdown("Ez a szimuláció egy neurális hálóval tanulja meg az XOR logikai kaput, és vizualizálja a döntési felületet 3D-ben.")
+    for epoch in range(epochs):
+        y_pred = model(X)
+        loss = loss_fn(y_pred, Y)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        losses.append(loss.item())
 
-    n_samples = st.slider("Minták száma", 100, 1000, 500, 50)
-    hidden_neurons = st.slider("Rejtett neuronok száma", 2, 20, 10, 1)
-    alpha = st.slider("Regularizációs erő (alpha)", 0.0001, 0.1, 0.01, 0.0001)
+    # Előrejelzés
+    predicted = model(X).detach().numpy().round()
+    accuracy = (predicted == Y.numpy()).mean()
+    st.success(f"✅ Pontosság: {accuracy*100:.2f}%")
 
-    X, y = create_data(n_samples)
-    model = train_model(X, y, hidden_layer_sizes=(hidden_neurons,), alpha=alpha)
-    plot_3d_decision_boundary(model, X, y)
+    # Loss plot
+    fig1, ax1 = plt.subplots()
+    ax1.plot(losses)
+    ax1.set_title("Loss görbe")
+    ax1.set_xlabel("Epoch")
+    ax1.set_ylabel("Loss")
+    st.pyplot(fig1)
 
-# Kötelező az app dinamikus betöltéséhez:
-app = run
+    # Confusion matrix
+    cm = confusion_matrix(Y.numpy(), predicted)
+    fig2, ax2 = plt.subplots()
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+    disp.plot(ax=ax2)
+    st.pyplot(fig2)
+
+    # Eredmények táblázatban
+    df = pd.DataFrame({
+        "Input 1": X[:,0],
+        "Input 2": X[:,1],
+        "Célérték": Y.flatten(),
+        "Előrejelzés": predicted.flatten()
+    })
+    st.dataframe(df)
+
+# Kötelező ReflectAI kompatibilitáshoz
+app()
