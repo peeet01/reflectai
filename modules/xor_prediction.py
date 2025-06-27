@@ -93,15 +93,9 @@ def run():
         st.plotly_chart(fig, use_container_width=True)
 
     # 📖 Működésmagyarázat
-    with st.expander("🔎 Hogyan működik?"):
-        st.markdown("""
-        - Az XOR probléma kizárólag nemlineáris módszerekkel tanulható meg.
-        - A modul egy `MLPClassifier`-t alkalmaz, mely visszaterjesztéses tanulással dolgozik.
-        - A rejtett réteg mérete, aktiváció és solver testreszabható.
-        - A tanulás eredménye a loss-görbén és 3D predikciós felületen is vizsgálható.
-        """)
+    
         
-    with st.expander("🔎 Hogyan működik? (Bővített magyarázat)"):
+    with st.expander("🔎 Hogyan működik?"):
         st.markdown("""
         Az **XOR (exclusive OR)** logikai művelet egy klasszikus példa a nemlineáris problémákra, amelyeket egyetlen rétegű perceptron nem tud megtanulni. Ezért szükség van **többrétegű, nemlineáris neurális hálózatra**, mint például az `MLPClassifier`.
 
