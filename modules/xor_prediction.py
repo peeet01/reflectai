@@ -64,13 +64,11 @@ def run():
     st.pyplot(fig_loss)
 
     # 3D vizualizáció (fejlesztett)
-   if show_3d:
-        # Pontok előkészítése
+    if show_3d:
         xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
         zz = np.array([model.predict([[x, y]])[0] for x, y in zip(np.ravel(xx), np.ravel(yy))])
         zz = zz.reshape(xx.shape)
 
-        # 3D plot létrehozása
         fig3d = go.Figure(data=[go.Surface(
             z=zz,
             x=xx,
@@ -82,7 +80,6 @@ def run():
             showscale=True
         )])
 
-        # Layout finomhangolása
         fig3d.update_layout(
             title="🧠 3D Előrejelzési Felszín (XOR)",
             scene=dict(
@@ -96,6 +93,7 @@ def run():
         )
 
         st.plotly_chart(fig3d)
+   
 
 # Kötelező ReflectAI kompatibilitás
 app = run
