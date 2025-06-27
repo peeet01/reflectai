@@ -64,43 +64,36 @@ def run():
     st.pyplot(fig_loss)
 
     
-    # 3D vizualizáció (továbbfejlesztett – valós modell alapján)
-    if show_3d:
-        xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
-        X_vis = np.c_[xx.ravel(), yy.ravel()]
-        Z = model.predict_proba(X_vis)[:, 1].reshape(xx.shape)
+    # 3D vizualizáció – kontúrvonalak nélkül, szép tengelyekkel
+if show_3d:
+    xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
+    zz = np.array([
+        model.predict([[x, y]])[0] for x, y in zip(np.ravel(xx), np.ravel(yy))
+    ]).reshape(xx.shape)
 
-        fig = go.Figure()
-
-        # Felület
-        fig.add_trace(go.Surface(
-            z=Z, x=xx, y=yy,
+    fig = go.Figure(data=[
+        go.Surface(
+            z=zz,
+            x=xx,
+            y=yy,
             colorscale='Viridis',
-            opacity=0.9,
-            showscale=True
-        ))
-
-        # Kontúr réteg (opcionális)
-        fig.add_trace(go.Contour(
-            z=Z, x=np.linspace(0, 1, 100), y=np.linspace(0, 1, 100),
-            contours=dict(start=0.0, end=1.0, size=0.1),
-            line=dict(width=2, color='black'),
-            showscale=False,
-            opacity=0.4
-        ))
-
-        fig.update_layout(
-            title="🧠 XOR – 3D Surface from Neural Network",
-            scene=dict(
-                xaxis_title='X1',
-                yaxis_title='X2',
-                zaxis_title='Output (probabilistic)',
-                zaxis=dict(nticks=5, range=[0, 1])
-            ),
-            margin=dict(l=10, r=10, t=50, b=10)
+            opacity=0.85,
+            showscale=True,
+            contours={"z": {"show": False}}
         )
+    ])
 
-        st.plotly_chart(fig, use_container_width=True)
+    fig.update_layout(
+        title="🧠 XOR – 3D Surface from Neural Network",
+        scene=dict(
+            xaxis=dict(title='X1', showgrid=False),
+            yaxis=dict(title='X2', showgrid=False),
+            zaxis=dict(title='Output', showgrid=False, nticks=4, range=[0, 1])
+        ),
+        margin=dict(l=0, r=0, t=60, b=0)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
    
 
 # Kötelező ReflectAI kompatibilitás
