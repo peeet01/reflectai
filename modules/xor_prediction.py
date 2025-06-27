@@ -65,38 +65,38 @@ def run():
 
     
     if show_3d:
-    xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
-    zz = np.array([
-        model.predict([[x, y]])[0] for x, y in zip(np.ravel(xx), np.ravel(yy))
-    ]).reshape(xx.shape)
+        xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
+        zz = np.array([
+            model.predict([[x, y]])[0] for x, y in zip(np.ravel(xx), np.ravel(yy))
+        ]).reshape(xx.shape)
 
-    fig = go.Figure(data=[
-        go.Surface(
-            z=zz,
-            x=xx,
-            y=yy,
-            colorscale='Viridis',
-            opacity=0.9,
-            showscale=True,
-            contours=dict(
-                x=dict(show=False),
-                y=dict(show=False),
-                z=dict(show=False)
+        fig = go.Figure(data=[
+            go.Surface(
+                z=zz,
+                x=xx,
+                y=yy,
+                colorscale='Viridis',
+                opacity=0.9,
+                showscale=True,
+                contours=dict(
+                    x=dict(show=False),
+                    y=dict(show=False),
+                    z=dict(show=False)
+                )
             )
+        ])
+
+        fig.update_layout(
+            title="🧠 XOR – 3D Surface from Neural Network",
+            scene=dict(
+                xaxis=dict(title='X1'),
+                yaxis=dict(title='X2'),
+                zaxis=dict(title='Output', nticks=4, range=[0, 1])
+            ),
+            margin=dict(l=0, r=0, t=60, b=0)
         )
-    ])
 
-    fig.update_layout(
-        title="🧠 XOR – 3D Surface from Neural Network",
-        scene=dict(
-            xaxis=dict(title='X1'),
-            yaxis=dict(title='X2'),
-            zaxis=dict(title='Output', nticks=4, range=[0, 1])
-        ),
-        margin=dict(l=0, r=0, t=60, b=0)
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
    
 
 # Kötelező ReflectAI kompatibilitás
