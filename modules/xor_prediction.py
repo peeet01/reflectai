@@ -66,32 +66,34 @@ def run():
     # 3D vizualizáció (fejlesztett)
    if show_3d:
     xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
-    zz = np.array([model.predict([[x, y]])[0] for x, y in zip(np.ravel(xx), np.ravel(yy))]).reshape(xx.shape)
+   if show_3d:
+        xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
+        zz = np.array([model.predict([[x, y]])[0] for x, y in zip(np.ravel(xx), np.ravel(yy))]).reshape(xx.shape)
 
-    fig3d = go.Figure(data=[go.Surface(
-        z=zz, x=xx, y=yy,
-        colorscale='Electric',
-        lighting=dict(ambient=0.4, diffuse=0.9, roughness=0.3, specular=1),
-        lightposition=dict(x=100, y=200, z=100),
-        showscale=True,
-        opacity=0.95
-    )])
+        fig3d = go.Figure(data=[go.Surface(
+            z=zz, x=xx, y=yy,
+            colorscale='Electric',
+            lighting=dict(ambient=0.4, diffuse=0.9, roughness=0.3, specular=1),
+            lightposition=dict(x=100, y=200, z=100),
+            showscale=True,
+            opacity=0.95
+        )])
 
-    fig3d.update_layout(
-        title="🧠 3D Előrejelzési Felszín (XOR)",
-        scene=dict(
-            xaxis_title='X1',
-            yaxis_title='X2',
-            zaxis_title='Kimenet',
-            xaxis=dict(nticks=6, backgroundcolor="rgb(240,240,255)"),
-            yaxis=dict(nticks=6, backgroundcolor="rgb(240,240,255)"),
-            zaxis=dict(nticks=4, backgroundcolor="rgb(230,230,250)"),
-            camera=dict(eye=dict(x=1.3, y=1.2, z=1.0))
-        ),
-        margin=dict(l=10, r=10, b=10, t=40)
-    )
+        fig3d.update_layout(
+            title="🧠 3D Előrejelzési Felszín (XOR)",
+            scene=dict(
+                xaxis_title='X1',
+                yaxis_title='X2',
+                zaxis_title='Kimenet',
+                xaxis=dict(nticks=6, backgroundcolor="rgb(240,240,255)"),
+                yaxis=dict(nticks=6, backgroundcolor="rgb(240,240,255)"),
+                zaxis=dict(nticks=4, backgroundcolor="rgb(230,230,250)"),
+                camera=dict(eye=dict(x=1.3, y=1.2, z=1.0))
+            ),
+            margin=dict(l=10, r=10, b=10, t=40)
+        )
 
-    st.plotly_chart(fig3d) 
+        st.plotly_chart(fig3d)
 
 # Kötelező ReflectAI kompatibilitás
 app = run
