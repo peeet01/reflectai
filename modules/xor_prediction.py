@@ -100,6 +100,32 @@ def run():
         - A rejtett réteg mérete, aktiváció és solver testreszabható.
         - A tanulás eredménye a loss-görbén és 3D predikciós felületen is vizsgálható.
         """)
+        
+    with st.expander("🔎 Hogyan működik? (Bővített magyarázat)"):
+        st.markdown("""
+        Az **XOR (exclusive OR)** logikai művelet egy klasszikus példa a nemlineáris problémákra, amelyeket egyetlen rétegű perceptron nem tud megtanulni. Ezért szükség van **többrétegű, nemlineáris neurális hálózatra**, mint például az `MLPClassifier`.
 
+        #### 🔢 XOR Működése:
+        - `XOR(0, 0) = 0`
+        - `XOR(0, 1) = 1`
+        - `XOR(1, 0) = 1`
+        - `XOR(1, 1) = 0`
+
+        #### 🧠 Alkalmazott modell: `MLPClassifier` (Multi-Layer Perceptron)
+        - **Rejtett rétegek**: A felhasználó választhatja meg a rejtett réteg méretét.
+        - **Aktivációs függvények**: `relu`, `tanh`, `logistic` – ezek vezetik be a nemlinearitást.
+        - **Tanulási algoritmus** (`solver`): `adam`, `sgd`, `lbfgs`
+        - **Veszteségfüggvény** (`loss`) követése és vizualizációja.
+
+        #### 📊 Mit jelenít meg az alkalmazás?
+        - A **tanulás pontosságát** (`accuracy`) a tesztadatokra.
+        - Egy **konfúziós mátrixot**, amely vizuálisan mutatja a helyes és téves osztályozásokat.
+        - Egy **loss-görbét**, amely az iterációk során mért tanulási hibát mutatja.
+        - Egy **3D vizualizációt**, amely megjeleníti a háló által tanult döntési határt a bemeneti térben.
+    
+        #### ⚗️ Miért érdekes ez?
+        Az XOR probléma az egyik első bemutató példa arra, hogy a neurális hálózatok képesek **komplex, nemlineáris viselkedés tanulására**, ha megfelelően vannak paraméterezve. E modul lehetővé teszi, hogy ezt a tanulást **interaktívan és tudományos módon** figyeld meg és elemezd.
+        """)
+        
 # Kötelező ReflectAI kompatibilitás
 app = run
