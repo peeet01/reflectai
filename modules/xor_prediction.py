@@ -68,39 +68,45 @@ def run():
     if show_3d:
         from scipy.interpolate import griddata
 
-        # Finom rács a simább megjelenítéshez
-        grid_x, grid_y = np.mgrid[0:1:200j, 0:1:200j]
-        points = np.array([[x[0], x[1]] for x in X_train])
-        values = model.predict(X_train)
+        # Finom rács a simább, részletes felszínhez
+        grid_x, grid_y = np.mgrid[0:1:250j, 0:1:250j]
+        train_points = np.array([[x[0], x[1]] for x in X_train])
+        train_values = model.predict(X_train)
 
-        # Interpoláció a simább felszínhez
-        grid_z = griddata(points, values, (grid_x, grid_y), method='cubic')
+        # Kimenetek simítása
+        grid_z = griddata(train_points, train_values, (grid_x, grid_y), method='cubic')
 
-        # Plotly surface plot
+        # Felszín létrehozása
         fig3d = go.Figure(data=[go.Surface(
             z=grid_z,
             x=grid_x,
             y=grid_y,
-            colorscale='Viridis',
-            opacity=0.95,
-            lighting=dict(ambient=0.5, diffuse=0.9, specular=1.0, roughness=0.2),
-            lightposition=dict(x=100, y=200, z=100),
+            colorscale='Electric',
+            opacity=0.98,
+            lighting=dict(ambient=0.6, diffuse=1, specular=1, roughness=0.15, fresnel=0.2),
+            lightposition=dict(x=100, y=200, z=0),
+            contours={"z": {"show": True, "start": 0, "end": 1, "size": 0.1, "color":"white"}},
             showscale=True
         )])
 
+        # Kamera és jelenet finomhangolás
         fig3d.update_layout(
-            title="🧠 3D Előrejelzési Felszín (Simított XOR)",
+            title="🧠 Szuperfinomított 3D Előrejelzési Térkép",
             scene=dict(
                 xaxis_title='X1',
                 yaxis_title='X2',
-                zaxis_title='Kimenet',
-                camera=dict(eye=dict(x=1.3, y=1.2, z=1.1)),
-                aspectmode='cube'
+                zaxis_title='Predikció',
+                camera=dict(eye=dict(x=1.4, y=1.4, z=1.2)),
+                xaxis=dict(nticks=5, backgroundcolor="black", gridcolor="gray"),
+                yaxis=dict(nticks=5, backgroundcolor="black", gridcolor="gray"),
+                zaxis=dict(nticks=5, backgroundcolor="black", gridcolor="gray"),
             ),
+            paper_bgcolor="black",
+            font=dict(color="white"),
             margin=dict(l=0, r=0, t=50, b=0)
         )
 
-        st.plotly_chart(fig3d) 
+        st.plotly_chart(fig3d, use_container_width=True) 
    
 
 # Kötelező ReflectAI kompatibilitás
