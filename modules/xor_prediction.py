@@ -65,32 +65,34 @@ def run():
 
     # 3D vizualizáció (fejlesztett)
    if show_3d:
-    xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
-   if show_3d:
+        # Pontok előkészítése
         xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
-        zz = np.array([model.predict([[x, y]])[0] for x, y in zip(np.ravel(xx), np.ravel(yy))]).reshape(xx.shape)
+        zz = np.array([model.predict([[x, y]])[0] for x, y in zip(np.ravel(xx), np.ravel(yy))])
+        zz = zz.reshape(xx.shape)
 
+        # 3D plot létrehozása
         fig3d = go.Figure(data=[go.Surface(
-            z=zz, x=xx, y=yy,
+            z=zz,
+            x=xx,
+            y=yy,
             colorscale='Electric',
-            lighting=dict(ambient=0.4, diffuse=0.9, roughness=0.3, specular=1),
+            opacity=0.9,
+            lighting=dict(ambient=0.5, diffuse=0.8, specular=0.4, roughness=0.3),
             lightposition=dict(x=100, y=200, z=100),
-            showscale=True,
-            opacity=0.95
+            showscale=True
         )])
 
+        # Layout finomhangolása
         fig3d.update_layout(
             title="🧠 3D Előrejelzési Felszín (XOR)",
             scene=dict(
                 xaxis_title='X1',
                 yaxis_title='X2',
                 zaxis_title='Kimenet',
-                xaxis=dict(nticks=6, backgroundcolor="rgb(240,240,255)"),
-                yaxis=dict(nticks=6, backgroundcolor="rgb(240,240,255)"),
-                zaxis=dict(nticks=4, backgroundcolor="rgb(230,230,250)"),
-                camera=dict(eye=dict(x=1.3, y=1.2, z=1.0))
+                camera=dict(eye=dict(x=1.3, y=1.2, z=0.8)),
+                aspectmode='cube'
             ),
-            margin=dict(l=10, r=10, b=10, t=40)
+            margin=dict(l=0, r=0, t=50, b=0)
         )
 
         st.plotly_chart(fig3d)
