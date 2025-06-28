@@ -94,4 +94,5 @@ def run():
         show_data_overview(df)
     else:
         st.info("❗ Nincs elérhető adat.")
-app = run
+def app():
+    run()
