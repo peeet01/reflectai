@@ -69,4 +69,5 @@ def run():
         st.write(user_note)
 
 # 🔧 Dinamikus modulbetöltéshez szükséges
-app = run
+def app():
+    run()
