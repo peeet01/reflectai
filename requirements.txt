@@ -9,4 +9,5 @@ torch
 pandas
 ripser
 persim
+scikit-image
 
