@@ -3,8 +3,8 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import plotly.graph_objects as go
 import time
+import plotly.graph_objects as go
 
 def kuramoto_step(theta, omega, A, K, dt):
     N = len(theta)
@@ -40,69 +40,55 @@ def draw_graph(G, theta=None):
     ax.set_title("Gráfstruktúra (fázis színezéssel)")
     st.pyplot(fig)
 
-def draw_3d_graph(G, theta):
+def draw_graph_3d(G, theta=None):
     pos = nx.spring_layout(G, dim=3, seed=42)
-    xyz = np.array([pos[n] for n in G.nodes()])
-    norm_theta = (theta % (2*np.pi)) / (2*np.pi)
+    xyz = np.array([pos[v] for v in sorted(G)])
 
     edge_x, edge_y, edge_z = [], [], []
-    for i, j in G.edges():
-        x0, y0, z0 = pos[i]
-        x1, y1, z1 = pos[j]
+    for u, v in G.edges():
+        x0, y0, z0 = pos[u]
+        x1, y1, z1 = pos[v]
         edge_x += [x0, x1, None]
         edge_y += [y0, y1, None]
         edge_z += [z0, z1, None]
 
-    fig = go.Figure()
+    if theta is not None:
+        norm_theta = (theta % (2 * np.pi)) / (2 * np.pi)
+        node_colors = cm.hsv(norm_theta)
+        color_list = [f'rgb({int(r*255)},{int(g*255)},{int(b*255)})' for r, g, b, _ in node_colors]
+    else:
+        color_list = "lightblue"
 
-    fig.add_trace(go.Scatter3d(
-        x=edge_x, y=edge_y, z=edge_z,
-        mode='lines',
-        line=dict(color='gray', width=2),
-        hoverinfo='none'
-    ))
+    edge_trace = go.Scatter3d(x=edge_x, y=edge_y, z=edge_z,
+                              mode='lines',
+                              line=dict(color='gray', width=2),
+                              hoverinfo='none')
 
-    fig.add_trace(go.Scatter3d(
-        x=xyz[:, 0], y=xyz[:, 1], z=xyz[:, 2],
-        mode='markers',
-        marker=dict(
-            size=6,
-            color=norm_theta,
-            colorscale='hsv',
-            colorbar=dict(title="Fázis"),
-            opacity=0.9
-        ),
-        text=[f"Node {i}" for i in G.nodes()],
-        hoverinfo='text'
-    ))
+    node_trace = go.Scatter3d(x=xyz[:, 0], y=xyz[:, 1], z=xyz[:, 2],
+                              mode='markers',
+                              marker=dict(size=6, color=color_list),
+                              hoverinfo='text')
 
-    fig.update_layout(
-        title="🌐 3D gráf (fázisszínezéssel)",
-        margin=dict(l=0, r=0, t=50, b=0),
-        scene=dict(
-            xaxis=dict(title='X'),
-            yaxis=dict(title='Y'),
-            zaxis=dict(title='Z'),
-        )
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
+    fig = go.Figure(data=[edge_trace, node_trace])
+    fig.update_layout(title="3D gráfvizualizáció",
+                      showlegend=False,
+                      margin=dict(l=0, r=0, b=0, t=30))
+    st.plotly_chart(fig)
 
 def run():
     st.title("🔗 Gráfalapú szinkronanalízis")
     st.markdown("Kuramoto-modell vizsgálata különböző gráfstruktúrákon, vizuálisan és interaktívan.")
 
-    # 👉 A sidebar mindig aktív legyen, a csúszkákkal együtt
-    st.sidebar.header("⚙️ Paraméterek")
-    graph_type = st.sidebar.selectbox("Gráftípus", ["Erdős–Rényi", "Kör", "Rács", "Teljes gráf"])
-    N = st.sidebar.slider("Csomópontok száma", 5, 100, 30)
-    K = st.sidebar.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
-    steps = st.sidebar.slider("Lépések száma", 10, 1000, 300)
-    dt = st.sidebar.slider("Időlépés (dt)", 0.001, 0.1, 0.01)
-    er_p = st.sidebar.slider("Erdős–Rényi élvalószínűség", 0.05, 1.0, 0.1, step=0.05)
-    show_3d = st.sidebar.checkbox("🌐 3D gráf megjelenítése")
+    st.subheader("⚙️ Paraméterek")
+    graph_type = st.selectbox("Gráftípus", ["Erdős–Rényi", "Kör", "Rács", "Teljes gráf"])
+    N = st.slider("Csomópontok száma", 5, 100, 30)
+    K = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
+    steps = st.slider("Lépések száma", 10, 1000, 300)
+    dt = st.slider("Időlépés (dt)", 0.001, 0.1, 0.01)
+    er_p = st.slider("Erdős–Rényi élvalószínűség", 0.05, 1.0, 0.1, step=0.05)
+    show_3d = st.checkbox("🌐 3D gráf megjelenítése")
 
-    if st.sidebar.button("▶️ Szimuláció indítása"):
+    if st.button("▶️ Szimuláció indítása"):
         if graph_type == "Erdős–Rényi":
             G = nx.erdos_renyi_graph(N, er_p)
         elif graph_type == "Kör":
@@ -132,14 +118,16 @@ def run():
         st.pyplot(fig1)
 
         st.subheader("🧠 Kezdeti gráf vizualizáció")
-        draw_graph(G, theta_hist[0])
+        if show_3d:
+            draw_graph_3d(G, theta_hist[0])
+        else:
+            draw_graph(G, theta_hist[0])
 
         st.subheader("🧠 Végállapot gráf vizualizáció")
-        draw_graph(G, theta_hist[-1])
-
         if show_3d:
-            st.subheader("🌐 Interaktív 3D gráf")
-            draw_3d_graph(G, theta_hist[-1])
+            draw_graph_3d(G, theta_hist[-1])
+        else:
+            draw_graph(G, theta_hist[-1])
 
         st.subheader("📝 Jegyzetek")
         notes = st.text_area("Írd le megfigyeléseid vagy ötleteid:", height=150)
@@ -163,5 +151,5 @@ def run():
         Ezen szimuláció segít megérteni, hogyan befolyásolja a gráf szerkezete a szinkronizáció kialakulását.
         """)
 
-# Kötelező ReflectAI-kompatibilitáshoz
+# Kötelező ReflectAI-kompatibilitás
 app = run
