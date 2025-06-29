@@ -15,45 +15,58 @@ if st.sidebar.checkbox("🛠️ Debug info mutatása", value=False):
     except Exception as e:
         st.sidebar.error(f"Nem tudtam listázni a 'modules' mappát: {e}")
 
-# 📦 Modul-regiszter (modulnév: fájlnév, kiterjesztés nélkül)
-modules = {
-    "Berry Curvature": "berry_curvature",
-    "Data Upload": "data_upload",
-    "ESN Prediction": "esn_prediction",
-    "Fractal Dimension": "fractal_dimension",
-    "Generative Kuramoto": "generative_kuramoto",
-    "Graph Sync Analysis": "graph_sync_analysis",
-    "Hebbian Learning": "hebbian_learning",
-    "Hebbian Learning Viz": "hebbian_learning_viz",
-    "Help": "help_module",
-    "Insight Learning": "insight_learning",
-    "Kuramoto Hebbian Sim": "kuramoto_hebbian_sim",
-    "Kuramoto Sim": "kuramoto_sim",
-    "Lorenz Sim": "lorenz_sim",
-    "Lyapunov Spectrum": "lyapunov_spectrum",
-    "Memory Landscape": "memory_landscape",
-    "MLP Predict Lorenz": "mlp_predict_lorenz",
-    "Noise Robustness": "noise_robustness",
-    "Persistent Homology": "persistent_homology",
-    "Plasticity Dynamics": "plasticity_dynamics",
-    "Questions": "questions",
-    "Reflection Modul": "reflection_modul",
-    "XOR Prediction": "xor_prediction"
+# 📁 Modul-kategóriák
+module_categories = {
+    "📈 Vizualizációk": {
+        "Fractal Dimension": "fractal_dimension",
+        "Hebbian Learning Viz": "hebbian_learning_viz",
+        "Lyapunov Spectrum": "lyapunov_spectrum",
+        "Persistent Homology": "persistent_homology",
+        "Memory Landscape": "memory_landscape",
+    },
+    "🧠 Tanulási algoritmusok": {
+        "Hebbian Learning": "hebbian_learning",
+        "Insight Learning": "insight_learning",
+        "XOR Prediction": "xor_prediction",
+        "MLP Predict Lorenz": "mlp_predict_lorenz"
+    },
+    "⚗️ Szimulációk és dinamikák": {
+        "Kuramoto Sim": "kuramoto_sim",
+        "Kuramoto Hebbian Sim": "kuramoto_hebbian_sim",
+        "Generative Kuramoto": "generative_kuramoto",
+        "Lorenz Sim": "lorenz_sim",
+        "Plasticity Dynamics": "plasticity_dynamics",
+        "Noise Robustness": "noise_robustness"
+    },
+    "🧪 Adatfeltöltés és predikciók": {
+        "Data Upload": "data_upload",
+        "ESN Prediction": "esn_prediction",
+        "Berry Curvature": "berry_curvature"
+    },
+    "📚 Egyéb / Segéd modulok": {
+        "Graph Sync Analysis": "graph_sync_analysis",
+        "Help": "help_module",
+        "Questions": "questions",
+        "Reflection Modul": "reflection_modul"
+    }
 }
 
-# ➕ Kezdőlapot hozzáadjuk a menühöz
-menu_titles = ["🏠 Kezdőlap"] + list(modules.keys())
+# ➕ Kezdőlapot hozzáadjuk
+main_menu = "🏠 Kezdőlap"
 
-# 🧭 Modulválasztó az oldalsávban
+# 🧭 Oldalsáv felépítése – először kategória, aztán modul
 st.sidebar.subheader("🧪 Modulválasztó")
-selected_title = st.sidebar.radio("Válassz modult:", menu_titles)
+category_names = [main_menu] + list(module_categories.keys())
+selected_category = st.sidebar.radio("Kategória:", category_names)
 
-# 🏠 Kezdőlap tartalom
-if selected_title == "🏠 Kezdőlap":
+# 🏠 Kezdőlap
+if selected_category == main_menu:
     st.image("static/nyitokep.png", use_container_width=True)
     st.title("Üdvözöl a Neurolab AI!")
     st.markdown("👉 Válassz modult a bal oldali menüből.")
 else:
+    modules = module_categories[selected_category]
+    selected_title = st.sidebar.radio("Modul:", list(modules.keys()))
     selected_module_name = modules[selected_title]
     try:
         # 🔁 Modul dinamikus betöltése
