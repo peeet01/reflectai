@@ -5,9 +5,6 @@ import importlib
 # 🌐 Alkalmazás metaadatai
 st.set_page_config(page_title="Neurolab AI", layout="wide")
 
-# 🔰 Nyitókép (ellenőrizd, hogy létezik a fájl)
-st.image("static/nyitokep.png", use_container_width=True)
-
 # 📦 Modul-regiszter (modulnév: fájlnév)
 modules = {
     "Berry Curvature": "berry_curvature",
@@ -34,19 +31,27 @@ modules = {
     "XOR Prediction": "xor_prediction"
 }
 
-# 🧭 Modulválasztó az oldalsávban
-selected_title = st.sidebar.radio("🔬 Modulválasztó", list(modules.keys()))
-selected_module_name = modules[selected_title]
+# ➕ Hozzáadjuk a kezdőlapot a listához
+menu_titles = ["🏠 Kezdőlap"] + list(modules.keys())
 
-# ✅ MODULOK HELYES IMPORTÁLÁSA (ha a "modules" mappában vannak!)
-try:
-    module = importlib.import_module(f"modules.{selected_module_name}")
-    if hasattr(module, "app"):
-        module.app()
-    else:
-        st.error(f"❌ A(z) `{selected_module_name}` modul nem tartalmaz `app` nevű függvényt.")
-except ModuleNotFoundError:
-    st.error(f"📦 A(z) `{selected_module_name}` modul nem található. Ellenőrizd a `modules/` mappát!")
-except Exception as e:
-    st.error(f"🚨 Hiba történt a(z) `{selected_title}` modul betöltésekor:")
-    st.exception(e)
+# 🧭 Modulválasztó az oldalsávban
+selected_title = st.sidebar.radio("🔬 Modulválasztó", menu_titles)
+
+# 🏠 Kezdőlap tartalom
+if selected_title == "🏠 Kezdőlap":
+    st.image("static/nyitokep.png", use_container_width=True)
+    st.title("Üdvözöl a Neurolab AI!")
+    st.markdown("👉 Válassz modult a bal oldali menüből.")
+else:
+    selected_module_name = modules[selected_title]
+    try:
+        module = importlib.import_module(f"modules.{selected_module_name}")
+        if hasattr(module, "app"):
+            module.app()
+        else:
+            st.error(f"❌ A(z) `{selected_module_name}` modul nem tartalmaz `app` nevű függvényt.")
+    except ModuleNotFoundError:
+        st.error(f"📦 A(z) `{selected_module_name}` modul nem található. Ellenőrizd a `modules/` mappát!")
+    except Exception as e:
+        st.error(f"🚨 Hiba történt a(z) `{selected_title}` modul betöltésekor:")
+        st.exception(e)
