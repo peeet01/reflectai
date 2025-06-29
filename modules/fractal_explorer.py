@@ -1,8 +1,8 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
+import plotly.graph_objects as go
 import io
 import base64
 
@@ -57,9 +57,9 @@ def app():
         y_center = st.slider("Y középpont", -2.0, 2.0, 0.0, step=0.01)
     with col2:
         max_iter = st.slider("Iterációk száma", 50, 1000, 200, step=50)
-        width = st.slider("Szélesség (px)", 300, 1000, 600, step=100)
-        height = st.slider("Magasság (px)", 300, 1000, 400, step=100)
-        show_3d = st.checkbox("🌐 3D nézet")
+        width = st.slider("Szélesség (px)", 300, 800, 600, step=100)
+        height = st.slider("Magasság (px)", 300, 800, 400, step=100)
+        show_3d = st.checkbox("🌐 Interaktív 3D nézet (Plotly)")
 
     if st.button("🔁 Alapértelmezett nézet"):
         zoom = 1.0
@@ -70,25 +70,29 @@ def app():
     X, Y, Z = mandelbrot_set(width, height, zoom, x_center, y_center, max_iter)
 
     if show_3d:
-        fig = plt.figure(figsize=(10, 6))
-        ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(X, Y, Z, cmap=cm.inferno, linewidth=0, antialiased=False)
-        ax.set_title("Mandelbrot 3D magasságtérkép")
-        ax.set_xlabel("Re(z)")
-        ax.set_ylabel("Im(z)")
-        ax.set_zlabel("Iterációk (magasság)")
-        st.pyplot(fig)
+        st.subheader("🌐 Interaktív 3D Mandelbrot-halmaz")
+        fig = go.Figure(data=[go.Surface(z=Z, x=X, y=Y, colorscale='Inferno')])
+        fig.update_layout(
+            scene=dict(
+                xaxis_title="Re(z)",
+                yaxis_title="Im(z)",
+                zaxis_title="Iterációk",
+            ),
+            margin=dict(l=0, r=0, t=30, b=0)
+        )
+        st.plotly_chart(fig, use_container_width=True)
     else:
+        st.subheader("🖼️ Kép (2D)")
         fig, ax = plt.subplots()
         ax.imshow(Z, cmap="inferno", extent=[X.min(), X.max(), Y.min(), Y.max()])
         ax.set_title("Mandelbrot-halmaz (2D)")
         ax.axis("off")
         st.pyplot(fig)
-
-    st.markdown(get_image_download_link(fig), unsafe_allow_html=True)
+        st.markdown(get_image_download_link(fig), unsafe_allow_html=True)
 
     with st.expander("ℹ️ Tudtad?"):
         st.markdown("""
         A Mandelbrot-halmaz egy végtelen komplexitású, kaotikusan viselkedő fraktál.  
         Minden zoomszint új mintázatokat tár fel, amelyek önhasonló struktúrákat alkotnak.
+        A 3D ábrán a magasság az iterációs időt mutatja, amíg az adott pont divergens lett.
         """)
