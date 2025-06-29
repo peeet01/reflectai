@@ -26,7 +26,7 @@ def mandelbrot_set(width, height, zoom, x_center, y_center, max_iter):
 
     return X, Y, div_time
 
-# 💾 Kép mentése gombként
+# 💾 Kép mentése linkké
 def get_image_download_link(fig, filename='mandelbrot.png'):
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches='tight', pad_inches=0)
@@ -35,36 +35,38 @@ def get_image_download_link(fig, filename='mandelbrot.png'):
     href = f'<a href="data:file/png;base64,{b64}" download="{filename}">📥 Kép letöltése</a>'
     return href
 
-# 🎨 Modul fő belépési pontja
+# 🎨 Fő Streamlit app
 def app():
     st.title("🌀 Fractal Explorer – Mandelbrot")
     st.markdown("Fedezd fel a Mandelbrot-halmazt különböző nézőpontokból!")
 
-    # 📘 Matematikai háttér
     with st.expander("📚 Matematikai háttér"):
         st.latex(r"Z_{n+1} = Z_n^2 + C")
         st.markdown("""
-        A Mandelbrot-halmaz azon komplex számok halmaza, melyekre a fenti iterációs képlet nem divergens.
-        Egy pont akkor része a halmaznak, ha |Z| nem haladja meg a 2-t **véges számú iteráció után sem**.
-        Ez gyönyörű, önhasonló, végtelen komplexitású alakzatokat eredményez.
+        A Mandelbrot-halmaz azon komplex számok halmaza, amelyekre a sorozat nem divergens.
+        Egy pont akkor része a halmaznak, ha $|Z| \\le 2$ marad végtelen sok iteráció után is.
         """)
 
-    # ⚙️ Paraméterek
-    st.sidebar.header("🛠️ Beállítások")
-    zoom = st.sidebar.slider("Zoom", 1.0, 100.0, 1.0, step=0.5)
-    x_center = st.sidebar.slider("X középpont", -2.0, 2.0, -0.5, step=0.01)
-    y_center = st.sidebar.slider("Y középpont", -2.0, 2.0, 0.0, step=0.01)
-    max_iter = st.sidebar.slider("Iterációk száma", 50, 1000, 200, step=50)
-    width = st.sidebar.slider("Szélesség (px)", 300, 1000, 600, step=100)
-    height = st.sidebar.slider("Magasság (px)", 300, 1000, 400, step=100)
-    show_3d = st.sidebar.checkbox("🌐 3D nézet")
+    # 👉 Paraméterek a főképernyőn
+    st.subheader("🔧 Paraméterek")
 
-    # 📂 Paraméterbetöltés (JSON vagy sablon)
-    if st.sidebar.button("🔁 Alapértelmezett nézet"):
+    col1, col2 = st.columns(2)
+    with col1:
+        zoom = st.slider("Zoom", 1.0, 100.0, 1.0, step=0.5)
+        x_center = st.slider("X középpont", -2.0, 2.0, -0.5, step=0.01)
+        y_center = st.slider("Y középpont", -2.0, 2.0, 0.0, step=0.01)
+    with col2:
+        max_iter = st.slider("Iterációk száma", 50, 1000, 200, step=50)
+        width = st.slider("Szélesség (px)", 300, 1000, 600, step=100)
+        height = st.slider("Magasság (px)", 300, 1000, 400, step=100)
+        show_3d = st.checkbox("🌐 3D nézet")
+
+    if st.button("🔁 Alapértelmezett nézet"):
         zoom = 1.0
         x_center = -0.5
         y_center = 0.0
 
+    st.info("🔄 Fraktál generálása folyamatban...")
     X, Y, Z = mandelbrot_set(width, height, zoom, x_center, y_center, max_iter)
 
     if show_3d:
@@ -83,12 +85,10 @@ def app():
         ax.axis("off")
         st.pyplot(fig)
 
-    # 💾 Letöltési link
     st.markdown(get_image_download_link(fig), unsafe_allow_html=True)
 
-    # 👁️‍🗨️ Extra magyarázat
     with st.expander("ℹ️ Tudtad?"):
         st.markdown("""
-        A Mandelbrot-halmaz pereme **végtelen bonyolultságú** – ha belenagyítasz, újabb és újabb mintázatok bukkanak fel.
-        A halmaz minden pontja kapcsolatban áll más részekkel, ez a **kaotikus viselkedés** egyik gyönyörű példája.
+        A Mandelbrot-halmaz egy végtelen komplexitású, kaotikusan viselkedő fraktál.  
+        Minden zoomszint új mintázatokat tár fel, amelyek önhasonló struktúrákat alkotnak.
         """)
