@@ -3,6 +3,14 @@ from datetime import datetime
 import importlib
 import os  # 👉 Hozzáadva a fájl-listázáshoz
 
+import os
+st.sidebar.write("📂 Aktuális working directory:", os.getcwd())
+st.sidebar.write("📂 modules abs path:", os.path.abspath("modules"))
+try:
+    st.sidebar.write("📁 modules tartalma:", os.listdir("modules"))
+except Exception as e:
+    st.sidebar.error(f"Nem tudtam listázni a 'modules' mappát: {e}")
+
 # 🌐 Alkalmazás metaadatai
 st.set_page_config(page_title="Neurolab AI", layout="wide")
 
