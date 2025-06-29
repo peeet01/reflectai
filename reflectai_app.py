@@ -23,6 +23,7 @@ module_categories = {
         "Lyapunov Spectrum": "lyapunov_spectrum",
         "Persistent Homology": "persistent_homology",
         "Memory Landscape": "memory_landscape",
+        "Fractal Explorer": "fractal_explorer",
     },
     "🧠 Tanulási algoritmusok": {
         "Hebbian Learning": "hebbian_learning",
