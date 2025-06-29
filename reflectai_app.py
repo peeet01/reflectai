@@ -1,9 +1,12 @@
 import streamlit as st
 from datetime import datetime
 import importlib
-import os  # 👉 Hozzáadva a fájl-listázáshoz
+import os  # 📁 Fájlok listázásához
 
-import os
+# 🌐 Metaadat – ez legyen az első Streamlit hívás!
+st.set_page_config(page_title="Neurolab AI", layout="wide")
+
+# 📂 Debug info – segít ellenőrizni a modulbetöltést
 st.sidebar.write("📂 Aktuális working directory:", os.getcwd())
 st.sidebar.write("📂 modules abs path:", os.path.abspath("modules"))
 try:
@@ -11,10 +14,7 @@ try:
 except Exception as e:
     st.sidebar.error(f"Nem tudtam listázni a 'modules' mappát: {e}")
 
-# 🌐 Alkalmazás metaadatai
-st.set_page_config(page_title="Neurolab AI", layout="wide")
-
-# 📦 Modul-regiszter (modulnév: fájlnév)
+# 📦 Modul-regiszter (modulnév: fájlnév, kiterjesztés nélkül)
 modules = {
     "Berry Curvature": "berry_curvature",
     "Data Upload": "data_upload",
@@ -40,15 +40,12 @@ modules = {
     "XOR Prediction": "xor_prediction"
 }
 
-# 🧪 Debug: Listázd ki, mi van ténylegesen a `modules/` mappában
-st.sidebar.subheader("📁 Elérhető modul fájlok:")
-st.sidebar.write(os.listdir("modules"))
-
-# ➕ Hozzáadjuk a kezdőlapot a listához
+# ➕ Kezdőlapot hozzáadjuk a menühöz
 menu_titles = ["🏠 Kezdőlap"] + list(modules.keys())
 
 # 🧭 Modulválasztó az oldalsávban
-selected_title = st.sidebar.radio("🔬 Modulválasztó", menu_titles)
+st.sidebar.subheader("🧪 Modulválasztó")
+selected_title = st.sidebar.radio("Válassz modult:", menu_titles)
 
 # 🏠 Kezdőlap tartalom
 if selected_title == "🏠 Kezdőlap":
@@ -62,9 +59,9 @@ else:
         if hasattr(module, "app"):
             module.app()
         else:
-            st.error(f"❌ A(z) `{selected_module_name}` modul nem tartalmaz `app` nevű függvényt.")
+            st.error(f"❌ A(z) `{selected_module_name}` modul nem tartalmaz `app()` nevű függvényt.")
     except ModuleNotFoundError:
-        st.error(f"📦 A(z) `{selected_module_name}` modul nem található. Ellenőrizd a `modules/` mappát!")
+        st.error(f"📦 A(z) `{selected_module_name}` modul nem található a `modules/` mappában.")
     except Exception as e:
         st.error(f"🚨 Hiba történt a(z) `{selected_title}` modul betöltésekor:")
         st.exception(e)
