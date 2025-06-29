@@ -65,7 +65,8 @@ else:
     except Exception as e:
         st.error(f"🚨 Hiba történt a(z) `{selected_title}` modul betöltésekor:")
         st.exception(e)
-        # 🔍 Teszt: modulok tényleges betölthetősége
+        
+# 🔍 Teszt: modulok tényleges betölthetősége
 st.subheader("🧪 Modul tesztelés eredményei:")
 for name, file in modules.items():
     try:
