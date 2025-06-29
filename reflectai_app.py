@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import datetime
 import importlib
+import os  # 👉 Hozzáadva a fájl-listázáshoz
 
 # 🌐 Alkalmazás metaadatai
 st.set_page_config(page_title="Neurolab AI", layout="wide")
@@ -30,6 +31,10 @@ modules = {
     "Reflection Modul": "reflection_modul",
     "XOR Prediction": "xor_prediction"
 }
+
+# 🧪 Debug: Listázd ki, mi van ténylegesen a `modules/` mappában
+st.sidebar.subheader("📁 Elérhető modul fájlok:")
+st.sidebar.write(os.listdir("modules"))
 
 # ➕ Hozzáadjuk a kezdőlapot a listához
 menu_titles = ["🏠 Kezdőlap"] + list(modules.keys())
