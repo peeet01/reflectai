@@ -42,15 +42,16 @@ def draw_graph(G, theta=None):
 
 def draw_3d_graph(G, theta):
     pos = nx.spring_layout(G, dim=3, seed=42)
-    xyz = np.array([pos[n] for n in G.nodes])
-    edge_x, edge_y, edge_z = [], [], []
-
-    for i, j in G.edges():
-        edge_x += [pos[i][0], pos[j][0], None]
-        edge_y += [pos[i][1], pos[j][1], None]
-        edge_z += [pos[i][2], pos[j][2], None]
-
+    xyz = np.array([pos[n] for n in G.nodes()])
     norm_theta = (theta % (2*np.pi)) / (2*np.pi)
+
+    edge_x, edge_y, edge_z = [], [], []
+    for i, j in G.edges():
+        x0, y0, z0 = pos[i]
+        x1, y1, z1 = pos[j]
+        edge_x += [x0, x1, None]
+        edge_y += [y0, y1, None]
+        edge_z += [z0, z1, None]
 
     fig = go.Figure()
 
@@ -71,7 +72,7 @@ def draw_3d_graph(G, theta):
             colorbar=dict(title="Fázis"),
             opacity=0.9
         ),
-        text=[f"Node {i}" for i in G.nodes],
+        text=[f"Node {i}" for i in G.nodes()],
         hoverinfo='text'
     ))
 
@@ -91,16 +92,17 @@ def run():
     st.title("🔗 Gráfalapú szinkronanalízis")
     st.markdown("Kuramoto-modell vizsgálata különböző gráfstruktúrákon, vizuálisan és interaktívan.")
 
-    with st.sidebar:
-        st.header("⚙️ Paraméterek")
-        graph_type = st.selectbox("Gráftípus", ["Erdős–Rényi", "Kör", "Rács", "Teljes gráf"])
-        N = st.slider("Csomópontok száma", 5, 100, 30)
-        K = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
-        steps = st.slider("Lépések száma", 10, 1000, 300)
-        dt = st.slider("Időlépés (dt)", 0.001, 0.1, 0.01)
-        er_p = st.slider("Erdős–Rényi élvalószínűség", 0.05, 1.0, 0.1, step=0.05)
+    # 👉 A sidebar mindig aktív legyen, a csúszkákkal együtt
+    st.sidebar.header("⚙️ Paraméterek")
+    graph_type = st.sidebar.selectbox("Gráftípus", ["Erdős–Rényi", "Kör", "Rács", "Teljes gráf"])
+    N = st.sidebar.slider("Csomópontok száma", 5, 100, 30)
+    K = st.sidebar.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
+    steps = st.sidebar.slider("Lépések száma", 10, 1000, 300)
+    dt = st.sidebar.slider("Időlépés (dt)", 0.001, 0.1, 0.01)
+    er_p = st.sidebar.slider("Erdős–Rényi élvalószínűség", 0.05, 1.0, 0.1, step=0.05)
+    show_3d = st.sidebar.checkbox("🌐 3D gráf megjelenítése")
 
-    if st.button("▶️ Szimuláció indítása"):
+    if st.sidebar.button("▶️ Szimuláció indítása"):
         if graph_type == "Erdős–Rényi":
             G = nx.erdos_renyi_graph(N, er_p)
         elif graph_type == "Kör":
@@ -135,7 +137,8 @@ def run():
         st.subheader("🧠 Végállapot gráf vizualizáció")
         draw_graph(G, theta_hist[-1])
 
-        if st.checkbox("🌐 3D gráf megjelenítése"):
+        if show_3d:
+            st.subheader("🌐 Interaktív 3D gráf")
             draw_3d_graph(G, theta_hist[-1])
 
         st.subheader("📝 Jegyzetek")
@@ -160,5 +163,5 @@ def run():
         Ezen szimuláció segít megérteni, hogyan befolyásolja a gráf szerkezete a szinkronizáció kialakulását.
         """)
 
-# Kötelező ReflectAI kompatibilitáshoz
+# Kötelező ReflectAI-kompatibilitáshoz
 app = run
