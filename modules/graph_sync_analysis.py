@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import time
-import pandas as pd
 
 def kuramoto_step(theta, omega, A, K, dt):
     N = len(theta)
@@ -27,7 +26,7 @@ def run_simulation(G, steps, dt, K):
         theta_history.append(theta.copy())
     return r_values, theta_history
 
-def draw_graph(G, theta=None, title="Gráf vizualizáció"):
+def draw_graph(G, theta=None):
     pos = nx.spring_layout(G, seed=42)
     if theta is not None:
         norm_theta = (theta % (2 * np.pi)) / (2 * np.pi)
@@ -37,21 +36,21 @@ def draw_graph(G, theta=None, title="Gráf vizualizáció"):
 
     fig, ax = plt.subplots()
     nx.draw(G, pos, node_color=node_colors, edge_color='gray', with_labels=True, ax=ax)
-    ax.set_title(title)
+    ax.set_title("Gráfstruktúra (fázis színezéssel)")
     st.pyplot(fig)
 
 def run():
-    st.title("🔗 Gráfalapú szinkronanalízis – Kuramoto-modell")
-    st.markdown("Vizsgáld meg, hogyan alakul a szinkronizáció különböző gráfstruktúrákon.")
+    st.title("🔗 Gráfalapú szinkronanalízis")
+    st.markdown("Kuramoto-modell vizsgálata különböző gráfstruktúrákon, vizuálisan és interaktívan.")
 
-    with st.sidebar:
-        st.header("⚙️ Paraméterek")
-        graph_type = st.selectbox("Gráftípus", ["Erdős–Rényi", "Kör", "Rács", "Teljes gráf"])
-        N = st.slider("Csomópontok száma", 5, 100, 30)
-        K = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
-        steps = st.slider("Lépések száma", 10, 1000, 300)
-        dt = st.slider("Időlépés (dt)", 0.001, 0.1, 0.01)
-        er_p = st.slider("Erdős–Rényi élvalószínűség", 0.05, 1.0, 0.1, step=0.05)
+    # 🎛️ PARAMÉTEREK (Fő nézetben, nem oldalsávban)
+    st.subheader("⚙️ Paraméterek")
+    graph_type = st.selectbox("Gráftípus", ["Erdős–Rényi", "Kör", "Rács", "Teljes gráf"])
+    N = st.slider("Csomópontok száma", 5, 100, 30)
+    K = st.slider("Kapcsolási erősség (K)", 0.0, 10.0, 2.0)
+    steps = st.slider("Lépések száma", 10, 1000, 300)
+    dt = st.slider("Időlépés (dt)", 0.001, 0.1, 0.01)
+    er_p = st.slider("Erdős–Rényi élvalószínűség", 0.05, 1.0, 0.1, step=0.05)
 
     if st.button("▶️ Szimuláció indítása"):
         if graph_type == "Erdős–Rényi":
@@ -70,62 +69,45 @@ def run():
             r_values, theta_hist = run_simulation(G, steps, dt, K)
             end = time.time()
 
-        st.success(f"✅ Szimuláció kész ({end - start:.2f} sec)")
-        st.metric("📈 Végső szinkronizáció (r)", f"{r_values[-1]:.3f}")
-        st.metric("📊 Átlagos szinkronizáció (r)", f"{np.mean(r_values):.3f}")
+        st.success(f"Szimuláció kész ({end - start:.2f} sec)")
+        st.metric("📈 Végső szinkronizációs érték (r)", f"{r_values[-1]:.3f}")
+        st.metric("📊 Átlagos r", f"{np.mean(r_values):.3f}")
 
-        # r(t) grafikon
         st.subheader("📉 Szinkronizáció időbeli alakulása")
         fig1, ax1 = plt.subplots()
         ax1.plot(r_values)
-        ax1.set_xlabel("Időlépés")
+        ax1.set_xlabel("Időlépések")
         ax1.set_ylabel("Szinkronizáció (r)")
-        ax1.set_title("Kuramoto – r(t)")
+        ax1.set_title("Kuramoto-szinkronizáció")
         st.pyplot(fig1)
 
-        # Kezdet és vég vizualizáció
         st.subheader("🧠 Kezdeti gráf vizualizáció")
-        draw_graph(G, theta_hist[0], "Kezdeti fázisok")
+        draw_graph(G, theta_hist[0])
 
         st.subheader("🧠 Végállapot gráf vizualizáció")
-        draw_graph(G, theta_hist[-1], "Végső fázisok")
+        draw_graph(G, theta_hist[-1])
 
-        # Animált léptetés
-        if st.checkbox("🎞️ Gráf animáció megtekintése", value=False):
-            st.subheader("🎬 Szinkronizáció alakulása lépésenként")
-            step_to_show = st.slider("Animáció lépése", 0, steps - 1, 0)
-            draw_graph(G, theta_hist[step_to_show], f"{step_to_show}. lépés")
-
-        # CSV letöltés
-        df = pd.DataFrame({
-            "step": list(range(len(r_values))),
-            "r_value": r_values
-        })
-        csv = df.to_csv(index=False).encode("utf-8")
-        st.download_button("📥 r(t) exportálása CSV-ként", csv, file_name="kuramoto_r_values.csv")
-
-        # Jegyzet
         st.subheader("📝 Jegyzetek")
-        notes = st.text_area("Írd le megfigyeléseid:", height=150)
+        notes = st.text_area("Írd le megfigyeléseid vagy ötleteid:", height=150)
         if notes:
-            st.download_button("💾 Jegyzet mentése", notes, file_name="kuramoto_notes.txt")
+            st.download_button("💾 Jegyzet mentése", data=notes, file_name="sync_notes.txt")
 
-    with st.expander("📚 Elméleti háttér"):
-        st.markdown(r"""
-        A **Kuramoto-modell** egy nemlineáris differenciálegyenlet-rendszer, amelyet oszcillátorok szinkronizációjának modellezésére használnak.
+    with st.expander("📚 Kuramoto-modell magyarázat"):
+        st.markdown("""
+        A **Kuramoto-modell** egy klasszikus szinkronizációs modell, ahol oszcillátorok egy gráfhálózaton keresztül hatnak egymásra.
+        A szinkronizációs mértéket az **r** paraméter jellemzi, amely 0 (teljesen káoszos) és 1 (teljesen szinkronizált) között mozog.
 
-        Az egyes csomópontok saját frekvenciával rendelkeznek (`ω`), és a kapcsolatok (gráf élei) mentén szinkronizálnak a többiekkel.  
-        A rendszer szinkronizációját az `r` érték méri:  
-        - `r = 1` → teljes szinkronizáció  
-        - `r ~ 0` → kaotikus állapot
+        - A fázisváltozás képlete:  
+          $\\frac{d\\theta_i}{dt} = \\omega_i + \\frac{K}{N} \\sum_j A_{ij} \\sin(\\theta_j - \\theta_i)$
 
-        #### Alkalmazási területek:
-        - Neurális oszcillációk
-        - Elektromos hálózatok
-        - Biológiai ritmusok (pl. szívsejtek)
+        - **Gráftípusok**:
+            - Erdős–Rényi: véletlenszerű élek
+            - Kör: szomszédos csomópontok
+            - Rács: 2D háló
+            - Teljes gráf: minden mindenhez
 
-        📖 *Kuramoto, Y. (1975). "Self-entrainment of a population of coupled non-linear oscillators"*
+        Ezen szimuláció segít megérteni, hogyan befolyásolja a gráf szerkezete a szinkronizáció kialakulását.
         """)
 
-# Kötelező ReflectAI kompatibilitáshoz
+# ReflectAI kompatibilitás
 app = run
