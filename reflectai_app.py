@@ -65,15 +65,16 @@ else:
     except Exception as e:
         st.error(f"🚨 Hiba történt a(z) `{selected_title}` modul betöltésekor:")
         st.exception(e)
-        
-# 🔍 Teszt: modulok tényleges betölthetősége
-st.subheader("🧪 Modul tesztelés eredményei:")
-for name, file in modules.items():
-    try:
-        m = importlib.import_module(f"modules.{file}")
-        if hasattr(m, "app"):
-            st.success(f"✅ {file}.py betöltve és van benne `app()`!")
-        else:
-            st.warning(f"⚠️ {file}.py betöltve, de nincs `app()`!")
-    except Exception as e:
-        st.error(f"❌ {file}.py nem betölthető: {e}")
+
+# 🔍 Teszt szekció kapcsolóval – csak akkor látható, ha kipipálod
+if st.sidebar.checkbox("🔧 Modul tesztelés megjelenítése", value=False):
+    st.subheader("🧪 Modul tesztelés eredményei:")
+    for name, file in modules.items():
+        try:
+            m = importlib.import_module(f"modules.{file}")
+            if hasattr(m, "app"):
+                st.success(f"✅ {file}.py betöltve és van benne `app()`!")
+            else:
+                st.warning(f"⚠️ {file}.py betöltve, de nincs `app()`!")
+        except Exception as e:
+            st.error(f"❌ {file}.py nem betölthető: {e}")
