@@ -103,7 +103,6 @@ def run():
     ax_steps.set_title("Tanulási görbe")
     st.pyplot(fig_steps)
 
-    # 💡 Új agymodell vizualizáció
     st.markdown("### 🧠 Vizualizált agymodell – Aktivációs mintázat")
     selected_ep = st.slider("🧪 Válassz epizódot megfigyeléshez", 0, episodes - 1, episodes - 1)
     fig_brain = plot_brain_activity(activations[selected_ep], grid_size)
