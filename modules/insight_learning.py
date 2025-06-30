@@ -5,6 +5,7 @@ import time
 import os
 from datetime import datetime
 import plotly.graph_objects as go
+from scipy.ndimage import gaussian_filter
 
 def generate_environment(grid_size, agent_pos, goal_pos, obstacle_pos):
     env = np.zeros((grid_size, grid_size))
@@ -73,18 +74,36 @@ def plot_brain_activity_2d(activation_map):
     return fig
 
 def plot_brain_activity_3d(activation_map):
-    x, y = np.meshgrid(np.arange(activation_map.shape[1]), np.arange(activation_map.shape[0]))
-    z = activation_map
+    z = gaussian_filter(activation_map, sigma=1.2)
+    x, y = np.meshgrid(np.arange(z.shape[1]), np.arange(z.shape[0]))
 
-    fig = go.Figure(data=[go.Surface(z=z, x=x, y=y, colorscale='Viridis')])
+    fig = go.Figure(data=[
+        go.Surface(
+            z=z,
+            x=x,
+            y=y,
+            colorscale='Inferno',
+            opacity=0.95,
+            lighting=dict(ambient=0.5, diffuse=0.9, specular=1.0, roughness=0.2),
+            lightposition=dict(x=30, y=50, z=100),
+            contours=dict(
+                z=dict(show=True, usecolormap=True, highlightcolor="limegreen", project_z=True)
+            )
+        )
+    ])
+
     fig.update_layout(
-        title="🧠 3D agymodell – Aktivációs domborzat",
+        title="🧠 3D agyi aktiváció – domborzati modell",
         scene=dict(
-            xaxis_title='Neuron X',
-            yaxis_title='Neuron Y',
-            zaxis_title='Aktiváció'
+            xaxis_title="Neuron X",
+            yaxis_title="Neuron Y",
+            zaxis_title="Aktiváció",
+            xaxis=dict(showspikes=False),
+            yaxis=dict(showspikes=False),
+            zaxis=dict(nticks=6, range=[0, np.max(z) + 1])
         ),
-        margin=dict(l=0, r=0, t=60, b=0)
+        margin=dict(l=0, r=0, t=60, b=0),
+        template="plotly_dark"
     )
     return fig
 
