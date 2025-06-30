@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import pandas as pd
 
 # Berry-görbület számítás
 def compute_berry_curvature(kx, ky, delta=0.1):
@@ -81,10 +82,13 @@ def run():
     kx_vals = np.linspace(-np.pi, np.pi, N)
     ky_vals = np.linspace(-np.pi, np.pi, N)
     curvature = np.zeros((N, N))
+    curvature_data = []
 
     for i, kx in enumerate(kx_vals):
         for j, ky in enumerate(ky_vals):
-            curvature[j, i] = compute_berry_curvature(kx, ky, delta)
+            value = compute_berry_curvature(kx, ky, delta)
+            curvature[j, i] = value
+            curvature_data.append({"kx": kx, "ky": ky, "berry_curvature": value})
 
     # Kontúrplot
     st.subheader("📊 Berry-görbület – Kontúr ábra")
@@ -108,6 +112,11 @@ def run():
     fig3d.update_layout(title='Berry-görbület 3D felszínábra', autosize=True)
     st.plotly_chart(fig3d, use_container_width=True)
 
+    # CSV EXPORT
+    df = pd.DataFrame(curvature_data)
+    csv = df.to_csv(index=False).encode("utf-8")
+    st.download_button("📥 Görbület adatok letöltése CSV-ben", data=csv, file_name="berry_curvature.csv")
+
     # Berry-fázis számítás
     st.markdown("---")
     st.subheader("🧮 Berry-fázis kör mentén")
@@ -123,6 +132,25 @@ def run():
 
     fig_d = plot_3d_d_vectors(radius=radius, center=(cx, cy), delta=delta)
     st.plotly_chart(fig_d, use_container_width=True)
+
+    # Tudományos magyarázat
+    st.markdown("---")
+    st.subheader("📚 Matematikai háttér")
+
+    st.markdown(r"""
+    A **Berry-görbület** egy topológiai invariáns, amelyet kvantumos rendszerek állapottérgörbületeként értelmezhetünk. 
+    Matematikailag:
+    
+    $$ \Omega(k) = \nabla_k \times \mathbf{A}(k), \quad \text{ahol } \mathbf{A}(k) = i \langle u_k | \nabla_k u_k \rangle $$
+
+    A **Berry-fázis** egy zárt görbe mentén a hullámfüggvény által szerzett geometriai fázis:
+
+    $$ \gamma = \oint_C \mathbf{A}(k) \cdot d\mathbf{k} = \int_S \Omega(k) \, d^2k $$
+
+    A fenti szimulációk egy effektív **d-vektor** modellel közelítik a rendszer dinamikáját, mely alapján a Berry-görbület numerikusan számítható.
+
+    A görbület integrálja egész Brillouin-zónában kvantált érték: ez a **Chern-szám**, amely topológiai szigetelőkben meghatározza a szélállapotok számát.
+    """)
 
 # Kötelező ReflectAI kompatibilitás
 app = run
