@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import streamlit as st
-from skimage import data, color, util
+from skimage import data, color, util, io
 from skimage.transform import resize
 import pandas as pd
 
@@ -83,16 +83,26 @@ def benchmark_noise_response(img_gray, threshold):
     ax.set_title("Noise Sensitivity Benchmark")
     st.pyplot(fig)
 
-    # Letölthető eredmény
     df = pd.DataFrame({'sigma': sigmas, 'fractal_dimension': dimensions})
     csv = df.to_csv(index=False).encode("utf-8")
     st.download_button("📥 Benchmark eredmény mentése CSV-ben", data=csv, file_name="fractal_benchmark.csv")
 
 def run():
     st.title("🧠 Fractal Dimension Analyzer")
-    st.markdown("### Box-Counting • Noise • 3D • Multifractal • Benchmark • CSV export")
+    st.markdown("### Box-Counting • Noise • 3D • Multifractal • Benchmark • Valós kép támogatás")
 
-    img = data.coins()
+    source = st.radio("Válassz képet:", ["Beépített példa (coins)", "Kép feltöltése (.jpg, .png)"])
+
+    if source == "Beépített példa (coins)":
+        img = data.coins()
+    else:
+        uploaded = st.file_uploader("📤 Tölts fel képet", type=["jpg", "jpeg", "png"])
+        if uploaded is not None:
+            img = io.imread(uploaded)
+        else:
+            st.warning("🔄 Várakozás kép feltöltésére...")
+            return
+
     img_gray = resize(color.rgb2gray(img) if img.ndim == 3 else img, (256, 256))
 
     sigma = st.slider("Add Gaussian Noise (σ)", 0.0, 1.0, 0.0, 0.01)
@@ -117,5 +127,5 @@ def run():
     if show_benchmark:
         benchmark_noise_response(img_gray, threshold=threshold)
 
-# Kötelező ReflectAI integrációhoz
+# ReflectAI-kompatibilitás
 app = run
