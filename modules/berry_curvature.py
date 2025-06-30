@@ -1,10 +1,11 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
-import pandas as pd
+from mpl_toolkits.mplot3d import Axes3D
 
-def compute_berry_curvature(kx, ky, delta=0.1):
+# --- Berry-görbület számítása ---
+def compute_berry_curvature(kx, ky):
+    delta = 0.1
     d = np.array([
         np.sin(kx),
         np.sin(ky),
@@ -14,35 +15,78 @@ def compute_berry_curvature(kx, ky, delta=0.1):
     d_hat = d / norm
     return 0.5 * d_hat[2] / (norm**2 + 1e-8)
 
-def generate_curvature_map(N, delta):
+# --- Berry-fázis számítása kör mentén a k-térben ---
+def compute_berry_phase(radius=1.0, center=(0.0, 0.0), num_points=200):
+    delta = 0.1
+    thetas = np.linspace(0, 2 * np.pi, num_points, endpoint=False)
+    phase_sum = 0.0
+
+    for i in range(num_points):
+        theta1 = thetas[i]
+        theta2 = thetas[(i + 1) % num_points]
+        k1 = np.array([
+            center[0] + radius * np.cos(theta1),
+            center[1] + radius * np.sin(theta1)
+        ])
+        k2 = np.array([
+            center[0] + radius * np.cos(theta2),
+            center[1] + radius * np.sin(theta2)
+        ])
+
+        d1 = np.array([np.sin(k1[0]), np.sin(k1[1]), delta + np.cos(k1[0]) + np.cos(k1[1])])
+        d2 = np.array([np.sin(k2[0]), np.sin(k2[1]), delta + np.cos(k2[0]) + np.cos(k2[1])])
+        u1 = d1 / np.linalg.norm(d1)
+        u2 = d2 / np.linalg.norm(d2)
+
+        inner_prod = np.vdot(u1, u2)
+        phase = np.angle(inner_prod)
+        phase_sum += phase
+
+    return np.real(phase_sum)
+
+# --- 3D vizualizáció a d-vektor pályájáról ---
+def plot_berry_phase_3d(radius=1.0, center=(0.0, 0.0), num_points=200):
+    delta = 0.1
+    thetas = np.linspace(0, 2 * np.pi, num_points)
+    traj = []
+
+    for theta in thetas:
+        kx = center[0] + radius * np.cos(theta)
+        ky = center[1] + radius * np.sin(theta)
+        d = np.array([
+            np.sin(kx),
+            np.sin(ky),
+            delta + np.cos(kx) + np.cos(ky)
+        ])
+        d /= np.linalg.norm(d)
+        traj.append(d)
+
+    traj = np.array(traj)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot(traj[:, 0], traj[:, 1], traj[:, 2], label="d-vektor pálya", color="purple")
+    ax.set_title("3D Berry-fázis vizualizáció – d-vektor pálya")
+    ax.set_xlabel("d₁")
+    ax.set_ylabel("d₂")
+    ax.set_zlabel("d₃")
+    ax.legend()
+    st.pyplot(fig)
+
+# --- Streamlit fő modul ---
+def run():
+    st.header("🌀 Topológiai védettség és Berry-görbület")
+    st.markdown("Ez a szimuláció a 2D Brillouin-zónában vizsgálja a Berry-görbület eloszlását.")
+
+    # --- Berry-görbület térkép ---
+    N = st.slider("Pontok száma tengelyenként", 30, 150, 80, 10)
     kx_vals = np.linspace(-np.pi, np.pi, N)
     ky_vals = np.linspace(-np.pi, np.pi, N)
     curvature = np.zeros((N, N))
 
     for i, kx in enumerate(kx_vals):
         for j, ky in enumerate(ky_vals):
-            curvature[j, i] = compute_berry_curvature(kx, ky, delta)
-    
-    return kx_vals, ky_vals, curvature
+            curvature[j, i] = compute_berry_curvature(kx, ky)
 
-def compute_chern_number(curvature, kx_vals, ky_vals):
-    dkx = kx_vals[1] - kx_vals[0]
-    dky = ky_vals[1] - ky_vals[0]
-    integral = np.sum(curvature) * dkx * dky / (2 * np.pi)
-    return integral
-
-def run():
-    st.title("🌀 Berry-görbület szimuláció")
-    st.markdown("A Berry-görbület egy topológiai kvantumrendszer lokális tulajdonsága a Brillouin-zónában.")
-
-    N = st.slider("🔢 Pontok száma tengelyenként", 30, 150, 80, 10)
-    delta = st.slider("🔺 Delta paraméter (résnyitás)", -2.0, 2.0, 0.1, 0.05)
-    export_csv = st.checkbox("📄 CSV export")
-
-    kx_vals, ky_vals, curvature = generate_curvature_map(N, delta)
-
-    # 2D Matplotlib ábra
-    st.subheader("🎨 2D kontúrtérkép")
     fig, ax = plt.subplots()
     c = ax.contourf(kx_vals, ky_vals, curvature, levels=50, cmap='coolwarm')
     fig.colorbar(c, ax=ax, label="Berry-görbület")
@@ -51,51 +95,21 @@ def run():
     ax.set_title("Berry-görbület a Brillouin-zónában")
     st.pyplot(fig)
 
-    # 3D Plotly térkép
-    st.subheader("🌐 3D Berry-görbület")
-    kx_grid, ky_grid = np.meshgrid(kx_vals, ky_vals)
-    fig3d = go.Figure(data=[go.Surface(z=curvature, x=kx_vals, y=ky_vals, colorscale="RdBu")])
-    fig3d.update_layout(
-        scene=dict(
-            xaxis_title="kx",
-            yaxis_title="ky",
-            zaxis_title="Berry curvature"
-        ),
-        margin=dict(l=10, r=10, b=10, t=40)
-    )
-    st.plotly_chart(fig3d)
+    # --- ÚJ: Berry-fázis kiszámítása kör mentén ---
+    with st.expander("🔄 Berry-fázis számítása (körintegrál)"):
+        st.markdown("A Berry-fázis egy kvantummechanikai geometriai fázis, amit egy zárt kört leírva a k-térben számítunk.")
+        radius = st.slider("Kör sugara (k-tér)", 0.1, 3.0, 1.0, 0.1)
+        center_kx = st.slider("Kör középpontja – kx", -np.pi, np.pi, 0.0)
+        center_ky = st.slider("Kör középpontja – ky", -np.pi, np.pi, 0.0)
+        num_points = st.slider("Pontok száma a kör mentén", 50, 500, 200, 10)
 
-    # ➕ ÚJ: Chern-szám (Berry-fázis integrál)
-    st.subheader("🧮 Topológiai Chern-szám")
-    chern = compute_chern_number(curvature, kx_vals, ky_vals)
-    st.success(f"Chern-szám ≈ `{chern:.3f}`")
+        berry_phase = compute_berry_phase(radius=radius, center=(center_kx, center_ky), num_points=num_points)
+        st.success(f"📐 Berry-fázis értéke ≈ `{berry_phase:.4f}` radián")
 
-    if export_csv:
-        df = pd.DataFrame(curvature, index=ky_vals, columns=kx_vals)
-        csv = df.to_csv(index=True).encode("utf-8")
-        st.download_button("📥 Letöltés CSV-ként", data=csv, file_name="berry_curvature.csv")
+    # --- ÚJ: 3D vizualizáció ---
+    with st.expander("🌐 3D Berry-fázis pálya"):
+        st.markdown("A kvantumállapot irányának változása 3D térben (d-vektor normalizált pályája).")
+        plot_berry_phase_3d(radius=radius, center=(center_kx, center_ky), num_points=num_points)
 
-    with st.expander("📘 Tudományos háttér"):
-        st.markdown("""
-        A **Berry-görbület** topológiai fázisokat ír le, például a kvantumos Hall-effektusban.
-
-        A számítás az alábbi formulán alapszik:
-        """)
-        st.latex(r"""
-        \mathbf{d}(k) = (\sin k_x, \sin k_y, \Delta + \cos k_x + \cos k_y)
-        """)
-        st.latex(r"""
-        \Omega(k) = \frac{1}{2} \frac{d_z}{|d|^3}
-        """)
-        st.markdown("""
-        A **Chern-szám** a teljes Brillouin-zónára integrált Berry-görbület:
-        """)
-        st.latex(r"""
-        C = \frac{1}{2\pi} \int_{\text{BZ}} \Omega(k) \, d^2k
-        """)
-        st.markdown("""
-        Ez a mennyiség egy egész szám (topológiai invariáns), amely meghatározza a rendszer **topológiai fázisát**.
-        """)
-
-# Kötelező ReflectAI integráció
+# 🔧 Kötelező dinamikus modul belépési pont
 app = run
