@@ -16,25 +16,32 @@ def simulate_learning(grid_size, agent_pos, goal_pos, obstacle_pos, episodes, ma
     steps = []
     found = False
     steps_to_goal = []
+    activations = []
 
     for episode in range(episodes):
         pos = agent_pos.copy()
         path = [tuple(pos)]
+        activation_map = np.zeros((grid_size, grid_size))
+
         for _ in range(max_steps):
+            activation_map[tuple(pos)] += 1
             if pos == goal_pos:
                 found = True
                 break
             if use_insight and pos[1] < obstacle_pos[1] and pos[0] == obstacle_pos[0]:
-                pos[0] -= 1  # Insight: ugrás az akadály fölé
+                pos[0] -= 1  # Insight: ugrás
             else:
                 if pos[1] < grid_size - 1:
                     pos[1] += 1
                 elif pos[0] > 0:
                     pos[0] -= 1
             path.append(tuple(pos))
+
         steps.append(path)
         steps_to_goal.append(len(path))
-    return steps, found, steps_to_goal
+        activations.append(activation_map)
+
+    return steps, found, steps_to_goal, activations
 
 def plot_environment(grid_size, steps, goal_pos, obstacle_pos):
     fig, ax = plt.subplots(figsize=(5, 5))
@@ -55,6 +62,15 @@ def plot_environment(grid_size, steps, goal_pos, obstacle_pos):
         ax.plot(ys, xs, alpha=0.6)
     return fig
 
+def plot_brain_activity(activation_map, grid_size):
+    fig, ax = plt.subplots(figsize=(5, 5))
+    im = ax.imshow(activation_map, cmap="plasma", interpolation='nearest')
+    ax.set_title("🧠 Aktivációs térkép (neurális mintázat)")
+    ax.set_xlabel("Neuron X")
+    ax.set_ylabel("Neuron Y")
+    fig.colorbar(im, ax=ax, label="Aktiváció gyakoriság")
+    return fig
+
 def run():
     st.title("🧠 Belátás alapú tanulás – Insight Learning szimuláció")
 
@@ -62,42 +78,42 @@ def run():
     Ez a modul egy egyszerű környezetben modellezi a **belátás alapú tanulást**, ahol az ügynök egy ponton _hirtelen_ megérti, hogyan érheti el a célt.
     """)
 
-    # Paraméterek
     grid_size = st.slider("🔲 Rács méret", 5, 15, 7)
     episodes = st.slider("🔁 Epizódok száma", 10, 200, 50, step=10)
     max_steps = st.slider("🚶‍♂️ Lépések epizódonként", 5, 50, 20)
     use_insight = st.checkbox("💡 Belátás aktiválása", value=True)
 
-    # Állandó pozíciók
     agent_pos = [grid_size - 1, 0]
     goal_pos = [0, grid_size - 1]
     obstacle_pos = [grid_size // 2, grid_size // 2]
 
-    # Szimuláció
-    steps, found, steps_to_goal = simulate_learning(
+    steps, found, steps_to_goal, activations = simulate_learning(
         grid_size, agent_pos, goal_pos, obstacle_pos, episodes, max_steps, use_insight
     )
 
-    # Környezet kirajzolása
     st.markdown("### 🌍 Környezet vizualizáció")
     fig_env = plot_environment(grid_size, steps, goal_pos, obstacle_pos)
     st.pyplot(fig_env)
 
-    # Tanulási görbe
     st.markdown("### 📉 Lépések száma epizódonként")
     fig_steps, ax_steps = plt.subplots()
     ax_steps.plot(steps_to_goal, marker='o')
     ax_steps.set_xlabel("Epizód")
-    ax_steps.set_ylabel("Lépések száma")
+    ax_steps.set_ylabel("Lépésszám")
     ax_steps.set_title("Tanulási görbe")
     st.pyplot(fig_steps)
+
+    # 💡 Új agymodell vizualizáció
+    st.markdown("### 🧠 Vizualizált agymodell – Aktivációs mintázat")
+    selected_ep = st.slider("🧪 Válassz epizódot megfigyeléshez", 0, episodes - 1, episodes - 1)
+    fig_brain = plot_brain_activity(activations[selected_ep], grid_size)
+    st.pyplot(fig_brain)
 
     if found:
         st.success("🎉 Az ügynök elérte a célt – belátás vagy stratégia révén!")
     else:
         st.warning("🤔 Az ügynök még nem találta meg a célt.")
 
-    # Riport letöltés
     with st.expander("📝 Riport generálása és letöltés"):
         if st.button("📥 Riport letöltése (.txt)"):
             report_text = f"""Belátás alapú tanulási riport
@@ -119,16 +135,14 @@ Cél elérve: {"Igen" if found else "Nem"}
 
     with st.expander("📘 Tudományos háttér – Mi az a belátás?"):
         st.markdown("""
-        A **belátásos tanulás** (insight learning) olyan folyamat, amikor egy élőlény – gyakran váratlanul – _"megérti"_ a probléma megoldását.  
-        Ez szemben áll a klasszikus **próba-szerencse** tanulással, és gyakran jellemző az emberekre és magasabb rendű állatokra is.
+        A **belátásos tanulás** (insight learning) egy kognitív folyamat, ahol a probléma megoldása nem véletlenszerű próbálkozással,  
+        hanem egy _strukturális átlátás_ révén történik.
 
-        ### 🐒 Köhler kísérlete:
-        - A csimpánz egy bottal szerezte meg a távoli banánt
-        - Nem véletlenszerű próbálgatással, hanem egy _hirtelen felismeréssel_
+        ### 🐒 Köhler-féle csimpánz kísérlet:
+        - Egy banán elérhetetlen, de eszköz segítségével mégis megszerezhető.
+        - A megoldás **nem fokozatos**, hanem **hirtelen jelentkezik**.
 
-        Ez a szimuláció ennek egyszerű absztrakciója, és lehetővé teszi, hogy megfigyeljük:
-        - Hogyan változik a tanulási teljesítmény
-        - Miben más a belátás, mint a kondicionálás vagy megerősítéses tanulás
+        A szimulált aktivációs térkép azt reprezentálja, hogy az „agy” mely régiói (pozíciói) milyen gyakran voltak aktívak a sikeres vagy sikertelen keresés során.
         """)
 
 # Kötelező ReflectAI-kompatibilitás
