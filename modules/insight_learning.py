@@ -1,4 +1,9 @@
-import streamlit as st import numpy as np import matplotlib.pyplot as plt import time import os from datetime import datetime import plotly.graph_objects as go from scipy.ndimage import gaussian_filter
+import streamlit as st 
+import numpy as np 
+import matplotlib.pyplot as plt 
+import time import os from datetime import datetime 
+import plotly.graph_objects as go from scipy.ndimage 
+import gaussian_filter
 
 def generate_environment(grid_size, agent_pos, goal_pos, obstacle_pos): env = np.zeros((grid_size, grid_size)) env[tuple(goal_pos)] = 2 env[tuple(obstacle_pos)] = -1 env[tuple(agent_pos)] = 1 return env
 
