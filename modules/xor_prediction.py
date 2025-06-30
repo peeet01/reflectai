@@ -78,6 +78,31 @@ def run():
         )
         st.plotly_chart(fig, use_container_width=True)
 
+    # --- Rejtett réteg aktivációk ---
+    with st.expander("🧩 Rejtett réteg neuronjainak aktivációi"):
+        if activation == "logistic":
+            act_fn = lambda x: 1 / (1 + np.exp(-x))
+        elif activation == "tanh":
+            act_fn = np.tanh
+        elif activation == "relu":
+            act_fn = lambda x: np.maximum(0, x)
+        else:
+            act_fn = lambda x: x
+
+        W1 = model.coefs_[0]
+        b1 = model.intercepts_[0]
+        hidden_outputs = act_fn(np.dot(X, W1) + b1)
+
+        fig_hidden, ax_hidden = plt.subplots()
+        im = ax_hidden.imshow(hidden_outputs, cmap='coolwarm', aspect='auto')
+        ax_hidden.set_xticks(range(hidden_outputs.shape[1]))
+        ax_hidden.set_yticks(range(X.shape[0]))
+        ax_hidden.set_xlabel("Neuron index")
+        ax_hidden.set_ylabel("Bemeneti minta index")
+        ax_hidden.set_title("🔍 Aktivációk a rejtett rétegben")
+        fig_hidden.colorbar(im)
+        st.pyplot(fig_hidden)
+
     # --- Tudományos magyarázat ---
     with st.expander("📘 Matematikai háttér"):
         st.markdown(r"""
@@ -110,6 +135,6 @@ def run():
 
         A tanulás célja: a veszteség minimalizálása a teljes tanítókészleten.
         """)
-        
-# ReflectAI kompatibilitás
+
+# Kötelező ReflectAI belépési pont
 app = run
