@@ -1,92 +1,93 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import plotly.graph_objects as go
 
-# --- Berry-görbület számítása ---
-def compute_berry_curvature(kx, ky):
-    delta = 0.1
+# Berry-görbület számítás
+def compute_berry_curvature(kx, ky, delta=0.1):
     d = np.array([
         np.sin(kx),
         np.sin(ky),
         delta + np.cos(kx) + np.cos(ky)
     ])
     norm = np.linalg.norm(d)
-    d_hat = d / norm
+    d_hat = d / (norm + 1e-8)
     return 0.5 * d_hat[2] / (norm**2 + 1e-8)
 
-# --- Berry-fázis számítása kör mentén a k-térben ---
-def compute_berry_phase(radius=1.0, center=(0.0, 0.0), num_points=200):
-    delta = 0.1
-    thetas = np.linspace(0, 2 * np.pi, num_points, endpoint=False)
-    phase_sum = 0.0
+# d-vektor definiálása
+def d_vector(kx, ky, delta=0.1):
+    return np.array([
+        np.sin(kx),
+        np.sin(ky),
+        delta + np.cos(kx) + np.cos(ky)
+    ])
 
-    for i in range(num_points):
-        theta1 = thetas[i]
-        theta2 = thetas[(i + 1) % num_points]
-        k1 = np.array([
-            center[0] + radius * np.cos(theta1),
-            center[1] + radius * np.sin(theta1)
-        ])
-        k2 = np.array([
-            center[0] + radius * np.cos(theta2),
-            center[1] + radius * np.sin(theta2)
-        ])
+# Berry-fázis kör mentén
+def compute_berry_phase(radius=1.0, center=(0.0, 0.0), n_points=200, delta=0.1):
+    angles = np.linspace(0, 2 * np.pi, n_points, endpoint=False)
+    berry_phase = 0.0
+    prev_vec = None
 
-        d1 = np.array([np.sin(k1[0]), np.sin(k1[1]), delta + np.cos(k1[0]) + np.cos(k1[1])])
-        d2 = np.array([np.sin(k2[0]), np.sin(k2[1]), delta + np.cos(k2[0]) + np.cos(k2[1])])
-        u1 = d1 / np.linalg.norm(d1)
-        u2 = d2 / np.linalg.norm(d2)
+    for angle in angles:
+        kx = center[0] + radius * np.cos(angle)
+        ky = center[1] + radius * np.sin(angle)
+        d = d_vector(kx, ky, delta)
+        d_hat = d / (np.linalg.norm(d) + 1e-8)
 
-        inner_prod = np.vdot(u1, u2)
-        phase = np.angle(inner_prod)
-        phase_sum += phase
+        if prev_vec is not None:
+            inner_product = np.vdot(prev_vec, d_hat)
+            angle_diff = np.angle(inner_product + 1e-8)
+            berry_phase += angle_diff
 
-    return np.real(phase_sum)
+        prev_vec = d_hat
 
-# --- 3D vizualizáció a d-vektor pályájáról ---
-def plot_berry_phase_3d(radius=1.0, center=(0.0, 0.0), num_points=200):
-    delta = 0.1
-    thetas = np.linspace(0, 2 * np.pi, num_points)
-    traj = []
+    return berry_phase
 
-    for theta in thetas:
-        kx = center[0] + radius * np.cos(theta)
-        ky = center[1] + radius * np.sin(theta)
-        d = np.array([
-            np.sin(kx),
-            np.sin(ky),
-            delta + np.cos(kx) + np.cos(ky)
-        ])
-        d /= np.linalg.norm(d)
-        traj.append(d)
+def plot_3d_d_vectors(radius, center, delta=0.1):
+    angles = np.linspace(0, 2 * np.pi, 200)
+    d_vectors = np.array([
+        d_vector(center[0] + radius * np.cos(a), center[1] + radius * np.sin(a), delta)
+        for a in angles
+    ])
+    norms = np.linalg.norm(d_vectors, axis=1, keepdims=True)
+    d_unit = d_vectors / (norms + 1e-8)
 
-    traj = np.array(traj)
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot(traj[:, 0], traj[:, 1], traj[:, 2], label="d-vektor pálya", color="purple")
-    ax.set_title("3D Berry-fázis vizualizáció – d-vektor pálya")
-    ax.set_xlabel("d₁")
-    ax.set_ylabel("d₂")
-    ax.set_zlabel("d₃")
-    ax.legend()
-    st.pyplot(fig)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter3d(
+        x=d_unit[:, 0], y=d_unit[:, 1], z=d_unit[:, 2],
+        mode='lines+markers',
+        line=dict(color='royalblue', width=3),
+        marker=dict(size=2),
+        name="d-hat (unit)"
+    ))
+    fig.update_layout(
+        title="🧭 d-vektor útvonala a Bloch-gömbön",
+        scene=dict(
+            xaxis_title='dx', yaxis_title='dy', zaxis_title='dz',
+            aspectmode='cube'
+        ),
+        margin=dict(l=0, r=0, t=50, b=0)
+    )
+    return fig
 
-# --- Streamlit fő modul ---
+# STREAMLIT APP
 def run():
     st.header("🌀 Topológiai védettség és Berry-görbület")
-    st.markdown("Ez a szimuláció a 2D Brillouin-zónában vizsgálja a Berry-görbület eloszlását.")
+    st.markdown("Ez a szimuláció a 2D Brillouin-zónában vizsgálja a Berry-görbület és Berry-fázis viselkedését.")
 
-    # --- Berry-görbület térkép ---
+    delta = st.slider("Delta (rés paraméter)", 0.0, 2.0, 0.1, 0.01)
     N = st.slider("Pontok száma tengelyenként", 30, 150, 80, 10)
+
     kx_vals = np.linspace(-np.pi, np.pi, N)
     ky_vals = np.linspace(-np.pi, np.pi, N)
     curvature = np.zeros((N, N))
 
     for i, kx in enumerate(kx_vals):
         for j, ky in enumerate(ky_vals):
-            curvature[j, i] = compute_berry_curvature(kx, ky)
+            curvature[j, i] = compute_berry_curvature(kx, ky, delta)
 
+    # Kontúrplot
+    st.subheader("📊 Berry-görbület – Kontúr ábra")
     fig, ax = plt.subplots()
     c = ax.contourf(kx_vals, ky_vals, curvature, levels=50, cmap='coolwarm')
     fig.colorbar(c, ax=ax, label="Berry-görbület")
@@ -95,21 +96,33 @@ def run():
     ax.set_title("Berry-görbület a Brillouin-zónában")
     st.pyplot(fig)
 
-    # --- ÚJ: Berry-fázis kiszámítása kör mentén ---
-    with st.expander("🔄 Berry-fázis számítása (körintegrál)"):
-        st.markdown("A Berry-fázis egy kvantummechanikai geometriai fázis, amit egy zárt kört leírva a k-térben számítunk.")
-        radius = st.slider("Kör sugara (k-tér)", 0.1, 3.0, 1.0, 0.1)
-        center_kx = st.slider("Kör középpontja – kx", -np.pi, np.pi, 0.0)
-        center_ky = st.slider("Kör középpontja – ky", -np.pi, np.pi, 0.0)
-        num_points = st.slider("Pontok száma a kör mentén", 50, 500, 200, 10)
+    # 3D ábra
+    st.subheader("🌐 3D görbület vizualizáció")
+    fig3d = go.Figure(data=[go.Surface(
+        z=curvature,
+        x=kx_vals,
+        y=ky_vals,
+        colorscale='RdBu',
+        colorbar=dict(title='Berry curvature')
+    )])
+    fig3d.update_layout(title='Berry-görbület 3D felszínábra', autosize=True)
+    st.plotly_chart(fig3d, use_container_width=True)
 
-        berry_phase = compute_berry_phase(radius=radius, center=(center_kx, center_ky), num_points=num_points)
-        st.success(f"📐 Berry-fázis értéke ≈ `{berry_phase:.4f}` radián")
+    # Berry-fázis számítás
+    st.markdown("---")
+    st.subheader("🧮 Berry-fázis kör mentén")
+    col1, col2 = st.columns(2)
+    with col1:
+        radius = st.slider("Kör sugara", 0.1, 3.0, 1.0, 0.05)
+    with col2:
+        cx = st.slider("Középpont x", -np.pi, np.pi, 0.0)
+        cy = st.slider("Középpont y", -np.pi, np.pi, 0.0)
 
-    # --- ÚJ: 3D vizualizáció ---
-    with st.expander("🌐 3D Berry-fázis pálya"):
-        st.markdown("A kvantumállapot irányának változása 3D térben (d-vektor normalizált pályája).")
-        plot_berry_phase_3d(radius=radius, center=(center_kx, center_ky), num_points=num_points)
+    phase = compute_berry_phase(radius=radius, center=(cx, cy), delta=delta)
+    st.success(f"Berry-fázis értéke: `{phase:.4f}` rad")
 
-# 🔧 Kötelező dinamikus modul belépési pont
+    fig_d = plot_3d_d_vectors(radius=radius, center=(cx, cy), delta=delta)
+    st.plotly_chart(fig_d, use_container_width=True)
+
+# Kötelező ReflectAI kompatibilitás
 app = run
