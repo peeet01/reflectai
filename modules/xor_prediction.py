@@ -14,7 +14,7 @@ def run():
 
     st.markdown("""
     Ez a modul egy neurális hálózatot alkalmaz az **XOR logikai művelet** megtanulására,  
-    tudományosan validálható módon: aktivációk, solverek, architektúra, export és riport funkciókkal.
+    tudományosan validálható módon: aktivációk, solverek, architektúra, export, riport és 3D hálóvizualizációval.
     """)
 
     # --- Adat generálás ---
@@ -28,7 +28,7 @@ def run():
     activation = st.selectbox("📊 Aktivációs függvény", ["tanh", "relu", "logistic"])
     solver = st.selectbox("🧲 Solver algoritmus", ["adam", "sgd", "lbfgs"])
     learning_rate_init = st.slider("📈 Tanulási ráta", 0.001, 1.0, 0.01, step=0.01)
-    show_3d = st.checkbox("🌐 3D vizualizáció", value=True)
+    show_3d = st.checkbox("🌐 3D döntési felület", value=True)
 
     # --- Modell létrehozása ---
     model = MLPClassifier(
@@ -136,10 +136,62 @@ def run():
 - Iterációk: {max_iter}
 - Tanulási ráta: {learning_rate_init}
 
-## Megjegyzés
 A modell a klasszikus XOR-problémát tanulja meg. A döntési felület és az aktivációk vizualizálása segít a háló működésének értelmezésében.
 """
             st.download_button("📥 Riport letöltése (.txt)", report, file_name="xor_riport.txt")
+
+    # --- 3D háló vizualizáció ---
+    with st.expander("🧠 Háló architektúra (3D vizualizáció)"):
+        if st.button("👁️ Vizualizáld a hálót"):
+            layers = [X.shape[1]] + list(model.hidden_layer_sizes) + [1]
+            fig = go.Figure()
+            neuron_positions = []
+            x_spacing = 5
+            y_spacing = 1.5
+
+            for i, layer_size in enumerate(layers):
+                layer_positions = []
+                x = i * x_spacing
+                for j in range(layer_size):
+                    y = j * y_spacing - (layer_size - 1) * y_spacing / 2
+                    z = 0
+                    fig.add_trace(go.Scatter3d(
+                        x=[x], y=[y], z=[z],
+                        mode='markers+text',
+                        marker=dict(size=6, color='blue'),
+                        text=[f'L{i}N{j}'],
+                        textposition='top center',
+                        showlegend=False
+                    ))
+                    layer_positions.append((x, y, z))
+                neuron_positions.append(layer_positions)
+
+            for i in range(len(model.coefs_)):
+                weights = model.coefs_[i]
+                for j, src_pos in enumerate(neuron_positions[i]):
+                    for k, tgt_pos in enumerate(neuron_positions[i + 1]):
+                        w = weights[j, k]
+                        color = 'green' if w > 0 else 'red'
+                        width = min(6, max(1, abs(w * 5)))
+                        fig.add_trace(go.Scatter3d(
+                            x=[src_pos[0], tgt_pos[0]],
+                            y=[src_pos[1], tgt_pos[1]],
+                            z=[src_pos[2], tgt_pos[2]],
+                            mode='lines',
+                            line=dict(color=color, width=width),
+                            showlegend=False
+                        ))
+
+            fig.update_layout(
+                title="🧠 Neurális háló architektúra (rétegenként)",
+                margin=dict(l=0, r=0, t=60, b=0),
+                scene=dict(
+                    xaxis=dict(title='Réteg'),
+                    yaxis=dict(title='Neuron'),
+                    zaxis=dict(title='')
+                )
+            )
+            st.plotly_chart(fig, use_container_width=True)
 
     # --- Matematikai háttér ---
     with st.expander("📘 Matematikai háttér"):
@@ -154,7 +206,7 @@ A modell a klasszikus XOR-problémát tanulja meg. A döntési felület és az a
         \end{cases}
         $$
 
-        Egyetlen rétegű perceptron nem képes ezt megtanulni, mert a bemeneti tér nem szeparálható egyetlen egyenes mentén.
+        Egyetlen rétegű perceptron nem képes ezt megtanulni.
 
         A tanulási modell egy **többrétegű perceptron (MLP)**:
         $$
@@ -166,8 +218,8 @@ A modell a klasszikus XOR-problémát tanulja meg. A döntési felület és az a
         \mathcal{L} = \frac{1}{N} \sum_{i=1}^N \left(y_i - \hat{y}_i\right)^2
         $$
 
-        A tanulás célja: a veszteség minimalizálása a tanítókészleten.
+        A tanulás célja: a veszteség minimalizálása.
         """)
 
-# Kötelező ReflectAI kompatibilitás
+# Kötelező ReflectAI-kompatibilitás
 app = run
