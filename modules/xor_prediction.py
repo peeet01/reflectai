@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 import time
+import os
+import joblib
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, ConfusionMatrixDisplay
 import plotly.graph_objects as go
@@ -12,7 +14,7 @@ def run():
 
     st.markdown("""
     Ez a modul egy neurális hálózatot alkalmaz az **XOR logikai művelet** megtanulására,  
-    tudományosan validálható módon: aktivációk, solverek, architektúra és loss analízis mellett.
+    tudományosan validálható módon: aktivációk, solverek, architektúra, export és riport funkciókkal.
     """)
 
     # --- Adat generálás ---
@@ -28,7 +30,7 @@ def run():
     learning_rate_init = st.slider("📈 Tanulási ráta", 0.001, 1.0, 0.01, step=0.01)
     show_3d = st.checkbox("🌐 3D vizualizáció", value=True)
 
-    # --- Modell betanítása ---
+    # --- Modell létrehozása ---
     model = MLPClassifier(
         hidden_layer_sizes=(hidden_layer_size,),
         activation=activation,
@@ -38,11 +40,19 @@ def run():
         random_state=42
     )
 
+    # --- Betöltés lehetőség ---
+    with st.expander("📦 Előző modell betöltése"):
+        if st.checkbox("🔁 Modell betöltése fájlból"):
+            uploaded = st.file_uploader("Válassz .pkl fájlt", type="pkl")
+            if uploaded:
+                model = joblib.load(uploaded)
+                st.success("✅ Modell betöltve")
+
+    # --- Tanítás ---
     start = time.time()
     model.fit(X_train, y_train)
     end = time.time()
 
-    # --- Kiértékelés ---
     y_pred = model.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
     st.success(f"🌟 Modell pontossága: {acc:.2f} | Tanítás ideje: {end-start:.3f} másodperc")
@@ -78,7 +88,7 @@ def run():
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    # --- Rejtett réteg aktivációk ---
+    # --- Aktivációk megjelenítése ---
     with st.expander("🧩 Rejtett réteg neuronjainak aktivációi"):
         if activation == "logistic":
             act_fn = lambda x: 1 / (1 + np.exp(-x))
@@ -103,7 +113,35 @@ def run():
         fig_hidden.colorbar(im)
         st.pyplot(fig_hidden)
 
-    # --- Tudományos magyarázat ---
+    # --- Modell mentése és riport ---
+    with st.expander("💾 Mentés / Export"):
+        if st.button("💾 Modell mentése"):
+            filename = f"xor_model_{int(time.time())}.pkl"
+            joblib.dump(model, filename)
+            with open(filename, "rb") as f:
+                st.download_button("⬇️ Letöltés", f, file_name=filename)
+            os.remove(filename)
+
+        if st.button("📝 Riport generálása"):
+            report = f"""# XOR Prediction Riport
+
+**Dátum**: {time.strftime('%Y-%m-%d %H:%M:%S')}
+**Pontosság**: {acc:.2f}
+**Tanítási idő**: {end - start:.3f} másodperc
+
+## Beállítások
+- Rejtett réteg méret: {hidden_layer_size}
+- Aktiváció: {activation}
+- Solver: {solver}
+- Iterációk: {max_iter}
+- Tanulási ráta: {learning_rate_init}
+
+## Megjegyzés
+A modell a klasszikus XOR-problémát tanulja meg. A döntési felület és az aktivációk vizualizálása segít a háló működésének értelmezésében.
+"""
+            st.download_button("📥 Riport letöltése (.txt)", report, file_name="xor_riport.txt")
+
+    # --- Matematikai háttér ---
     with st.expander("📘 Matematikai háttér"):
         st.markdown(r"""
         Az **XOR** (exclusive OR) probléma egy nemlineárisan szeparálható logikai művelet:
@@ -123,18 +161,13 @@ def run():
         \hat{y} = \sigma \left( W^{(2)} \cdot \sigma(W^{(1)}x + b^{(1)}) + b^{(2)} \right)
         $$
 
-        Itt:
-        - $\sigma$ az aktivációs függvény (pl. $\tanh$, $\text{ReLU}$)
-        - $W^{(1)}, W^{(2)}$ a súlymátrixok
-        - $b^{(1)}, b^{(2)}$ a bias vektorok
-
         A célfüggvény (pl. MSE):
         $$
         \mathcal{L} = \frac{1}{N} \sum_{i=1}^N \left(y_i - \hat{y}_i\right)^2
         $$
 
-        A tanulás célja: a veszteség minimalizálása a teljes tanítókészleten.
+        A tanulás célja: a veszteség minimalizálása a tanítókészleten.
         """)
 
-# Kötelező ReflectAI belépési pont
+# Kötelező ReflectAI kompatibilitás
 app = run
