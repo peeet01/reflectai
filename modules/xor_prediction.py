@@ -3,34 +3,37 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import time
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import accuracy_score, ConfusionMatrixDisplay
 import plotly.graph_objects as go
 from sklearn.model_selection import train_test_split
 
 def run():
-    st.title("🔁 XOR Prediction – Scientific Neural Network Playground")
+    st.title("🔁 XOR Prediction – Tudományos Neurális Hálózat Playground")
+
     st.markdown("""
-    Ez a modul egy neurális hálózatot alkalmaz az XOR logikai művelet megtanulására.  
-    A modell beállításai testreszabhatók, és a teljes tanulási folyamat nyomon követhető vizuálisan is.
+    Ez a modul egy neurális hálózatot alkalmaz az **XOR logikai művelet** megtanulására,  
+    tudományosan validálható módon: aktivációk, solverek, architektúra és loss analízis mellett.
     """)
 
-    # Dataset
+    # --- Adat generálás ---
     X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
     y = np.array([0, 1, 1, 0])
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
 
-    # Beállítások
+    # --- Felhasználói beállítások ---
     hidden_layer_size = st.slider("🔧 Rejtett réteg mérete", 2, 20, 4)
     max_iter = st.slider("🔁 Iterációk száma", 100, 2000, 500, step=100)
     activation = st.selectbox("📊 Aktivációs függvény", ["tanh", "relu", "logistic"])
     solver = st.selectbox("🧲 Solver algoritmus", ["adam", "sgd", "lbfgs"])
+    learning_rate_init = st.slider("📈 Tanulási ráta", 0.001, 1.0, 0.01, step=0.01)
     show_3d = st.checkbox("🌐 3D vizualizáció", value=True)
 
-    # Modell tanítása (tanulásképes változat)
+    # --- Modell betanítása ---
     model = MLPClassifier(
         hidden_layer_sizes=(hidden_layer_size,),
         activation=activation,
         solver=solver,
+        learning_rate_init=learning_rate_init,
         max_iter=max_iter,
         random_state=42
     )
@@ -39,25 +42,26 @@ def run():
     model.fit(X_train, y_train)
     end = time.time()
 
+    # --- Kiértékelés ---
     y_pred = model.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
-    st.success(f"🌟 Modell pontossága: {acc:.2f} | Tanítás ideje: {end-start:.3f} sec")
+    st.success(f"🌟 Modell pontossága: {acc:.2f} | Tanítás ideje: {end-start:.3f} másodperc")
 
-    # Loss-görbe megjelenítése
+    # --- Loss görbe ---
     if hasattr(model, 'loss_curve_'):
         fig_loss, ax_loss = plt.subplots()
         ax_loss.plot(model.loss_curve_)
         ax_loss.set_xlabel("Iteráció")
-        ax_loss.set_ylabel("Loss")
-        ax_loss.set_title("📉 Loss-görbe")
+        ax_loss.set_ylabel("Veszteség")
+        ax_loss.set_title("📉 Tanulási veszteség")
         st.pyplot(fig_loss)
 
-    # Konfúzós mátrix
+    # --- Konfúziós mátrix ---
     fig_cm, ax_cm = plt.subplots()
     ConfusionMatrixDisplay.from_predictions(y_test, y_pred, ax=ax_cm)
     st.pyplot(fig_cm)
 
-    # 3D vizualizáció (vizuálisan finomabb)
+    # --- 3D döntési felület ---
     if show_3d:
         xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
         zz = np.array([
@@ -65,61 +69,47 @@ def run():
         ]).reshape(xx.shape)
 
         fig = go.Figure(data=[
-            go.Surface(
-                z=zz,
-                x=xx,
-                y=yy,
-                colorscale='Viridis',
-                opacity=0.9,
-                showscale=True,
-                contours=dict(
-                    x=dict(show=False),
-                    y=dict(show=False),
-                    z=dict(show=False)
-                )
-            )
+            go.Surface(z=zz, x=xx, y=yy, colorscale='Viridis', opacity=0.85)
         ])
-
         fig.update_layout(
-            title="🧠 XOR – 3D Surface from Neural Network",
-            scene=dict(
-                xaxis=dict(title='X1'),
-                yaxis=dict(title='X2'),
-                zaxis=dict(title='Output', nticks=4, range=[0, 1])
-            ),
+            title="🧠 Döntési felület – tanult reprezentáció",
+            scene=dict(xaxis_title='X₁', yaxis_title='X₂', zaxis_title='Predikció'),
             margin=dict(l=0, r=0, t=60, b=0)
         )
-
         st.plotly_chart(fig, use_container_width=True)
 
-    # 📖 Működésmagyarázat
-    
-        
-    with st.expander("🔎 Hogyan működik?"):
-        st.markdown("""
-        Az **XOR (exclusive OR)** logikai művelet egy klasszikus példa a nemlineáris problémákra, amelyeket egyetlen rétegű perceptron nem tud megtanulni. Ezért szükség van **többrétegű, nemlineáris neurális hálózatra**, mint például az `MLPClassifier`.
+    # --- Tudományos magyarázat ---
+    with st.expander("📘 Matematikai háttér"):
+        st.markdown(r"""
+        Az **XOR** (exclusive OR) probléma egy nemlineárisan szeparálható logikai művelet:
 
-        #### 🔢 XOR Működése:
-        - `XOR(0, 0) = 0`
-        - `XOR(0, 1) = 1`
-        - `XOR(1, 0) = 1`
-        - `XOR(1, 1) = 0`
+        $$
+        \text{XOR}(x_1, x_2) =
+        \begin{cases}
+        0, & \text{ha } x_1 = x_2 \\
+        1, & \text{ha } x_1 \neq x_2
+        \end{cases}
+        $$
 
-        #### 🧠 Alkalmazott modell: `MLPClassifier` (Multi-Layer Perceptron)
-        - **Rejtett rétegek**: A felhasználó választhatja meg a rejtett réteg méretét.
-        - **Aktivációs függvények**: `relu`, `tanh`, `logistic` – ezek vezetik be a nemlinearitást.
-        - **Tanulási algoritmus** (`solver`): `adam`, `sgd`, `lbfgs`
-        - **Veszteségfüggvény** (`loss`) követése és vizualizációja.
+        Egyetlen rétegű perceptron nem képes ezt megtanulni, mert a bemeneti tér nem szeparálható egyetlen egyenes mentén.
 
-        #### 📊 Mit jelenít meg az alkalmazás?
-        - A **tanulás pontosságát** (`accuracy`) a tesztadatokra.
-        - Egy **konfúziós mátrixot**, amely vizuálisan mutatja a helyes és téves osztályozásokat.
-        - Egy **loss-görbét**, amely az iterációk során mért tanulási hibát mutatja.
-        - Egy **3D vizualizációt**, amely megjeleníti a háló által tanult döntési határt a bemeneti térben.
-    
-        #### ⚗️ Miért érdekes ez?
-        Az XOR probléma az egyik első bemutató példa arra, hogy a neurális hálózatok képesek **komplex, nemlineáris viselkedés tanulására**, ha megfelelően vannak paraméterezve. E modul lehetővé teszi, hogy ezt a tanulást **interaktívan és tudományos módon** figyeld meg és elemezd.
+        A tanulási modell egy **többrétegű perceptron (MLP)**:
+        $$
+        \hat{y} = \sigma \left( W^{(2)} \cdot \sigma(W^{(1)}x + b^{(1)}) + b^{(2)} \right)
+        $$
+
+        Itt:
+        - $\sigma$ az aktivációs függvény (pl. $\tanh$, $\text{ReLU}$)
+        - $W^{(1)}, W^{(2)}$ a súlymátrixok
+        - $b^{(1)}, b^{(2)}$ a bias vektorok
+
+        A célfüggvény (pl. MSE):
+        $$
+        \mathcal{L} = \frac{1}{N} \sum_{i=1}^N \left(y_i - \hat{y}_i\right)^2
+        $$
+
+        A tanulás célja: a veszteség minimalizálása a teljes tanítókészleten.
         """)
         
-# Kötelező ReflectAI kompatibilitás
+# ReflectAI kompatibilitás
 app = run
