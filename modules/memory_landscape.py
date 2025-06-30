@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+import io
 
 # --- EREDETI MEMÓRIA TÁJKÉP GENERÁLÁS ---
 
@@ -73,16 +74,33 @@ def run():
     with st.expander("📘 Aktiváld a neurális memória visszahívást"):
         st.markdown("Taníts be egyszerű bináris mintákat (pl. 10×10 képek), és nézd meg, hogyan emlékszik vissza a háló egy zajos bemenet alapján.")
 
+        # Matematikai magyarázat
+        with st.expander("📚 Matematikai háttér"):
+            st.latex(r"W_{ij} = \sum_{\mu=1}^P \xi_i^\mu \xi_j^\mu,\quad W_{ii} = 0")
+            st.latex(r"s_i^{t+1} = \text{sign} \left( \sum_j W_{ij} s_j^t \right)")
+            st.markdown("Ez a Hopfield-háló működési elve: a tanult minták belső szorzatokkal beégetődnek a súlymátrixba, és a háló energia-alapon visszahúzza a zajos bemenetet a legközelebbi mintához.")
+
         use_hopfield = st.checkbox("🧠 Hopfield aktiválása")
         if use_hopfield:
             dim = st.slider("📐 Minta dimenzió (NxN)", 5, 20, 10)
             pattern_size = dim * dim
 
-            # Előre definiált minták
-            base_patterns = np.array([
-                np.random.choice([-1, 1], size=pattern_size),
-                np.tile([1, -1], pattern_size // 2)
-            ])
+            # Minta kiválasztás
+            pattern_type = st.selectbox("📂 Minta kiválasztása", ["Random 1", "Sakktábla", "Függőleges csíkok"])
+            if pattern_type == "Random 1":
+                base_patterns = np.array([
+                    np.random.choice([-1, 1], size=pattern_size),
+                    np.random.choice([-1, 1], size=pattern_size)
+                ])
+            elif pattern_type == "Sakktábla":
+                base_patterns = np.array([
+                    np.tile([1, -1], pattern_size // 2),
+                    np.tile([-1, 1], pattern_size // 2)
+                ])
+            else:  # Függőleges csíkok
+                pattern = np.ones((dim, dim))
+                pattern[:, ::2] = -1
+                base_patterns = np.array([pattern.flatten(), -pattern.flatten()])
 
             st.markdown("**Eredeti minták:**")
             for i, pat in enumerate(base_patterns):
@@ -105,6 +123,16 @@ def run():
 
             st.markdown("**Visszahívott minta:**")
             display_pattern(recalled, "Hopfield kimenet")
+
+            # Mentési lehetőség
+            with io.BytesIO() as buffer:
+                np.savez(buffer, patterns=base_patterns, weights=W)
+                st.download_button(
+                    label="💾 Letöltés (minták + súlymátrix)",
+                    data=buffer.getvalue(),
+                    file_name="hopfield_patterns_weights.npz",
+                    mime="application/octet-stream"
+                )
 
 # Kötelező belépési pont
 app = run
