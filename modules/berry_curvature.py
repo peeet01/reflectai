@@ -25,6 +25,12 @@ def generate_curvature_map(N, delta):
     
     return kx_vals, ky_vals, curvature
 
+def compute_chern_number(curvature, kx_vals, ky_vals):
+    dkx = kx_vals[1] - kx_vals[0]
+    dky = ky_vals[1] - ky_vals[0]
+    integral = np.sum(curvature) * dkx * dky / (2 * np.pi)
+    return integral
+
 def run():
     st.title("🌀 Berry-görbület szimuláció")
     st.markdown("A Berry-görbület egy topológiai kvantumrendszer lokális tulajdonsága a Brillouin-zónában.")
@@ -59,6 +65,11 @@ def run():
     )
     st.plotly_chart(fig3d)
 
+    # ➕ ÚJ: Chern-szám (Berry-fázis integrál)
+    st.subheader("🧮 Topológiai Chern-szám")
+    chern = compute_chern_number(curvature, kx_vals, ky_vals)
+    st.success(f"Chern-szám ≈ `{chern:.3f}`")
+
     if export_csv:
         df = pd.DataFrame(curvature, index=ky_vals, columns=kx_vals)
         csv = df.to_csv(index=True).encode("utf-8")
@@ -77,8 +88,14 @@ def run():
         \Omega(k) = \frac{1}{2} \frac{d_z}{|d|^3}
         """)
         st.markdown("""
-        Ez a kifejezés megmutatja, mennyire "csavarodik" a Bloch-függvény a Brillouin-zónában. A teljes integrálja **Chern-szám** lehet.
+        A **Chern-szám** a teljes Brillouin-zónára integrált Berry-görbület:
+        """)
+        st.latex(r"""
+        C = \frac{1}{2\pi} \int_{\text{BZ}} \Omega(k) \, d^2k
+        """)
+        st.markdown("""
+        Ez a mennyiség egy egész szám (topológiai invariáns), amely meghatározza a rendszer **topológiai fázisát**.
         """)
 
-# Kötelező belépési pont a ReflectAI-hoz
+# Kötelező ReflectAI integráció
 app = run
