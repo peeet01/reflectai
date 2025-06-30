@@ -107,8 +107,9 @@ def run():
     """)
 
     st.markdown("---")
-    st.markdown("Verzió: **2025.06**  
-    Készítette: *ReflectAI fejlesztői és közösség*")
-
+    st.markdown("""
+Verzió: **2025.06**  
+Készítette: *ReflectAI fejlesztői és közösség*
+""")
 # ReflectAI belépési pont
 app = run
