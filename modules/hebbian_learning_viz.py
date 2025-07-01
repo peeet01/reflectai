@@ -76,8 +76,7 @@ def run():
     st.download_button("⬇️ Súlymátrix letöltése (W)", data=csv_w, file_name="hebbian_weights.csv")
     st.download_button("⬇️ Jósolt kimenet letöltése (Y_pred)", data=csv_pred, file_name="hebbian_output.csv")
 
-    with st.expander("📘 Tudományos háttér – Mi az a Hebbian tanulás?"):
-    st.markdown("""
+    
     with st.expander("📘 Tudományos háttér – Hebbian tanulás"):
     st.markdown("""
     A **Hebbian-tanulás** az egyik legegyszerűbb és legismertebb biológiai ihletésű tanulási szabály,  
