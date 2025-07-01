@@ -114,7 +114,6 @@ def app():
     A Rényi-entrópia lehetővé teszi, hogy különféle neurális mintázatokat és skálán működő aktivitásokat finoman megkülönböztessünk – például érzékenyebben detektálhatja az epilepsziás vagy kóros állapotokat, illetve az agy dinamikai sokféleségét.
     """)
 
-    ---
 
     ### 🧠 Alkalmazás idegtudományban
 
