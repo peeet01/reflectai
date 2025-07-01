@@ -120,8 +120,8 @@ def app():
 
     Az entrópiák elemzése segíthet megérteni a neurális rendszerek **komplexitását és rendezettségét**:
 
-    - **Alacsony entrópia** → ismétlődő, kiszámítható dinamika (pl. epilepsziás mintázat)
-    - **Magas entrópia** → változatos, adaptív aktivitás (pl. figyelem, tanulás)
+    - **Alacsony entrópia**  ismétlődő, kiszámítható dinamika (pl. epilepsziás mintázat)
+    - **Magas entrópia**  változatos, adaptív aktivitás (pl. figyelem, tanulás)
     - **Rényi-entrópia** finomhangolható a különböző dinamikákra, érzékenyen jelzi a szinkronitás vagy a káosz jelenlétét
 
     Használható pl. **ESN kimenetek**, **EEG jelek** vagy más időalapú idegrendszeri szignálok rendezettségének becslésére.
