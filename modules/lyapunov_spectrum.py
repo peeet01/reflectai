@@ -28,7 +28,7 @@ def run():
     # Paraméterek
     r_min = st.slider("🔽 r minimum érték", 2.5, 3.5, 2.5)
     r_max = st.slider("🔼 r maximum érték", 3.5, 4.0, 4.0)
-    n_points = st.slider("📊 Mintapontok száma", 100, 2000, 800, step=100)
+    n_points = st.slider("📊 r pontok száma", 100, 2000, 800, step=100)
     x0 = st.slider("⚙️ Kezdeti érték (x₀)", 0.0, 1.0, 0.5)
     steps = st.slider("🔁 Iterációs lépések száma", 100, 3000, 1000, step=100)
 
@@ -46,18 +46,34 @@ def run():
     ax.set_title("Lyapunov spektrum – logisztikus térkép")
     st.pyplot(fig2d)
 
-    # 3D plot
+    # 3D plot – ÚJ, színes és gyors plotly-s verzió
     st.subheader("🌐 3D Lyapunov-spektrum")
-    R, S = np.meshgrid(r_values, np.arange(steps))
-    X = np.tile(r_values, (steps, 1))
-    Z = np.tile(lyapunov_values, (steps, 1))
 
-    fig3d = go.Figure(data=[go.Surface(x=R, y=S, z=Z, colorscale="Viridis")])
+    x0_min = st.slider("⚙️ x₀ minimum", 0.0, 1.0, 0.1)
+    x0_max = st.slider("⚙️ x₀ maximum", 0.0, 1.0, 0.9)
+    x0_points = st.slider("📈 x₀ pontok száma", 10, 100, 40)
+
+    x0_values = np.linspace(x0_min, x0_max, x0_points)
+    R_grid, X0_grid = np.meshgrid(r_values, x0_values)
+    Z_grid = np.zeros_like(R_grid)
+
+    for i in range(x0_points):
+        lyaps = compute_lyapunov_vectorized(r_values, x0=x0_values[i], steps=steps)
+        Z_grid[i, :] = lyaps
+
+    fig3d = go.Figure(data=[go.Surface(
+        x=R_grid,
+        y=X0_grid,
+        z=Z_grid,
+        colorscale='Viridis',
+        showscale=True
+    )])
+
     fig3d.update_layout(
-        title="3D Lyapunov-spektrum",
+        title="3D Lyapunov-spektrum (r × x₀ tér)",
         scene=dict(
             xaxis_title='r',
-            yaxis_title='Iteráció',
+            yaxis_title='x₀',
             zaxis_title='λ (Lyapunov)',
         ),
         margin=dict(l=0, r=0, t=60, b=0)
@@ -69,15 +85,6 @@ def run():
     df = pd.DataFrame({"r": r_values, "lambda": lyapunov_values})
     csv = df.to_csv(index=False).encode("utf-8")
     st.download_button("Letöltés CSV formátumban", data=csv, file_name="lyapunov_spectrum.csv")
-
-    # Értelmezés – Kaotikus vagy stabil?
-    avg_lambda = np.mean(lyapunov_values)
-    if avg_lambda > 0:
-        st.success(f"🔍 Az adott beállítások alapján a rendszer **KAOTIKUS** (átlagos λ = {avg_lambda:.4f})")
-    elif avg_lambda < 0:
-        st.info(f"✅ Az adott beállítások alapján a rendszer **STABIL** (átlagos λ = {avg_lambda:.4f})")
-    else:
-        st.warning(f"⚠️ Az adott beállítások alapján a rendszer **semleges** viselkedést mutat (λ ≈ 0)")
 
     # Tudományos háttér
     with st.expander("📘 Tudományos háttér – Mi az a Lyapunov-exponens?"):
