@@ -101,39 +101,37 @@ def app():
     st.download_button("Letöltés CSV-ben", data=csv, file_name="entropy_time_series.csv")
 
     # Matematikai háttér (egységes latex)
-    st.markdown(r"""
-    ### 📚 Matematikai háttér
+    st.markdown("### 📚 Matematikai háttér")
 
-    Az **entrópia** egy mérték annak, mennyi információt hordoz egy adott eloszlás – vagyis mekkora a rendezetlenség.
+    st.markdown("#### Shannon-entrópia")
+    st.markdown(
+        r"A **Shannon-entrópia** az információelmélet alapmennyisége, az alábbi képlettel definiálható:"
+    )
+    st.latex(r"H = -\sum_i p_i \log_2 p_i")
+    st.markdown(
+        r"ahol $p_i$ az adott állapot előfordulási valószínűsége."
+    )
+    st.markdown(
+        r"""
+    - Ha az eloszlás koncentrált (egy valószínűség dominál), akkor $H \to 0$  
+    - Ha minden esemény egyenlő valószínűségű: $H \to \log_2 N$
+    """
+    )
 
-    ---
-
-    #### Shannon-entrópia
-
-    A **Shannon-entrópia** az információelmélet alapmennyisége, az alábbi képlettel definiálható:
-
-    \[
-    H = -\sum_i p_i \log_2 p_i
-    \]
-
-    ahol p_i az adott állapot előfordulási valószínűsége.
-
-    - Ha az eloszlás koncentrált (egy valószínűség dominál), H \to 0
-    - Ha minden esemény egyenlő valószínűségű: H \to \log_2 N
-
-    ---
-
-    #### Rényi-entrópia
-
-    A **Rényi-entrópia** a Shannon-entrópia általánosítása egy \alpha paraméter segítségével:
-
-    \[
-    H_\alpha = \frac{1}{1 - \alpha} \log_2 \left( \sum_i p_i^\alpha \right), \quad \alpha > 0, \ \alpha \ne 1
-    \]
-
-    - Ha \alpha \to 1, akkor H_\alpha \to H (Shannon-entrópia)
-    - Kis \alpha: érzékeny ritka eseményekre
-    - Nagy \alpha: a domináns mintázatokra koncentrál
+    st.markdown("#### Rényi-entrópia")
+    st.markdown(
+        r"A **Rényi-entrópia** a Shannon-entrópia általánosítása egy $\alpha$ paraméter segítségével:"
+    )
+    st.latex(
+        r"H_\alpha = \frac{1}{1 - \alpha} \log_2 \left( \sum_i p_i^\alpha \right), \quad \alpha > 0, \ \alpha \ne 1"
+    )
+    st.markdown(
+        r"""
+    - Ha $\alpha \to 1$, akkor $H_\alpha \to H$ (Shannon-entrópia)  
+    - Kis $\alpha$ esetén érzékenyebb a ritka eseményekre  
+    - Nagy $\alpha$ esetén domináns mintázatokra fókuszál
+    """
+    )
 
     ---
 
