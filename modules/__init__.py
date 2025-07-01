@@ -20,6 +20,7 @@ from modules.data_upload import run as run_data_upload
 from modules.help_module import run as run_help
 from modules.reflection_modul import run as run_reflection
 from modules.questions import run as run_questions
+from modules.neural_entropy import run as neural_entropy
 
 # Modulregisztráció (név -> függvény)
 registry = {
