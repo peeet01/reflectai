@@ -22,8 +22,7 @@ def run():
     st.title("🧠 Lyapunov Spektrum – Dinamikus rendszerek stabilitása")
 
     st.markdown("""
-    Ez a modul bemutatja, hogyan alakul egy nemlineáris rendszer viselkedése a logisztikus leképezésen keresztül.  
-    A **Lyapunov-exponens** segítségével vizualizálhatjuk a stabil és kaotikus tartományokat.
+    Vizualizáció logisztikus leképezés alapján, amely a káosz határát mutatja meg a Lyapunov-exponens segítségével.
     """)
 
     # Paraméterek
@@ -37,7 +36,7 @@ def run():
     r_values = np.linspace(r_min, r_max, n_points)
     lyapunov_values = compute_lyapunov_vectorized(r_values, x0=x0, steps=steps)
 
-    # 2D Lyapunov-spektrum
+    # 2D plot
     st.subheader("📈 2D Lyapunov-spektrum")
     fig2d, ax = plt.subplots()
     ax.scatter(r_values, lyapunov_values, c=np.where(lyapunov_values < 0, 'green', 'red'), s=2)
@@ -47,58 +46,55 @@ def run():
     ax.set_title("Lyapunov spektrum – logisztikus térkép")
     st.pyplot(fig2d)
 
-    # 3D Lyapunov-spektrum
+    # 3D plot
     st.subheader("🌐 3D Lyapunov-spektrum")
     R, S = np.meshgrid(r_values, np.arange(steps))
+    X = np.tile(r_values, (steps, 1))
     Z = np.tile(lyapunov_values, (steps, 1))
 
-    fig3d = go.Figure(data=[go.Surface(
-        x=R,
-        y=S,
-        z=Z,
-        colorscale="Viridis",
-        showscale=True,
-        opacity=0.95
-    )])
+    fig3d = go.Figure(data=[go.Surface(x=R, y=S, z=Z, colorscale="Viridis")])
     fig3d.update_layout(
-        title="3D Lyapunov-spektrum (állandó λ vetítése)",
+        title="3D Lyapunov-spektrum",
         scene=dict(
             xaxis_title='r',
             yaxis_title='Iteráció',
             zaxis_title='λ (Lyapunov)',
         ),
-        margin=dict(l=0, r=0, t=60, b=0),
-        template="plotly_dark"
+        margin=dict(l=0, r=0, t=60, b=0)
     )
     st.plotly_chart(fig3d, use_container_width=True)
 
-    # Adatok exportálása
-    st.subheader("📥 Eredmények letöltése")
+    # CSV export
+    st.subheader("⬇️ Adatok letöltése")
     df = pd.DataFrame({"r": r_values, "lambda": lyapunov_values})
     csv = df.to_csv(index=False).encode("utf-8")
-    st.download_button("⬇️ Letöltés CSV formátumban", data=csv, file_name="lyapunov_spectrum.csv")
+    st.download_button("Letöltés CSV formátumban", data=csv, file_name="lyapunov_spectrum.csv")
+
+    # Értelmezés – Kaotikus vagy stabil?
+    avg_lambda = np.mean(lyapunov_values)
+    if avg_lambda > 0:
+        st.success(f"🔍 Az adott beállítások alapján a rendszer **KAOTIKUS** (átlagos λ = {avg_lambda:.4f})")
+    elif avg_lambda < 0:
+        st.info(f"✅ Az adott beállítások alapján a rendszer **STABIL** (átlagos λ = {avg_lambda:.4f})")
+    else:
+        st.warning(f"⚠️ Az adott beállítások alapján a rendszer **semleges** viselkedést mutat (λ ≈ 0)")
 
     # Tudományos háttér
     with st.expander("📘 Tudományos háttér – Mi az a Lyapunov-exponens?"):
         st.markdown("""
-        A **Lyapunov-exponens** egy olyan mutató, amely azt írja le, mennyire érzékeny egy rendszer a kezdeti feltételekre.  
-        Ha kis eltérés a kezdetekben idővel nagy különbséghez vezet, a rendszer **kaotikusként** viselkedik.
+        A **Lyapunov-exponens** numerikus mérőszám, amely azt mutatja meg, hogy egy dinamikus rendszer mennyire érzékeny a kezdeti feltételekre.
 
         ---
-        ### 🔍 Alapdefiníció (logaritmikus divergencia mértéke):
+        **Matematikai definíció**:
         $$
         \\lambda = \\lim_{n \\to \\infty} \\frac{1}{n} \\sum_{i=1}^{n} \\ln \\left| \\frac{df(x_i)}{dx} \\right|
         $$
 
-        - **λ < 0** → a rendszer stabil, konvergál egy pontra vagy ciklusra  
-        - **λ = 0** → neutrális viselkedés  
-        - **λ > 0** → **káosz**: a rendszer extrém módon érzékeny a kezdeti feltételekre
+        - Ha **λ < 0**: stabil rendszer (konvergál)
+        - Ha **λ = 0**: semleges stabilitás
+        - Ha **λ > 0**: **káosz** – kis eltérés is drasztikus kimenethez vezet
 
-        ---
-        A logisztikus leképezés:  
-        $$ x_{n+1} = r \\cdot x_n (1 - x_n) $$  
-        gyakran használt példája a determinisztikus káosz bemutatásának.  
-        A Lyapunov-spektrum megmutatja, hogy a rendszer adott **r** érték mellett kaotikus-e vagy sem.
+        A logisztikus leképezés klasszikus példája ennek a viselkedésnek. A Lyapunov-spektrum pedig a stabil és kaotikus zónákat tárja fel.
         """)
 
 # ReflectAI-kompatibilitás
