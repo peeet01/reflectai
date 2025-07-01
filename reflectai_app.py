@@ -6,15 +6,6 @@ import os  # 📁 Fájlok listázásához
 # 🌐 Metaadat – ez legyen az első Streamlit hívás!
 st.set_page_config(page_title="Neurolab AI", layout="wide")
 
-# ➕ Debug info kapcsoló – csak akkor jelenik meg, ha bepipálod
-if st.sidebar.checkbox("🛠️ Debug info mutatása", value=False):
-    st.sidebar.write("📂 Aktuális working directory:", os.getcwd())
-    st.sidebar.write("📂 modules abs path:", os.path.abspath("modules"))
-    try:
-        st.sidebar.write("📁 modules tartalma:", os.listdir("modules"))
-    except Exception as e:
-        st.sidebar.error(f"Nem tudtam listázni a 'modules' mappát: {e}")
-
 # 📁 Modul-kategóriák
 module_categories = {
     "📈 Vizualizációk": {
