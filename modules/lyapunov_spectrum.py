@@ -4,14 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
-# === Leképezések definíciói ===
-def logistic_map(r, x): return r * x * (1 - x)
-def tent_map(r, x): return r * np.minimum(x, 1 - x)
-def quadratic_map(r, x): return r - x**2
-def henon_map(a, b, x, y): return 1 - a * x**2 + y, b * x
-
-# === Gyorsított Lyapunov számítás 1D leképezésekhez ===
-def compute_lyapunov_vectorized_1d(map_func, r_vals, x0=0.5, steps=1000, delta=1e-8):
+def compute_lyapunov_vectorized(r_vals, map_func, x0=0.5, steps=1000, delta=1e-8):
     x = np.full_like(r_vals, x0)
     lyapunov = np.zeros_like(r_vals)
 
@@ -24,78 +17,97 @@ def compute_lyapunov_vectorized_1d(map_func, r_vals, x0=0.5, steps=1000, delta=1
         x = x1
     return lyapunov / steps
 
-# === Streamlit App ===
+# Map functions
+def logistic_map(r, x): return r * x * (1 - x)
+def tent_map(r, x): return np.where(x < 0.5, r * x, r * (1 - x))
+def quadratic_map(r, x): return r - x**2
+def henon_map(r, x): return 1 - r * x**2
+
 def run():
-    st.title("🧠 Többtérképes Lyapunov Spektrum")
+    st.title("🧠 Lyapunov Spektrum és Dinamikus Leképezések")
+
     st.markdown("""
-    Ez a modul lehetőséget ad különböző diszkrét dinamikus rendszerek (logisztikus, tent, kvadratikus és Henon) Lyapunov-spektrumának kiszámítására és vizualizálására.
+    Ez az alkalmazás különböző **nemlineáris dinamikus leképezések** stabilitását és káoszát vizualizálja a **Lyapunov-exponens** alapján.
     """)
 
-    # --- Leképezés kiválasztása ---
-    map_choice = st.selectbox("🧮 Leképezés típusa", ["Logisztikus", "Tent", "Kvadratikus"])
-    r_min = st.slider("🔽 r minimum érték", 0.0, 4.0, 2.5)
-    r_max = st.slider("🔼 r maximum érték", 0.1, 4.0, 4.0)
+    # Map selection
+    map_type = st.selectbox("📊 Leképezés típusa", ["Logisztikus", "Tent", "Quadratic", "Henon"])
+    map_dict = {
+        "Logisztikus": logistic_map,
+        "Tent": tent_map,
+        "Quadratic": quadratic_map,
+        "Henon": henon_map
+    }
+
+    # Parameters
+    r_min = st.slider("🔽 r minimum érték", 0.0, 3.9, 2.5)
+    r_max = st.slider("🔼 r maximum érték", r_min + 0.1, 4.0, 4.0)
     n_points = st.slider("📊 Mintapontok száma", 100, 2000, 800, step=100)
     x0 = st.slider("⚙️ Kezdeti érték (x₀)", 0.0, 1.0, 0.5)
     steps = st.slider("🔁 Iterációs lépések száma", 100, 3000, 1000, step=100)
 
-    # --- Leképezés hozzárendelés ---
-    map_func = {
-        "Logisztikus": logistic_map,
-        "Tent": tent_map,
-        "Kvadratikus": quadratic_map
-    }[map_choice]
-
+    progress = st.progress(0)
     r_values = np.linspace(r_min, r_max, n_points)
-    lyapunov_values = compute_lyapunov_vectorized_1d(map_func, r_values, x0=x0, steps=steps)
+    map_func = map_dict[map_type]
+    lyapunov_values = compute_lyapunov_vectorized(r_values, map_func, x0=x0, steps=steps)
+    progress.progress(100)
 
-    # --- 2D Plot ---
     st.subheader("📈 2D Lyapunov-spektrum")
     fig2d, ax = plt.subplots()
     ax.scatter(r_values, lyapunov_values, c=np.where(lyapunov_values < 0, 'green', 'red'), s=2)
     ax.axhline(0, color='gray', linestyle='--')
     ax.set_xlabel("r")
     ax.set_ylabel("λ (Lyapunov-exponens)")
-    ax.set_title(f"Lyapunov spektrum – {map_choice} leképezés")
+    ax.set_title(f"Lyapunov-spektrum – {map_type} leképezés")
     st.pyplot(fig2d)
 
-    # --- 3D Plot ---
     st.subheader("🌐 3D Lyapunov-spektrum")
     R, S = np.meshgrid(r_values, np.arange(steps))
     Z = np.tile(lyapunov_values, (steps, 1))
-    fig3d = go.Figure(data=[go.Surface(x=R, y=S, z=Z, colorscale="Inferno", showscale=False)])
+
+    fig3d = go.Figure(data=[
+        go.Surface(z=Z, x=R, y=S, colorscale="Viridis", showscale=True)
+    ])
     fig3d.update_layout(
-        scene=dict(xaxis_title="r", yaxis_title="Iteráció", zaxis_title="λ"),
-        margin=dict(l=0, r=0, t=40, b=0),
-        title="3D Lyapunov spektrum"
+        title=f"3D Lyapunov-spektrum – {map_type}",
+        scene=dict(
+            xaxis_title='r paraméter',
+            yaxis_title='Iteráció',
+            zaxis_title='λ (Lyapunov)',
+        ),
+        margin=dict(l=0, r=0, t=60, b=0)
     )
     st.plotly_chart(fig3d, use_container_width=True)
 
-    # --- CSV Export ---
     st.subheader("⬇️ Adatok letöltése")
     df = pd.DataFrame({"r": r_values, "lambda": lyapunov_values})
     csv = df.to_csv(index=False).encode("utf-8")
-    st.download_button("Letöltés CSV formátumban", data=csv, file_name="lyapunov_spectrum.csv")
+    st.download_button("Letöltés CSV formátumban", data=csv, file_name=f"lyapunov_{map_type.lower()}.csv")
 
-    # --- Tudományos háttér ---
+    st.subheader("📊 Káosz vagy stabilitás?")
+    avg_lyap = np.mean(lyapunov_values)
+    if avg_lyap > 0:
+        st.success(f"⚠️ Átlagos Lyapunov-exponens: {avg_lyap:.4f} → **Káosz** van jelen a rendszerben!")
+    else:
+        st.info(f"✅ Átlagos Lyapunov-exponens: {avg_lyap:.4f} → **A rendszer stabil**.")
+
     with st.expander("📘 Tudományos háttér – Mi az a Lyapunov-exponens?"):
-        st.markdown(f"""
-        A **Lyapunov-exponens** egy kulcsfontosságú mérőszám, amely azt vizsgálja, hogy egy rendszer **mennyire érzékeny a kezdeti feltételekre**.  
-        Különböző leképezések eltérő dinamikát mutatnak:
-        - **Logisztikus**: klasszikus bifurkációs és káotikus viselkedés.
-        - **Tent**: darabos, de jól kontrollálható káosz.
-        - **Kvadratikus**: nemlineáris inverziókat tartalmaz.
+        st.markdown(r"""
+        A **Lyapunov-exponens** numerikus mérőszám, amely leírja, hogy egy dinamikus rendszer mennyire érzékeny a kezdeti feltételekre.
 
-        ### Matematikai meghatározás:
+        ---
+        ### Matematikai definíció:
         $$
-        \\lambda = \\lim_{{n \\to \\infty}} \\frac{{1}}{{n}} \\sum_{{i=1}}^n \\ln \\left| \\frac{{df(x_i)}}{{dx}} \\right|
+        \lambda = \lim_{n \to \infty} \frac{1}{n} \sum_{i=1}^{n} \ln \left| \frac{df(x_i)}{dx} \right|
         $$
 
-        - Ha **λ < 0** → stabil rendszer  
-        - Ha **λ > 0** → **káosz** – az eltérések exponenciálisan nőnek  
-        - **λ = 0** → neutrális viselkedés
+        - **λ < 0** → A rendszer stabil (konvergál)
+        - **λ = 0** → Semleges stabilitás
+        - **λ > 0** → **Káosz** – az apró eltérések nagy különbségekhez vezetnek idővel
 
-        A fenti ábrák segítenek feltérképezni a **kaotikus zónák** elhelyezkedését a paramétertérben.
+        ---
+        A logisztikus, tent, quadratic és Henon leképezések közismert példái a nemlineáris rendszerek kaotikus viselkedésének.
+        A Lyapunov-spektrum segít feltárni, hogy mely paraméterek mellett jelenik meg a káosz.
         """)
 
 # ReflectAI-kompatibilitás
