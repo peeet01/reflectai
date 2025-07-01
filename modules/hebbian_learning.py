@@ -20,7 +20,7 @@ def generate_inputs():
     T = np.array([0, 0, 0, 1])  # AND logikai művelet
     return X, T
 
-def app():
+def run():
     st.title("🧠 Hebbian Learning Szimuláció")
     st.markdown("Fedezd fel a Hebb-szabály működését egy egyszerű példán keresztül.")
 
@@ -73,13 +73,12 @@ A Hebbian-tanulás az egyik legegyszerűbb és legismertebb biológiai ihletés�
 
 **Súlyfrissítési szabály (egyszerűsített alakban):**
 
-    w_i ← w_i + η · x_i · t
+    wᵢ  wᵢ + η · xᵢ · t
 
 ahol:
-
-- `w_i` az i-edik bemenethez tartozó súly,
+- `wᵢ` az i-edik bemenethez tartozó súly,
 - `η` a tanulási ráta (egy kis pozitív szám),
-- `x_i` a bemenet aktuális értéke,
+- `xᵢ` a bemenet aktuális értéke,
 - `t` a célérték vagy a posztszinaptikus neuron aktivitása.
 
 Ez a szabály megerősíti azokat a kapcsolatokat, amelyeknél a bemenet és a kimenet **egyszerre aktív**.  
@@ -87,6 +86,6 @@ A Hebbian-tanulás nem igényel hibavisszacsatolást (mint például a visszater
 
 Biológiai megfelelője megfigyelhető például az agykéreg szinaptikus plaszticitásában.
     """)
-app = app
 
-# Figyelem: NEVE maradjon app()
+# 🔁 ReflectAI kompatibilitás
+app = run
