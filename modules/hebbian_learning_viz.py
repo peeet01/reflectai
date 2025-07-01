@@ -76,24 +76,33 @@ def run():
     st.download_button("⬇️ Súlymátrix letöltése (W)", data=csv_w, file_name="hebbian_weights.csv")
     st.download_button("⬇️ Jósolt kimenet letöltése (Y_pred)", data=csv_pred, file_name="hebbian_output.csv")
 
-    with st.expander("📚 Tudományos háttér"):
-        st.markdown("""
-        ### Hebbian tanulás
-        A Hebbian tanulás az egyik legegyszerűbb és legismertebb szabály a szinaptikus erősségek frissítésére.  
-        Lényege, hogy ha egy bemeneti és egy kimeneti neuron gyakran aktiválódik egyszerre, akkor kapcsolatuk erősödik.
+    with st.expander("📘 Tudományos háttér – Mi az a Hebbian tanulás?"):
+    st.markdown("""
+    A **Hebbian tanulás** az egyik legegyszerűbb és legismertebb szabály az ideghálózatok tanítására.
 
-        #### Matematikai leírás:
-        A súlymátrix frissítése:
+    ### 🧠 Alapelv:
+    > *„Neurons that fire together, wire together.”*  
+    Azaz: ha két neuron egyszerre aktiválódik, akkor megerősödik köztük a kapcsolat.
+
+    ### 🧮 Matematikai modell:
+    A súlymátrix kiszámítása:
 \[
-        W = Y \cdot X^T
+    W = Y \cdot X^T
 \]
-        ahol:
-        - X a bemeneti minták mátrixa (dimenzió: bemenet × minták),
-        - Y a kívánt kimenet mátrixa (kimenet × minták),
-        - W a tanult súlymátrix (kimenet × bemenet).
+    - **X**: bemeneti neuronok aktivitása (bemenet × minták mátrix)
+    - **Y**: kimeneti neuronok válasza (kimenet × minták mátrix)
+    - **W**: tanult súlymátrix (kimenet × bemenet)
 
-        Ez a szabály a klasszikus kondicionálás, asszociatív tanulás és egyszerű neurális hálózatok alapját képezi.
-        """)
+    A modell nem használ tanulási rátát, mivel ez egy egyszeri, lineáris tanulási szabály.
+
+    ### 🔍 Alkalmazás:
+    - Biológiai szinapszisok modellezése
+    - Egyszerű asszociatív memória rendszerek
+    - Hoppfield hálók alapelve
+    - Adaptív szűrők és korai gépi tanulásos modellek
+
+    A Hebbian tanulás jól használható oktatási célra, mivel intuitív és jól szemléltethető.
+    """)
     
 # Kötelező ReflectAI-kompatibilitás
 app = run
