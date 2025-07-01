@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import streamlit as st
+import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 def hebbian_learning(X, T, eta, epochs):
@@ -20,7 +20,7 @@ def generate_inputs():
     T = np.array([0, 0, 0, 1])  # AND logikai művelet
     return X, T
 
-def main():
+def app():
     st.title("🧠 Hebbian Learning Szimuláció")
     st.markdown("Fedezd fel a Hebb-szabály működését egy egyszerű példán keresztül.")
 
@@ -30,7 +30,7 @@ def main():
     X, T = generate_inputs()
     history = hebbian_learning(X, T, eta, epochs)
 
-    # 2D plot
+    # 2D vizualizáció
     st.subheader("📈 Súlyváltozások 2D-ben")
     fig, ax = plt.subplots()
     ax.plot(history[:, 0], label="w₀")
@@ -41,7 +41,7 @@ def main():
     ax.legend()
     st.pyplot(fig)
 
-    # 3D plot
+    # 3D vizualizáció
     st.subheader("📊 Súlypálya vizualizáció 3D-ben")
     fig3d = go.Figure(data=[go.Scatter3d(
         x=history[:, 0],
@@ -64,28 +64,27 @@ def main():
     csv = df.to_csv(index_label="iteráció").encode("utf-8")
     st.download_button("Súlyok letöltése CSV-ben", data=csv, file_name="hebb_weights.csv")
 
-    # Tudományos háttér
+    # Tudományos magyarázat
     st.markdown("### 📚 Tudományos háttér")
-    st.markdown(r"""
-> *"A neuronok, amelyek együtt tüzelnek, együtt huzalozódnak."*
+    st.markdown("""
+A Hebbian-tanulás az egyik legegyszerűbb és legismertebb biológiai ihletésű tanulási szabály, amely a szinaptikus kapcsolatok erősödését modellezi.
 
-Matematikailag a Hebb-szabály így írható fel:
+**Alapgondolat:** "Azok a neuronok, amelyek együtt tüzelnek, együtt huzalozódnak."
 
-\[
-w_i \leftarrow w_i + \eta \cdot x_i \cdot t
-\]
+**Súlyfrissítési szabály (egyszerűsített alakban):**
+
+    w_i ← w_i + η · x_i · t
 
 ahol:
 
-- w_i: az i-edik bemenethez tartozó súly  
-- \eta: tanulási ráta  
-- x_i: bemenet aktuális értéke  
-- t: a célérték (posztszinaptikus aktivitás)
+- `w_i` az i-edik bemenethez tartozó súly,
+- `η` a tanulási ráta (egy kis pozitív szám),
+- `x_i` a bemenet aktuális értéke,
+- `t` a célérték vagy a posztszinaptikus neuron aktivitása.
 
-Ez a szabály a szinaptikus erősségek változását modellezi az alapján, hogy a bemeneti és kimeneti neuronok **egyszerre aktiválódnak-e**.  
-A Hebbian tanulás **nem igényel hibavisszacsatolást**, és jól modellezi az agykéreg szinaptikus plaszticitását.
-""")
+Ez a szabály megerősíti azokat a kapcsolatokat, amelyeknél a bemenet és a kimenet **egyszerre aktív**.  
+A Hebbian-tanulás nem igényel hibavisszacsatolást (mint például a visszaterjesztés), és ideális a **nem felügyelt tanulás** egyszerű modelljeihez.
 
-# App indító
-if __name__ == "__main__":
-    main()
+Biológiai megfelelője megfigyelhető például az agykéreg szinaptikus plaszticitásában.
+    """)
+app = run
