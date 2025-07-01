@@ -42,7 +42,7 @@ module_categories = {
     "🧪 Adatfeltöltés és predikciók": {
         "Data Upload": "data_upload",
         "ESN Prediction": "esn_prediction",
-        "Berry Curvature": "berry_curvature"
+        "Berry Curvature": "berry_curvature",
         "Neural Entropy": "neural_entropy",  # ⬅️ hozzáadva
     },
     "📚 Egyéb / Segéd modulok": {
