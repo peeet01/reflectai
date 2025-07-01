@@ -78,30 +78,36 @@ def run():
 
     with st.expander("📘 Tudományos háttér – Mi az a Hebbian tanulás?"):
     st.markdown("""
-    A **Hebbian tanulás** az egyik legegyszerűbb és legismertebb szabály az ideghálózatok tanítására.
+    with st.expander("📘 Tudományos háttér – Hebbian tanulás"):
+    st.markdown("""
+    A **Hebbian-tanulás** az egyik legegyszerűbb és legismertebb biológiai ihletésű tanulási szabály,  
+    amely a szinaptikus kapcsolatok megerősödését modellezi az agyban.
 
-    ### 🧠 Alapelv:
-    > *„Neurons that fire together, wire together.”*  
-    Azaz: ha két neuron egyszerre aktiválódik, akkor megerősödik köztük a kapcsolat.
+    **🧠 Alapgondolat:**  
+    *„Azok a neuronok, amelyek együtt tüzelnek, együtt huzalozódnak.”*  
+    Ez azt jelenti, hogy ha két neuron gyakran egyszerre aktív, akkor erősödik a közöttük lévő kapcsolat.
 
-    ### 🧮 Matematikai modell:
-    A súlymátrix kiszámítása:
-\[
-    W = Y \cdot X^T
-\]
-    - **X**: bemeneti neuronok aktivitása (bemenet × minták mátrix)
-    - **Y**: kimeneti neuronok válasza (kimenet × minták mátrix)
-    - **W**: tanult súlymátrix (kimenet × bemenet)
+    ---
+    **📐 Súlyfrissítési szabály (egyszerűsített alakban):**
+    ```text
+    wᵢ ← wᵢ + η · xᵢ · t
+    ```
 
-    A modell nem használ tanulási rátát, mivel ez egy egyszeri, lineáris tanulási szabály.
+    **ahol:**
+    - `wᵢ` – az i-edik bemenethez tartozó szinaptikus súly  
+    - `η` – tanulási ráta (egy kis pozitív konstans)  
+    - `xᵢ` – a bemeneti neuron aktuális aktivitása  
+    - `t` – a posztszinaptikus (kimeneti) neuron aktivációja
 
-    ### 🔍 Alkalmazás:
-    - Biológiai szinapszisok modellezése
-    - Egyszerű asszociatív memória rendszerek
-    - Hoppfield hálók alapelve
-    - Adaptív szűrők és korai gépi tanulásos modellek
+    Ez a szabály megerősíti azokat a kapcsolatokat, amelyeknél a bemenet és a kimenet egyszerre aktív.
 
-    A Hebbian tanulás jól használható oktatási célra, mivel intuitív és jól szemléltethető.
+    ---
+    **🔬 Alkalmazási területek:**
+    - Biológiai idegrendszerek modellezése
+    - Asszociatív memória (pl. Hopfield-hálók)
+    - Egyszerű neurális tanulómodellek és adaptív rendszerek
+
+    A Hebbian tanulás jól szemlélteti, hogyan alakulhatnak ki emlékek, asszociációk vagy szokások az agyban.
     """)
     
 # Kötelező ReflectAI-kompatibilitás
