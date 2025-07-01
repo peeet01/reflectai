@@ -73,8 +73,7 @@ A Hebbian-tanulás az egyik legegyszerűbb és legismertebb biológiai ihletés�
 
 **Súlyfrissítési szabály (egyszerűsített alakban):**
 
-    wᵢ  wᵢ + η · xᵢ · t
-
+    wᵢ ← wᵢ + η · xᵢ · t
 ahol:
 - `wᵢ` az i-edik bemenethez tartozó súly,
 - `η` a tanulási ráta (egy kis pozitív szám),
