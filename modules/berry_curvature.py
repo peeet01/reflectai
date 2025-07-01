@@ -134,7 +134,7 @@ def run():
 
     col = st.columns([1])[0]
     with col:
-        st.markdown("### 🧭 d-vektor útvonala a Bloch-gömbön")
+    
         st.markdown("&nbsp;", unsafe_allow_html=True)
 
     st.plotly_chart(fig_d, use_container_width=True)
