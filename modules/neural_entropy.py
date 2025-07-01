@@ -1,17 +1,17 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.stats import entropy
+import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
-# Shannon-entrópia számítása
+# Shannon-entrópia
 def shannon_entropy(signal, bins):
     hist, _ = np.histogram(signal, bins=bins, density=True)
     hist = hist[hist > 0]
     return entropy(hist, base=2)
 
-# Renyi-entrópia számítása
+# Rényi-entrópia
 def renyi_entropy(signal, alpha, bins):
     hist, _ = np.histogram(signal, bins=bins, density=True)
     hist = hist[hist > 0]
@@ -67,55 +67,73 @@ def run():
         entropies.append(h)
         times.append(start)
 
-    # 📈 2D plot
+    # 2D matplotlib plot
     st.subheader("📉 Entrópia időben")
     fig, ax = plt.subplots()
-    ax.plot(times, entropies, marker='o', label="Entrópia")
+    ax.plot(times, entropies, marker='o')
     ax.set_xlabel("Idő (mintavételi index)")
     ax.set_ylabel("Entrópia (bit)")
     ax.set_title("Entrópia görbe")
     ax.grid(True)
     st.pyplot(fig)
 
-    # 🌐 3D vizualizáció
-    st.subheader("🌐 3D Entrópiafelület")
-    z_vals = np.expand_dims(entropies, axis=0)
-    x_vals = np.array(times)
-    y_vals = np.array([0])  # pl. jeltípus index, 0 most
+    # 3D Plotly surface plot
+    st.subheader("🌐 3D Entrópiafelület (idő, jeltípus, entrópia)")
+    x = np.array(times)
+    y = np.array([0])  # később bővíthető több jeltípusra
+    z = np.expand_dims(entropies, axis=0)  # 1 sorú 2D mátrix
 
-    fig3d = go.Figure(data=[go.Surface(
-        z=z_vals,
-        x=[x_vals],
-        y=[y_vals],
-        colorscale='Viridis',
-        showscale=True
-    )])
+    fig3d = go.Figure(data=[go.Surface(z=z, x=[x], y=[y], colorscale='Viridis')])
     fig3d.update_layout(
-        title="Entrópia 3D felületként",
         scene=dict(
             xaxis_title="Idő",
-            yaxis_title="Index",
+            yaxis_title="Típusindex",
             zaxis_title="Entrópia (bit)"
-        )
+        ),
+        height=500
     )
     st.plotly_chart(fig3d, use_container_width=True)
 
-    # 📥 Export
+    # Export
     st.subheader("📥 Export")
     df = pd.DataFrame({"index": times, "entropy": entropies})
     csv = df.to_csv(index=False).encode("utf-8")
     st.download_button("Letöltés CSV-ben", data=csv, file_name="entropy_time_series.csv")
 
-    # 📚 Matematikai háttér
+    # Tudományos magyarázat
     st.markdown("""
     ### 📚 Matematikai háttér
-    Az entrópia a rendezetlenség vagy információmennyiség mértéke.
 
-    - **Shannon-entrópia**: az információelmélet klasszikus mértéke.
-    - **Renyi-entrópia**: általánosítás, érzékenyebb lehet ritka vagy gyakori mintákra (függ az \alpha-tól).
+    Az **entrópia** mértéke annak, mennyire véletlenszerű, rendezetlen vagy információban gazdag egy jel.
 
-    Használható pl. neurális dinamika rendezettségének becslésére, szinkronitás elemzésre vagy ESN aktivitás vizsgálatára.
+    - **Shannon-entrópia** az információelmélet alapfogalma. Ha a valószínűségi eloszlás p_i, akkor:
+
+\[
+        H = -\sum_i p_i \log_2 p_i
+\]
+
+      Ez kifejezi az átlagos információmennyiséget.
+
+    - **Rényi-entrópia** általánosítás, érzékenyebb lehet extrém eseményekre vagy domináns mintákra:
+
+\[
+        H_\alpha = \frac{1}{1 - \alpha} \log_2 \sum_i p_i^\alpha
+\]
+
+      Az \alpha paraméter szabályozza a súlyozást: kis \alpha-val a ritka események dominálnak, nagy \alpha-val a gyakoriak.
+
+    #### 🔬 Alkalmazás neurológiai rendszerekre
+
+    - A **neurális jelek entrópiája** korrelálhat az éberségi állapottal (pl. alvás vs. ébrenlét)
+    - Az entrópiacsökkenés a rendszer **szinkronizációjára** utal (pl. rohamaktivitás)
+    - A Rényi-entrópia érzékenyebb lehet **lokális mintázatokra**, például tüskesűrűség, eseményritmus
+
+    Ez az eszköz tehát nemcsak vizualizációra, hanem **kutatási célokra is alkalmas**, például:
+    - ESN rejtett rétegének entrópiájának monitorozása
+    - különféle jeltípusok megkülönböztetése
+    - entrópiaalapú klaszterezés vagy anomália-érzékelés
+
     """)
 
-# Kötelező ReflectAI kompatibilitás
+# ReflectAI kompatibilis belépési pont
 app = run
