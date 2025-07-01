@@ -125,6 +125,8 @@ def app():
     - **Rényi-entrópia** finomhangolható a különböző dinamikákra, érzékenyen jelzi a szinkronitás vagy a káosz jelenlétét
 
     Használható pl. **ESN kimenetek**, **EEG jelek** vagy más időalapú idegrendszeri szignálok rendezettségének becslésére.
+    st.markdown("""
+    A Shannon- és Rényi-entrópia az információmennyiség mérésére szolgáló kvantitatív mutatók...
     """)
     # Fontos: csak akkor fut le, ha lokálisan teszteled (a deployhoz NE írd be)
     # if __name__ == "__main__":
