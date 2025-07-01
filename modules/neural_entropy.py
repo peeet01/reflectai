@@ -1,17 +1,15 @@
 import streamlit as st
 import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.stats import entropy
-import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
-# Shannon-entrópia számítása
 def shannon_entropy(signal, bins):
     hist, _ = np.histogram(signal, bins=bins, density=True)
     hist = hist[hist > 0]
     return entropy(hist, base=2)
 
-# Renyi-entrópia számítása
 def renyi_entropy(signal, alpha, bins):
     hist, _ = np.histogram(signal, bins=bins, density=True)
     hist = hist[hist > 0]
@@ -19,7 +17,6 @@ def renyi_entropy(signal, alpha, bins):
         return entropy(hist, base=2)
     return 1 / (1 - alpha) * np.log2(np.sum(hist ** alpha))
 
-# Szintetikus jel generálása
 def generate_signal(kind, length, noise):
     t = np.linspace(0, 4 * np.pi, length)
     if kind == "Szinusz":
@@ -36,8 +33,12 @@ def generate_signal(kind, length, noise):
         sig = np.zeros(length)
     return sig + np.random.normal(0, noise, size=length)
 
-def app():
+def run():
     st.title("🧠 Neurális Entrópia Idősorokon")
+    st.markdown("""
+    Vizsgáld meg, hogyan változik az entrópia különböző típusú időjelek esetén.
+    Hasznos lehet neurális aktivitások, ESN-kimenetek, vagy szimulált EEG elemzéséhez.
+    """)
 
     kind = st.selectbox("Jel típusa", ["Szinusz", "Káosz (logisztikus)", "Fehér zaj"])
     noise = st.slider("Zajszint (σ)", 0.0, 1.0, 0.1, step=0.01)
@@ -63,70 +64,69 @@ def app():
         entropies.append(h)
         times.append(start)
 
-    # 2D plot
     st.subheader("📉 Entrópia időben")
     fig, ax = plt.subplots()
-    ax.plot(times, entropies, marker='o')
+    ax.plot(times, entropies, marker='o', label="Entrópia")
     ax.set_xlabel("Idő (mintavételi index)")
     ax.set_ylabel("Entrópia (bit)")
     ax.set_title("Entrópia görbe")
     ax.grid(True)
     st.pyplot(fig)
 
-    # 3D plot
-    st.subheader("🌐 3D entrópiafelület")
-    x = np.array(times)
-    y = np.zeros_like(x)
-    z = np.array(entropies)
-
+    st.subheader("📊 3D Entrópia Vizuálizáció")
     fig3d = go.Figure(data=[go.Scatter3d(
-        x=x,
-        y=y,
-        z=z,
+        x=times,
+        y=sig[:len(times)],
+        z=entropies,
         mode='lines+markers',
-        marker=dict(size=4, color=z, colorscale='Viridis'),
-        line=dict(color='blue', width=2)
+        marker=dict(size=4, color=entropies, colorscale='Viridis'),
+        line=dict(width=2)
     )])
-    fig3d.update_layout(scene=dict(
-        xaxis_title="Idő",
-        yaxis_title="Típusindex",
-        zaxis_title="Entrópia (bit)"
-    ))
-    st.plotly_chart(fig3d, use_container_width=True)
+    fig3d.update_layout(
+        scene=dict(
+            xaxis_title='Idő',
+            yaxis_title='Jelérték',
+            zaxis_title='Entrópia'
+        ),
+        margin=dict(l=0, r=0, b=0, t=30)
+    )
+    st.plotly_chart(fig3d)
 
-    # Export CSV
     st.subheader("📥 Export")
     df = pd.DataFrame({"index": times, "entropy": entropies})
     csv = df.to_csv(index=False).encode("utf-8")
     st.download_button("Letöltés CSV-ben", data=csv, file_name="entropy_time_series.csv")
 
-    # Matematikai háttér (egységes latex)
-    st.markdown("### 📘 Rényi-entrópia")
-
     st.markdown("""
-    A Rényi-entrópia a Shannon-entrópia egy általánosítása, amely egy szabadon választható paraméter (alfa) segítségével különböző aspektusaira érzékeny az eloszlásnak.
+### 📚 Matematikai háttér
 
-    - **Kis alfa érték** esetén érzékeny a ritka eseményekre
-    - **Nagy alfa érték** esetén érzékeny a gyakori mintákra
-    - Ha az alfa = 1, akkor visszaadja a Shannon-entrópiát
+#### Shannon-entrópia
 
-    **Miért hasznos?**  
-    A Rényi-entrópia lehetővé teszi, hogy különféle neurális mintázatokat és skálán működő aktivitásokat finoman megkülönböztessünk – például érzékenyebben detektálhatja az epilepsziás vagy kóros állapotokat, illetve az agy dinamikai sokféleségét.
-    """)
+A **Shannon-entrópia** az információelmélet alapfogalma, amely megadja az átlagos információtartalmat egy valószínűségi eloszlás alapján. A képlete:
 
+$$
+H = -\\sum_i p_i \\log_2 p_i
+$$
 
-    ### 🧠 Alkalmazás idegtudományban
+ahol $p_i$ az egyes állapotok valószínűsége. Magas entrópia nagy rendezetlenséget jelez, míg alacsony entrópia esetén az eloszlás koncentrált.
 
-    Az entrópiák elemzése segíthet megérteni a neurális rendszerek **komplexitását és rendezettségét**:
+#### Rényi-entrópia
 
-    - **Alacsony entrópia**  ismétlődő, kiszámítható dinamika (pl. epilepsziás mintázat)
-    - **Magas entrópia**  változatos, adaptív aktivitás (pl. figyelem, tanulás)
-    - **Rényi-entrópia** finomhangolható a különböző dinamikákra, érzékenyen jelzi a szinkronitás vagy a káosz jelenlétét
+A **Rényi-entrópia** a Shannon-entrópia általánosítása, amely az alábbi formulával számítható:
 
-    Használható pl. **ESN kimenetek**, **EEG jelek** vagy más időalapú idegrendszeri szignálok rendezettségének becslésére.
-    st.markdown("""
-    A Shannon- és Rényi-entrópia az információmennyiség mérésére szolgáló kvantitatív mutatók...
-    """)
-    # Fontos: csak akkor fut le, ha lokálisan teszteled (a deployhoz NE írd be)
-    # if __name__ == "__main__":
-    #     app()
+$$
+H_\\alpha = \\frac{1}{1 - \\alpha} \\log_2 \\left( \\sum_i p_i^\\alpha \\right)
+$$
+
+ahol $\\alpha > 0$ és $\\alpha \\ne 1$. Kis $\\alpha$ esetén érzékenyebb a ritka eseményekre, míg nagy $\\alpha$ esetén a domináns mintázatokat hangsúlyozza.
+
+#### Idegtudományi alkalmazás
+
+Az entrópia segíthet megérteni az idegi rendszerek komplexitását és rendezettségét:
+
+- **Alacsony entrópia**: ismétlődő, jól kiszámítható dinamika (pl. epilepsziás aktivitás)
+- **Magas entrópia**: komplex, sokszínű agyi aktivitás
+- A Rényi-entrópia paramétere lehetővé teszi különböző időbeli mintázatok szelektív kiemelését.
+""")
+
+app = run
