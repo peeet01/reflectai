@@ -104,26 +104,42 @@ def app():
     st.markdown(r"""
     ### 📚 Matematikai háttér
 
-    Az **entrópia** egy mérőszám a rendezetlenségre vagy információtartalomra.
+    Az **entrópia** az információelmélet alapfogalma, amely a rendezetlenség, bizonytalanság vagy információmennyiség mértéke egy rendszerben. Matematikailag az entrópiát valószínűségi eloszlásokhoz rendelhetjük.
 
-    - **Shannon-entrópia**:
-\[
-      H = -\sum_i p_i \log_2 p_i
-\]
+    #### Shannon-entrópia
 
-    - **Rényi-entrópia** (általánosítás):
-\[
-      H_\alpha = \frac{1}{1 - \alpha} \log_2 \sum_i p_i^\alpha
-\]
-      ahol \alpha > 0, \alpha \neq 1
+    A Shannon-entrópia az átlagos információtartalmat méri:
 
-    #### 🔬 Alkalmazás idegtudományban:
-    - A neurális jelek entrópiája a **komplexitás** és **változatosság** mértéke.
-    - **Alacsony entrópia** = nagy szinkronizáció, epileptikus aktivitás.
-    - **Magas entrópia** = komplex dinamika, tanulási fázis.
-    - Rényi-entrópia finoman különböztet ritka vagy domináns minták között.
+    \[
+    H = -\sum_i p_i \log_2 p_i
+    \]
+
+    ahol p_i az adott állapot előfordulásának valószínűsége. Ez az entrópia érték 0 (teljes rendezettség) és \log_2 N (egyenletes eloszlás) között változik.
+
+    #### Rényi-entrópia
+
+    A Rényi-entrópia általánosítja a Shannon-entrópiát egy valós paraméter, \alpha segítségével:
+
+    \[
+    H_\alpha = \frac{1}{1 - \alpha} \log_2 \left( \sum_i p_i^\alpha \right), \quad \alpha > 0, \ \alpha \ne 1
+    \]
+
+    - Ha \alpha \to 1, akkor H_\alpha \to H (Shannon-entrópia).
+    - Kis \alpha esetén érzékenyebb a ritka eseményekre, nagy \alpha esetén a domináns mintázatokra.
+
+    ---
+
+    ### 🧠 Alkalmazás az idegtudományban
+
+    Az entrópia mérése fontos eszköz az **agyi aktivitás komplexitásának** vagy **rendezettségének** vizsgálatában.
+
+    - A **neuronális jelek entrópiája** összefügg az információfeldolgozás hatékonyságával.
+    - **Alacsony entrópia** → nagyfokú szinkronitás, ismétlődő mintázatok (pl. epilepsziás rohamokban).
+    - **Magas entrópia** → változatos, adaptív dinamika (pl. tanulás, figyelem során).
+    - A Rényi-entrópia paramétereivel finomhangolható a ritka vagy domináns minták érzékenysége.
+
+    Ez az entrópiaalapú elemzés különösen hasznos **Echo State Network (ESN)** kimenetek, EEG szignálok vagy bármilyen nemlineáris időjel komplexitásának kvantifikálására.
     """)
-
-# Fontos: csak akkor fut le, ha lokálisan teszteled (a deployhoz NE írd be)
-# if __name__ == "__main__":
-#     app()
+    # Fontos: csak akkor fut le, ha lokálisan teszteled (a deployhoz NE írd be)
+    # if __name__ == "__main__":
+    #     app()
