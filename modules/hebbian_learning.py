@@ -87,4 +87,5 @@ A Hebbian-tanulás nem igényel hibavisszacsatolást (mint például a visszater
 
 Biológiai megfelelője megfigyelhető például az agykéreg szinaptikus plaszticitásában.
     """)
-app = run
+
+# Figyelem: NEVE maradjon app()
