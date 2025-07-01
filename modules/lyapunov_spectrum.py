@@ -6,7 +6,8 @@ import plotly.graph_objects as go
 
 # ==== Dinamikus leképezések ====
 def logistic_map(r, x): return r * x * (1 - x)
-def tent_map(r, x): return r * np.minimum(x, 1 - x)
+def tent_map(r, x):
+    return np.where(x < 0.5, r * x, r * (1 - x))
 def quadratic_map(r, x): return r - x ** 2
 def henon_map(r, x): return 1 - r * x ** 2  # simplified for 1D use
 
