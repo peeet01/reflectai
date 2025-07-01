@@ -5,13 +5,13 @@ from scipy.stats import entropy
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
-# Shannon-entrópia
+# Shannon-entrópia számítása
 def shannon_entropy(signal, bins):
     hist, _ = np.histogram(signal, bins=bins, density=True)
     hist = hist[hist > 0]
     return entropy(hist, base=2)
 
-# Rényi-entrópia
+# Renyi-entrópia számítása
 def renyi_entropy(signal, alpha, bins):
     hist, _ = np.histogram(signal, bins=bins, density=True)
     hist = hist[hist > 0]
@@ -19,7 +19,7 @@ def renyi_entropy(signal, alpha, bins):
         return entropy(hist, base=2)
     return 1 / (1 - alpha) * np.log2(np.sum(hist ** alpha))
 
-# Jelszimuláció
+# Szintetikus jel generálása
 def generate_signal(kind, length, noise):
     t = np.linspace(0, 4 * np.pi, length)
     if kind == "Szinusz":
@@ -36,12 +36,8 @@ def generate_signal(kind, length, noise):
         sig = np.zeros(length)
     return sig + np.random.normal(0, noise, size=length)
 
-def run():
+def app():
     st.title("🧠 Neurális Entrópia Idősorokon")
-    st.markdown("""
-    Vizsgáld meg, hogyan változik az entrópia különböző típusú időjelek esetén.
-    Hasznos lehet neurális aktivitások, ESN-kimenetek, vagy szimulált EEG elemzéséhez.
-    """)
 
     kind = st.selectbox("Jel típusa", ["Szinusz", "Káosz (logisztikus)", "Fehér zaj"])
     noise = st.slider("Zajszint (σ)", 0.0, 1.0, 0.1, step=0.01)
@@ -67,7 +63,7 @@ def run():
         entropies.append(h)
         times.append(start)
 
-    # 2D matplotlib plot
+    # 2D plot
     st.subheader("📉 Entrópia időben")
     fig, ax = plt.subplots()
     ax.plot(times, entropies, marker='o')
@@ -77,63 +73,57 @@ def run():
     ax.grid(True)
     st.pyplot(fig)
 
-    # 3D Plotly surface plot
-    st.subheader("🌐 3D Entrópiafelület (idő, jeltípus, entrópia)")
+    # 3D plot
+    st.subheader("🌐 3D entrópiafelület")
     x = np.array(times)
-    y = np.array([0])  # később bővíthető több jeltípusra
-    z = np.expand_dims(entropies, axis=0)  # 1 sorú 2D mátrix
+    y = np.zeros_like(x)
+    z = np.array(entropies)
 
-    fig3d = go.Figure(data=[go.Surface(z=z, x=[x], y=[y], colorscale='Viridis')])
-    fig3d.update_layout(
-        scene=dict(
-            xaxis_title="Idő",
-            yaxis_title="Típusindex",
-            zaxis_title="Entrópia (bit)"
-        ),
-        height=500
-    )
+    fig3d = go.Figure(data=[go.Scatter3d(
+        x=x,
+        y=y,
+        z=z,
+        mode='lines+markers',
+        marker=dict(size=4, color=z, colorscale='Viridis'),
+        line=dict(color='blue', width=2)
+    )])
+    fig3d.update_layout(scene=dict(
+        xaxis_title="Idő",
+        yaxis_title="Típusindex",
+        zaxis_title="Entrópia (bit)"
+    ))
     st.plotly_chart(fig3d, use_container_width=True)
 
-    # Export
+    # Export CSV
     st.subheader("📥 Export")
     df = pd.DataFrame({"index": times, "entropy": entropies})
     csv = df.to_csv(index=False).encode("utf-8")
     st.download_button("Letöltés CSV-ben", data=csv, file_name="entropy_time_series.csv")
 
-    # Tudományos magyarázat
-    st.markdown("""
+    # Matematikai háttér (egységes latex)
+    st.markdown(r"""
     ### 📚 Matematikai háttér
 
-    Az **entrópia** mértéke annak, mennyire véletlenszerű, rendezetlen vagy információban gazdag egy jel.
+    Az **entrópia** egy mérőszám a rendezetlenségre vagy információtartalomra.
 
-    - **Shannon-entrópia** az információelmélet alapfogalma. Ha a valószínűségi eloszlás p_i, akkor:
-
+    - **Shannon-entrópia**:
 \[
-        H = -\sum_i p_i \log_2 p_i
+      H = -\sum_i p_i \log_2 p_i
 \]
 
-      Ez kifejezi az átlagos információmennyiséget.
-
-    - **Rényi-entrópia** általánosítás, érzékenyebb lehet extrém eseményekre vagy domináns mintákra:
-
+    - **Rényi-entrópia** (általánosítás):
 \[
-        H_\alpha = \frac{1}{1 - \alpha} \log_2 \sum_i p_i^\alpha
+      H_\alpha = \frac{1}{1 - \alpha} \log_2 \sum_i p_i^\alpha
 \]
+      ahol \alpha > 0, \alpha \neq 1
 
-      Az \alpha paraméter szabályozza a súlyozást: kis \alpha-val a ritka események dominálnak, nagy \alpha-val a gyakoriak.
-
-    #### 🔬 Alkalmazás neurológiai rendszerekre
-
-    - A **neurális jelek entrópiája** korrelálhat az éberségi állapottal (pl. alvás vs. ébrenlét)
-    - Az entrópiacsökkenés a rendszer **szinkronizációjára** utal (pl. rohamaktivitás)
-    - A Rényi-entrópia érzékenyebb lehet **lokális mintázatokra**, például tüskesűrűség, eseményritmus
-
-    Ez az eszköz tehát nemcsak vizualizációra, hanem **kutatási célokra is alkalmas**, például:
-    - ESN rejtett rétegének entrópiájának monitorozása
-    - különféle jeltípusok megkülönböztetése
-    - entrópiaalapú klaszterezés vagy anomália-érzékelés
-
+    #### 🔬 Alkalmazás idegtudományban:
+    - A neurális jelek entrópiája a **komplexitás** és **változatosság** mértéke.
+    - **Alacsony entrópia** = nagy szinkronizáció, epileptikus aktivitás.
+    - **Magas entrópia** = komplex dinamika, tanulási fázis.
+    - Rényi-entrópia finoman különböztet ritka vagy domináns minták között.
     """)
 
-# ReflectAI kompatibilis belépési pont
-app = run
+# Fontos: csak akkor fut le, ha lokálisan teszteled (a deployhoz NE írd be)
+# if __name__ == "__main__":
+#     app()
