@@ -1,57 +1,76 @@
-import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
+import matplotlib.pyplot as plt
+import streamlit as st
+import plotly.graph_objects as go
 
-def hebbian_learning(inputs, targets, learning_rate):
-    n_features = inputs.shape[1]
-    weights = np.zeros((n_features,))
-    for x, t in zip(inputs, targets):
-        weights += learning_rate * x * t
-    return weights
+def hebbian_learning(X, T, eta, epochs):
+    weights = np.zeros(X.shape[1])
+    history = []
 
-def run():
-    st.header("🧠 Hebbian tanulás – szinaptikus súlytanulás")
-    learning_rate = st.slider("Tanulási ráta (η)", 0.01, 1.0, 0.1)
-    num_neurons = st.slider("Bemenetek száma", 2, 10, 3)
+    for _ in range(epochs):
+        for x, t in zip(X, T):
+            weights += eta * x * t
+            history.append(weights.copy())
 
-    # Bemeneti adatok és célértékek
-    inputs = np.random.randint(0, 2, size=(10, num_neurons))
-    targets = np.random.choice([-1, 1], size=10)
+    return np.array(history)
 
-    st.subheader("🔢 Bemenetek és célértékek")
-    st.write("Inputs:", inputs)
-    st.write("Célértékek:", targets)
+def generate_inputs():
+    X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+    T = np.array([0, 0, 0, 1])  # AND logikai művelet
+    return X, T
 
-    weights = hebbian_learning(inputs, targets, learning_rate)
+def main():
+    st.title("🧠 Hebbian Learning Szimuláció")
+    st.markdown("Fedezd fel a Hebb-szabály működését egy egyszerű példán keresztül.")
 
-    st.subheader("📊 Tanult súlyok")
+    eta = st.slider("Tanulási ráta (η)", 0.01, 1.0, 0.1, step=0.01)
+    epochs = st.slider("Epoch-ok száma", 1, 100, 20)
+
+    X, T = generate_inputs()
+    history = hebbian_learning(X, T, eta, epochs)
+
+    # 2D plot
+    st.subheader("📈 Súlyváltozások 2D-ben")
     fig, ax = plt.subplots()
-    ax.bar(range(len(weights)), weights)
-    ax.set_xlabel("Bemenet indexe")
+    ax.plot(history[:, 0], label="w₀")
+    ax.plot(history[:, 1], label="w₁")
+    ax.set_xlabel("Iteráció")
     ax.set_ylabel("Súly érték")
+    ax.set_title("Hebbian súlytanulás")
+    ax.legend()
     st.pyplot(fig)
 
-    # 📥 Exportálás CSV-be
-    st.subheader("📥 Eredmények exportálása")
-    df = pd.DataFrame(inputs, columns=[f"x{i}" for i in range(num_neurons)])
-    df["target"] = targets
-    for i in range(num_neurons):
-        df[f"weight_{i}"] = weights[i]
-    csv = df.to_csv(index=False).encode("utf-8")
-    st.download_button("Letöltés CSV-ben", data=csv, file_name="hebbian_learning_results.csv")
+    # 3D plot
+    st.subheader("📊 Súlypálya vizualizáció 3D-ben")
+    fig3d = go.Figure(data=[go.Scatter3d(
+        x=history[:, 0],
+        y=history[:, 1],
+        z=np.arange(len(history)),
+        mode='lines+markers',
+        marker=dict(size=4),
+        line=dict(width=2)
+    )])
+    fig3d.update_layout(scene=dict(
+        xaxis_title="w₀",
+        yaxis_title="w₁",
+        zaxis_title="Iteráció"
+    ), margin=dict(l=0, r=0, b=0, t=30), height=500)
+    st.plotly_chart(fig3d)
 
-    # 📚 Tudományos háttér
-    st.markdown("---")
+    # CSV export
+    st.subheader("📥 Export")
+    df = pd.DataFrame(history, columns=["w₀", "w₁"])
+    csv = df.to_csv(index_label="iteráció").encode("utf-8")
+    st.download_button("Súlyok letöltése CSV-ben", data=csv, file_name="hebb_weights.csv")
+
+    # Tudományos háttér
     st.markdown("### 📚 Tudományos háttér")
     st.markdown(r"""
-A **Hebbian tanulás** egy klasszikus, biológiailag motivált tanulási szabály, amely szerint:
-
 > *"A neuronok, amelyek együtt tüzelnek, együtt huzalozódnak."*
 
-Matematikailag a szabály így írható fel:
+Matematikailag a Hebb-szabály így írható fel:
 
-#### 🧮 Súlyfrissítési képlet:
 \[
 w_i \leftarrow w_i + \eta \cdot x_i \cdot t
 \]
@@ -61,19 +80,12 @@ ahol:
 - w_i: az i-edik bemenethez tartozó súly  
 - \eta: tanulási ráta  
 - x_i: bemenet aktuális értéke  
-- t: a célérték (vagy a posztszinaptikus aktivitás)
+- t: a célérték (posztszinaptikus aktivitás)
 
-Ez a szabály a szinaptikus erősségek változását modellezi az alapján, hogy a bemeneti és kimeneti neuronok **egyszerre aktiválódnak-e**. A Hebbian tanulás nem igényel hibavisszacsatolást vagy felügyelt tanulást.
+Ez a szabály a szinaptikus erősségek változását modellezi az alapján, hogy a bemeneti és kimeneti neuronok **egyszerre aktiválódnak-e**.  
+A Hebbian tanulás **nem igényel hibavisszacsatolást**, és jól modellezi az agykéreg szinaptikus plaszticitását.
+""")
 
----
-
-#### 📌 Alkalmazások:
-
-- **Associative memory** (pl. Hopfield-hálózatok)
-- **Unsupervised learning** modellek
-- **Neuroplaszticitás** modellezése
-
-A Hebbian tanulás egyszerű, de mély kapcsolatot mutat a biológiai tanulással és a neurális hálózatok stabilizációjával.
-    """, unsafe_allow_html=True)
-
-app = run
+# App indító
+if __name__ == "__main__":
+    main()
