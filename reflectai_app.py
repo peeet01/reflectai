@@ -22,6 +22,7 @@ module_categories = {
         "Persistent Homology": "persistent_homology",
         "Memory Landscape": "memory_landscape",
         "Fractal Explorer": "fractal_explorer",
+        "Criticality Explorer": "criticality_explorer",
     },
     "🧠 Tanulási algoritmusok": {
         "Hebbian Learning": "hebbian_learning",
