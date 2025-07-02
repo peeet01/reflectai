@@ -91,3 +91,4 @@ A szabály lehetővé teszi, hogy az agy finom időzítési minták alapján tan
 - Megmagyarázza a tüskék közötti szinaptikus erőváltozást
 - Alapja sok **unsupervised** és **neurobiológiai** modellnek
 """)
+ app = run   
