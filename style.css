@@ -274,3 +274,26 @@ button[title="Close sidebar"] {
 button[title="Close sidebar"]:hover {
   transform: scale(1.2);
 }
+/* === Streamlit sidebar visszacsukó ikon (<<) kiemelése === */
+section[data-testid="stSidebar"] button {
+  color: #38bdf8 !important;
+  font-size: 1.6rem !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  position: relative !important;
+  z-index: 1101 !important;
+  animation: sidebarPulse 2s infinite;
+  transition: transform 0.2s ease-in-out;
+}
+
+section[data-testid="stSidebar"] button:hover {
+  transform: scale(1.25);
+}
+
+/* Pulzáló fény effekt */
+@keyframes sidebarPulse {
+  0% { text-shadow: 0 0 5px #38bdf8; }
+  50% { text-shadow: 0 0 10px #38bdf8; }
+  100% { text-shadow: 0 0 5px #38bdf8; }
+}
