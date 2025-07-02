@@ -160,20 +160,41 @@ details {
   margin-top: 2rem !important;
   margin-bottom: 3rem !important;
 }
-/* === Fix: ne tolja el a fő tartalmat gépen sem === */
+/* === Fix: beúszó, teljes szélességet megőrző sidebar gépen === */
 @media (min-width: 768px) {
   .main .block-container {
     margin-left: 0 !important;
+    width: 100% !important;
     padding-left: 1rem !important;
     padding-right: 1rem !important;
-    width: 100% !important;
   }
 
   section[data-testid="stSidebar"] {
-    position: absolute;
+    position: fixed !important;
     top: 0;
     left: 0;
     height: 100vh;
-    z-index: 1000;
+    width: 280px;
+    z-index: 1001;
+    background: rgba(15, 23, 42, 0.95); /* sötét üveg */
+    backdrop-filter: blur(16px);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+    overflow-y: auto;
+    transition: transform 0.3s ease-in-out;
+  }
+}
+
+/* Kisebb eszközök – mobilbarát görgethető sidebar */
+@media (max-width: 767px) {
+  section[data-testid="stSidebar"] {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+    z-index: 1001;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(12px);
+    overflow-y: scroll;
   }
 }
