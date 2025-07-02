@@ -42,8 +42,6 @@ def draw_3d_network(weight):
     edges = [(i, (i + 1) % N) for i in range(N)]
 
     fig = go.Figure()
-
-    # Élek
     for i, j in edges:
         fig.add_trace(go.Scatter3d(
             x=[pos[i, 0], pos[j, 0]],
@@ -54,7 +52,6 @@ def draw_3d_network(weight):
             showlegend=False
         ))
 
-    # Csomópontok
     fig.add_trace(go.Scatter3d(
         x=pos[:, 0], y=pos[:, 1], z=pos[:, 2],
         mode="markers",
@@ -70,14 +67,13 @@ def draw_3d_network(weight):
 
     return fig
 
-def app():
+def run():
     st.title("🧠 BCM Learning – Adaptív Szinaptikus Tanulás")
 
     st.markdown("""
 Ez a modul a **BCM (Bienenstock–Cooper–Munro)** tanulási szabály működését szemlélteti, amely a szinaptikus módosulásokat egy dinamikusan változó küszöbön keresztül modellezi.
     """)
 
-    # Vezérlők
     signal_type = st.selectbox("Bemeneti jel típusa", ["Szinusz", "Fehér zaj", "Lépcsős"])
     steps = st.slider("Szimuláció lépései", 100, 2000, 500, step=100)
     eta = st.slider("Tanulási ráta (η)", 0.001, 0.1, 0.01, step=0.001)
@@ -86,7 +82,6 @@ Ez a modul a **BCM (Bienenstock–Cooper–Munro)** tanulási szabály működé
     x = generate_input_signal(signal_type, steps)
     w, theta, y = bcm_learning(x, eta, tau, steps)
 
-    # 2D vizualizáció
     st.subheader("📈 Tanulási dinamika")
     fig, ax = plt.subplots()
     ax.plot(w, label="Súly (w)")
@@ -97,24 +92,20 @@ Ez a modul a **BCM (Bienenstock–Cooper–Munro)** tanulási szabály működé
     ax.legend()
     st.pyplot(fig)
 
-    # 3D vizualizáció
     st.subheader("🔬 3D neuronháló vizualizáció")
     st.plotly_chart(draw_3d_network(w[-1]))
 
-    # Export
     st.subheader("📥 Eredmények letöltése")
     df = pd.DataFrame({"w": w, "θ": theta, "y": y, "x": x})
     csv = df.to_csv(index_label="idő").encode("utf-8")
     st.download_button("Letöltés CSV-ben", data=csv, file_name="bcm_learning.csv")
 
-    # Tudományos háttér
     st.markdown("""
 ### 📚 Tudományos háttér
 
 A **BCM-szabály** a szinaptikus plaszticitás egyik biológiailag megalapozott modellje, amely egy **nemlineáris aktivitásfüggő** tanulási küszöböt (θ) használ.
 
 **Formális leírás:**
-
 - Súlyváltozás:  
   \( \frac{dw}{dt} = \eta \cdot x \cdot y \cdot (y - \theta) \)
 
@@ -122,17 +113,15 @@ A **BCM-szabály** a szinaptikus plaszticitás egyik biológiailag megalapozott 
   \( \frac{d\theta}{dt} = \frac{1}{\tau} (y^2 - \theta) \)
 
 **Jelentőség:**
-
 - Homeosztatikus stabilitást biztosít  
 - Szelektív tanulást tesz lehetővé  
 - Biológiailag releváns: szenzoros plaszticitás, látásrendszer fejlődése stb.
 
 **Használat az appban:**
-
 - Szinaptikus tanulás időbeli dinamikájának vizsgálata  
 - Vizualizáció neurális kapcsolatok erősödéséről és gyengüléséről  
 - Interaktív kísérletezés eltérő bemeneti jelekkel
     """)
 
-# ❗️ Következetesen: app = run
+# ✅ Ez kell a működéshez – a rendszered elvárása szerint
 app = run
