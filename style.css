@@ -160,3 +160,20 @@ details {
   margin-top: 2rem !important;
   margin-bottom: 3rem !important;
 }
+/* === Fix: ne tolja el a fő tartalmat gépen sem === */
+@media (min-width: 768px) {
+  .main .block-container {
+    margin-left: 0 !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    width: 100% !important;
+  }
+
+  section[data-testid="stSidebar"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+  }
+}
