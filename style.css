@@ -203,3 +203,11 @@ details {
     padding-bottom: 4rem;
   }
 }
+/* Görgethető belső konténer a sidebarban (mobilon működik) */
+section[data-testid="stSidebar"] > div:first-child {
+  max-height: 100vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
