@@ -252,3 +252,25 @@ button[aria-label="Close sidebar"]:hover {
     padding-right: 1.5rem !important;
   }
 }
+/* === Visszacsukó ikon (<<) kiemelése mobilon és gépen is === */
+button[title="Close sidebar"] {
+  z-index: 1101 !important;
+  position: relative !important;
+  color: #38bdf8 !important;
+  background-color: transparent !important;
+  font-size: 1.6rem !important;
+  border: none !important;
+  box-shadow: none !important;
+  animation: sidebarPulse 2s infinite;
+  transition: transform 0.2s ease-in-out;
+}
+
+@keyframes sidebarPulse {
+  0% { text-shadow: 0 0 4px #38bdf8; }
+  50% { text-shadow: 0 0 8px #38bdf8; }
+  100% { text-shadow: 0 0 4px #38bdf8; }
+}
+
+button[title="Close sidebar"]:hover {
+  transform: scale(1.2);
+}
