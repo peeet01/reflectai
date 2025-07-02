@@ -1,149 +1,103 @@
 import streamlit as st
 
-def run(): st.set_page_config(page_title="Tudományos Súgó – Neurolab AI", layout="centered") st.title("❓ Tudományos Súgó – Neurolab AI")
+def run():
+    st.title("❓ Tudományos Súgó – Neurolab AI")
+    st.markdown("""
+    Üdvözlünk a **Neurolab AI Scientific Playground** felületen!  
+    Ez az alkalmazás különféle elméleti és gyakorlati idegrendszeri, fizikai és matematikai modellek interaktív vizsgálatát támogatja.
 
-st.markdown("""
-Üdvözlünk a **Neurolab AI Scientific Playground** felületen!  
-Ez az alkalmazás különféle elméleti és gyakorlati idegrendszeri, fizikai és matematikai modellek interaktív vizsgálatát támogatja.
+    Az alábbiakban bemutatjuk az egyes modulok **matematikai alapjait**, **célját**, és **következtetéseit**.
+    """)
 
----
+    with st.expander("🕸️ Kuramoto Modell – Szinkronizációs Dinamika"):
+        st.latex(r"\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} A_{ij} \sin(\theta_j - \theta_i)")
+        st.markdown("""
+        **Kollektív viselkedés:** Egyedi oszcillátorok fázisszinkronizációját írja le.  
+        Order parameter:
+        """)
+        st.latex(r"R(t) = \left| \frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j(t)} \right|")
+        st.markdown("""
+        **Cél:** Modellezi a neuronhálózatok kollektív állapotait.  
+        **Felhasználás:**
+        - Hálózati instabilitások detektálása  
+        - Szinkron idegi aktivitás jellemzése  
+        - Ritmikus zavarok (pl. epilepszia) szimulációja  
+        """)
 
-## 🕸️ Kuramoto Modell – Szinkronizációs Dinamika
-A Kuramoto-modell az oszcillátorok fázisszinkronizációját írja le:
+    with st.expander("❌ XOR Predikció – Neurális hálózat"):
+        st.latex(r"\hat{y} = \sigma(W^{(2)} \cdot \sigma(W^{(1)}x + b^{(1)}) + b^{(2)})")
+        st.latex(r"\mathcal{L} = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}_i)^2")
+        st.markdown("""
+        **Cél:** A nemlineárisan szeparálható problémák (pl. XOR) rejtett rétegekkel oldhatók meg.  
+        **Felhasználás:**
+        - Mély tanulási architektúrák motivációja  
+        - Lineáris modellek korlátainak bemutatása  
+        """)
 
-$$
-\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} A_{ij} \sin(\theta_j - \theta_i)
-$$
+    with st.expander("🌐 Berry-görbület – Kvantum topológia"):
+        st.latex(r"\Omega(\mathbf{k}) = \nabla_{\mathbf{k}} \times \mathbf{A}(\mathbf{k}) \quad \text{ahol} \quad \mathbf{A}(\mathbf{k}) = -i \langle u(\mathbf{k}) | \nabla_{\mathbf{k}} | u(\mathbf{k}) \rangle")
+        st.markdown("""
+        **Cél:** Kvantált topológiai mennyiségek megjelenítése.  
+        **Felhasználás:**
+        - Kvantum Hall-effektus modellezése  
+        - Topológiai különbségek azonosítása  
+        """)
 
-Ahol:
-- $\theta_i$: az *i*-edik oszcillátor fázisa
-- $\omega_i$: természetes frekvencia
-- $K$: csatolási erősség
-- $A_{ij}$: kapcsolódási mátrix
+    with st.expander("🧠 Hopfield-háló – Asszociatív memória"):
+        st.latex(r"W_{ij} = \sum_{\mu=1}^{P} \xi_i^\mu \xi_j^\mu")
+        st.latex(r"s_i^{t+1} = \mathrm{sign} \left( \sum_j W_{ij} s_j^t \right)")
+        st.markdown("""
+        **Cél:** Minták visszakeresése zajos állapotból.  
+        **Felhasználás:**
+        - Memóriaállapotok visszanyerése  
+        - Energia-alapú tanulási dinamika  
+        """)
 
-A globális szinkronizáció mértéke:
-$$
-R(t) = \left| \frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j(t)} \right|
-$$
+    with st.expander("🌀 Fraktál Explorer – Kaotikus rendszerek"):
+        st.latex(r"z_{n+1} = z_n^2 + c")
+        st.markdown("""
+        **Cél:** Mandelbrot- és Julia-halmazok megjelenítése.  
+        **Felhasználás:**
+        - Stabil és kaotikus zónák feltárása  
+        - Nemlineáris dinamika vizualizálása  
+        """)
 
-Alkalmazás: agyhullámok, szívritmus, biológiai oszcilláció.
+    with st.expander("🔄 Echo State Network – Idősoros előrejelzés"):
+        st.latex(r"\mathbf{x}(t+1) = \tanh(W_{res} \cdot \mathbf{x}(t) + W_{in} \cdot \mathbf{u}(t))")
+        st.latex(r"\hat{y}(t) = W_{out} \cdot \mathbf{x}(t)")
+        st.markdown("""
+        **Cél:** Idősoros előrejelzés kis tanítási költséggel.  
+        **Felhasználás:**
+        - Komplex rendszerek predikciója  
+        - Dinamikus mintafelismerés  
+        """)
 
----
+    with st.expander("🧩 Generative Kuramoto – Struktúra és dinamika"):
+        st.markdown("""
+        **Cél:** Random gráf generálása és annak dinamikai szimulációja.  
+        **Felhasználás:**
+        - Gráf topológia és szinkronizáció kapcsolatának feltárása  
+        """)
 
-## ❌ XOR Predikció – Neurális hálózat tanítása
-A klasszikus XOR probléma bemutatja, hogy lineáris modellek nem alkalmasak nemlineáris döntési határok kezelésére.
+    with st.expander("🧮 Graph Sync Analysis – Hálózati stabilitás"):
+        st.markdown("""
+        **Cél:** Szinkronizáció erőssége és Laplace spektrum elemzése.  
+        **Felhasználás:**
+        - Stabilitás és hálózatszerkezet összefüggéseinek feltárása  
+        """)
 
-$$
-\hat{y} = \sigma\left( W^{(2)} \cdot \sigma(W^{(1)} \cdot x + b^{(1)}) + b^{(2)} \right)
-$$
+    with st.expander("🏔️ Persistent Homology – Topológiai adatértelmezés"):
+        st.markdown("""
+        **Cél:** Perzisztens topológiai struktúrák kiszűrése.  
+        **Felhasználás:**
+        - Zaj és valódi szerkezet megkülönböztetése  
+        - Gépi tanulási jellemzők generálása  
+        """)
 
-- Aktiváció: $\sigma(x) = \frac{1}{1 + e^{-x}}$
-- Veszteségfüggvény:
-$$
-\mathcal{L} = \frac{1}{N} \sum_{i=1}^N (y_i - \hat{y}_i)^2
-$$
+    st.markdown("""---  
+    Verzió: **2025.07**  
+    Készítette: *ReflectAI fejlesztői és tudományos tanácsadók*  
+    """)
 
-Modul célja: tanítási algoritmusok kipróbálása, nemlinearitás vizsgálata.
-
----
-
-## 🌐 Berry-görbület – Kvantum topológia
-$$
-\Omega(\mathbf{k}) = \nabla_{\mathbf{k}} \times \mathbf{A}(\mathbf{k})
-$$
-
-Ahol:
-$$
-\mathbf{A}(\mathbf{k}) = -i \langle u(\mathbf{k}) | \nabla_{\mathbf{k}} | u(\mathbf{k}) \rangle
-$$
-
-Jelentősége: topológiai fázisok, kvantum Hall-effektus, Chern-szám vizsgálata.
-
----
-
-## 🧠 Hopfield-háló – Asszociatív memória
-$$
-W_{ij} = \sum_{\mu=1}^P \xi_i^\mu \xi_j^\mu, \quad W_{ii} = 0
-$$
-$$
-s_i^{t+1} = \text{sign} \left( \sum_j W_{ij} s_j^t \right)
-$$
-
-Funkciója: betanult minták visszanyerése, energiafüggvény alapú konvergencia.
-
----
-
-## 🌀 Fraktál Explorer – Kaotikus dinamika
-$$
-z_{n+1} = z_n^2 + c
-$$
-
-Mandelbrot-halmaz iteratív számítása.  
-Vizualizáció célja: komplex síkbeli viselkedés, káosz és határmintázatok.
-
----
-
-## 🧠 ESN Prediction – Echo State Network
-Lineáris olvasóval rendelkező rekurrens háló:
-$$
-x(t+1) = \tanh(Wx(t) + Win u(t))
-$$
-$$
-y(t) = W_{out} x(t)
-$$
-
-Cél: nemlineáris rendszerek időbeli előrejelzése.  
-Az **"állapot-rezervoir"** koncepció robusztus és gyors tanítást tesz lehetővé.
-
----
-
-## 🔁 Generative Kuramoto – Gráfgeneráció szinkronizációhoz
-Modul gráfokat generál oszcillátor dinamikákhoz.  
-Alkalmazható szinkronizációs feltételek és gráfstruktúra kapcsolatának kutatására.
-
----
-
-## 📊 Graph Sync Analysis – Hálózati szinkron analízis
-Vizsgálja a gráf topológiák hatását a Kuramoto-modell szinkronizációjára.  
-Felhasználó által definiált gráfokon futtatható.  
-Következtetési lehetőség: gráf metrikák és szinkronizáció mértékének kapcsolata.
-
----
-
-## 🧬 Hebbian Learning – Szinaptikus plaszticitás
-$$
-\Delta w_{ij} = \eta \cdot x_i x_j
-$$
-
-A Hebb-szabály alapján: "Neurons that fire together wire together".  
-Modellezhető vele adaptív kapcsolatok és tanulás gráfstruktúrák mentén.
-
----
-
-## 🧩 Persistent Homology – Topológiai adatelemzés
-Homológia: topológiai jellemzők (lyukak, komponensek) számítása különböző skálákon.  
-Felhasználása: gráfstruktúrák, időfüggő hálózatok stabil mintázatainak azonosítása.
-
----
-
-## 🪞 Reflection Modul
-Lehetőség saját hipotézisek, megfigyelések, levezetett konklúziók dokumentálására.
-
----
-
-## 🧪 Következtetések és bizonyítási ötletek
-- A Kuramoto-modell gráfstruktúra függő szinkronizációs képessége vizsgálható
-- Az XOR megoldása mutatja a mélytanulás szükségességét nemlineáris rendszerekhez
-- A Hopfield-háló energiaalapú tanulása stabil mintatárolót biztosít
-- Az ESN segítségével időfüggő viselkedések előrejelzése lehetséges komplex rendszerekben
-
----
-
-Verzió: **2025.07**  
-Készítette: *ReflectAI közösség – sandbox kutatói célokra*
-""")
-
-ReflectAI modul belépési pontja
-
+# Kötelező belépési pont
 app = run
-
