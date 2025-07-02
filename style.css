@@ -151,3 +151,26 @@ div[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
 div[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label[data-selected="true"] {
   color: #38bdf8 !important;
 }
+/* === Kényszerített fehér szín és láthatóság a sidebar minden rádió opciójára === */
+section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  filter: brightness(1.2);
+}
+
+/* Külön szabály, ha Streamlit letiltaná őket aria-disabled alapján */
+section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label[aria-disabled="true"] {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+  filter: brightness(1.2);
+}
+
+/* Aktív (kijelölt) rádióopció kiemelése */
+section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label[data-selected="true"] {
+  color: #38bdf8 !important;
+  font-weight: 700 !important;
+}
