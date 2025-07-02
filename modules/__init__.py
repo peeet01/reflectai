@@ -54,5 +54,5 @@ registry = {
     "Criticality explorer": run_criticality,
     "Neural Entropy": neural_entropy,
     "STDP tanulás": run_stdp,
-    "BCM tanulás": run_bcm,
+    "BCM tanulás": run_bcm_learning,
 }
