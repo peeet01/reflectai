@@ -174,3 +174,36 @@ section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label[data-se
   color: #38bdf8 !important;
   font-weight: 700 !important;
 }
+/* === Minden rádiógomb (kijelölt és nem kijelölt) feliratának kényszerített fehér színe === */
+section[data-testid="stSidebar"] .stRadio > div[role="radiogroup"] > label {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+  filter: brightness(1.3) !important;
+  pointer-events: auto !important;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+/* 🔹 Hover effekt a nem kijelölt elemeknél */
+section[data-testid="stSidebar"] .stRadio > div[role="radiogroup"] > label:hover {
+  color: #38bdf8 !important;
+  opacity: 1 !important;
+  filter: brightness(1.5) !important;
+  cursor: pointer;
+}
+
+/* ✅ Kijelölt rádiógomb szöveg */
+section[data-testid="stSidebar"] .stRadio > div[role="radiogroup"] > label[data-selected="true"] {
+  color: #38bdf8 !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+  filter: brightness(1.8) !important;
+}
+
+/* Ha aria-disabled-et használ a Streamlit */
+section[data-testid="stSidebar"] .stRadio > div[role="radiogroup"] > label[aria-disabled="true"] {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  filter: brightness(1.3) !important;
+  pointer-events: auto !important;
+}
