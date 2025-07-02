@@ -1,43 +1,45 @@
-/* === NeuroReflect vizuális keretrendszer === */
+/* === ReflectAI Futuristic UI Pack === */
 
-/* Globális betűk, színek */
+/* Alapértelmezett test */
 body {
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f7f9fb;
-  color: #111827;
+  background-color: #f7faff;
+  color: #0f172a;
 }
 
 /* Címsorok */
 h1, h2, h3 {
   font-weight: 700;
   color: #0f172a;
-  letter-spacing: 0.02rem;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.04);
+  letter-spacing: 0.03rem;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.05);
+  margin-bottom: 0.5rem;
 }
 
 /* Oldalsáv */
 section[data-testid="stSidebar"] {
-  background: linear-gradient(180deg, #e2e8f0 0%, #f9fafb 100%);
-  padding: 1.5rem;
-  border-right: 2px solid #e2e8f0;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  background: linear-gradient(180deg, #c7d2fe 0%, #f1f5f9 100%);
+  padding: 1.6rem;
+  border-right: 2px solid #dbeafe;
+  box-shadow: 3px 0 5px rgba(0, 0, 0, 0.04);
 }
 
+/* Oldalsáv címsor */
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2 {
-  color: #0f172a;
+  color: #1e3a8a;
   font-size: 18px;
 }
 
-/* Sidebar prompt */
+/* Oldalsáv prompt */
 .sidebar .stMarkdown p {
   color: #1e40af;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 14.5px;
   margin-top: 1rem;
 }
 
-/* Rádiógomb szöveg */
+/* Modulválasztó rádiógomb */
 .stRadio label {
   font-size: 15px;
   font-weight: 600;
@@ -49,40 +51,47 @@ section[data-testid="stSidebar"] h2 {
   font-weight: bold;
 }
 
-/* Fejléc világosítva */
+/* Fejléc */
 div[data-testid="stHeader"] {
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1.2rem;
 }
 
-/* Gombok */
+/* Gomb stílus */
 button[kind="primary"] {
   background-color: #10b981;
   color: white;
-  border-radius: 5px;
+  border-radius: 6px;
   border: none;
-  padding: 0.6rem 1.2rem;
+  padding: 0.6rem 1.3rem;
   font-weight: bold;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
 }
 
 button[kind="primary"]:hover {
   background-color: #059669;
 }
 
-/* Térköz konténerek körül */
+/* Konténerek */
 .block-container {
-  padding-top: 2.5rem;
-  padding-bottom: 2.5rem;
+  padding-top: 2.8rem;
+  padding-bottom: 2.8rem;
 }
 
-/* Plotly plot térköz */
+/* === Plotly térköz & fix === */
 .stPlotlyChart {
-  margin-top: 2rem !important;
-  margin-bottom: 2.5rem !important;
+  margin-top: 3.2rem !important;
+  margin-bottom: 2.8rem !important;
 }
 
-/* Expander – tudományos háttér */
+/* Plotly toolbar optimalizálás */
+.modebar {
+  padding: 4px !important;
+  transform: scale(0.92); /* kisebb ikonok */
+}
+
+/* Tudományos háttér szöveg – Expander */
 details {
   background-color: #f1f5f9;
   border: 1px solid #cbd5e1;
@@ -101,10 +110,21 @@ table {
 table th {
   background-color: #e2e8f0;
   color: #0f172a;
-  padding: 0.5rem;
+  padding: 0.6rem;
 }
 
 table td {
   background-color: #f8fafc;
-  padding: 0.5rem;
+  padding: 0.6rem;
+}
+
+/* Mobilbarát fix */
+@media (max-width: 768px) {
+  .block-container {
+    padding: 1.2rem;
+  }
+  .stPlotlyChart {
+    margin-top: 2.2rem !important;
+    margin-bottom: 2.2rem !important;
+  }
 }
