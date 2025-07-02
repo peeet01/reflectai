@@ -332,3 +332,30 @@ section[data-testid="stSidebar"] button:hover {
                  0 0 12px #0ea5e9;
   }
 }
+/* === Színfutás animáció a modulnevek alatt === */
+.stRadio > div > label {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.stRadio > div > label::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9, #38bdf8);
+  background-size: 200% 100%;
+  background-position: 200% 0;
+  transition: background-position 0.4s ease;
+  border-radius: 2px;
+  opacity: 0;
+}
+
+.stRadio > div > label:hover::after {
+  background-position: 0 0;
+  opacity: 1;
+}
