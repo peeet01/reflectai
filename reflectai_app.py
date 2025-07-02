@@ -3,20 +3,13 @@ from datetime import datetime
 import importlib
 import os  # 📁 Fájlok listázásához
 
-import streamlit as st
-from datetime import datetime
-import importlib
-import os
-
 # 💅 Stílus betöltése
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-local_css("style.css")  # vagy "static/style.css" ha ott van
+local_css("style.css")  # vagy "static/style.css", ha ott van
 
-# 🌐 Metaadat – ez legyen az első Streamlit hívás!
-st.set_page_config(page_title="Neurolab AI", layout="wide")
 # 🌐 Metaadat – ez legyen az első Streamlit hívás!
 st.set_page_config(page_title="Neurolab AI", layout="wide")
 
@@ -48,7 +41,7 @@ module_categories = {
         "Data Upload": "data_upload",
         "ESN Prediction": "esn_prediction",
         "Berry Curvature": "berry_curvature",
-        "Neural Entropy": "neural_entropy",  # ⬅️ hozzáadva
+        "Neural Entropy": "neural_entropy",
     },
     "📚 Egyéb / Segéd modulok": {
         "Graph Sync Analysis": "graph_sync_analysis",
