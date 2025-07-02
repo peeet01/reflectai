@@ -78,24 +78,65 @@ Ez a modul a **BCM (Bienenstock–Cooper–Munro)** tanulási szabály működé
     st.markdown("""
 ### 📚 Tudományos háttér
 
-A **BCM-szabály** egy biológiailag inspirált tanulási elmélet, mely szerint a szinaptikus erő változása az aktivitás és egy adaptív küszöb függvénye:
+A **BCM (Bienenstock–Cooper–Munro) szabály** egy biológiai inspirációjú tanulási mechanizmus, amelyet a vizuális kéreg fejlődésének modellezésére hoztak létre. Az elmélet kulcsa, hogy a szinaptikus súlyok változása nemcsak a pre- és posztszinaptikus aktivitástól függ, hanem egy **dinamikusan változó küszöbtől** (θ) is.
 
-- Súlyváltozás:  
-  \( \frac{dw}{dt} = \eta \cdot x \cdot y \cdot (y - \theta) \)
+#### 🧮 Formális leírás:
 
-- Küszöbszint:  
-  \( \frac{d\theta}{dt} = \frac{1}{\tau} (y^2 - \theta) \)
+- **Súlyváltozás:**  
+  \( \frac{dw}{dt} = \eta \cdot x \cdot y \cdot (y - \theta) \)  
+  A tanulás akkor történik, ha a posztszinaptikus aktivitás (y) nagyobb, mint a küszöb (θ). Ez megerősíti a kapcsolatot. Ha kisebb, a súly gyengül.
 
-Ez biztosítja a tanulási stabilitást, homeosztázist és szelektivitást.
+- **Küszöbszint változása:**  
+  \( \frac{d\theta}{dt} = \frac{1}{\tau} (y^2 - \theta) \)  
+  Ez az adaptív küszöb biztosítja a **homeosztatikus stabilitást**, vagyis nem engedi a rendszer instabil tanulásba futni.
 
-**Alkalmazási területek:**  
-– Szenzoros tanulás, látásfejlődés, adaptív rendszerek.
+---
 
-**Interaktívan állítható paraméterek:**  
-– Kezdeti értékek  
-– Tanulási ráta  
-– Bemeneti jel, amplitúdó, zaj  
-– Időállandó
+### 🧩 Csúszkák magyarázata – Mit állítasz be?
+
+- **Bemeneti jel típusa:**  
+  Kiválasztható szinusz, zaj vagy lépcsős jel. Ezek különböző típusú ingerléseket modelleznek:
+  - *Szinusz*: periodikus bemenet (pl. hang vagy fényhullám)
+  - *Zaj*: kaotikus környezeti input
+  - *Lépcsős*: inger-válasz típusú bemenetek
+
+- **Szimuláció lépései:**  
+  A tanulási folyamat időtartama. Minél több lépés, annál több változás látszik az eredményekben.
+
+- **Tanulási ráta (η):**  
+  Ez szabályozza, hogy milyen gyorsan változik a szinaptikus súly.  
+  Túl magas érték instabilitást, túl alacsony lassú tanulást okozhat.
+
+- **Küszöb időállandó (τ):**  
+  Ez határozza meg, hogy a tanulási küszöb (θ) milyen gyorsan alkalmazkodik.  
+  Nagyobb τ → lassabb alkalmazkodás, stabilabb tanulás.
+
+- **Kezdeti súly (w₀):**  
+  A szinaptikus kapcsolat induló erőssége.  
+  Befolyásolhatja, hogy az első néhány lépésben milyen gyorsan indul meg a tanulás.
+
+- **Kezdeti küszöb (θ₀):**  
+  A tanulási küszöb induló értéke. Ha túl magas, sokáig nem történik tanulás.
+
+- **Jel amplitúdó:**  
+  A bemeneti jel intenzitása.  
+  Nagyobb amplitúdó erőteljesebb válaszokat vált ki → gyorsabb és élesebb tanulási görbék.
+
+- **Zaj szint:**  
+  Véletlenszerű komponens a jelhez adva.  
+  Segíti a robusztusság tesztelését → ellenőrizheted, mennyire érzékeny a modell a környezeti zavarokra.
+
+---
+
+### 🎯 Alkalmazási területek:
+
+- Szenzoros kéreg modellezése
+- Látás és hallás fejlődési szimulációja
+- Homeosztatikus tanulás és stabilizáció vizsgálata
+- Érzékelő rendszerek adaptív vezérlése
+
+A BCM tanulás révén a modell képes megtanulni *mikor érdemes tanulni* – azaz nemcsak a bemenetet veszi figyelembe, hanem a tanulás feltételeit is folyamatosan szabályozza.
+
     """)
 
 # ✅ Modul regisztráláshoz:
