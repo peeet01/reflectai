@@ -21,7 +21,7 @@ from modules.help_module import run as run_help
 from modules.reflection_modul import run as run_reflection
 from modules.questions import run as run_questions
 from modules.neural_entropy import run as neural_entropy
-from modules.criticality_explorer import app as run_criticality
+from modules.criticality_explorer import app as run_criticality_explorer
 
 # Modulregisztráció (név -> függvény)
 registry = {
