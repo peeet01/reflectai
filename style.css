@@ -297,3 +297,38 @@ section[data-testid="stSidebar"] button:hover {
   50% { text-shadow: 0 0 10px #38bdf8; }
   100% { text-shadow: 0 0 5px #38bdf8; }
 }
+/* === Sidebar visszacsukó ikon (<<) erősebb pulzálás === */
+section[data-testid="stSidebar"] button {
+  color: #38bdf8 !important;
+  font-size: 1.8rem !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  position: relative !important;
+  z-index: 1101 !important;
+  animation: sidebarPulseStrong 1.2s infinite;
+  transition: transform 0.25s ease-in-out;
+}
+
+section[data-testid="stSidebar"] button:hover {
+  transform: scale(1.3);
+}
+
+/* 💡 Erőteljesebb pulzáló effekt */
+@keyframes sidebarPulseStrong {
+  0% {
+    text-shadow: 0 0 4px #38bdf8,
+                 0 0 8px #38bdf8,
+                 0 0 12px #0ea5e9;
+  }
+  50% {
+    text-shadow: 0 0 8px #38bdf8,
+                 0 0 16px #38bdf8,
+                 0 0 24px #0ea5e9;
+  }
+  100% {
+    text-shadow: 0 0 4px #38bdf8,
+                 0 0 8px #38bdf8,
+                 0 0 12px #0ea5e9;
+  }
+}
