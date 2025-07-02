@@ -1,71 +1,99 @@
+import streamlit as st
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
 
-import streamlit as st import numpy as np import matplotlib.pyplot as plt import seaborn as sns
+def generate_soc_signal(n, p):
+    signal = np.zeros(n)
+    for i in range(1, n):
+        signal[i] = signal[i - 1] + np.random.choice([-1, 1], p=[1 - p, p])
+    return signal
 
-def generate_lattice(N): return np.zeros((N, N), dtype=int)
+def detect_avalanches(signal, threshold):
+    above = signal > threshold
+    starts = np.where((~above[:-1]) & (above[1:]))[0] + 1
+    ends = np.where((above[:-1]) & (~above[1:]))[0] + 1
+    if starts.size == 0 or ends.size == 0:
+        return np.array([])
+    if ends[0] < starts[0]:
+        ends = ends[1:]
+    if starts.size > ends.size:
+        starts = starts[:-1]
+    durations = ends - starts
+    return durations
 
-def drop_grain(grid, threshold=4): N = grid.shape[0] avalanche_sizes = []
+def run():
+    st.title("🌋 Criticality Explorer – Önszerveződő kritikusság")
+    st.markdown("Vizsgáld meg, hogyan jelenik meg az **önszerveződő kritikusság (SOC)** egyszerű szimulációkban.")
 
-i, j = np.random.randint(0, N), np.random.randint(0, N)
-grid[i, j] += 1
-avalanche = 0
+    # Paraméterek
+    n = st.slider("Jel hossza", 500, 10000, 3000, step=100)
+    p = st.slider("Elmozdulás valószínűsége (p)", 0.01, 1.0, 0.5, step=0.01)
+    threshold = st.slider("Küszöbszint (avalanches)", 0.1, 10.0, 3.0, step=0.1)
 
-unstable = True
-while unstable:
-    unstable = False
-    to_topple = np.argwhere(grid >= threshold)
-    for x, y in to_topple:
-        grid[x, y] -= 4
-        avalanche += 1
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            nx, ny = x + dx, y + dy
-            if 0 <= nx < N and 0 <= ny < N:
-                grid[nx, ny] += 1
-        unstable = True
+    # Szimuláció
+    signal = generate_soc_signal(n, p)
+    avalanches = detect_avalanches(signal, threshold)
 
-avalanche_sizes.append(avalanche)
-return avalanche_sizes
+    # Plotly 3D vizualizáció
+    st.subheader("📊 Jel alakulása 3D-ben")
+    fig3d = go.Figure(data=[go.Scatter3d(
+        x=np.arange(len(signal)),
+        y=signal,
+        z=np.zeros_like(signal),
+        mode='lines',
+        line=dict(width=3)
+    )])
+    fig3d.update_layout(scene=dict(
+        xaxis_title="Idő",
+        yaxis_title="Jel",
+        zaxis_title="",
+    ), margin=dict(l=0, r=0, b=0, t=30), height=500)
+    st.plotly_chart(fig3d)
 
-def simulate_avalanche(N, steps): grid = generate_lattice(N) all_sizes = [] for _ in range(steps): sizes = drop_grain(grid) all_sizes.extend(sizes) return all_sizes
+    # Histogram of avalanche durations
+    st.subheader("📈 Avalanche időtartamok eloszlása")
+    if avalanches.size > 0:
+        hist_df = pd.DataFrame(avalanches, columns=["Duration"])
+        st.bar_chart(hist_df["Duration"].value_counts().sort_index())
+    else:
+        st.warning("Nem észlelhető lavina a megadott küszöbszinten.")
 
-def run(): st.title("🌋 Criticality Explorer – Önszerveződő Kritikalitás") st.markdown(""" Ez a modul az önszerveződő kritikalitás (SOC) jelenségét modellezi és szemlélteti egy egyszerű homokdombmodell (Bak-Tang-Wiesenfeld) segítségével.
+    # CSV export
+    st.subheader("📥 Export")
+    df_export = pd.DataFrame({
+        "index": np.arange(len(signal)),
+        "signal": signal
+    })
+    csv = df_export.to_csv(index=False).encode("utf-8")
+    st.download_button("Jel letöltése CSV-ben", data=csv, file_name="critical_signal.csv")
 
-**A cél:** megfigyelni, hogyan vezet egy egyszerű szabály a rendezetlenség és a rendezettség határán lévő kritikus viselkedéshez.
-""")
-
-N = st.slider("Rács mérete (N x N)", 10, 100, 25)
-steps = st.slider("Szimuláció lépések száma", 100, 5000, 1000, step=100)
-
-if st.button("Szimuláció futtatása"):
-    with st.spinner("Szimuláció folyamatban..."):
-        sizes = simulate_avalanche(N, steps)
-
-    st.subheader("📉 Lavinaméret-eloszlás (log-log)")
-    fig, ax = plt.subplots()
-    counts, bins = np.histogram(sizes, bins=50)
-    bins_center = (bins[:-1] + bins[1:]) / 2
-    ax.loglog(bins_center, counts, marker='o', linestyle='none')
-    ax.set_xlabel("Lavinaméret")
-    ax.set_ylabel("Gyakoriság")
-    ax.set_title("Skálafüggetlen eloszlás – Lavinaméretek")
-    st.pyplot(fig)
-
-    st.subheader("🧠 Tudományos háttér")
+    # Tudományos háttér
+    st.markdown("### 📚 Tudományos háttér")
     st.markdown("""
-    Az önszerveződő kritikalitás (SOC) olyan rendszerek jellemzője, amelyek spontán kritikus állapotba kerülnek anélkül, hogy külső paraméterhangolás szükséges lenne.
+**Önszerveződő kritikusság (SOC)** olyan dinamikus rendszerek jellemzője, amelyek belső szabályaik alapján természetes módon állítódnak be a kritikus pontra, külső finomhangolás nélkül.
 
-    A modell alapképlete:
+---
 
-P(s) \propto s^{-\tau}
+#### 🧠 Jelentősége:
 
-ahol $s$ a lavinaméret és $\tau$ egy jellemző kitevő (tipikusan 1.5–2.0).
+- **Kritikus állapotban** a rendszer **skálafüggetlen** viselkedést mutat (pl. lavina-méret eloszlás hatványfüggvény szerint).
+- Megfigyelhető idegrendszerben (EEG, spike sorozatok), földrengésekben, pénzügyi rendszerekben.
 
-    **Következtetések:**
-    - A hálózat folyamatosan a rendezettség és káosz határán működik.
-    - A tanulási és feldolgozási képességek maximálisak lehetnek ebben az állapotban.
-    - Hasznos neuromorf számítástechnikában és agykutatásban.
+---
+
+#### ⚙️ Egyszerű modell:
+
+A szimulációban egy **egydimenziós zajos séta** jel reprodukálja a kritikus dinamika egy lehetséges formáját. A lavinák a küszöbszintet átlépő aktivitásokból származnak.
+
+---
+
+#### 🧪 Felhasználás az appban:
+
+- Szimulálható, hogyan alakulnak ki **kritikus események** egyszerű szabályrendszerekből.
+- Vizsgálható a **threshold** és a **p** paraméter hatása az események sűrűségére és skálájára.
+- Elősegíti a **top-down** rendszerértelmezést adatvezérelt vizsgálatok előtt.
     """)
 
-    st.success("Szimuláció befejezve!")
-
+# Entry point
 app = run
-
