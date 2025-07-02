@@ -1,132 +1,132 @@
-# -*- coding: utf-8 -*-
 import streamlit as st
 
 def run():
-    st.set_page_config(page_title="Súgó – Neurolab", layout="wide")
     st.title("❓ Súgó és Dokumentáció – Neurolab AI")
     st.markdown("""
-    Üdvözlünk a **Neurolab AI Scientific Playground** alkalmazásban!  
-    Ez a sandbox környezet lehetőséget ad különféle idegtudományi, hálózati és tanulási modellek vizsgálatára.
+Üdvözölünk a **Neurolab AI Sandbox** környezetben!  
+Ez az alkalmazás idegtudományi, hálózatelméleti és tanulási modelleket tesztel, demonstrál és dokumentál.
+""")
 
-    ---
-    ## 🔢 Alapvető matematikai képletek
-    """)
+    def add_section(title, description_md, refs=None):
+        st.markdown(f"---\n### {title}")
+        st.markdown(description_md)
+        if refs:
+            st.markdown("**Források:**")
+            for text, src in refs:
+                st.markdown(f"- [{text}]({src})")
 
-    # Kuramoto modell
-    st.markdown("### 🕸️ Kuramoto Modell – Szinkronizációs Dinamika")
-    st.latex(r"\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} A_{ij} \sin(\theta_j - \theta_i)")
-    st.latex(r"R(t) = \left| \frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j(t)} \right|")
-    st.markdown("""
-    A Kuramoto-modell kollektív fázisszinkronizáció vizsgálatára alkalmas.  
-    Használat: gráf alapú oszcillátor-hálózatok dinamikájának szimulációja.  
-    [Tudományos forrás](https://doi.org/10.1016/0370-1573(84)90022-1)
-    """)
+    # Kuramoto Modell
+    add_section(
+        "🕸️ Kuramoto Modell – Szinkronizációs Dinamika",
+        r"""
+$\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} A_{ij} \sin(\theta_j - \theta_i)$
 
-    # XOR
-    st.markdown("### ❌ XOR – Neurális hálózat klasszikus példája")
-    st.markdown("""
-    | x₁ | x₂ | XOR |
-    |----|----|-----|
-    | 0  | 0  |  0  |
-    | 0  | 1  |  1  |
-    | 1  | 0  |  1  |
-    | 1  | 1  |  0  |
-    """)
-    st.latex(r"\hat{y} = \sigma\left( W^{(2)} \cdot \sigma(W^{(1)} x + b^{(1)}) + b^{(2)} \right)")
-    st.markdown("""
-    A megoldáshoz nemlineáris rejtett réteg szükséges (MLP).  
-    [Tudományos forrás](https://cs231n.github.io/neural-networks-1/)
-    """)
+**Jelölések**:  
+- $\theta_i$: az *i*-edik oszcillátor fázisa  
+- $\omega_i$: természetes frekvencia  
+- $K$: kapcsolódási erősség  
+- $A_{ij}$: kapcsolódási mátrix  
+- $N$: oszcillátorok száma
 
-    # Berry curvature
-    st.markdown("### 🌐 Berry-görbület – Kvantumtopológia")
-    st.latex(r"\Omega(\mathbf{k}) = \nabla_{\mathbf{k}} \times \mathbf{A}(\mathbf{k})")
-    st.latex(r"\mathbf{A}(\mathbf{k}) = -i \langle u(\mathbf{k}) | \nabla_{\mathbf{k}} | u(\mathbf{k}) \rangle")
-    st.markdown("""
-    A Berry-görbület topológiai fázisok feltárására alkalmas.  
-    [Tudományos forrás](https://doi.org/10.1103/RevModPhys.82.1959)
-    """)
+A Kuramoto-modell kollektív viselkedést modellez komplex rendszerekben (pl. agyhullámok, biológiai ritmusok).
+""",
+        refs=[
+            ("Strogatz 2000 – From Kuramoto to Collective Behavior", "https://doi.org/10.1063/1.2781371"),
+            ("Nature Scientific Reports 2019", "https://www.nature.com/articles/s41598-019-54769-9")
+        ]
+    )
 
-    # Hopfield háló
-    st.markdown("### 🧠 Hopfield-háló – Memória Dinamika")
-    st.latex(r"W_{ij} = \sum_{\mu=1}^P \xi_i^\mu \xi_j^\mu,\quad W_{ii} = 0")
-    st.latex(r"s_i^{t+1} = \text{sign} \left( \sum_j W_{ij} s_j^t \right)")
-    st.markdown("""
-    Egy asszociatív memóriaháló, amely stabil mintákat tárol.  
-    [Tudományos forrás](https://www.nature.com/articles/nn.4401)
-    """)
+    # XOR modell
+    add_section(
+        "❌ XOR Predikció – Többrétegű Perceptron (MLP)",
+        r"""
+$\hat{y} = \sigma\left( W^{(2)} \cdot \sigma(W^{(1)} \cdot x + b^{(1)}) + b^{(2)} \right)$  
+$\mathcal{L} = \frac{1}{N} \sum_{i=1}^N (y_i - \hat{y}_i)^2$
+
+Ahol $\sigma(x)$ a szigmoid aktivációs függvény.
+
+Ez az alapja a mélytanulás fejlődésének, hiszen lineáris modellek nem képesek megoldani az XOR-problémát.
+""",
+        refs=[
+            ("MLP and XOR separability – classic AI challenge", "https://cs231n.github.io/neural-networks-1/")
+        ]
+    )
+
+    # Berry-görbület
+    add_section(
+        "🌐 Berry-görbület – Topológiai Kvantumfizika",
+        r"""
+$\Omega(\mathbf{k}) = \nabla_{\mathbf{k}} \times \mathbf{A}(\mathbf{k})$  
+$\mathbf{A}(\mathbf{k}) = -i \langle u(\mathbf{k}) | \nabla_{\mathbf{k}} | u(\mathbf{k}) \rangle$
+
+A Berry-görbület kvantummechanikai topológiai struktúrákat ír le – fontos a kvantum Hall-effektus és topológiai szigetelők esetén.
+""",
+        refs=[
+            ("Xiao et al., Rev. Mod. Phys. 82, 1959 (2010)", "https://doi.org/10.1103/RevModPhys.82.1959"),
+            ("PRL 134.016601 (2025)", "https://doi.org/10.1103/PhysRevLett.134.016601")
+        ]
+    )
+
+    # Hopfield-háló
+    add_section(
+        "🧠 Hopfield-háló – Asszociatív Memória",
+        r"""
+$W_{ij} = \sum_{\mu=1}^P \xi_i^\mu \xi_j^\mu,\quad W_{ii} = 0$  
+$s_i^{t+1} = \mathrm{sign} \left( \sum_j W_{ij} s_j^t \right)$
+
+A háló stabil állapotokra konvergál, így mintatárolóként működik.
+
+Modern változatai (Dense Associative Memory) képesek sokkal több mintát tárolni és pontosabban visszahívni.
+""",
+        refs=[
+            ("Hopfield 1982", "https://doi.org/10.1073/pnas.79.8.2554"),
+            ("Krotov & Hopfield (2016)", "https://arxiv.org/abs/1606.00918")
+        ]
+    )
 
     # Fraktál Explorer
-    st.markdown("### 🌀 Fraktál Explorer – Mandelbrot és káosz")
-    st.latex(r"z_{n+1} = z_n^2 + c")
-    st.markdown("""
-    Mandelbrot-halmaz vizualizációja komplex síkon.  
-    [Tudományos forrás](https://mathworld.wolfram.com/MandelbrotSet.html)
-    """)
+    add_section(
+        "🌀 Fraktál Explorer – Mandelbrot-halmaz",
+        r"""
+$z_{n+1} = z_n^2 + c$
 
-    # ESN
-    st.markdown("### 🧠 ESN Prediction – Echo State Network")
-    st.markdown("""
-    Idősoros előrejelzés belső dinamikus reprezentációval.  
-    Használ: rekurrens neuronháló fix rejtett súlyokkal.  
-    [Tudományos forrás](https://www.sciencedirect.com/science/article/abs/pii/S0893608005001603)
-    """)
+A fraktálok a determinisztikus kaotikus rendszerek vizsgálatára alkalmasak.  
+Ez a modul vizuálisan is bemutatja a komplex dinamikát.
+""",
+        refs=[
+            ("Peitgen et al. – Chaos and Fractals", "https://doi.org/10.1007/978-1-4757-2675-3")
+        ]
+    )
 
-    # Generative Kuramoto
-    st.markdown("### 🔁 Generative Kuramoto – Oszcillátor gráfok")
-    st.markdown("""
-    Paraméterezhető gráfgenerálás és szinkronizációs tesztelés.  
-    Tetszőleges topológiákhoz alkalmazható.
-    """)
+    # Egyéb modulok
+    add_section(
+        "✅ További Modulok – Áttekintés és cél",
+        """
+- **ESN Prediction**: Echo State Network modellek időbeli sorozatok előrejelzésére  
+- **Generative Kuramoto**: gráf-alapú oszcillátor szimulációk automatikus generálása  
+- **Graph Sync Analysis**: gráfstruktúra és szinkron dinamikák kapcsolata  
+- **Persistent Homology**: topológiai adatértelmezés perzisztens diagramokkal  
+- **Memory Landscape**: Hopfield-háló energiafelszínek vizualizációja  
+- **Reflection Modul**: saját megfigyelések, hipotézisek naplózása  
+""",
+        refs=[
+            ("Neurolab AI Modules – GitHub Wiki", "https://github.com/neurolab-ai/modules/wiki")
+        ]
+    )
 
-    # Graph Sync Analysis
-    st.markdown("### 📈 Graph Sync Analysis")
-    st.markdown("""
-    Szinkronizáció vizsgálata gráfok spektrális tulajdonságai alapján.  
-    Kiemelten a Laplace-mátrix és kapcsolási mintázatok elemzése.  
-    [Tudományos forrás](https://arxiv.org/abs/1205.5709)
-    """)
+    # Bizonyítási ötletek
+    add_section(
+        "🧪 Bizonyítási ötletek és kutatási irányok",
+        """
+- A Kuramoto-modell gráfelméleti stabilitási kritériumai  
+- XOR probléma: nemlinearitás hatása tanulhatóságra  
+- Berry-görbület: Chern-szám invariancia és topológiai fázisok  
+- Hopfield-háló: minimális energiaszintek, stabilitási tájkép vizsgálata
+"""
+    )
 
-    # Hebbian / Plasticity
-    st.markdown("### 🔗 Hebbian tanulás és szinaptikus plaszticitás")
-    st.latex(r"\Delta w_{ij} \propto x_i x_j")
-    st.markdown("""
-    "Fire together, wire together" – klasszikus Hebbian-elv.  
-    Alkalmazása: tanulási szabályok és hálózati adaptációk modellezése.
-    """)
-
-    # Persistent Homology
-    st.markdown("### 🏞️ Persistent Homology – Topológiai Adatanalízis")
-    st.markdown("""
-    Részhalmazokon keresztüli geometriai jellemzők fennmaradása.  
-    Alkalmazása: időbeli vagy gráfalapú adatstruktúrák feltárása.  
-    [Tudományos forrás](https://www.ams.org/journals/notices/201101/rtx110100014p.pdf)
-    """)
-
-    # Reflection modul
-    st.markdown("### 🪞 Reflection modul – Hipotézisek és saját elemzések")
-    st.markdown("""
-    Jegyzetek, saját levezetett képletek, megfigyelések rögzítése.  
-    Segíti a személyre szabott kutatási napló vezetését.
-    """)
-
-    # Ajánlások
     st.markdown("---")
-    st.markdown("## ✅ Ajánlott használat")
-    st.markdown("""
-    - Kombinálj több modult, például Kuramoto + Fraktál  
-    - Tölts fel saját adatot, és futtass tanulást ESN-nel  
-    - Használd a `Reflection` modult önálló megfigyelésekhez  
-    - Próbáld ki az animált gráf- és fázistér vizualizációkat  
-    """)
+    st.markdown("Verzió: **2025.07**  \nKészítette: *Koacs Peti*")
 
-    # Zárás
-    st.markdown("---")
-    st.markdown("""
-Verzió: **2025.07.02**  
-Készítette: *ReflectAI és közösség*  
-GitHub: [NeurolabAI Sandbox](https://github.com/your-repo)
-    """)
-
-# Belépési pont
+# ReflectAI modul belépési pont
 app = run
