@@ -1,4 +1,4 @@
-/* === ReflectAI – Reszponzív Sidebar visszaállítás === */
+/* === ReflectAI – Teljes Stílus (2025.07) === */
 
 /* Alap */
 body {
@@ -12,10 +12,10 @@ h1, h2, h3, h4 {
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 0.03rem;
-  text-shadow: 0 0 4px rgba(255, 255, 255, 0.05);
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
 }
 
-/* === Gépen klasszikus fix sidebar === */
+/* === Gépen fix klasszikus sidebar === */
 @media (min-width: 768px) {
   section[data-testid="stSidebar"] {
     background: #1e1e2f;
@@ -34,12 +34,12 @@ h1, h2, h3, h4 {
   }
 }
 
-/* === Mobilon üveg effekt és fix overlay === */
+/* === Mobil: üveges, scrollozható sidebar === */
 @media (max-width: 767px) {
   section[data-testid="stSidebar"] {
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(15, 23, 42, 0.82); /* erősebb üveghatás */
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     padding: 1.5rem;
     position: fixed !important;
     top: 0;
@@ -53,12 +53,23 @@ h1, h2, h3, h4 {
 
   .main .block-container {
     margin-left: 0 !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding: 1rem !important;
   }
 }
 
-/* Rádió kijelölés */
+/* === Sidebar szövegek, formák === */
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3,
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] p,
+.stRadio label,
+.stRadio div {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* === Kijelölt rádiógomb fénycsík === */
 .stRadio > div div[aria-checked="true"] {
   color: #38bdf8 !important;
   font-weight: bold;
@@ -73,29 +84,26 @@ h1, h2, h3, h4 {
   width: 4px;
   height: 1.2em;
   background: linear-gradient(to bottom, #38bdf8, #0ea5e9);
-  box-shadow: 0 0 8px #38bdf8;
+  box-shadow: 0 0 10px #38bdf8;
   border-radius: 2px;
   animation: glowPulse 1.5s infinite ease-in-out;
 }
 @keyframes glowPulse {
   0% { box-shadow: 0 0 6px #38bdf8; }
-  50% { box-shadow: 0 0 12px #38bdf8; }
+  50% { box-shadow: 0 0 14px #38bdf8; }
   100% { box-shadow: 0 0 6px #38bdf8; }
 }
 
-/* Szövegek a sidebarban */
-section[data-testid="stSidebar"] h1,
-section[data-testid="stSidebar"] h2,
-section[data-testid="stSidebar"] h3,
-section[data-testid="stSidebar"] label,
-section[data-testid="stSidebar"] p,
-.stRadio label,
-.stRadio div {
-  color: #ffffff !important;
-  font-weight: 600;
+/* === Hover fényhatások === */
+button:hover,
+label:hover,
+.stRadio div:hover {
+  filter: brightness(1.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* Gombok */
+/* === Gombok === */
 button[kind="primary"] {
   background-color: #38bdf8;
   color: #ffffff;
@@ -107,12 +115,12 @@ button[kind="primary"] {
 }
 button[kind="primary"]:hover {
   background-color: #0ea5e9;
-  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
 }
 
-/* FileUploader */
+/* === FileUploader === */
 section[data-testid="stSidebar"] .stFileUploader {
-  background-color: #1e1e2f;
+  background-color: rgba(30, 30, 47, 0.65);
   border: 1px solid #2e2e3e;
   padding: 1rem;
   border-radius: 8px;
@@ -122,7 +130,7 @@ section[data-testid="stSidebar"] .stFileUploader label {
   color: #ffffff;
 }
 
-/* Táblázatok */
+/* === Táblázatok === */
 table {
   border: 1px solid #334155;
   border-radius: 6px;
@@ -139,7 +147,7 @@ table td {
   padding: 0.5rem;
 }
 
-/* Expander */
+/* === Expander === */
 details {
   background-color: #1e293b;
   border: 1px solid #334155;
@@ -149,7 +157,11 @@ details {
   color: #ffffff;
 }
 
-/* Plotly térköz */
+/* === Plotly térköz === */
+.block-container {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
 .stPlotlyChart {
   margin-top: 2rem !important;
   margin-bottom: 3rem !important;
