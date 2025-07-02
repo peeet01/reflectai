@@ -22,6 +22,7 @@ from modules.reflection_modul import run as run_reflection
 from modules.questions import run as run_questions
 from modules.neural_entropy import run as neural_entropy
 from modules.criticality_explorer import app as run_criticality_explorer
+from modules.oja_learning import run as run_oja_learning
 
 # Modulregisztráció (név -> függvény)
 registry = {
@@ -47,4 +48,7 @@ registry = {
     "Súgó / Help": run_help,
     "Reflexió modul": run_reflection,
     "Kérdés-válasz modul": run_questions,
+    "Oja Learning": run_oja,
+    "Criticality explorer": run_criticality,
+    "Neural Entropy": neural_entropy,
 }
