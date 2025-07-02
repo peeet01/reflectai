@@ -1,13 +1,13 @@
-/* === ReflectAI v3 – Glassmorphic Futurisztikus Sötét-Alumínium Téma === */
+/* === ReflectAI – V3: Letisztult Futurisztikus Alumínium Téma === */
 
-/* Alap beállítások */
+/* Alap: betűtípus és háttér */
 body {
   font-family: 'Segoe UI', sans-serif;
   background-color: #0f172a;
   color: #ffffff;
 }
 
-/* Címsorok */
+/* --- Címsorok --- */
 h1, h2, h3, h4 {
   font-weight: 700;
   color: #ffffff;
@@ -15,21 +15,98 @@ h1, h2, h3, h4 {
   text-shadow: 0 0 4px rgba(255, 255, 255, 0.05);
 }
 
-/* === Oldalsáv – Üveg-hatás (Glassmorphism) === */
-section[data-testid="stSidebar"] {
-  background: rgba(30, 30, 47, 0.4);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1.5rem;
+/* --- Gombok --- */
+button[kind="primary"] {
+  background-color: #38bdf8;
   color: #ffffff;
-  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
-  position: relative;
-  overflow: hidden;
-  border-radius: 0 16px 16px 0;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-weight: bold;
+  transition: background 0.3s ease;
+  border: none;
 }
 
-/* Sidebar szövegek */
+button[kind="primary"]:hover {
+  background-color: #0ea5e9;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  cursor: pointer;
+}
+
+/* --- Plotly chart térköz --- */
+.stPlotlyChart {
+  margin-top: 2rem !important;
+  margin-bottom: 3rem !important;
+}
+
+/* --- Táblázatok --- */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  color: #ffffff;
+}
+
+table th {
+  background-color: #1e293b;
+  color: #ffffff;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+table td {
+  background-color: #0f172a;
+  padding: 0.5rem;
+}
+
+/* --- Expander --- */
+details {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 2rem;
+  color: #ffffff;
+}
+
+/* --- Konténer térköz --- */
+.block-container {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+/* === Sidebar – Üveges fixált lebegő (nem tolja el az oldalt) === */
+@media (min-width: 768px) {
+  section[data-testid="stSidebar"] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 6px 0 20px rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    padding: 1.5rem;
+    overflow-y: auto;
+  }
+
+  /* Fő tartalom ne tolódjon el */
+  .main, .block-container, .css-18ni7ap {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .css-1lcbmhc {
+    margin-left: 0 !important;
+  }
+}
+
+/* --- Sidebar tartalom (szövegek) --- */
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3,
@@ -41,14 +118,14 @@ section[data-testid="stSidebar"] h3,
   opacity: 1 !important;
 }
 
-/* Rádiógomb kijelölés fényeffekt */
+/* --- Aktív rádiógomb kiemelés + fénycsík --- */
 .stRadio > div div[aria-checked="true"] {
   color: #38bdf8 !important;
   font-weight: bold;
   position: relative;
 }
 
-.stRadio > div div[aria-checked="true"]::after {
+.stRadio > div div[aria-checked="true"]::before {
   content: "";
   position: absolute;
   left: -10px;
@@ -57,50 +134,20 @@ section[data-testid="stSidebar"] h3,
   width: 4px;
   height: 1.2em;
   background: linear-gradient(to bottom, #38bdf8, #0ea5e9);
-  box-shadow: 0 0 8px #38bdf8;
+  box-shadow: 0 0 10px #38bdf8;
   border-radius: 2px;
-  animation: glowPulse 1.5s infinite ease-in-out;
+  animation: glow 1.5s infinite ease-in-out;
 }
 
-@keyframes glowPulse {
+@keyframes glow {
   0% { box-shadow: 0 0 6px #38bdf8; }
   50% { box-shadow: 0 0 12px #38bdf8; }
   100% { box-shadow: 0 0 6px #38bdf8; }
 }
 
-/* Aria-disabled workaround */
-.stRadio [aria-disabled="true"] {
-  color: #ffffff !important;
-  opacity: 0.5 !important;
-}
-
-/* Hover effektek */
-button:hover,
-label:hover,
-.stRadio div:hover {
-  filter: brightness(1.2);
-  cursor: pointer;
-}
-
-/* Gombok */
-button[kind="primary"] {
-  background-color: #38bdf8;
-  color: #ffffff;
-  border-radius: 8px;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  font-weight: bold;
-  transition: background 0.3s ease;
-}
-
-button[kind="primary"]:hover {
-  background-color: #0ea5e9;
-  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
-}
-
-/* Feltöltő box (file uploader) */
+/* --- Feltöltő doboz (sidebarban) --- */
 section[data-testid="stSidebar"] .stFileUploader {
-  background-color: rgba(30, 30, 47, 0.4);
+  background-color: #1e1e2f;
   border: 1px solid #2e2e3e;
   padding: 1rem;
   border-radius: 8px;
@@ -111,83 +158,10 @@ section[data-testid="stSidebar"] .stFileUploader label {
   color: #ffffff;
 }
 
-/* Táblázat */
-table {
-  border: 1px solid #334155;
-  border-radius: 6px;
-  overflow: hidden;
-  color: #ffffff;
-}
-
-table th {
-  background-color: #1e293b;
-  color: #ffffff;
-  padding: 0.5rem;
-}
-
-table td {
-  background-color: #0f172a;
-  padding: 0.5rem;
-  color: #ffffff;
-}
-
-/* Expander */
-details {
-  background-color: #1e293b;
-  border: 1px solid #334155;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-top: 2rem;
-  color: #ffffff;
-}
-
-/* Térköz */
-.block-container {
-  padding-top: 2.5rem;
-  padding-bottom: 2.5rem;
-}
-
-.stPlotlyChart {
-  margin-top: 2rem !important;
-  margin-bottom: 3rem !important;
-}
-/* === Slide-in Sidebar nagy kijelzőn === */
-@media (min-width: 768px) {
-  section[data-testid="stSidebar"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw !important;
-    height: 100vh;
-    z-index: 10;
-    background: rgba(30, 30, 47, 0.4);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    box-shadow: none;
-    border-right: none;
-    border-radius: 0;
-  }
-}
-
-/* === ReflectAI – Slide-in üveg sidebar desktopon === */
-@media (min-width: 768px) {
-  section[data-testid="stSidebar"] {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 320px;
-    height: 100vh;
-    z-index: 1000;
-    background: rgba(15, 23, 42, 0.7); /* sötét üveg */
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  /* Ne tolja el a tartalmat */
-  .main, .block-container {
-    margin-left: 0 !important;
-    padding-left: 0 !important;
-  }
+/* --- Hover effektek mindenre --- */
+button:hover,
+label:hover,
+.stRadio div:hover {
+  filter: brightness(1.2);
+  cursor: pointer;
 }
