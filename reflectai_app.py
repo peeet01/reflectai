@@ -30,6 +30,7 @@ module_categories = {
         "XOR Prediction": "xor_prediction",
         "MLP Predict Lorenz": "mlp_predict_lorenz",
         "Oja Learning": "oja_learning",
+        "STDP Learning": "stdp_learning",
     },
     "⚗️ Szimulációk és dinamikák": {
         "Kuramoto Sim": "kuramoto_sim",
