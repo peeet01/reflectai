@@ -1,93 +1,69 @@
-/* === ReflectAI – Üveg & Futurisztikus Téma (véglegesített) === */
+/* === ReflectAI – Reszponzív Sidebar visszaállítás === */
 
-/* Alap betűk és háttér */
+/* Alap */
 body {
   font-family: 'Segoe UI', sans-serif;
   background-color: #0f172a;
   color: #ffffff;
+  overflow-x: hidden;
 }
 
-/* Címsorok */
 h1, h2, h3, h4 {
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 0.03rem;
-  text-shadow: 0 0 4px rgba(255, 255, 255, 0.08);
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.05);
 }
 
-/* Globális link szín */
-a {
-  color: #38bdf8;
+/* === Gépen klasszikus fix sidebar === */
+@media (min-width: 768px) {
+  section[data-testid="stSidebar"] {
+    background: #1e1e2f;
+    padding: 1.5rem;
+    border-right: 1px solid #2e2e3e;
+    color: #ffffff;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.4);
+    height: 100vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .main .block-container {
+    margin-left: auto;
+    padding: 2rem;
+  }
 }
 
-/* Sidebar üveghatás mobilon */
+/* === Mobilon üveg effekt és fix overlay === */
 @media (max-width: 767px) {
   section[data-testid="stSidebar"] {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 1.5rem;
     position: fixed !important;
     top: 0;
     left: 0;
     height: 100vh;
     width: 100%;
     z-index: 1001;
-    background: rgba(30, 41, 59, 0.92); /* picit világosabb */
-    backdrop-filter: blur(14px);
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-    padding: 2rem 1.5rem 3rem;
-    box-shadow: 0 0 30px rgba(0,0,0,0.4);
-  }
-}
-
-/* Sidebar üveghatás desktopon */
-@media (min-width: 768px) {
-  section[data-testid="stSidebar"] {
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 300px;
-    z-index: 1001;
-    background: rgba(30, 41, 59, 0.92); /* világosabb árnyalat */
-    backdrop-filter: blur(18px);
     overflow-y: auto;
-    padding: 2rem 1.5rem;
-    box-shadow: 4px 0 20px rgba(0,0,0,0.35);
-    transition: transform 0.3s ease-in-out;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
   }
 
   .main .block-container {
     margin-left: 0 !important;
-    width: 100% !important;
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
   }
 }
 
-/* Sidebar szövegek */
-section[data-testid="stSidebar"] h1,
-section[data-testid="stSidebar"] h2,
-section[data-testid="stSidebar"] h3,
-.sidebar .stMarkdown p,
-.stRadio label,
-.stRadio div {
-  color: #ffffff !important;
-  font-weight: 600;
-  opacity: 1 !important;
-}
-
-/* Aria-disabled workaround */
-.stRadio [aria-disabled="true"] {
-  color: #ffffff !important;
-  opacity: 0.5 !important;
-}
-
-/* Aktív rádióelem fényhatás */
+/* Rádió kijelölés */
 .stRadio > div div[aria-checked="true"] {
   color: #38bdf8 !important;
   font-weight: bold;
   position: relative;
 }
-
 .stRadio > div div[aria-checked="true"]::after {
   content: "";
   position: absolute;
@@ -101,19 +77,22 @@ section[data-testid="stSidebar"] h3,
   border-radius: 2px;
   animation: glowPulse 1.5s infinite ease-in-out;
 }
-
 @keyframes glowPulse {
   0% { box-shadow: 0 0 6px #38bdf8; }
   50% { box-shadow: 0 0 12px #38bdf8; }
   100% { box-shadow: 0 0 6px #38bdf8; }
 }
 
-/* Hover effektek */
-button:hover,
-label:hover,
-.stRadio div:hover {
-  filter: brightness(1.2);
-  cursor: pointer;
+/* Szövegek a sidebarban */
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3,
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] p,
+.stRadio label,
+.stRadio div {
+  color: #ffffff !important;
+  font-weight: 600;
 }
 
 /* Gombok */
@@ -121,18 +100,17 @@ button[kind="primary"] {
   background-color: #38bdf8;
   color: #ffffff;
   border-radius: 8px;
-  border: none;
   padding: 0.6rem 1.2rem;
   font-weight: bold;
+  border: none;
   transition: background 0.3s ease;
 }
-
 button[kind="primary"]:hover {
   background-color: #0ea5e9;
   box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
 }
 
-/* Fájl feltöltő */
+/* FileUploader */
 section[data-testid="stSidebar"] .stFileUploader {
   background-color: #1e1e2f;
   border: 1px solid #2e2e3e;
@@ -140,29 +118,25 @@ section[data-testid="stSidebar"] .stFileUploader {
   border-radius: 8px;
   color: #ffffff;
 }
-
 section[data-testid="stSidebar"] .stFileUploader label {
   color: #ffffff;
 }
 
-/* Táblázat */
+/* Táblázatok */
 table {
   border: 1px solid #334155;
   border-radius: 6px;
   overflow: hidden;
   color: #ffffff;
 }
-
 table th {
   background-color: #1e293b;
   color: #ffffff;
   padding: 0.5rem;
 }
-
 table td {
   background-color: #0f172a;
   padding: 0.5rem;
-  color: #ffffff;
 }
 
 /* Expander */
@@ -175,12 +149,7 @@ details {
   color: #ffffff;
 }
 
-/* Térköz */
-.block-container {
-  padding-top: 2.5rem;
-  padding-bottom: 2.5rem;
-}
-
+/* Plotly térköz */
 .stPlotlyChart {
   margin-top: 2rem !important;
   margin-bottom: 3rem !important;
