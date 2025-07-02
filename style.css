@@ -138,3 +138,16 @@ table td {
   opacity: 1 !important;
   color: #ffffff !important;
 }
+/* === Streamlit rádiógomb modulnevek kényszerített láthatósága === */
+div[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  font-weight: 600;
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+/* Aktív (kiválasztott) rádió kiemelése */
+div[data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label[data-selected="true"] {
+  color: #38bdf8 !important;
+}
