@@ -22,7 +22,7 @@ def bcm_learning(x, eta=0.01, tau=100, steps=500):
 
     return np.array(w_hist), np.array(theta_hist), np.array(y_hist)
 
-# Jelgenerátor
+# Bemeneti jel generálása
 def generate_input_signal(kind, length):
     t = np.linspace(0, 10, length)
     if kind == "Szinusz":
@@ -34,52 +34,57 @@ def generate_input_signal(kind, length):
     else:
         return np.zeros(length)
 
-# 🔄 Frissített 3D háló vizualizáció NaN-védelemmel
-def draw_3d_network_dynamic(w_array):
+# 🔁 Új 3D neuronháló vizualizáció
+def draw_3d_network(w, y, theta):
+    np.random.seed(42)
     N = 10
-    pos = np.array([
-        [np.cos(2 * np.pi * i / N), np.sin(2 * np.pi * i / N), 0.5 * np.sin(4 * np.pi * i / N)]
-        for i in range(N)
-    ])
+    pos = np.random.normal(size=(N, 3))
+    edges = [(i, j) for i in range(N) for j in range(i+1, N)]
+
+    w_val = np.clip(w[-1], -2, 2)
+    y_val = np.clip(y[-1], 0, 1)
+    theta_val = np.clip(theta[-1], 0, 2)
 
     fig = go.Figure()
-    max_weight = np.max(np.abs(w_array)) if np.max(np.abs(w_array)) != 0 else 1.0
 
-    for i in range(N):
-        j = (i + 1) % N
-        weight = abs(w_array[-1])  # utolsó súlyérték
-        norm_weight = weight / max_weight if max_weight != 0 else 0
-
-        r = int(255 * norm_weight)
-        g = 50
-        b = 255
-        a = round(0.2 + 0.6 * norm_weight, 2)
-
+    for i, j in edges:
+        weight_strength = abs(np.sin(w_val + i * 0.2 - j * 0.3))
         fig.add_trace(go.Scatter3d(
             x=[pos[i, 0], pos[j, 0]],
             y=[pos[i, 1], pos[j, 1]],
             z=[pos[i, 2], pos[j, 2]],
             mode="lines",
-            line=dict(color=f'rgba({r},{g},{b},{a})', width=2 + 4 * norm_weight),
+            line=dict(color=f"rgba(30,144,255,{0.2 + 0.8 * weight_strength:.2f})",
+                      width=1 + 5 * weight_strength),
+            hoverinfo='none',
             showlegend=False
         ))
+
+    neuron_colors = 255 * np.clip((y_val + 0.5 * np.sin(np.arange(N))), 0, 1)
+    neuron_sizes = 8 + 10 * np.abs(np.sin(y_val + np.linspace(0, 2*np.pi, N)))
 
     fig.add_trace(go.Scatter3d(
         x=pos[:, 0], y=pos[:, 1], z=pos[:, 2],
         mode="markers",
-        marker=dict(size=7, color="orange"),
+        marker=dict(size=neuron_sizes,
+                    color=neuron_colors,
+                    colorscale="Viridis",
+                    opacity=0.9),
+        text=[f"Neuron {i}<br>y: {y_val:.2f}<br>θ: {theta_val:.2f}" for i in range(N)],
+        hoverinfo='text',
         name="Neuronok"
     ))
 
     fig.update_layout(
-        scene=dict(xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False)),
-        height=500,
-        margin=dict(l=0, r=0, b=0, t=40)
+        title="🧠 3D Neuronháló súly- és aktivitásvizualizáció",
+        margin=dict(l=0, r=0, b=0, t=40),
+        scene=dict(xaxis=dict(visible=False),
+                   yaxis=dict(visible=False),
+                   zaxis=dict(visible=False))
     )
-
     return fig
 
-# ✅ Streamlit app
+# 🔁 Teljes app futás
 def run():
     st.title("🧠 BCM Learning – Adaptív Szinaptikus Tanulás")
 
@@ -106,7 +111,7 @@ Ez a modul a **BCM (Bienenstock–Cooper–Munro)** tanulási szabály működé
     st.pyplot(fig)
 
     st.subheader("🔬 3D neuronháló vizualizáció")
-    st.plotly_chart(draw_3d_network_dynamic(w))
+    st.plotly_chart(draw_3d_network(w, y, theta))
 
     st.subheader("📥 Eredmények letöltése")
     df = pd.DataFrame({"w": w, "θ": theta, "y": y, "x": x})
@@ -139,5 +144,5 @@ A **BCM-szabály** a szinaptikus plaszticitás egyik biológiailag megalapozott 
 - Interaktív kísérletezés eltérő bemeneti jelekkel
     """)
 
-# 🔁 Streamlit app hívás
+# ☑️ Ez kell a betöltéshez ReflectAI appban
 app = run
