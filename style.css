@@ -113,3 +113,12 @@ table td {
   padding: 0.5rem;
   color: #ffffff;
 }
+/* --- Radio gombok minden szövegét láthatóvá tesszük --- */
+.stRadio div {
+  opacity: 1 !important;
+}
+
+.stRadio label {
+  color: #ffffff !important;
+  font-weight: 600;
+}
