@@ -23,6 +23,7 @@ from modules.questions import run as run_questions
 from modules.neural_entropy import run as neural_entropy
 from modules.criticality_explorer import app as run_criticality_explorer
 from modules.oja_learning import run as run_oja_learning
+from modules.stdp_learning import run as run_stdp_learning
 
 # Modulregisztráció (név -> függvény)
 registry = {
@@ -51,4 +52,5 @@ registry = {
     "Oja Learning": run_oja,
     "Criticality explorer": run_criticality,
     "Neural Entropy": neural_entropy,
+    "STDP tanulás": run_stdp,
 }
