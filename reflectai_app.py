@@ -31,6 +31,7 @@ module_categories = {
         "MLP Predict Lorenz": "mlp_predict_lorenz",
         "Oja Learning": "oja_learning",
         "STDP Learning": "stdp_learning",
+        "BCM Learning": "bcm_learning",
     },
     "⚗️ Szimulációk és dinamikák": {
         "Kuramoto Sim": "kuramoto_sim",
