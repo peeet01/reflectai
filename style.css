@@ -122,3 +122,19 @@ table td {
   color: #ffffff !important;
   font-weight: 600;
 }
+/* === Kényszerített fehér szín minden rádiógombra (Streamlit workaround) === */
+.stRadio > div {
+  opacity: 1 !important;
+}
+
+.stRadio label {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+/* Ha aria-disabled befolyásolja, ezzel is lefedjük */
+.stRadio [aria-disabled="true"] {
+  opacity: 1 !important;
+  color: #ffffff !important;
+}
