@@ -28,7 +28,7 @@ module_categories = {
         "Hebbian Learning": "hebbian_learning",
         "Insight Learning": "insight_learning",
         "XOR Prediction": "xor_prediction",
-        "MLP Predict Lorenz": "mlp_predict_lorenz"
+        "MLP Predict Lorenz": "mlp_predict_lorenz",
         "Oja Learning": "oja_learning",
     },
     "⚗️ Szimulációk és dinamikák": {
