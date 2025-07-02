@@ -165,3 +165,12 @@ label:hover,
   filter: brightness(1.2);
   cursor: pointer;
 }
+/* === Átlátszó üveg sidebar minden eszközre === */
+section[data-testid="stSidebar"] {
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  color: #ffffff !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 6px 0 20px rgba(0, 0, 0, 0.5);
+}
