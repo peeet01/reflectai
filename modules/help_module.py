@@ -1,141 +1,166 @@
 import streamlit as st
 
-def run(): st.title("📘 Tudományos Súgó – Neurolab AI") st.markdown(""" Üdvözlünk a Neurolab AI Scientific Playground felületen! Ez az alkalmazás interaktív vizsgálatot nyújt idegtudományi, fizikai és matematikai modellekre alapozva.
+def run():
+    st.title("📘 Tudományos Súgó – Neurolab AI")
 
-Alább részletesen bemutatjuk a modulok tudományos hátterét, történetét, matematikai validációját, valamint az alkalmazásban betöltött szerepét és felhasználási lehetőségeit.
-""")
-
-######################
-# 📈 Vizualizációk
-######################
-with st.expander("🧮 Fractal Dimension"):
     st.markdown("""
-    **Történeti háttér:** A fraktálok elméletét Benoît Mandelbrot vezette be a 20. század közepén. A fraktáldimenzió a struktúrák önhasonlóságának kvantitatív mértéke.
-
-    **Matematikai definíció:** Box-counting dimenzió:
-    """)
-    st.latex(r"D = \lim_{\epsilon \to 0} \frac{\log N(\epsilon)}{\log(1/\epsilon)}")
-    st.markdown("""
-    ahol N(\epsilon) az \epsilon méretű dobozok száma, amely lefedi az alakzatot.
-
-    **Célja az alkalmazásban:** Mintázatok komplexitásának mérése (pl. neurális kimeneteknél).
-
-    **Következtetések:**
-    - Neurális dinamika rendezettségének becslése
-    - Rendszerek dimenziós komplexitása
-    - Minták jellemzése nemlineáris rendszerekben
-    """)
-
-with st.expander("🌀 Fractal Explorer"):
-    st.markdown("""
-    **Történet:** Mandelbrot- és Julia-halmaz vizsgálata a komplex síkban.
-
-    **Iteráció:**
-    """)
-    st.latex(r"z_{n+1} = z_n^2 + c")
-    st.markdown("""
-    **Cél:** Kaotikus és stabil zónák felfedezése.
-
-    **Következtetések:**
-    - Stabilitási és bifurkációs analízis
-    - Vizuális reprezentáció komplex dinamikákról
-    """)
-
-######################
-# 🧠 Tanulási algoritmusok
-######################
-with st.expander("🧠 Hebbian Learning"):
-    st.markdown("""
-    **Történet:** Donald Hebb (1949) fogalmazta meg. "Neurons that fire together, wire together."
-
-    **Szabály:**
-    """)
-    st.latex(r"w_i \leftarrow w_i + \eta \cdot x_i \cdot t")
-    st.markdown("""
-    **Cél:** Nem felügyelt tanulás modellezése.
-
-    **Következtetések:**
-    - Szinkron aktivációs minták tanulása
-    - Biológiai plaszticitás modellezése
-    """)
-
-with st.expander("❌ XOR Prediction"):
-    st.markdown("""
-    **Történet:** Az XOR-probléma megoldhatatlansága lineáris modellekkel motiválta a mélytanulás fejlődését.
-
-    **Modell:**
-    """)
-    st.latex(r"\hat{y} = \sigma\left(W^{(2)} \cdot \sigma(W^{(1)}x + b^{(1)}) + b^{(2)}\right)")
-    st.markdown("""
-    **Cél:** A nemlineáris szeparálhatóság szemléltetése.
-
-    **Következtetések:**
-    - Többrétegű hálók szükségessége
-    - Nemlinearitás szerepe a tanulásban
-    """)
-
-######################
-# ⚗️ Szimulációk és dinamikák
-######################
-with st.expander("🕸️ Kuramoto Sim"):
-    st.markdown("""
-    **Történet:** Yoshiki Kuramoto dolgozta ki az 1970-es években.
-
-    **Egyenlet:**
-    """)
-    st.latex(r"\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} \sin(\theta_j - \theta_i)")
-    st.markdown("""
-    **Cél:** Oszcillátorhálózatok szinkronizációjának vizsgálata.
-
-    **Következtetések:**
-    - Szinkron állapot detektálása
-    - Szinkronküszöb meghatározása
-    """)
-
-######################
-# 🧪 Predikciók
-######################
-with st.expander("🔄 ESN Prediction"):
-    st.markdown("""
-    **Történet:** Jaeger (2001) mutatta be az Echo State Network modellt.
-
-    **Rekurzió:**
-    """)
-    st.latex(r"x(t+1) = \tanh(W_{res} x(t) + W_{in} u(t))")
-    st.latex(r"\hat{y}(t) = W_{out} x(t)")
-    st.markdown("""
-    **Cél:** Idősoros előrejelzés tanítás nélkül a rejtett rétegre.
-
-    **Következtetések:**
-    - Dinamikus mintázatok felismerése
-    - Hatékony idősoros predikció
-    """)
-
-with st.expander("🌐 Berry Curvature"):
-    st.markdown("""
-    **Történet:** Michael Berry (1984) vezette be a geometriai fázis fogalmát kvantummechanikában.
-
-    **Formula:**
-    """)
-    st.latex(r"\Omega(k) = \nabla_k \times A(k), \quad A(k) = -i \langle u(k) | \nabla_k | u(k) \rangle")
-    st.markdown("""
-    **Cél:** Topológiai fázisinvariánsok számítása kvantált rendszerekben.
-
-    **Következtetések:**
-    - Topológiai különbségek azonosítása
-    - Kvantált Chern-számok számítása
-    """)
-
-st.markdown("""
-
+Üdvözlünk a **Neurolab AI Scientific Playground** felületén! Ez az alkalmazás különféle **idegtudományi, fizikai és matematikai modellek** interaktív vizsgálatát támogatja.  
+Az alábbi modulok **matematikai érvényességgel**, **vizualizációval** és **prediktív szimulációkkal** segítik a tudományos megértést.
 
 ---
 
-Verzió: 2025.07
-Készítette: ReflectAI fejlesztői és tudományos tanácsadók
-""")
+### 🕸️ Kuramoto Modell – Szinkronizációs Dinamika
 
-Kötelező modul belépési pont
+**Matematikai képlet:**
 
+$$
+\\frac{d\\theta_i}{dt} = \\omega_i + \\frac{K}{N} \\sum_{j=1}^{N} A_{ij} \\sin(\\theta_j - \\theta_i)
+$$
+
+**Order parameter (globális szinkronizáció):**
+
+$$
+R(t) = \\left| \\frac{1}{N} \\sum_{j=1}^{N} e^{i\\theta_j(t)} \\right|
+$$
+
+**Cél:** Dinamikus hálózati szinkronizáció vizsgálata.  
+**Vizualizáció:** Fázisállapotok időbeli alakulása és szinkronizáció mértéke.  
+**Következtetés:** Detektálható szinkron idegi aktivitás, epilepsziás minták vagy ritmikus zavarok.
+
+---
+
+### ❌ XOR Predikció – Neurális hálózat tanulása
+
+**Modellképlet:**
+
+$$
+\\hat{y} = \\sigma(W^{(2)} \\cdot \\sigma(W^{(1)}x + b^{(1)}) + b^{(2)})
+$$
+
+**Tanulási veszteség:**
+
+$$
+\\mathcal{L} = \\frac{1}{N} \\sum_{i=1}^{N} (y_i - \\hat{y}_i)^2
+$$
+
+**Cél:** Nemlineáris minták felismerése rejtett rétegekkel.  
+**Vizualizáció:** Pontfelhő és döntési határ vizuális összevetése.  
+**Következtetés:** Megérthető a mélytanulás jelentősége.
+
+---
+
+### 🌐 Berry-görbület – Kvantum topológia
+
+**Berry-görbület definíció:**
+
+$$
+\\Omega(k) = \\nabla_k \\times A(k), \\quad A(k) = i \\langle u_k | \\nabla_k u_k \\rangle
+$$
+
+**Berry-fázis:**
+
+$$
+\\gamma = \\oint_C A(k) \\cdot dk = \\int_S \\Omega(k) \\, d^2k
+$$
+
+**Cél:** Kvantumállapotok topológiai invariánsainak számítása.  
+**Vizualizáció:** Kvantált értékek (pl. Chern-szám) színtérképes megjelenítése.  
+**Következtetés:** Megjelenik kvantum Hall-effektusban, topológiai szigetelőkben.
+
+---
+
+### 🧠 Hopfield-háló – Asszociatív memória
+
+**Súlymátrix Hebb szabály szerint:**
+
+$$
+W_{ij} = \\sum_{\\mu=1}^{P} \\xi_i^\\mu \\xi_j^\\mu
+$$
+
+**Dinamikai frissítés:**
+
+$$
+s_i^{(t+1)} = \\text{sign}\\left(\\sum_j W_{ij} s_j^{(t)} \\right)
+$$
+
+**Cél:** Zajos minták alapján tanult bináris memóriák visszanyerése.  
+**Vizualizáció:** Minták energiafelszínre történő konvergenciája.  
+**Következtetés:** Energiaalapú számítás és stabil mintatárolás.
+
+---
+
+### 🌀 Fraktál Explorer – Kaotikus rendszerek
+
+**Mandelbrot-halmaz képlete:**
+
+$$
+z_{n+1} = z_n^2 + c
+$$
+
+**Cél:** Kaotikus és stabil viselkedés határainak vizsgálata.  
+**Vizualizáció:** Színes komplex sík fraktálok, Julia-halmazok.  
+**Következtetés:** Nemlineáris rendszerek bifurkációi, érzékenysége.
+
+---
+
+### 🔄 Echo State Network (ESN) – Idősoros előrejelzés
+
+**Belső dinamika:**
+
+$$
+x(t+1) = \\tanh(W_{res} \\cdot x(t) + W_{in} \\cdot u(t))
+$$
+
+**Kimenet:**
+
+$$
+\\hat{y}(t) = W_{out} \\cdot x(t)
+$$
+
+**Cél:** Idősorok előrejelzése kis tanítási költséggel.  
+**Vizualizáció:** Predikciók összevetése a valós mintákkal.  
+**Következtetés:** Jó teljesítmény bonyolult mintákon is.
+
+---
+
+### 🧩 Generative Kuramoto – Struktúra és dinamika
+
+**Funkció:** Véletlenszerű gráf generálás (pl. Erdős–Rényi, Barabási) és Kuramoto-dinamika futtatása.
+
+**Cél:** Struktúra-dinamika összefüggés megértése.  
+**Vizualizáció:** Hálózati gráf + szinkronizációs minta.  
+**Következtetés:** Topológiai robusztusság és kritikus átmenetek.
+
+---
+
+### 🧮 Graph Sync Analysis – Hálózati stabilitás
+
+**Spektrális tulajdonságok:**
+
+- Laplace-mátrix sajátértékek
+- Szinkron stabilitásvizsgálat
+
+**Cél:** Szinkron dinamikák stabilitásának becslése gráf alapján.  
+**Következtetés:** Meghatározható stabilitási határ a spektrális rés alapján.
+
+---
+
+### 🏔️ Persistent Homology – Topológiai adatértelmezés
+
+**Lépések:**
+
+- Vietoris–Rips komplexum
+- Perzisztencia diagram generálás
+
+**Cél:** Adatok globális szerkezetének feltérképezése.  
+**Vizualizáció:** Diagram időbeli topológiai változásokkal.  
+**Következtetés:** Gépi tanulásba integrálható robusztus jellemzők.
+
+---
+
+Verzió: **2025.07**  
+Készítette: *ReflectAI fejlesztői és tudományos tanácsadók*
+    """)
+
+# Modul belépési pont
 app = run
-
