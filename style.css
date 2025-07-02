@@ -1,21 +1,21 @@
-/* === ReflectAI – Üveg Sidebar + Ráúszó megjelenés === */
+/* === ReflectAI – Üveg Sidebar + Ráúszás + Fix Világos Szöveg === */
 
-/* Alap háttér és betűtípus */
-body {
+/* Alap */
+body, html {
   font-family: 'Segoe UI', sans-serif;
   background-color: #0f172a;
   color: #ffffff;
 }
 
 /* Címsorok */
-h1, h2, h3, h4 {
+h1, h2, h3, h4,
+.stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
+  color: #ffffff !important;
   font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 0.03rem;
   text-shadow: 0 0 4px rgba(255, 255, 255, 0.05);
 }
 
-/* === Sidebar: fix pozíció, üveghatás, ráúszás === */
+/* === Sidebar === */
 section[data-testid="stSidebar"] {
   position: fixed !important;
   top: 0;
@@ -31,17 +31,13 @@ section[data-testid="stSidebar"] {
   box-shadow: 6px 0 20px rgba(0, 0, 0, 0.4);
 }
 
-/* Sidebar szövegek */
-section[data-testid="stSidebar"] h1,
-section[data-testid="stSidebar"] h2,
-section[data-testid="stSidebar"] h3,
-.sidebar .stMarkdown p,
-.stRadio label {
+/* Oldalsáv szövegek mindig világosak */
+section[data-testid="stSidebar"] * {
   color: #ffffff !important;
-  font-weight: 600;
+  opacity: 1 !important;
 }
 
-/* Rádió kiválasztás effekt */
+/* Kiválasztott rádióelem effekt */
 .stRadio > div div[aria-checked="true"] {
   color: #38bdf8 !important;
   font-weight: bold;
@@ -66,18 +62,10 @@ section[data-testid="stSidebar"] h3,
   100% { box-shadow: 0 0 6px #38bdf8; }
 }
 
-/* Tartalom (main) kompenzálása, hogy ne legyen takarva */
+/* Tartalom kompenzáció */
 main[data-testid="stAppViewContainer"] {
   margin-left: 0 !important;
   padding-left: 320px !important;
-}
-
-/* Fejléc */
-div[data-testid="stHeader"] {
-  background-color: transparent;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  padding: 0.6rem 1.2rem;
-  color: #ffffff;
 }
 
 /* Gombok */
@@ -95,7 +83,7 @@ button[kind="primary"]:hover {
   box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
 }
 
-/* Táblázatok */
+/* Táblázat */
 table {
   border: 1px solid #334155;
   border-radius: 6px;
@@ -104,13 +92,11 @@ table {
 }
 table th {
   background-color: #1e293b;
-  color: #ffffff;
   padding: 0.5rem;
 }
 table td {
   background-color: #0f172a;
   padding: 0.5rem;
-  color: #ffffff;
 }
 
 /* Expander */
@@ -123,12 +109,16 @@ details {
   color: #ffffff;
 }
 
-/* Térközök */
-.block-container {
-  padding-top: 2.5rem;
-  padding-bottom: 2.5rem;
-}
+/* Plotly térköz */
 .stPlotlyChart {
   margin-top: 2rem !important;
   margin-bottom: 3rem !important;
+}
+
+/* Mobil fix: minden szöveg világos */
+@media (max-width: 768px) {
+  section[data-testid="stSidebar"] * {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
 }
