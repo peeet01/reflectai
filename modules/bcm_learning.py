@@ -42,6 +42,8 @@ def draw_3d_network(weight):
     edges = [(i, (i + 1) % N) for i in range(N)]
 
     fig = go.Figure()
+
+    # Élek
     for i, j in edges:
         fig.add_trace(go.Scatter3d(
             x=[pos[i, 0], pos[j, 0]],
@@ -52,6 +54,7 @@ def draw_3d_network(weight):
             showlegend=False
         ))
 
+    # Csomópontok
     fig.add_trace(go.Scatter3d(
         x=pos[:, 0], y=pos[:, 1], z=pos[:, 2],
         mode="markers",
@@ -67,6 +70,7 @@ def draw_3d_network(weight):
 
     return fig
 
+# ✅ A run() függvénybe kerül minden
 def run():
     st.title("🧠 BCM Learning – Adaptív Szinaptikus Tanulás")
 
@@ -106,6 +110,7 @@ Ez a modul a **BCM (Bienenstock–Cooper–Munro)** tanulási szabály működé
 A **BCM-szabály** a szinaptikus plaszticitás egyik biológiailag megalapozott modellje, amely egy **nemlineáris aktivitásfüggő** tanulási küszöböt (θ) használ.
 
 **Formális leírás:**
+
 - Súlyváltozás:  
   \( \frac{dw}{dt} = \eta \cdot x \cdot y \cdot (y - \theta) \)
 
@@ -113,15 +118,17 @@ A **BCM-szabály** a szinaptikus plaszticitás egyik biológiailag megalapozott 
   \( \frac{d\theta}{dt} = \frac{1}{\tau} (y^2 - \theta) \)
 
 **Jelentőség:**
+
 - Homeosztatikus stabilitást biztosít  
 - Szelektív tanulást tesz lehetővé  
 - Biológiailag releváns: szenzoros plaszticitás, látásrendszer fejlődése stb.
 
 **Használat az appban:**
+
 - Szinaptikus tanulás időbeli dinamikájának vizsgálata  
 - Vizualizáció neurális kapcsolatok erősödéséről és gyengüléséről  
 - Interaktív kísérletezés eltérő bemeneti jelekkel
     """)
 
-# ✅ Ez kell a működéshez – a rendszered elvárása szerint
+# ❗ FONTOS: ezt kellett, hogy legyen a végén
 app = run
