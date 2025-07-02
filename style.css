@@ -234,3 +234,21 @@ button[aria-label="Close sidebar"]:hover {
   transform: scale(1.1) translateY(5px);
   cursor: pointer;
 }
+/* === Gépen visszaállított statikus sidebar viselkedés === */
+@media (min-width: 768px) {
+  section[data-testid="stSidebar"] {
+    position: relative !important;
+    height: auto !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: linear-gradient(160deg, #1e1e2f 0%, #0c0c15 100%) !important;
+    box-shadow: none !important;
+  }
+
+  .main .block-container {
+    margin-left: auto !important;
+    width: auto !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+}
