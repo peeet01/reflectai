@@ -211,3 +211,26 @@ section[data-testid="stSidebar"] > div:first-child {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
+/* === Sidebar nyitó/záró gomb kiemelése === */
+button[aria-label="Open sidebar"],
+button[aria-label="Close sidebar"] {
+  background-color: #38bdf8 !important;
+  color: #ffffff !important;
+  font-size: 1.2rem !important;
+  padding: 0.4rem 0.6rem !important;
+  border-radius: 8px !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+  border: none !important;
+  z-index: 2000;
+  transition: all 0.3s ease-in-out;
+  transform: translateY(5px);
+}
+
+/* Hover animáció */
+button[aria-label="Open sidebar"]:hover,
+button[aria-label="Close sidebar"]:hover {
+  background-color: #0ea5e9 !important;
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.9);
+  transform: scale(1.1) translateY(5px);
+  cursor: pointer;
+}
