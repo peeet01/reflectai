@@ -2,6 +2,12 @@ import streamlit as st
 from datetime import datetime
 import importlib
 import os  # 📁 Fájlok listázásához
+import streamlit.components.v1 as components
+
+# 🌌 Részecske háttér beágyazása
+with open("particles.html", "r", encoding="utf-8") as file:
+    particles_background = file.read()
+components.html(particles_background, height=0, width=0)
 
 # 💅 Stílus betöltése
 def local_css(file_name):
