@@ -151,3 +151,20 @@ details {
   margin-top: 2rem !important;
   margin-bottom: 3rem !important;
 }
+/* === Slide-in Sidebar nagy kijelzőn === */
+@media (min-width: 768px) {
+  section[data-testid="stSidebar"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh;
+    z-index: 10;
+    background: rgba(30, 30, 47, 0.4);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: none;
+    border-right: none;
+    border-radius: 0;
+  }
+}
