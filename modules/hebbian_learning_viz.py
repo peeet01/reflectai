@@ -93,36 +93,35 @@ A tanulási szabály szerint a szinaptikus kapcsolatok megerősödnek, ha a beme
     st.download_button("⬇️ Jósolt kimenet letöltése (Y_pred)", data=csv_pred, file_name="hebbian_output.csv")
 
     st.markdown("### 📚 Tudományos háttér")
+
     st.markdown("""
 A **Hebbian-tanulás** egy egyszerű, mégis erőteljes tanulási mechanizmus,  
 amely a biológiai szinaptikus plaszticitás egyik legismertebb modellje.  
 A szabály lényege, hogy ha két neuron egy időben aktív, akkor a köztük lévő kapcsolat erősödik.
-
-#### 🧠 Alapelv:
-> *„Neurons that fire together, wire together.”*
-
-#### 📐 Tanulási szabály:
 """)
 
+    st.markdown("#### 🧠 Alapelv:")
+    st.markdown("> *„Neurons that fire together, wire together.”*")
+
+    st.markdown("#### 📐 Tanulási szabály:")
     st.latex(r"W = Y \cdot X^T")
 
-    st.markdown(r"""
-**Ahol:**
+    st.markdown("#### 📊 Ahol:")
+    st.latex(r"X \in \mathbb{R}^{n \times p} \quad \text{(bemeneti minták: n bemenet, p minta)}")
+    st.latex(r"Y \in \mathbb{R}^{m \times p} \quad \text{(kívánt kimenetek: m kimenet, p minta)}")
+    st.latex(r"W \in \mathbb{R}^{m \times n} \quad \text{(tanult súlymátrix)}")
 
-- \( X \in \mathbb{R}^{n \times p} \): bemeneti minták (n bemenet, p minta)  
-- \( Y \in \mathbb{R}^{m \times p} \): kívánt kimenetek (m kimenet, p minta)  
-- \( W \in \mathbb{R}^{m \times n} \): tanult súlymátrix
-
+    st.markdown("""
 Ez azt jelenti, hogy a kimeneti aktivitás súlyozott módon visszahat a bemenetre,  
 megerősítve azokat a kapcsolatokat, amelyek együttes aktivitást mutatnak.
 """)
 
+    st.markdown("#### 📌 Jelentősége:")
     st.markdown("""
-#### 📌 Jelentősége:
 - Biológiai idegrendszerek tanulmányozása  
 - Asszociatív memória (pl. Hopfield-hálózatok)  
 - Szinaptikus kapcsolatok erősödésének modellezése
 """)
 
-# Kötelező ReflectAI-kompatibilitás
+# ReflectAI kompatibilitás
 app = run
