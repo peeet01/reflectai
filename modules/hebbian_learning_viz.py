@@ -4,7 +4,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.graph_objects as go
-from io import StringIO
 
 def hebbian_learning(x, y):
     return y @ x.T
@@ -24,10 +23,11 @@ def run():
     st.title("🧠 Hebbian Tanulás Vizualizáció")
 
     st.markdown("""
-    A **Hebbian tanulás** alapelve:
-    > *"Neurons that fire together, wire together."*  
-    Ez a modul szemlélteti a tanult súlymátrixot és a tanulás hatását különböző bemenetekre.
-    """)
+A **Hebbian tanulás** az egyik legegyszerűbb tanulási szabály, amely a biológiai idegrendszerek működéséből ered.  
+Ez a modul lehetővé teszi, hogy egy bemeneti–kimeneti mátrix alapján vizualizáljuk a tanult súlymátrixot, és megbecsüljük annak hatását.
+
+A tanulási szabály szerint a szinaptikus kapcsolatok megerősödnek, ha a bemeneti és a kimeneti neuron egyszerre aktívak.
+""")
 
     st.subheader("📂 Bemenet forrása")
     use_csv = st.checkbox("📥 CSV fájl feltöltése X és Y mátrixokhoz")
@@ -92,37 +92,31 @@ def run():
     st.download_button("⬇️ Súlymátrix letöltése (W)", data=csv_w, file_name="hebbian_weights.csv")
     st.download_button("⬇️ Jósolt kimenet letöltése (Y_pred)", data=csv_pred, file_name="hebbian_output.csv")
 
-    with st.expander("📘 Tudományos háttér – Hebbian tanulás"):
-        st.markdown("""
-        A **Hebbian-tanulás** az egyik legegyszerűbb és legismertebb biológiai ihletésű tanulási szabály,  
-        amely a szinaptikus kapcsolatok megerősödését modellezi az agyban.
+    st.markdown("### 📚 Tudományos háttér")
+    st.markdown(r"""
+A **Hebbian-tanulás** az egyik legismertebb biológiai ihletésű tanulási szabály, amely az agy szinaptikus plaszticitását írja le.  
+A modell célja, hogy a bemeneti minták és a megfelelő kimenetek alapján erősítse a releváns súlyokat.
 
-        **🧠 Alapgondolat:**  
-        *„Azok a neuronok, amelyek együtt tüzelnek, együtt huzalozódnak.”*  
-        Ez azt jelenti, hogy ha két neuron gyakran egyszerre aktív, akkor erősödik a közöttük lévő kapcsolat.
+**Tanulási szabály:**
 
-        ---
-        **📐 Súlyfrissítési szabály (egyszerűsített alakban):**
-        ```text
-        wᵢ ← wᵢ + η · xᵢ · t
-        ```
+$$
+W = Y \cdot X^T
+$$
 
-        **ahol:**
-        - `wᵢ` – az i-edik bemenethez tartozó szinaptikus súly  
-        - `η` – tanulási ráta (egy kis pozitív konstans)  
-        - `xᵢ` – a bemeneti neuron aktuális aktivitása  
-        - `t` – a posztszinaptikus (kimeneti) neuron aktivációja
+Ahol:
+- \( X \in \mathbb{R}^{n \times p} \): bemeneti minták (n bemenet, p minta)
+- \( Y \in \mathbb{R}^{m \times p} \): kívánt kimenetek (m kimenet, p minta)
+- \( W \in \mathbb{R}^{m \times n} \): tanult súlymátrix
 
-        Ez a szabály megerősíti azokat a kapcsolatokat, amelyeknél a bemenet és a kimenet egyszerre aktív.
+Ez azt jelenti, hogy a kimeneti aktivitás súlyozott módon visszahat a bemenetekre, megerősítve azokat a kapcsolatokat, amelyek együttes aktivitást mutatnak.
 
-        ---
-        **🔬 Alkalmazási területek:**
-        - Biológiai idegrendszerek modellezése
-        - Asszociatív memória (pl. Hopfield-hálók)
-        - Egyszerű neurális tanulómodellek és adaptív rendszerek
+**Jelentősége:**
+- Biológiai idegrendszerek tanulmányozása
+- Asszociatív memória (pl. Hopfield-hálózat)
+- Szinaptikus erősítés elméleti alapja
 
-        A Hebbian tanulás jól szemlélteti, hogyan alakulhatnak ki emlékek, asszociációk vagy szokások az agyban.
-        """)
+A Hebbian szabály a **korrelációtanulás** alapvető példája, amely világosan illusztrálja, hogyan alakulhatnak ki neurális asszociációk.
+""")
 
 # ReflectAI kompatibilitás
 app = run
