@@ -33,8 +33,8 @@ def run():
     st.title("🧠 Lyapunov Spektrum – Dinamikus rendszerek stabilitása")
 
     st.markdown("""
-A **Lyapunov-spektrum** vizualizációja segít feltérképezni, mikor válik egy nemlineáris rendszer viselkedése kaotikussá.
-A Lyapunov-exponens pozitív értéke a káosz jele, míg negatív érték stabilitásra utal.
+A Lyapunov-exponens azt mutatja meg, mennyire érzékeny egy dinamikus rendszer a kezdeti feltételekre.  
+Ez a vizualizáció logisztikus és más típusú leképezések alapján ábrázolja a stabil és kaotikus viselkedés tartományait.
 """)
 
     # Paraméterek
@@ -84,31 +84,28 @@ A Lyapunov-exponens pozitív értéke a káosz jele, míg negatív érték stabi
     st.success(f"🔍 Az adott beállítások alapján a rendszer **{status}** (átlagos λ = {avg_lyap:.4f})")
 
     # === Tudományos háttér ===
-    st.markdown("### 📚 Tudományos háttér – Lyapunov-exponens")
-    st.markdown("""
-A **Lyapunov-exponens** egy dinamikus rendszerben a kezdeti feltételek perturbációira adott válasz mérőszáma.  
-A pozitív érték a **káosz** jelenlétére, míg a negatív érték **stabil** viselkedésre utal.
+    st.markdown("### 📚 Tudományos háttér")
+    st.markdown(r"""
+A **Lyapunov-exponens** egy numerikus mutató, amely azt méri, hogy egy dinamikus rendszer milyen gyorsan tér el a kezdeti feltételektől.  
+Ez kulcsfontosságú mutatója a **káosz** jelenlétének.
 
-#### 🧮 Matematikai definíció
-    """)
-    st.latex(r"""
+#### Matematikai definíció:
+
+$$
 \lambda = \lim_{n \to \infty} \frac{1}{n} \sum_{i=1}^{n} \ln \left| \frac{df(x_i)}{dx} \right|
-    """)
+$$
 
-    st.markdown("""
-**Ahol:**
-- \( \lambda \): Lyapunov-exponens  
-- \( f(x) \): a leképezési függvény  
-- \( x_i \): az aktuális állapot
+#### Értelmezés:
 
-#### 🔍 Értelmezés
-- \( \lambda < 0 \): stabil rendszer  
-- \( \lambda = 0 \): semleges stabilitás  
-- \( \lambda > 0 \): **kaotikus** viselkedés – érzékeny a kezdeti feltételekre
+- **λ < 0** → stabil rendszer  
+- **λ = 0** → semleges stabilitás  
+- **λ > 0** → **káosz**, érzékeny a kezdeti feltételekre
 
-A Lyapunov-spektrum segít feltárni, hogy adott paramétertartományban a rendszer stabil vagy instabil viselkedést mutat-e.
-A vizualizáció során jól elkülöníthetőek a periodikus és kaotikus szakaszok.
-    """)
+#### Alkalmazás:
+- Kaotikus térképek (logisztikus, Henon, kvadratikus)
+- Stabilitási régiók feltérképezése
+- Nemlineáris dinamikus rendszerek viselkedése
+""")
 
 # Kötelező ReflectAI-kompatibilitás
 app = run
