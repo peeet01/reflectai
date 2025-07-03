@@ -60,5 +60,5 @@ registry = {
     "BCM tanulás": run_bcm_learning,
     "Spiking Neural Network": run_snn,
     "Fraktál Explorer": run_fractal,
-    "Hebbian tanulás (vizual)": run_hebbian_viz,
+    "Hebbian Learning Viz": run_hebbian_viz,
 }
