@@ -3,10 +3,22 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+import plotly.graph_objects as go
 from io import StringIO
 
 def hebbian_learning(x, y):
     return y @ x.T
+
+def plot_3d_matrix(matrix, title="3D Mátrix vizualizáció"):
+    z = matrix
+    x, y = np.meshgrid(np.arange(z.shape[1]), np.arange(z.shape[0]))
+    fig = go.Figure(data=[go.Surface(z=z, x=x, y=y, colorscale='Viridis')])
+    fig.update_layout(title=title, scene=dict(
+        xaxis_title="Bemenet",
+        yaxis_title="Kimenet",
+        zaxis_title="Súly"
+    ))
+    return fig
 
 def run():
     st.title("🧠 Hebbian Tanulás Vizualizáció")
@@ -41,13 +53,17 @@ def run():
     w = hebbian_learning(x, y)
     y_pred = w @ x
 
-    # Vizualizáció – súlymátrix
+    # Vizualizáció – súlymátrix (2D)
     st.subheader("📘 Súlymátrix $W = Y \\cdot X^T$")
     fig1, ax1 = plt.subplots()
     sns.heatmap(w, annot=True, cmap='coolwarm', ax=ax1)
     ax1.set_xlabel("Bemeneti neuronok")
     ax1.set_ylabel("Kimeneti neuronok")
     st.pyplot(fig1)
+
+    if st.checkbox("🌐 3D súlymátrix Plotly"):
+        fig3d = plot_3d_matrix(w, title="Tanult súlymátrix 3D-ben")
+        st.plotly_chart(fig3d, use_container_width=True)
 
     # Vizualizáció – jósolt kimenet
     st.subheader("🔁 Jósolt kimenet: $Y_{pred} = W \\cdot X$")
@@ -76,7 +92,6 @@ def run():
     st.download_button("⬇️ Súlymátrix letöltése (W)", data=csv_w, file_name="hebbian_weights.csv")
     st.download_button("⬇️ Jósolt kimenet letöltése (Y_pred)", data=csv_pred, file_name="hebbian_output.csv")
 
-    
     with st.expander("📘 Tudományos háttér – Hebbian tanulás"):
         st.markdown("""
         A **Hebbian-tanulás** az egyik legegyszerűbb és legismertebb biológiai ihletésű tanulási szabály,  
@@ -108,6 +123,6 @@ def run():
 
         A Hebbian tanulás jól szemlélteti, hogyan alakulhatnak ki emlékek, asszociációk vagy szokások az agyban.
         """)
-    
-# Kötelező ReflectAI-kompatibilitás
+
+# ReflectAI kompatibilitás
 app = run
