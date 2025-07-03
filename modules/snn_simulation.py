@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 # 🔬 LIF neuronmodell szimulációja STDP-vel
 def snn_simulate(I_ext=1.5, tau_m=20.0, R_m=1.0, V_th=1.0, V_reset=0.0, dt=1.0, T=200, stdp_enabled=True):
@@ -43,29 +44,70 @@ def stdp(delta_t):
     else:
         return A_minus * np.exp(delta_t / tau_minus)
 
-# 🚀 Streamlit modul
+# 🧊 3D hexagonális neuronháló – szemléltető célú
+def draw_hex_neural_activity(grid_size=10, spread=3):
+    np.random.seed(0)
+    x, y, z = np.meshgrid(
+        np.arange(grid_size),
+        np.arange(grid_size),
+        np.arange(grid_size)
+    )
+
+    coords = np.vstack((x.flatten(), y.flatten(), z.flatten())).T
+    center = np.array([grid_size // 2] * 3)
+
+    distances = np.linalg.norm(coords - center, axis=1)
+    activity = np.exp(-((distances / spread)**2)) + 0.1 * np.random.rand(len(coords))
+    colors = activity
+
+    fig = go.Figure(data=go.Scatter3d(
+        x=coords[:, 0], y=coords[:, 1], z=coords[:, 2],
+        mode='markers',
+        marker=dict(
+            size=3 + 10 * activity,
+            color=colors,
+            colorscale='YlOrRd',
+            opacity=0.85,
+            colorbar=dict(title='Aktivitás')
+        )
+    ))
+
+    fig.update_layout(
+        scene=dict(
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            zaxis=dict(visible=False)
+        ),
+        title="🔺 Neuronaktivitás szemléltetése – Hexagonális 3D rácson",
+        margin=dict(l=0, r=0, b=0, t=40)
+    )
+
+    return fig
+
+# 🚀 Streamlit app
 def run():
     st.title("⚡ Spiking Neural Network – LIF Neuron és STDP")
-
     st.markdown("""
-Ez a modul egy **LIF neuronmodell** működését mutatja be, **STDP** (Spike-Timing Dependent Plasticity) tanulással.
+Ez a modul egy **LIF neuronmodell** működését mutatja be, **STDP** (Spike-Timing Dependent Plasticity) tanulással, valamint egy látványos **3D neuronháló** animációval illusztrálja a tüzelési aktivitást.
 """)
 
     # 🎛️ Paraméterek
     I_ext = st.slider("Bemeneti áram erőssége (I_ext)", 0.0, 3.0, 1.5, 0.1)
     tau_m = st.slider("Membrán időállandó (τ)", 1.0, 50.0, 20.0, 1.0)
     V_th = st.slider("Tüzelési küszöb (V_th)", 0.1, 2.0, 1.0, 0.1)
+    spread = st.slider("3D aktivitás terjedése", 1, 10, 3)
     stdp_on = st.checkbox("STDP tanulás engedélyezése", value=True)
 
+    # Szimuláció
     time, V, spikes, I_values, final_w = snn_simulate(
         I_ext=I_ext, tau_m=tau_m, V_th=V_th, stdp_enabled=stdp_on
     )
 
-    # 📈 Vizualizáció
-    st.subheader("🧪 Membránpotenciál és tüzelés")
+    # 📈 2D vizualizáció
+    st.subheader("📊 Membránpotenciál és tüzelés")
     fig, ax = plt.subplots()
     ax.plot(time, V, label="Membránpotenciál V(t)", color="tab:blue")
-    ax.scatter(time[np.array(spikes) > 0], [V_th] * int(np.sum(spikes)), color="red", marker="|", s=100, label="Spike esemény")
+    ax.scatter(time[spikes > 0], [V_th] * np.sum(spikes), color="red", marker="|", s=100, label="Spike esemény")
     ax.set_xlabel("Idő (ms)")
     ax.set_ylabel("Feszültség (V)")
     ax.set_title("LIF neuron működése")
@@ -73,6 +115,10 @@ Ez a modul egy **LIF neuronmodell** működését mutatja be, **STDP** (Spike-Ti
     st.pyplot(fig)
 
     st.success(f"📊 Végső szinaptikus súly (w): **{final_w:.3f}**")
+
+    # 🧊 3D neuronháló (szemléltető)
+    st.subheader("🧠 3D Hexagonális Neuronháló (Szemléltetés)")
+    st.plotly_chart(draw_hex_neural_activity(grid_size=12, spread=spread), use_container_width=True)
 
     # 📤 CSV export
     st.subheader("📥 Eredmények letöltése")
@@ -92,22 +138,24 @@ Ez a modul egy **LIF neuronmodell** működését mutatja be, **STDP** (Spike-Ti
 A **Leaky Integrate-and-Fire (LIF)** neuronmodell egy egyszerű, de hatékony biológiai modell:
 
 - A membránpotenciál (\( V \)) folyamatosan integrálódik a bemeneti áram hatására.
-- Ha \( V \geq V_{th} \), a neuron tüzel, majd visszaáll a reset szintre.
-- A membrán szivárog (leak):  
-  \[
-  \\frac{dV}{dt} = \\frac{-(V) + R_m \\cdot I_{ext}}{\\tau_m}
-  \]
+- Ha \( V \geq V_{th} \), a neuron tüzel, majd visszaáll egy reset szintre.
+- A membrán szivárog:  
+  \( \frac{dV}{dt} = \frac{-(V) + R_m \cdot I_{ext}}{\tau_m} \)
 
-A **STDP** szabály szerint:
+A **STDP (Spike-Timing Dependent Plasticity)** szabály szerint:
+
 - Ha a **preszinaptikus spike megelőzi** a posztszinaptikust → megerősítés (LTP)
 - Ha a **posztszinaptikus spike előbb történik** → gyengítés (LTD)
 - Ez modellezi a **szinaptikus plaszticitás időbeli érzékenységét**
 
+A 3D háló szemlélteti a tüzelés térbeli terjedését – nem biológiailag pontos modell, hanem egy **vizuális analógia** az impulzusok dinamikájára.
+
 **Alkalmazások:**
-- Neuromorf rendszerek
-- Időfüggő mintázatok felismerése
-- Alacsony energiaigényű AI rendszerek
+
+- Neuromorf architektúrák
+- Mintázatfelismerés időalapú adatokban
+- Energiatakarékos AI rendszerek
 """)
 
-# ✅ Streamlit belépési pont
+# Kötelező Streamlit hivatkozás
 app = run
