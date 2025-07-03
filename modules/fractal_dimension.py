@@ -1,131 +1,94 @@
+"""
+Fractal Dimension Analysis Module
+---------------------------------
+Ez a modul a fraktál dimenzió becslését valósítja meg bináris képadatok alapján,
+box-counting (dobozszámlálásos) módszerrel.
+
+A fraktál dimenzió mértéke megmutatja, hogy egy adott geometriai objektum (pl. agyi aktivitásmintázat)
+milyen komplexitással tölti ki a teret. Különösen hasznos agyi képalkotásban, EEG/MEG jelek elemzésében
+és neurális struktúrák vizsgálatában.
+
+📚 Tudományos háttér:
+- Falconer, K. (2003). *Fractal geometry: Mathematical foundations and applications.*
+- Esteban, F. J., et al. (2009). *Fractal dimension and white matter changes in Alzheimer’s disease*. NeuroImage.
+
+Author: ReflectAI
+"""
+
+import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
-import streamlit as st
-from skimage import data, color, util, io
+from PIL import Image
+from skimage.color import rgb2gray
+from skimage.filters import threshold_otsu
 from skimage.transform import resize
-import pandas as pd
+import io
 
 def boxcount(Z, k):
+    """Kiszámítja, hány doboz szükséges az objektum lefedésére adott k méret mellett."""
     S = np.add.reduceat(
         np.add.reduceat(Z, np.arange(0, Z.shape[0], k), axis=0),
         np.arange(0, Z.shape[1], k), axis=1)
     return len(np.where(S > 0)[0])
 
-def fractal_dimension(Z, threshold=0.9, visualize=False):
-    Z = Z < threshold
-    assert len(Z.shape) == 2
+def fractal_dimension(Z, threshold=0.9):
+    """Fraktál dimenzió becslése dobozszámlálásos módszerrel."""
+    assert len(Z.shape) == 2, "Képnek kétdimenziósnak kell lennie"
+    Z = Z < threshold  # binarizálás
     p = min(Z.shape)
-    n = 2 ** int(np.floor(np.log2(p)))
-    Z = Z[:n, :n]
-    sizes = 2 ** np.arange(int(np.log2(n)), 1, -1)
+    n = 2**np.floor(np.log2(p))  # legnagyobb 2 hatvány, ami belefér
+    sizes = 2**np.arange(int(np.log2(n)), 1, -1)
     counts = [boxcount(Z, size) for size in sizes]
-    coeffs = np.polyfit(np.log(1.0 / sizes), np.log(counts), 1)
-    fd = -coeffs[0]
+    coeffs = np.polyfit(np.log(sizes), np.log(counts), 1)
+    return -coeffs[0]
 
-    if visualize:
+def app():
+    st.title("🧮 Fractal Dimension Analyzer")
+
+    st.markdown("""
+    Ez a modul a képi fraktál dimenzió becslésére szolgál.  
+    A módszer a **box-counting** eljáráson alapul.
+
+    > *A fraktál dimenzió egy nem egész számú dimenzió, amely azt írja le,  
+    hogy egy objektum mennyire tölti ki a teret különböző skálákon.*
+    """)
+
+    uploaded_file = st.file_uploader("📤 Tölts fel képet (pl. neuronrajz, agyi minta)...", type=["png", "jpg", "jpeg"])
+    if uploaded_file:
+        image = Image.open(uploaded_file).convert("L")
+        img_arr = np.array(image)
+        thresh = threshold_otsu(img_arr)
+        binary = img_arr > thresh
+        fd = fractal_dimension(binary)
+
+        st.image(image, caption="📷 Eredeti kép", use_column_width=True)
+        st.subheader(f"🧠 Becsült fraktál dimenzió: `{fd:.4f}`")
+
         fig, ax = plt.subplots()
-        ax.plot(np.log(1.0 / sizes), np.log(counts), 'o', mfc='none')
-        ax.plot(np.log(1.0 / sizes), np.polyval(coeffs, np.log(1.0 / sizes)), 'r')
-        ax.set_title(f"Fractal Dimension = {fd:.4f}")
+        ax.imshow(binary, cmap='gray')
+        ax.set_title("🧩 Binarizált kép (küszöb: Otsu)")
+        ax.axis('off')
         st.pyplot(fig)
 
-    return fd
+    with st.expander("📘 Tudományos háttér"):
+        st.markdown("""
+        A **fraktál dimenzió** (D) egy mérőszám, amely megmutatja, hogy egy objektum  
+        hogyan változik a részletgazdagsága különböző nagyítási szinteken.
 
-def visualize_3d(Z, threshold=0.9):
-    x, y = np.meshgrid(np.arange(Z.shape[1]), np.arange(Z.shape[0]))
-    fig = go.Figure(data=[go.Surface(z=Z.astype(float), x=x, y=y, colorscale='Inferno')])
-    fig.update_layout(title="3D Representation", autosize=True)
-    st.plotly_chart(fig)
+        A **box-counting dimenzió** formulája:
+        $$
+        D = \\lim_{\\varepsilon \\to 0} \\frac{\\log N(\\varepsilon)}{\\log(1/\\varepsilon)}
+        $$
 
-def compute_multifractal_spectrum(Z, qs=np.linspace(-5, 5, 21)):
-    Z = Z / np.sum(Z)
-    epsilons = 2 ** np.arange(1, int(np.log2(Z.shape[0])) - 1)
-    taus = []
+        Ahol:
+        - $N(\\varepsilon)$ a szükséges dobozok száma, amelyek lefedik az objektumot,
+        - $\\varepsilon$ a doboz mérete.
 
-    for q in qs:
-        chi_q = []
-        for e in epsilons:
-            blocks = Z.reshape(Z.shape[0] // e, e, Z.shape[1] // e, e).sum(axis=(1, 3))
-            P = blocks[blocks > 0].flatten()
-            if q == 1:
-                chi_q.append(np.sum(P * np.log(P)))
-            else:
-                chi_q.append(np.sum(P ** q))
-        if q == 1:
-            taus.append(-np.polyfit(np.log(epsilons), chi_q, 1)[0])
-        else:
-            taus.append(np.polyfit(np.log(epsilons), np.log(chi_q), 1)[0])
+        **Alkalmazásai:**
+        - agyi EEG mintázatok komplexitásának elemzése,
+        - morfológiai vizsgálatok (pl. neuronformák),
+        - Alzheimer- és Parkinson-kór strukturális biomarkerei.
+        """)
 
-    alphas = np.gradient(taus, qs)
-    f_alphas = qs * alphas - np.array(taus)
-
-    fig, ax = plt.subplots()
-    ax.plot(alphas, f_alphas, 'o-')
-    ax.set_xlabel("Alpha")
-    ax.set_ylabel("f(Alpha)")
-    ax.set_title("Multifractal Spectrum")
-    st.pyplot(fig)
-
-def benchmark_noise_response(img_gray, threshold):
-    sigmas = np.linspace(0.0, 1.0, 15)
-    dimensions = []
-
-    for sigma in sigmas:
-        noisy = util.random_noise(img_gray, mode='gaussian', var=sigma**2)
-        fd = fractal_dimension(noisy, threshold=threshold)
-        dimensions.append(fd)
-
-    fig, ax = plt.subplots()
-    ax.plot(sigmas, dimensions, 'o-')
-    ax.set_xlabel("Gaussian Noise σ")
-    ax.set_ylabel("Fractal Dimension")
-    ax.set_title("Noise Sensitivity Benchmark")
-    st.pyplot(fig)
-
-    df = pd.DataFrame({'sigma': sigmas, 'fractal_dimension': dimensions})
-    csv = df.to_csv(index=False).encode("utf-8")
-    st.download_button("📥 Benchmark eredmény mentése CSV-ben", data=csv, file_name="fractal_benchmark.csv")
-
-def run():
-    st.title("🧠 Fractal Dimension Analyzer")
-    st.markdown("### Box-Counting • Noise • 3D • Multifractal • Benchmark • Valós kép támogatás")
-
-    source = st.radio("Válassz képet:", ["Beépített példa (coins)", "Kép feltöltése (.jpg, .png)"])
-
-    if source == "Beépített példa (coins)":
-        img = data.coins()
-    else:
-        uploaded = st.file_uploader("📤 Tölts fel képet", type=["jpg", "jpeg", "png"])
-        if uploaded is not None:
-            img = io.imread(uploaded)
-        else:
-            st.warning("🔄 Várakozás kép feltöltésére...")
-            return
-
-    img_gray = resize(color.rgb2gray(img) if img.ndim == 3 else img, (256, 256))
-
-    sigma = st.slider("Add Gaussian Noise (σ)", 0.0, 1.0, 0.0, 0.01)
-    threshold = st.slider("Threshold", 0.0, 1.0, 0.9)
-    show_3d = st.checkbox("Show 3D Visualization")
-    show_2d = st.checkbox("Show 2D Log-Log Plot")
-    show_multifractal = st.checkbox("Show Multifractal Spectrum")
-    show_benchmark = st.checkbox("Benchmark Noise Sensitivity")
-
-    if sigma > 0.0:
-        img_gray = util.random_noise(img_gray, mode='gaussian', var=sigma**2)
-
-    fd = fractal_dimension(img_gray, threshold=threshold, visualize=show_2d)
-    st.success(f"Estimated Fractal Dimension: {fd:.4f}")
-
-    if show_3d:
-        visualize_3d(img_gray, threshold=threshold)
-
-    if show_multifractal:
-        compute_multifractal_spectrum(img_gray)
-
-    if show_benchmark:
-        benchmark_noise_response(img_gray, threshold=threshold)
-
-# ReflectAI-kompatibilitás
-app = run
+# Kötelező ReflectAI-kompatibilitás
+app = app
