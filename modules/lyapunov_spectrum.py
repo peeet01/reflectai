@@ -30,12 +30,11 @@ def compute_lyapunov_vectorized(f, r_vals, x0=0.5, steps=500, delta=1e-8):
 
 # ==== Streamlit App ====
 def run():
-    st.title("🌌 Lyapunov Spektrum – Dinamikus rendszerek stabilitása")
+    st.title("🧠 Lyapunov Spektrum – Dinamikus rendszerek stabilitása")
 
     st.markdown("""
-A **Lyapunov-spektrum** megmutatja, hogy egy paramétertartományban egy dinamikus rendszer mennyire stabil vagy kaotikus.
-
-A pozitív Lyapunov-exponens értékek a **káosz** jelenlétére utalnak, míg a negatívak a **stabilitást** jelzik.
+A **Lyapunov-spektrum** vizualizációja segít feltérképezni, mikor válik egy nemlineáris rendszer viselkedése kaotikussá.
+A Lyapunov-exponens pozitív értéke a káosz jele, míg negatív érték stabilitásra utal.
 """)
 
     # Paraméterek
@@ -74,10 +73,10 @@ A pozitív Lyapunov-exponens értékek a **káosz** jelenlétére utalnak, míg 
     st.plotly_chart(fig3d, use_container_width=True)
 
     # === CSV export ===
-    st.subheader("💾 Adatok letöltése")
+    st.subheader("⬇️ Adatok letöltése")
     df = pd.DataFrame({"r": r_values, "lambda": lyap_vals})
     csv = df.to_csv(index=False).encode("utf-8")
-    st.download_button("⬇️ Letöltés CSV formátumban", data=csv, file_name="lyapunov_spectrum.csv")
+    st.download_button("Letöltés CSV formátumban", data=csv, file_name="lyapunov_spectrum.csv")
 
     # === Kiértékelés ===
     avg_lyap = np.mean(lyap_vals)
@@ -85,30 +84,31 @@ A pozitív Lyapunov-exponens értékek a **káosz** jelenlétére utalnak, míg 
     st.success(f"🔍 Az adott beállítások alapján a rendszer **{status}** (átlagos λ = {avg_lyap:.4f})")
 
     # === Tudományos háttér ===
-    st.markdown("### 📚 Tudományos háttér")
-    st.markdown(r"""
-A **Lyapunov-exponens** egy numerikus mérőszám, amely azt írja le, hogy egy dinamikus rendszer  
-mennyire érzékeny a kezdeti feltételekre.
+    st.markdown("### 📚 Tudományos háttér – Lyapunov-exponens")
+    st.markdown("""
+A **Lyapunov-exponens** egy dinamikus rendszerben a kezdeti feltételek perturbációira adott válasz mérőszáma.  
+A pozitív érték a **káosz** jelenlétére, míg a negatív érték **stabil** viselkedésre utal.
 
-#### 📐 Matematikai definíció:
-
-$$
+#### 🧮 Matematikai definíció
+    """)
+    st.latex(r"""
 \lambda = \lim_{n \to \infty} \frac{1}{n} \sum_{i=1}^{n} \ln \left| \frac{df(x_i)}{dx} \right|
-$$
+    """)
 
-Ahol:
-- \( \lambda \) – a Lyapunov-exponens
-- \( f(x) \) – a leképezési függvény
-- \( x_i \) – az iterált értékek
+    st.markdown("""
+**Ahol:**
+- \( \lambda \): Lyapunov-exponens  
+- \( f(x) \): a leképezési függvény  
+- \( x_i \): az aktuális állapot
 
-#### 🔍 Értelmezés:
-- Ha \( \lambda < 0 \): stabil, konvergens rendszer
-- Ha \( \lambda = 0 \): semleges stabilitás
-- Ha \( \lambda > 0 \): **káosz**, érzékeny kezdeti feltételek
+#### 🔍 Értelmezés
+- \( \lambda < 0 \): stabil rendszer  
+- \( \lambda = 0 \): semleges stabilitás  
+- \( \lambda > 0 \): **kaotikus** viselkedés – érzékeny a kezdeti feltételekre
 
-A **logisztikus**, **Henon** és **kvadratikus** leképezések klasszikus példái a nemlineáris dinamikának,  
-amelyek a **Lyapunov-spektrum** segítségével jól feltérképezhetők.
-""")
+A Lyapunov-spektrum segít feltárni, hogy adott paramétertartományban a rendszer stabil vagy instabil viselkedést mutat-e.
+A vizualizáció során jól elkülöníthetőek a periodikus és kaotikus szakaszok.
+    """)
 
-# ReflectAI-kompatibilitás
+# Kötelező ReflectAI-kompatibilitás
 app = run
