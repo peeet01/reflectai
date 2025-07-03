@@ -93,7 +93,7 @@ A tanulási szabály szerint a szinaptikus kapcsolatok megerősödnek, ha a beme
     st.download_button("⬇️ Jósolt kimenet letöltése (Y_pred)", data=csv_pred, file_name="hebbian_output.csv")
 
     st.markdown("### 📚 Tudományos háttér")
-st.markdown("""
+    st.markdown("""
 A **Hebbian-tanulás** egy egyszerű, mégis erőteljes tanulási mechanizmus,  
 amely a biológiai szinaptikus plaszticitás egyik legismertebb modellje.  
 A szabály lényege, hogy ha két neuron egy időben aktív, akkor a köztük lévő kapcsolat erősödik.
@@ -103,10 +103,11 @@ A szabály lényege, hogy ha két neuron egy időben aktív, akkor a köztük l�
 
 #### 📐 Tanulási szabály:
 """)
-st.latex(r"W = Y \cdot X^T")
 
-st.markdown(r"""
-Ahol:
+    st.latex(r"W = Y \cdot X^T")
+
+    st.markdown(r"""
+**Ahol:**
 
 - \( X \in \mathbb{R}^{n \times p} \): bemeneti minták (n bemenet, p minta)  
 - \( Y \in \mathbb{R}^{m \times p} \): kívánt kimenetek (m kimenet, p minta)  
@@ -116,12 +117,12 @@ Ez azt jelenti, hogy a kimeneti aktivitás súlyozott módon visszahat a bemenet
 megerősítve azokat a kapcsolatokat, amelyek együttes aktivitást mutatnak.
 """)
 
-st.markdown("""
+    st.markdown("""
 #### 📌 Jelentősége:
-- Biológiai idegrendszerek tanulmányozása
-- Asszociatív memória (pl. Hopfield-hálózatok)
+- Biológiai idegrendszerek tanulmányozása  
+- Asszociatív memória (pl. Hopfield-hálózatok)  
 - Szinaptikus kapcsolatok erősödésének modellezése
 """)
 
-# ReflectAI kompatibilitás
+# Kötelező ReflectAI-kompatibilitás
 app = run
