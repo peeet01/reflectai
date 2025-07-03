@@ -6,13 +6,21 @@ from ripser import ripser
 from persim import plot_diagrams
 
 def run():
-    st.header("🔷 Perzisztens homológia")
-    st.write("Vizualizáció Ripser és persim csomagokkal szintetikus adatokon.")
+    st.title("🔷 Perzisztens homológia – Topológiai adatelemzés")
 
-    dataset = st.selectbox("Adatkészlet", ["Két félhold", "Véletlen pontok", "Körök"])
-    n_samples = st.slider("Minták száma", 20, 1000, 300)
+    st.markdown("""
+A **perzisztens homológia** a topológiai adatfeldolgozás egyik módszere, amely  
+a geometriai struktúrák stabilitását vizsgálja különböző skálák mentén.  
+Ez az eszköz képes kimutatni klasztereket, ciklusokat és más rejtett topológiai jegyeket a mintákból.
+
+A következő példákban szintetikus adatokat elemzünk a **Ripser** és **Persim** könyvtárak segítségével.
+    """)
+
+    dataset = st.selectbox("🧩 Adatkészlet", ["Két félhold", "Véletlen pontok", "Körök"])
+    n_samples = st.slider("📊 Minták száma", 20, 1000, 300)
 
     if dataset == "Két félhold":
+        from sklearn.datasets import make_moons
         X, _ = make_moons(n_samples=n_samples, noise=0.05)
     elif dataset == "Véletlen pontok":
         X = np.random.rand(n_samples, 2)
@@ -25,6 +33,7 @@ def run():
     fig1, ax1 = plt.subplots()
     ax1.scatter(X[:, 0], X[:, 1], s=10)
     ax1.set_aspect("equal")
+    ax1.set_title("Adatpontok")
     st.pyplot(fig1)
 
     st.subheader("📊 Perzisztencia diagram")
@@ -33,5 +42,31 @@ def run():
     plot_diagrams(result, ax=ax2)
     st.pyplot(fig2)
 
-    st.info("A H0 komponensek a kapcsolódó klasztereket, a H1 komponensek a ciklusokat reprezentálják.")
+    st.markdown("### 📚 Tudományos háttér")
+    st.markdown("""
+A **perzisztens homológia** a **topológiai adatanalízis (TDA)** része,  
+amely az adatokban rejlő alakzatokat és mintázatokat elemzi különböző skálákon.  
+Ez lehetővé teszi, hogy a zajtól eltekintve a valóban tartós geometriai jellemzők megmaradjanak.
+
+#### ℹ️ Fogalmak:
+- **H₀ komponensek** – diszjunkt klaszterek száma
+- **H₁ komponensek** – ciklusok (pl. kör, lyuk) jelenléte
+- **Perzisztencia** – az az intervallum, amíg egy topológiai jegy létezik
+
+#### 📈 Diagram:
+- Az X tengely a megjelenés skáláját,  
+- Az Y tengely az eltűnés skáláját mutatja.
+- A főátlótól való távolság a jellemző "fontosságát" jelzi.
+
+#### 🧠 Alkalmazási területek:
+- Képfeldolgozás és alakfelismerés
+- Idősorok elemzése
+- Neurális adatok topológiai elemzése
+- Adatok strukturális összehasonlítása
+
+A topológiai jellemzők "élettartamán" keresztül stabil és jelentős mintázatok emelhetők ki,  
+amelyek gépi tanulási modellek számára robusztus bemenetként szolgálhatnak.
+    """)
+
+# Kötelező ReflectAI-kompatibilitás
 app = run
