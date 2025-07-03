@@ -93,29 +93,34 @@ A tanulási szabály szerint a szinaptikus kapcsolatok megerősödnek, ha a beme
     st.download_button("⬇️ Jósolt kimenet letöltése (Y_pred)", data=csv_pred, file_name="hebbian_output.csv")
 
     st.markdown("### 📚 Tudományos háttér")
-    st.markdown(r"""
-A **Hebbian-tanulás** az egyik legismertebb biológiai ihletésű tanulási szabály, amely az agy szinaptikus plaszticitását írja le.  
-A modell célja, hogy a bemeneti minták és a megfelelő kimenetek alapján erősítse a releváns súlyokat.
+st.markdown("""
+A **Hebbian-tanulás** egy egyszerű, mégis erőteljes tanulási mechanizmus,  
+amely a biológiai szinaptikus plaszticitás egyik legismertebb modellje.  
+A szabály lényege, hogy ha két neuron egy időben aktív, akkor a köztük lévő kapcsolat erősödik.
 
-**Tanulási szabály:**
+#### 🧠 Alapelv:
+> *„Neurons that fire together, wire together.”*
 
-$$
-W = Y \cdot X^T
-$$
+#### 📐 Tanulási szabály:
+""")
+st.latex(r"W = Y \cdot X^T")
 
+st.markdown(r"""
 Ahol:
-- \( X \in \mathbb{R}^{n \times p} \): bemeneti minták (n bemenet, p minta)
-- \( Y \in \mathbb{R}^{m \times p} \): kívánt kimenetek (m kimenet, p minta)
+
+- \( X \in \mathbb{R}^{n \times p} \): bemeneti minták (n bemenet, p minta)  
+- \( Y \in \mathbb{R}^{m \times p} \): kívánt kimenetek (m kimenet, p minta)  
 - \( W \in \mathbb{R}^{m \times n} \): tanult súlymátrix
 
-Ez azt jelenti, hogy a kimeneti aktivitás súlyozott módon visszahat a bemenetekre, megerősítve azokat a kapcsolatokat, amelyek együttes aktivitást mutatnak.
+Ez azt jelenti, hogy a kimeneti aktivitás súlyozott módon visszahat a bemenetre,  
+megerősítve azokat a kapcsolatokat, amelyek együttes aktivitást mutatnak.
+""")
 
-**Jelentősége:**
+st.markdown("""
+#### 📌 Jelentősége:
 - Biológiai idegrendszerek tanulmányozása
-- Asszociatív memória (pl. Hopfield-hálózat)
-- Szinaptikus erősítés elméleti alapja
-
-A Hebbian szabály a **korrelációtanulás** alapvető példája, amely világosan illusztrálja, hogyan alakulhatnak ki neurális asszociációk.
+- Asszociatív memória (pl. Hopfield-hálózatok)
+- Szinaptikus kapcsolatok erősödésének modellezése
 """)
 
 # ReflectAI kompatibilitás
