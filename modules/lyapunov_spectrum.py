@@ -1,15 +1,3 @@
-"""
-Lyapunov Spektrum Modul – Dinamikus rendszerek stabilitásvizsgálata
-
-Ez a modul különböző leképezések mentén számítja és vizualizálja a Lyapunov-exponenseket,
-amelyek megmutatják a rendszer érzékenységét a kezdeti feltételekre.
-
-Felhasználási területek:
-- Kaotikus viselkedés azonosítása
-- Stabilitásvizsgálat
-- Dinamikus rendszerek analízise
-"""
-
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -19,7 +7,7 @@ import plotly.graph_objects as go
 # ==== Dinamikus leképezések ====
 def logistic_map(r, x): return r * x * (1 - x)
 def quadratic_map(r, x): return r - x ** 2
-def henon_map(r, x): return 1 - r * x ** 2  # Egyszerűsített 1D Henon
+def henon_map(r, x): return 1 - r * x ** 2  # simplified for 1D use
 
 map_functions = {
     "Logisztikus térkép": logistic_map,
@@ -42,28 +30,28 @@ def compute_lyapunov_vectorized(f, r_vals, x0=0.5, steps=500, delta=1e-8):
 
 # ==== Streamlit App ====
 def run():
-    st.title("📊 Lyapunov Spektrum – Dinamikus rendszerek stabilitása")
+    st.title("🌌 Lyapunov Spektrum – Dinamikus rendszerek stabilitása")
 
     st.markdown("""
-A **Lyapunov-exponens** egy numerikus mérőszám, amely azt jelzi, hogy egy dinamikus rendszer
-mennyire érzékeny a kezdeti feltételekre. E modul segítségével kiszámíthatjuk a logisztikus és más leképezések spektrumát.
+A **Lyapunov-spektrum** megmutatja, hogy egy paramétertartományban egy dinamikus rendszer mennyire stabil vagy kaotikus.
+
+A pozitív Lyapunov-exponens értékek a **káosz** jelenlétére utalnak, míg a negatívak a **stabilitást** jelzik.
 """)
 
-    # 🎛️ Paraméterek beállítása
-    st.sidebar.header("⚙️ Paraméterek")
-    map_choice = st.sidebar.selectbox("🧩 Leképezés típusa", list(map_functions.keys()))
-    r_min = st.sidebar.slider("🔽 r minimum érték", 2.5, 3.5, 2.5)
-    r_max = st.sidebar.slider("🔼 r maximum érték", 3.5, 4.0, 4.0)
-    n_points = st.sidebar.slider("📊 Mintapontok száma (r)", 100, 1000, 300, step=50)
-    x0 = st.sidebar.slider("⚙️ Kezdeti érték (x₀)", 0.0, 1.0, 0.5)
-    steps = st.sidebar.slider("🔁 Iterációs lépések száma", 100, 2000, 500, step=100)
+    # Paraméterek
+    map_choice = st.selectbox("🧩 Leképezés típusa", list(map_functions.keys()))
+    r_min = st.slider("🔽 r minimum érték", 2.5, 3.5, 2.5)
+    r_max = st.slider("🔼 r maximum érték", 3.5, 4.0, 4.0)
+    n_points = st.slider("📊 Mintapontok száma (r)", 100, 1000, 300, step=50)
+    x0 = st.slider("⚙️ Kezdeti érték (x₀)", 0.0, 1.0, 0.5)
+    steps = st.slider("🔁 Iterációs lépések száma", 100, 2000, 500, step=100)
 
-    # 📈 Számítás
+    # Spektrum számítása
     r_values = np.linspace(r_min, r_max, n_points)
     map_func = map_functions[map_choice]
     lyap_vals = compute_lyapunov_vectorized(map_func, r_values, x0=x0, steps=steps)
 
-    # === 2D ÁBRA ===
+    # === 2D plot ===
     st.subheader("📈 2D Lyapunov-spektrum")
     fig2d, ax = plt.subplots()
     ax.scatter(r_values, lyap_vals, c=np.where(lyap_vals < 0, 'green', 'red'), s=2)
@@ -73,59 +61,54 @@ mennyire érzékeny a kezdeti feltételekre. E modul segítségével kiszámíth
     ax.set_title(f"Lyapunov spektrum – {map_choice}")
     st.pyplot(fig2d)
 
-    # === 3D ÁBRA ===
+    # === 3D plot ===
     st.subheader("🌐 3D Lyapunov-spektrum")
     R, S = np.meshgrid(r_values, np.arange(steps))
     Z = np.tile(lyap_vals, (steps, 1))
     fig3d = go.Figure(data=[go.Surface(x=R, y=S, z=Z, colorscale="Viridis")])
     fig3d.update_layout(
         title="3D Lyapunov-spektrum",
-        scene=dict(
-            xaxis_title='r',
-            yaxis_title='Iteráció',
-            zaxis_title='λ (Lyapunov)'
-        ),
+        scene=dict(xaxis_title='r', yaxis_title='Iteráció', zaxis_title='λ (Lyapunov)'),
         margin=dict(l=0, r=0, t=60, b=0)
     )
     st.plotly_chart(fig3d, use_container_width=True)
 
     # === CSV export ===
-    st.subheader("⬇️ Eredmények exportálása")
+    st.subheader("💾 Adatok letöltése")
     df = pd.DataFrame({"r": r_values, "lambda": lyap_vals})
     csv = df.to_csv(index=False).encode("utf-8")
-    st.download_button("Letöltés CSV formátumban", data=csv, file_name="lyapunov_spectrum.csv")
+    st.download_button("⬇️ Letöltés CSV formátumban", data=csv, file_name="lyapunov_spectrum.csv")
 
-    # === Átlagérték és értelmezés ===
+    # === Kiértékelés ===
     avg_lyap = np.mean(lyap_vals)
     status = "KAOTIKUS" if avg_lyap > 0 else "STABIL"
-    st.success(f"🔍 A rendszer viselkedése: **{status}** (átlagos λ = {avg_lyap:.4f})")
+    st.success(f"🔍 Az adott beállítások alapján a rendszer **{status}** (átlagos λ = {avg_lyap:.4f})")
 
     # === Tudományos háttér ===
-    with st.expander("📘 Tudományos háttér – Lyapunov-exponens"):
-        st.markdown(r"""
-A **Lyapunov-exponens** egy dinamikus rendszerben a kezdeti feltételek perturbációira adott válasz mérőszáma.
+    st.markdown("### 📚 Tudományos háttér")
+    st.markdown(r"""
+A **Lyapunov-exponens** egy numerikus mérőszám, amely azt írja le, hogy egy dinamikus rendszer  
+mennyire érzékeny a kezdeti feltételekre.
 
-### 📐 Matematikai definíció:
+#### 📐 Matematikai definíció:
 
 $$
 \lambda = \lim_{n \to \infty} \frac{1}{n} \sum_{i=1}^{n} \ln \left| \frac{df(x_i)}{dx} \right|
 $$
 
 Ahol:
-- \( \lambda \) a Lyapunov-exponens
-- \( f(x) \) a leképezés
-- \( x_i \) az aktuális állapot
+- \( \lambda \) – a Lyapunov-exponens
+- \( f(x) \) – a leképezési függvény
+- \( x_i \) – az iterált értékek
 
-### 📊 Értelmezés:
-- **λ < 0** → stabil rendszer (konvergál)
-- **λ = 0** → semleges stabilitás
-- **λ > 0** → **káosz** – extrém érzékenység a kezdeti értékekre
+#### 🔍 Értelmezés:
+- Ha \( \lambda < 0 \): stabil, konvergens rendszer
+- Ha \( \lambda = 0 \): semleges stabilitás
+- Ha \( \lambda > 0 \): **káosz**, érzékeny kezdeti feltételek
 
-### 📌 Tipikus alkalmazások:
-- Kaotikus rendszerek jellemzése
-- Idősorok stabilitásvizsgálata
-- Biológiai és ökológiai modellek dinamikája
+A **logisztikus**, **Henon** és **kvadratikus** leképezések klasszikus példái a nemlineáris dinamikának,  
+amelyek a **Lyapunov-spektrum** segítségével jól feltérképezhetők.
 """)
 
-# ReflectAI kompatibilitás
+# ReflectAI-kompatibilitás
 app = run
