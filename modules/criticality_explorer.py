@@ -3,12 +3,14 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
+# 🔁 Kritikus jel generálása
 def generate_soc_signal(n, p):
     signal = np.zeros(n)
     for i in range(1, n):
         signal[i] = signal[i - 1] + np.random.choice([-1, 1], p=[1 - p, p])
     return signal
 
+# 🔍 Lavinák detektálása
 def detect_avalanches(signal, threshold):
     above = signal > threshold
     starts = np.where((~above[:-1]) & (above[1:]))[0] + 1
@@ -22,97 +24,101 @@ def detect_avalanches(signal, threshold):
     durations = ends - starts
     return durations
 
+# 🎬 Fő alkalmazás
 def run():
     st.title("🌋 Criticality Explorer – Önszerveződő kritikusság")
 
     st.markdown("""
-Az **önszerveződő kritikusság (SOC)** olyan rendszerek jellemzője, amelyek belső szabályaik révén  
-természetes módon alakulnak át kritikus állapotba – külső beavatkozás nélkül.
+Az **önszerveződő kritikusság (SOC)** egy dinamikus rendszer tulajdonsága, ahol a rendszer **külső vezérlés nélkül** beáll egy **kritikus állapotba**.  
+Ebben az állapotban kis hatások **nagy, skálafüggetlen eseményeket** (pl. lavinákat) válthatnak ki – ez a **kritikus dinamika**.
 
-Ez az app egy egyszerű **egydimenziós sztochasztikus séta** szimulációját mutatja be,  
-amely képes lavinaszerű eseményeket generálni és feltárni azok eloszlását.
+Ez az app azt vizualizálja, hogyan alakulnak ki ilyen lavinaszerű események egy szimulált jel alapján.
 """)
 
-    # 👉 Paraméterek
-    st.subheader("🔧 Szimulációs paraméterek")
-    n = st.slider("📏 Jel hossza", 500, 10000, 3000, step=100)
+    # ⚙️ Beállítások
+    n = st.slider("🔢 Jel hossza", 500, 10000, 3000, step=100)
     p = st.slider("🎲 Elmozdulás valószínűsége (p)", 0.01, 1.0, 0.5, step=0.01)
-    threshold = st.slider("⚠️ Küszöbszint (avalanches)", 0.1, 10.0, 3.0, step=0.1)
+    threshold = st.slider("📏 Lavina küszöbszint", 0.1, 10.0, 3.0, step=0.1)
 
-    # 👉 Szimuláció
     signal = generate_soc_signal(n, p)
     avalanches = detect_avalanches(signal, threshold)
 
-    # 📊 3D vizualizáció
-    st.subheader("🌐 Jel alakulása – színes 3D Plotly nézet")
-    fig3d = go.Figure(data=[go.Scatter3d(
-        x=np.arange(len(signal)),
-        y=signal,
-        z=np.zeros_like(signal),
-        mode='lines',
-        line=dict(color=signal, colorscale='Turbo', width=4)
-    )])
+    # 🌄 Interaktív lavinatáj (3D Surface)
+    st.subheader("🌐 Lavinatáj – Jel domborzatként")
+    z = np.tile(signal, (100, 1))  # "kiterítjük" a jelet 2D felületté
+    x = np.arange(z.shape[1])
+    y = np.arange(z.shape[0])
+    X, Y = np.meshgrid(x, y)
+
+    fig3d = go.Figure(data=[go.Surface(z=z, x=X, y=Y, colorscale=[
+        [0.0, 'rgb(0, 0, 80)'],
+        [0.5, 'rgb(0, 100, 200)'],
+        [0.9, 'rgb(180, 180, 255)'],
+        [1.0, 'white']
+    ])])
+
     fig3d.update_layout(
         scene=dict(
             xaxis_title="Idő",
-            yaxis_title="Jel",
-            zaxis_title="",
-            camera=dict(eye=dict(x=1.5, y=1.5, z=0.5))
+            yaxis_title="Lavinatér",
+            zaxis_title="Jel",
+            camera=dict(eye=dict(x=1.4, y=1.4, z=0.9))
         ),
-        margin=dict(l=0, r=0, b=0, t=40),
-        height=500,
-        title="Önszerveződő jelalak térben"
+        margin=dict(l=0, r=0, b=0, t=30),
+        height=600
     )
     st.plotly_chart(fig3d, use_container_width=True)
 
-    # 📈 Lavina histogram
-    st.subheader("📈 Lavinák időtartamának eloszlása")
+    # 📊 Eloszlás
+    st.subheader("📈 Avalanche időtartamok eloszlása")
     if avalanches.size > 0:
         hist_df = pd.DataFrame(avalanches, columns=["Duration"])
         st.bar_chart(hist_df["Duration"].value_counts().sort_index())
     else:
         st.warning("❗ Nem észlelhető lavina a megadott küszöbszinten.")
 
-    # 💾 CSV export
-    st.subheader("⬇️ Exportálás")
+    # 💾 Export
+    st.subheader("📥 CSV export")
     df_export = pd.DataFrame({
         "index": np.arange(len(signal)),
         "signal": signal
     })
     csv = df_export.to_csv(index=False).encode("utf-8")
-    st.download_button("📥 Jel letöltése CSV-ben", data=csv, file_name="critical_signal.csv")
+    st.download_button("⬇️ Jel letöltése CSV-ben", data=csv, file_name="critical_signal.csv")
 
-    # 📘 Tudományos háttér
+    # 📚 Tudományos háttér
     st.markdown("### 📚 Tudományos háttér")
-    st.markdown("""
-Az **önszerveződő kritikusság** egy olyan koncepció, amely szerint bizonyos rendszerek  
-külső vezérlés nélkül is képesek **kritikus állapotba** fejlődni, ahol kis zavarok is nagy következményekkel járhatnak.
+    st.markdown(r"""
+A **kritikusság** egy olyan pont a rendszer viselkedésében, ahol kis változások is nagy átrendeződésekhez vezethetnek.  
+Ha egy rendszer **önszerveződően** ér el ilyen pontot – külső beavatkozás nélkül – azt **önszerveződő kritikusságnak (SOC)** nevezzük.
 
-#### 📌 Alapmodell:
-A szimuláció egy sztochasztikus séta (random walk), ahol minden lépés valószínűségi alapon történik.  
-A **lavinák** azok a szakaszok, ahol a jel átlépi a megadott küszöböt.
+---
 
-#### 🧠 Kritikus viselkedés jellemzői:
-- **Skálafüggetlen eloszlás**: a lavinák hossza gyakran hatványfüggvény szerint oszlik el.
-- **Emergens struktúra**: az egyszerű szabályok bonyolult mintázatokhoz vezetnek.
-- **Stabilitás és instabilitás határán mozog**: mint pl. az agy vagy földrengések.
+#### 🧠 Miért érdekes?
 
-#### 📐 Egyszerűsített képlet:
+- Kritikus rendszerek **hatványfüggvény szerinti** eloszlást mutatnak (pl. lavinák hossza, földrengések mérete).
+- A rendszer viselkedése **nemlineáris** és **skálafüggetlen** – a kis és nagy események ugyanazon szabályt követik.
+
+---
+
+#### 📐 Szimulációs szabály:
+
 $$
-x_{t+1} = x_t + \epsilon_t \quad \text{ahol } \epsilon_t \in \{-1, 1\}
-$$
-
-A lavinák hossza az alábbi módon számolható:
-$$
-D = t_{\text{end}} - t_{\text{start}}
+s_{t+1} = s_t + \epsilon_t, \quad \epsilon_t \in \{-1, 1\}
 $$
 
-#### 🔬 Alkalmazás:
-- **EEG elemzés**
-- **Földrengés-szimuláció**
-- **Gazdasági rendszerek stabilitása**
-- **Adatok skálafüggetlen szerkezete**
+Ahol \( \epsilon_t \) véletlenszerű lépés a jelsorozatban.  
+Lavina ott keletkezik, ahol a jel átlépi a küszöbszintet.
+
+---
+
+#### 🧪 Mit látsz itt?
+
+- A jel **időbeli változását**, mint **térképet** 3D-ben: „kritikus tájat” kapsz
+- A **lavinák gyakoriságát és méretét** – ezek jellemzik a rendszer kritikus állapotát
+- Beállíthatod, mennyire legyen „ingerlékeny” a rendszer a `p` és `küszöbszint` alapján
+
 """)
 
-# ReflectAI kompatibilitás
+# ReflectAI-kompatibilitás
 app = run
