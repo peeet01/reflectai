@@ -96,3 +96,4 @@ def app():
         Minden zoomszint új mintázatokat tár fel, amelyek önhasonló struktúrákat alkotnak.
         A 3D ábrán a magasság az iterációs időt mutatja, amíg az adott pont divergens lett.
         """)
+    app = run
