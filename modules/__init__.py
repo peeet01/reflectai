@@ -26,6 +26,7 @@ from modules.oja_learning import run as run_oja_learning
 from modules.stdp_learning import run as run_stdp_learning
 from modules.bcm_learning import app as run_bcm_learning
 from modules.snn_simulation import run as run_snn
+from modules.fractal_explorer import run as run_fractal
 
 # Modulregisztráció (név -> függvény)
 registry = {
@@ -57,4 +58,5 @@ registry = {
     "STDP tanulás": run_stdp,
     "BCM tanulás": run_bcm_learning,
     "Spiking Neural Network": run_snn,
+    "Fraktál Explorer": run_fractal,
 }
