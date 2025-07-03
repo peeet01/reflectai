@@ -37,17 +37,16 @@ def get_image_download_link(fig, filename='mandelbrot.png'):
 
 # 🚀 Fő modul futtatása
 def run():
-    st.title("🌀 Fractal Explorer – Mandelbrot")
-    st.markdown("Fedezd fel a Mandelbrot-halmazt különböző nézőpontokból!")
+    st.title("🌀 Mandelbrot Fraktálvizualizáció")
 
-    with st.expander("📚 Matematikai háttér"):
-        st.latex(r"Z_{n+1} = Z_n^2 + C")
-        st.markdown("""
-        A Mandelbrot-halmaz azon komplex számok halmaza, amelyekre a sorozat nem divergens.
-        Egy pont akkor része a halmaznak, ha $|Z| \\le 2$ marad végtelen sok iteráció után is.
-        """)
+    st.markdown("""
+A Mandelbrot-halmaz az egyik legismertebb fraktál, amely a komplex számok síkján jön létre,  
+önhasonló mintázatokkal és végtelen komplexitással.
 
-    # 👉 Paraméterek
+Ez a modul lehetővé teszi a Mandelbrot-halmaz felfedezését 2D és interaktív 3D formában,  
+valamint különböző paraméterek vizsgálatát.
+""")
+
     st.subheader("🔧 Paraméterek")
 
     col1, col2 = st.columns(2)
@@ -90,10 +89,27 @@ def run():
         st.pyplot(fig)
         st.markdown(get_image_download_link(fig), unsafe_allow_html=True)
 
-    with st.expander("ℹ️ Tudtad?"):
-        st.markdown("""
-        A Mandelbrot-halmaz egy végtelen komplexitású, kaotikusan viselkedő fraktál.  
-        Minden zoomszint új mintázatokat tár fel, amelyek önhasonló struktúrákat alkotnak.
-        A 3D ábrán a magasság az iterációs időt mutatja, amíg az adott pont divergens lett.
-        """)
+    st.subheader("📚 Tudományos háttér")
+
+    st.latex(r"Z_{n+1} = Z_n^2 + C")
+
+    st.markdown("""
+A **Mandelbrot-halmaz** azon komplex számok gyűjteménye, amelyekre a következő iteratív képlet:
+
+$$
+Z_{n+1} = Z_n^2 + C
+$$
+
+nem divergens, azaz a sorozat tagjai nem tartanak a végtelenhez.  
+Egy adott \( C \in \mathbb{C} \) szám akkor része a Mandelbrot-halmaznak, ha a sorozat \( |Z_n| \le 2 \) marad végtelen sok iteráció után is.
+
+#### Jellemzők:
+- Végtelen részletesség
+- Önmagába ágyazott mintázatok (önhasonlóság)
+- Fraktál dimenziója meghaladja a 2-t
+
+A Mandelbrot-halmaz minden pontja egyfajta **stabilitási teszt** eredménye, amely a komplex számokat a kaotikusság szempontjából osztályozza.
+""")
+
+# Kötelező ReflectAI-kompatibilitás
 app = run
