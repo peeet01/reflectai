@@ -35,8 +35,8 @@ def get_image_download_link(fig, filename='mandelbrot.png'):
     href = f'<a href="data:file/png;base64,{b64}" download="{filename}">📥 Kép letöltése</a>'
     return href
 
-# 🎨 Fő Streamlit app
-def app():
+# 🚀 Fő modul futtatása
+def run():
     st.title("🌀 Fractal Explorer – Mandelbrot")
     st.markdown("Fedezd fel a Mandelbrot-halmazt különböző nézőpontokból!")
 
@@ -47,7 +47,7 @@ def app():
         Egy pont akkor része a halmaznak, ha $|Z| \\le 2$ marad végtelen sok iteráció után is.
         """)
 
-    # 👉 Paraméterek a főképernyőn
+    # 👉 Paraméterek
     st.subheader("🔧 Paraméterek")
 
     col1, col2 = st.columns(2)
