@@ -15,6 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.graph_objects as go
+from PIL import Image
 from scipy.spatial import distance_matrix
 
 def generate_cloud(kind, n_points=300):
@@ -25,7 +26,6 @@ def generate_cloud(kind, n_points=300):
         y = r * np.sin(theta)
         return np.vstack([x, y]).T
     elif kind == "Lorenz-projekció":
-        # Lorenz attractor 2D-s vetítése
         x, y, z = [0], [1], [1.05]
         dt, a, b, c = 0.01, 10, 28, 8/3
         for _ in range(n_points):
@@ -52,24 +52,6 @@ def box_counting(data, epsilons):
         N.append(len(unique_boxes))
     return N
 
-def visualize_3d(data):
-    x = data[:, 0]
-    y = data[:, 1]
-    z = np.zeros_like(x)
-
-    fig = go.Figure(data=[go.Scatter3d(
-        x=x, y=y, z=z,
-        mode='markers',
-        marker=dict(size=3, color=z, colorscale='Inferno')
-    )])
-    fig.update_layout(title="📈 3D pontfelhő reprezentáció", scene=dict(
-        xaxis_title='X',
-        yaxis_title='Y',
-        zaxis_title='Z',
-        camera=dict(eye=dict(x=1.5, y=1.5, z=0.8))
-    ))
-    st.plotly_chart(fig)
-
 def run():
     st.title("🧮 Fraktál Dimenzió – Box Counting módszerrel")
 
@@ -95,28 +77,22 @@ Ahol:
     steps = st.slider("📈 Lépések száma", 5, 20, 10)
     noise_level = st.slider("📉 Zajszint (%)", 0, 50, 0)
 
-    # Adatok generálása
     data = generate_cloud(kind, n_points)
     if noise_level > 0:
         data += np.random.randn(*data.shape) * (noise_level / 100)
 
-    # Box counting
     epsilons = np.logspace(eps_start, eps_end, steps)
     counts = box_counting(data, epsilons)
     logs = np.log(1 / epsilons)
     logN = np.log(counts)
     slope, intercept = np.polyfit(logs, logN, 1)
 
-    # Vizualizáció
     st.subheader("🌀 Mintázat")
     fig1, ax1 = plt.subplots()
     ax1.scatter(data[:, 0], data[:, 1], s=5)
     ax1.set_title("Pontfelhő")
     ax1.axis("equal")
     st.pyplot(fig1)
-
-    if st.checkbox("📈 3D vizualizáció"):
-        visualize_3d(data)
 
     st.subheader("📐 Box Counting eredmény")
     fig2, ax2 = plt.subplots()
@@ -137,6 +113,23 @@ Ahol:
     })
     csv = df.to_csv(index=False).encode("utf-8")
     st.download_button("⬇️ Eredmény letöltése CSV-ben", data=csv, file_name="box_counting_results.csv")
+
+    st.subheader("🌄 Kép alapú 3D fraktál reprezentáció (kísérleti)")
+    image_file = st.file_uploader("📸 Tölts fel képet (grayscale javasolt)", type=["jpg", "jpeg", "png"])
+    if image_file:
+        img = Image.open(image_file).convert("L")
+        Z = np.array(img)
+        x = np.arange(Z.shape[1])
+        y = np.arange(Z.shape[0])
+        x, y = np.meshgrid(x, y)
+        fig3d = go.Figure(data=[go.Surface(z=Z, x=x, y=y, colorscale='Inferno')])
+        fig3d.update_layout(title="3D képreprezentáció", autosize=True)
+        st.plotly_chart(fig3d)
+        with st.expander("ℹ️ Tudtad?"):
+            st.markdown("""
+A képet 3D felszínként ábrázoljuk, ahol a szürkeárnyalatok mélységként jelennek meg.  
+Ez a vizualizáció fraktálszerű mintázatokat is felfedhet – különösen zajos vagy komplex textúrájú képeknél.
+""")
 
     st.markdown("### 📚 Tudományos háttér")
     st.markdown("""
