@@ -14,6 +14,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import plotly.graph_objects as go
 from scipy.spatial import distance_matrix
 
 def generate_cloud(kind, n_points=300):
@@ -50,6 +51,24 @@ def box_counting(data, epsilons):
         unique_boxes = np.unique(grid, axis=0)
         N.append(len(unique_boxes))
     return N
+
+def visualize_3d(data):
+    x = data[:, 0]
+    y = data[:, 1]
+    z = np.zeros_like(x)
+
+    fig = go.Figure(data=[go.Scatter3d(
+        x=x, y=y, z=z,
+        mode='markers',
+        marker=dict(size=3, color=z, colorscale='Inferno')
+    )])
+    fig.update_layout(title="📈 3D pontfelhő reprezentáció", scene=dict(
+        xaxis_title='X',
+        yaxis_title='Y',
+        zaxis_title='Z',
+        camera=dict(eye=dict(x=1.5, y=1.5, z=0.8))
+    ))
+    st.plotly_chart(fig)
 
 def run():
     st.title("🧮 Fraktál Dimenzió – Box Counting módszerrel")
@@ -96,6 +115,9 @@ Ahol:
     ax1.axis("equal")
     st.pyplot(fig1)
 
+    if st.checkbox("📈 3D vizualizáció"):
+        visualize_3d(data)
+
     st.subheader("📐 Box Counting eredmény")
     fig2, ax2 = plt.subplots()
     ax2.plot(logs, logN, "o-", label="Mért értékek")
@@ -122,8 +144,8 @@ A **fraktál dimenzió** nem feltétlenül egész szám – gyakran nemlineáris
 A **box counting módszer** egy egyszerű, de hatékony eljárás a fraktál dimenzió közelítésére.
 
 **Tipikus fraktál dimenziók:**
-- Vonal: 1.0
-- Felület: 2.0
+- Vonal: 1.0  
+- Felület: 2.0  
 - Kaotikus attraktor: 1.2 – 1.9 között
 
 **Jelentősége:**
