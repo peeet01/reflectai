@@ -134,25 +134,52 @@ Ez a modul egy **LIF neuronmodell** működését mutatja be, **STDP** (Spike-Ti
     st.caption("💡 A 3D rács csak vizuális szemléltetés, nem matematikai modell alapján működik.")
 
     # 📚 Tudományos háttér
+    st.markdown("### 📚 Tudományos háttér")
+
+    st.markdown("#### 🧠 Leaky Integrate-and-Fire (LIF) neuronmodell")
+    st.latex(r"\tau_m \frac{dV(t)}{dt} = -V(t) + R_m \cdot I_{ext}")
     st.markdown("""
-### 📚 Tudományos háttér
+    A LIF neuronmodell az egyik legegyszerűbb biológiailag ihletett idegsejtmodell, ahol:
+    
+    - $V(t)$: membránpotenciál (feszültség az idő függvényében)
+    - $R_m$: membránellenállás
+    - $I_{ext}$: külső bemeneti áram
+    - $\tau_m$: membrán időállandó
 
-A **Leaky Integrate-and-Fire (LIF)** neuronmodell egy egyszerű, de hatékony biológiai modell:
+    A neuron akkor tüzel, ha $V(t) \\geq V_{th}$, majd:
+    - $V(t) \\to V_{reset}$
+    - egy **refrakter periódus** következik, amikor a neuron átmenetileg inaktív.
+    """)
 
-- A membránpotenciál (\( V \)) folyamatosan integrálódik a bemeneti áram hatására.
-- Ha \( V \geq V_{th} \), a neuron tüzel, majd visszaáll a reset szintre.
-- A membrán szivárog (leak):  
-  \( \frac{dV}{dt} = \frac{-(V) + R_m \cdot I_{ext}}{\tau_m} \)
+    st.markdown("#### 🔁 Spike-Timing Dependent Plasticity (STDP)")
+    st.latex(r"""
+    \Delta w =
+    \begin{cases}
+    A_+ \cdot e^{-\Delta t / \tau_+}, & \text{ha } \Delta t > 0 \ (\text{LTP}) \\\\
+    -A_- \cdot e^{\Delta t / \tau_-}, & \text{ha } \Delta t < 0 \ (\text{LTD})
+    \end{cases}
+    """)
+    st.markdown("""
+    Az STDP szabály szerint:
+    
+    - Ha a **preszinaptikus** tüzelés *megelőzi* a posztszinaptikusat → **Long-Term Potentiation (LTP)**: a szinapszis erősödik  
+    - Ha a **posztszinaptikus** tüzelés történik előbb → **Long-Term Depression (LTD)**: a szinapszis gyengül  
 
-A **STDP** szabály szerint:
-- Ha a **preszinaptikus spike megelőzi** a posztszinaptikust → megerősítés (LTP)
-- Ha a **posztszinaptikus spike előbb történik** → gyengítés (LTD)
+    A szabály fontos jellemzői:
+    - $\\Delta t = t_{\\text{post}} - t_{\\text{pre}}$
+    - $A_+$ és $A_-$ a maximális súlyváltozás amplitúdói
+    - $\\tau_+$ és $\\tau_-$ az időállandók
 
-**Alkalmazások:**
-- Neuromorf rendszerek
-- Időfüggő mintázatok felismerése
-- Alacsony energiaigényű AI rendszerek
-""")
+    Ez a tanulási mechanizmus képes **időbeli mintázatok megtanulására** biológiailag hiteles módon.
+    """)
+
+    st.markdown("#### ⚙️ Alkalmazási területek")
+    st.markdown("""
+    - **Neuromorf rendszerek** – agyinspirált hardverek (pl. Loihi, SpiNNaker)
+    - **Energiatakarékos mesterséges intelligencia**
+    - **Időfüggő mintafelismerés**, mint például beszédfelismerés vagy szenzoros jelek elemzése
+    - **Mozgásminták tanulása és adaptációja** robotikában
+    """)
 
 # Kötelező streamlit hivatkozás
 app = run
