@@ -15,7 +15,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.graph_objects as go
-from PIL import Image
 from scipy.spatial import distance_matrix
 
 def generate_cloud(kind, n_points=300):
@@ -41,16 +40,15 @@ def generate_cloud(kind, n_points=300):
     else:
         return np.zeros((n_points, 2))
 
-def box_counting(data, epsilons):
-    N = []
-    for eps in epsilons:
-        min_vals = np.min(data, axis=0)
-        max_vals = np.max(data, axis=0)
-        bins = np.ceil((max_vals - min_vals) / eps).astype(int)
-        grid = np.floor((data - min_vals) / eps).astype(int)
-        unique_boxes = np.unique(grid, axis=0)
-        N.append(len(unique_boxes))
-    return N
+def box_counting_grid(data, grid_size=100):
+    """
+    Pontfelhőt egy rácsba renderel és visszaadja a sűrűségi mátrixot (Z) 3D vizualizációhoz.
+    """
+    x = data[:, 0]
+    y = data[:, 1]
+    H, xedges, yedges = np.histogram2d(x, y, bins=grid_size)
+    Z = H.T  # Meg kell transzponálni, hogy jól jelenjen meg Plotly-ban
+    return Z
 
 def run():
     st.title("🧮 Fraktál Dimenzió – Box Counting módszerrel")
@@ -82,7 +80,14 @@ Ahol:
         data += np.random.randn(*data.shape) * (noise_level / 100)
 
     epsilons = np.logspace(eps_start, eps_end, steps)
-    counts = box_counting(data, epsilons)
+    counts = []
+    for eps in epsilons:
+        min_vals = np.min(data, axis=0)
+        max_vals = np.max(data, axis=0)
+        grid = np.floor((data - min_vals) / eps).astype(int)
+        unique_boxes = np.unique(grid, axis=0)
+        counts.append(len(unique_boxes))
+
     logs = np.log(1 / epsilons)
     logN = np.log(counts)
     slope, intercept = np.polyfit(logs, logN, 1)
@@ -104,6 +109,15 @@ Ahol:
     ax2.legend()
     st.pyplot(fig2)
 
+    st.subheader("🧱 3D vizualizáció sűrűség alapján")
+    Z = box_counting_grid(data, grid_size=100)
+    x = np.arange(Z.shape[1])
+    y = np.arange(Z.shape[0])
+    x, y = np.meshgrid(x, y)
+    fig3d = go.Figure(data=[go.Surface(z=Z, x=x, y=y, colorscale="Inferno")])
+    fig3d.update_layout(title="3D fraktál sűrűség", autosize=True)
+    st.plotly_chart(fig3d)
+
     st.subheader("📥 CSV export")
     df = pd.DataFrame({
         "epsilon": epsilons,
@@ -113,23 +127,6 @@ Ahol:
     })
     csv = df.to_csv(index=False).encode("utf-8")
     st.download_button("⬇️ Eredmény letöltése CSV-ben", data=csv, file_name="box_counting_results.csv")
-
-    st.subheader("🌄 Kép alapú 3D fraktál reprezentáció (kísérleti)")
-    image_file = st.file_uploader("📸 Tölts fel képet (grayscale javasolt)", type=["jpg", "jpeg", "png"])
-    if image_file:
-        img = Image.open(image_file).convert("L")
-        Z = np.array(img)
-        x = np.arange(Z.shape[1])
-        y = np.arange(Z.shape[0])
-        x, y = np.meshgrid(x, y)
-        fig3d = go.Figure(data=[go.Surface(z=Z, x=x, y=y, colorscale='Inferno')])
-        fig3d.update_layout(title="3D képreprezentáció", autosize=True)
-        st.plotly_chart(fig3d)
-        with st.expander("ℹ️ Tudtad?"):
-            st.markdown("""
-A képet 3D felszínként ábrázoljuk, ahol a szürkeárnyalatok mélységként jelennek meg.  
-Ez a vizualizáció fraktálszerű mintázatokat is felfedhet – különösen zajos vagy komplex textúrájú képeknél.
-""")
 
     st.markdown("### 📚 Tudományos háttér")
     st.markdown("""
@@ -146,7 +143,7 @@ A **box counting módszer** egy egyszerű, de hatékony eljárás a fraktál dim
 - Topológiai és geometriai tulajdonságok leírása nemlineáris rendszerekben
 - Zajérzékenység tesztelése és vizsgálata
 
-Az ε (dobozméret) csökkentésével a lefedés finomabb lesz, és a log-log ábrán az egyenes meredeksége a fraktál dimenzió közelítését adja.
+A 3D felszín az adat sűrűségét jeleníti meg, mely vizuálisan is kiemeli a fraktálos struktúrákat.
 """)
 
 app = run
