@@ -27,6 +27,7 @@ from modules.stdp_learning import run as run_stdp_learning
 from modules.bcm_learning import app as run_bcm_learning
 from modules.snn_simulation import run as run_snn
 from modules.fractal_explorer import app as run_fractal
+from modules.hebbian_learning_viz import app as run_hebbian_viz
 
 # Modulregisztráció (név -> függvény)
 registry = {
@@ -59,4 +60,5 @@ registry = {
     "BCM tanulás": run_bcm_learning,
     "Spiking Neural Network": run_snn,
     "Fraktál Explorer": run_fractal,
+    "Hebbian tanulás (vizual)": run_hebbian_viz,
 }
