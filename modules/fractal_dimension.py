@@ -91,4 +91,4 @@ def app():
         """)
 
 # Kötelező ReflectAI-kompatibilitás
-app = app
+app = run
