@@ -32,6 +32,7 @@ module_categories = {
         "Oja Learning": "oja_learning",
         "STDP Learning": "stdp_learning",
         "BCM tanulás": "bcm_learning"
+        "Spiking Neural Network": "snn_simulation",
     },
     "⚗️ Szimulációk és dinamikák": {
         "Kuramoto Sim": "kuramoto_sim",
