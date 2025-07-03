@@ -146,18 +146,51 @@ Ez a modul egy **LIF neuronmodell** működését mutatja be, **STDP** (Spike-Ti
     st.caption("💡 A 3D rács csak szemléltetés, nem biológiai valóság. Az aktivitás véletlenszerűen generált.")
 
     st.markdown("""
-### 📚 Tudományos háttér
+# 📚 Tudományos háttér
+st.markdown("### 📚 Tudományos háttér")
 
-A **Leaky Integrate-and-Fire (LIF)** neuronmodell egyszerű, de hatékony:
+st.markdown("""
+A **Leaky Integrate-and-Fire (LIF)** neuronmodell egy egyszerű, de hatékony biológiai ihletésű modell, amelyet előszeretettel használnak spiking neurális hálókban.
+""")
 
-- A membránpotenciál \( V \) integrálódik a bemeneti áram hatására.
-- Ha \( V \geq V_{th} \), a neuron tüzel, majd visszaáll.
-- Szinaptikus plaszticitás: STDP szerint módosul a súly attól függően, mikor érkezik a pre- és posztszinaptikus aktivitás.
+st.markdown("""
+**Fő mechanizmusai:**
+- A membránpotenciál \( V \) folyamatosan integrálódik a bemeneti áram hatására.
+- Ha a potenciál eléri a küszöböt \( V_{th} \), a neuron tüzel (spike-ol), majd visszaáll egy reset értékre.
+- A membrán szivárgását egy elsőrendű differenciálegyenlet modellezi:
+""")
 
+st.latex(r"\frac{dV}{dt} = \frac{-(V) + R_m \cdot I_{ext}}{\tau_m}")
+
+st.markdown("""
+ahol:
+- \( V \): membránpotenciál  
+- \( R_m \): membránellenállás  
+- \( I_{ext} \): bemeneti áram  
+- \( \tau_m \): membrán időállandó  
+""")
+
+st.markdown("""
+A **STDP (Spike-Timing Dependent Plasticity)** szabály az időzítésen alapuló szinaptikus plaszticitást írja le:
+- Ha a **preszinaptikus** tüzelés **megelőzi** a posztszinaptikust: erősítés (LTP)
+- Ha a **posztszinaptikus** tüzelés **korábbi**, mint a preszinaptikus: gyengítés (LTD)
+""")
+
+st.latex(r"\Delta w = \begin{cases} A_+ \cdot e^{-\Delta t / \tau_+}, & \text{ha } \Delta t > 0 \\[5pt] A_- \cdot e^{\Delta t / \tau_-}, & \text{ha } \Delta t < 0 \end{cases}")
+
+st.markdown("""
+ahol:
+- \( \Delta w \): szinaptikus súlyváltozás  
+- \( \Delta t = t_{post} - t_{pre} \): a tüzelési események időbeli különbsége  
+- \( A_+ \), \( A_- \): erősítés és gyengítés mértéke  
+- \( \tau_+ \), \( \tau_- \): időkonstansok  
+""")
+
+st.markdown("""
 **Alkalmazások:**
-- Neuromorf rendszerek
-- Energiahatékony AI
-- Időminták feldolgozása
+- Neuromorf architektúrák
+- Szenzoros tanulás időbeli korrelációkkal
+- Energiahatékony beágyazott AI rendszerek
 """)
 
 # Kötelező hivatkozás
