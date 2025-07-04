@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 from scipy.ndimage import gaussian_filter
 
-def run():
-    st.set_page_config(layout="wide")
+st.set_page_config(layout="wide")
 
-    # Cím és Bevezetés
+def run():
     st.title("🧠 Insight Learning – Belátás alapú tanulás szimuláció")
+
     st.markdown("""
     A **belátásos tanulás** során a megoldás nem fokozatos próbálkozásokkal,
     hanem egy **hirtelen felismeréssel** (aha-élmény) jelenik meg.
@@ -17,7 +17,7 @@ def run():
     ahol az aktiváció egy adott küszöb felett **belátást** vált ki.
     """)
 
-    # Oldalsáv paraméterek
+    # Csúszkák
     st.sidebar.header("🔧 Paraméterek")
     grid_size = st.sidebar.slider("Rács mérete", 5, 50, 20)
     episodes = st.sidebar.slider("Epizódok száma", 1, 200, 50)
@@ -25,7 +25,6 @@ def run():
     aha_threshold = st.sidebar.slider("Belátási küszöb (θ)", 1.0, 20.0, 10.0)
     sigma = st.sidebar.slider("Mentális simítás (σ)", 0.0, 3.0, 1.0)
 
-    # Aktivációs térkép generálása
     def generate_activation_map(grid_size, episodes, increment, sigma):
         activation_map = np.zeros((grid_size, grid_size))
         for _ in range(episodes):
@@ -37,12 +36,11 @@ def run():
 
     activation_map = generate_activation_map(grid_size, episodes, activation_increment, sigma)
 
-    # Eredmény – Belátás vizsgálata
     center = grid_size // 2
     center_activation = activation_map[center, center]
     insight_occurred = center_activation >= aha_threshold
 
-    # Aktivációs térkép – 2D
+    # 2D térkép
     st.header("🗺️ Aktivációs térkép (2D)")
     fig2d, ax2d = plt.subplots()
     cax = ax2d.imshow(activation_map, cmap="plasma")
@@ -50,7 +48,7 @@ def run():
     ax2d.set_title("Aktiváció eloszlás")
     st.pyplot(fig2d)
 
-    # Aktivációs felszín – 3D
+    # 3D felszín
     st.header("🌐 Aktivációs felszín (3D)")
     x, y = np.meshgrid(np.arange(grid_size), np.arange(grid_size))
     fig3d = go.Figure(data=[go.Surface(z=activation_map, x=x, y=y, colorscale="Inferno")])
@@ -64,7 +62,7 @@ def run():
     )
     st.plotly_chart(fig3d, use_container_width=True)
 
-    # Belátási eredmény
+    # Belátás
     st.header("📌 Belátás eredménye")
     if insight_occurred:
         st.success(f"✅ Belátás megtörtént! A középpont aktivációja: {center_activation:.2f} ≥ {aha_threshold}")
@@ -104,5 +102,4 @@ def run():
     Ez a modell egy leegyszerűsített, de jól illusztrált nézete a belátásos tanulási folyamatnak.
     """)
 
-# Fontos: így illeszthető be modulárisan a rendszerbe
 app = run
