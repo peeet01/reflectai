@@ -70,6 +70,50 @@ def plot_bifurcation(sigma, beta, dt, x0, y0, z0):
 def run():
     st.set_page_config(layout="wide")
     st.title("🌀 Lorenz-rendszer szimuláció és bifurkáció")
+    st.markdown("""
+## 🌪️ Bevezetés a Lorenz-rendszerbe
+
+A **Lorenz-rendszer** egy három differenciálegyenletből álló nemlineáris dinamikai modell, amely az időjárás modellezéséből indult, de ma már az egyik legismertebb **determinista káoszt** leíró rendszerként tartjuk számon.
+
+A rendszer egy egyszerűsített konvektív áramlást modellez, és rendkívül érzékeny a kezdeti feltételekre – ez a híres **pillangóhatás**.
+
+---
+
+## 🧮 Matematikai háttér
+
+A Lorenz-egyenletek a következők:
+
+\\[
+\\begin{cases}
+\\frac{dx}{dt} = \\sigma(y - x) \\\\
+\\frac{dy}{dt} = x(\\rho - z) - y \\\\
+\\frac{dz}{dt} = xy - \\beta z
+\\end{cases}
+\\]
+
+Ahol:
+- \\( x, y, z \\): az állapotváltozók (sebességek, hőmérséklet)
+- \\( \\sigma \\): Prandtl-szám (tipikusan 10)
+- \\( \\rho \\): Rayleigh-szám (tipikusan 28)
+- \\( \\beta \\): geometriai állandó (tipikusan 8/3)
+
+---
+
+## 📊 A rendszer dinamikája
+
+- Ha \\( \\rho < 1 \\): stabil egyensúlyi állapot
+- Ha \\( 1 < \\rho < 24.74 \\): periodikus vagy kvázi-periodikus viselkedés
+- Ha \\( \\rho > 24.74 \\): **kaotikus attraktor** (nem ismétlődő, de determinisztikus mozgás)
+
+---
+
+## 🔬 Miért fontos?
+
+- **Káoszelmélet** alapköve
+- **Nemlineáris rendszerek oktatásában** gyakran használt példa
+- **Meteorológiai** és **mérnöki** modellekben az instabilitás megértésére szolgál
+
+""")
 
     st.sidebar.header("⚙️ Paraméterek")
     sigma = st.sidebar.number_input("σ", 0.0, 20.0, 10.0)
