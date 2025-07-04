@@ -116,5 +116,62 @@ def run():
     st.subheader("📝 Megfigyelések")
     st.text_area("Mit tapasztaltál különböző szabályokkal?", placeholder="Írd ide a megfigyeléseid...")
 
+    st.markdown("### 📘 Tudományos háttér a tanulási szabályokhoz")
+
+    st.markdown("#### 🔹 Hebbian szabály")
+    st.latex(r"\Delta w = \eta \cdot x_{pre} \cdot x_{post} - \lambda w")
+    st.markdown("""
+    A klasszikus **Hebbian-szabály** ("Cells that fire together, wire together") szerint a szinaptikus súly akkor nő, 
+    ha a pre- és posztszinaptikus neuronok **egyidejűleg aktívak**.  
+    A képletben:
+    
+    - **$x_{pre}$** és **$x_{post}$** a pre- és posztszinaptikus aktivitás  
+    - **$\\eta$** a tanulási ráta  
+    - **$\\lambda$** egy **leépítési tényező**, ami megakadályozza a súly korlátlan növekedését
+    
+    Ez a szabály nem veszi figyelembe a súly normalizációját, ezért **instabil** lehet hosszú távon.
+    """)
+
+    st.markdown("#### 🔹 Oja szabály")
+    st.latex(r"\Delta w = \eta \cdot (x_{pre} \cdot x_{post} - x_{post}^2 \cdot w)")
+    st.markdown("""
+    Az **Oja-szabály** a Hebbian-tanulás **normalizált változata**.  
+    Megakadályozza, hogy a szinaptikus súlyok végtelenbe nőjenek.  
+    A **$x_{post}^2 w$** tag egy **negatív visszacsatolás**, ami a súlymódosítást dinamikusan szabályozza.
+    
+    Ezáltal a hálózat képes **stabil reprezentációkat** megtanulni és megtartani.
+    """)
+
+    st.markdown("#### 🔹 BCM szabály (Bienenstock–Cooper–Munro)")
+    st.latex(r"\Delta w = \eta \cdot x_{pre} \cdot x_{post} \cdot (x_{post} - \theta)")
+    st.markdown(r"""
+    A **BCM-szabály** adaptív küszöböt (**$\\theta$**) használ, amit a **posztszinaptikus aktivitás hosszú távú átlaga** határoz meg:
+    
+    $$
+    \theta = \mathbb{E}[x_{post}]^2
+    $$
+    
+    A tanulás akkor történik, ha a posztszinaptikus aktivitás **meghaladja** ezt a küszöböt.
+    
+    - Ha **$x_{post} < \theta$**, akkor **depresszió** (gyengülés) történik  
+    - Ha **$x_{post} > \theta$**, akkor **potenciáció** (erősödés)
+    
+    Ez a szabály **önstabilizáló** és jól modellezi a **szenzoros tanulás** hosszú távú adaptációit.
+    """)
+
+    st.markdown("""
+    ---
+    Ezek a szabályok a **neurodinamika alapját** képezik, és kulcsfontosságúak a következőkben:
+
+    - **memória kialakulása**
+    - **percepció és kategorizáció**
+    - **hálózati tanulás és plaszticitás vizsgálata**
+    
+    További fejlesztésekben beépíthető:
+    - 🧠 **STDP** (Spike Timing Dependent Plasticity)
+    - 📉 Hosszú távú potenciáció (LTP) és depresszió (LTD) modellek
+    - 🔄 Interaktív neuronhálózat, több szinapszissal és visszacsatolással
+    """)
+
 # ✅ ReflectAI-kompatibilitás
 app = run
