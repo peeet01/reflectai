@@ -2,127 +2,111 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
 from scipy.ndimage import gaussian_filter
+import plotly.graph_objects as go
 
-# --- Beállítások ---
+# Beállítások
 st.set_page_config(layout="wide")
-st.title("🧠 Insight Learning – Belátás alapú tanulás modellezése")
+st.title("🧠 Insight Learning – Belátás alapú tanulás szimuláció")
 
+# 📝 Bevezetés
 st.markdown("""
-Ez a modul a **belátásos tanulás** folyamatát modellezi. Az insight learning során az ügynök
-egyszer csak *rájön*, hogyan oldjon meg egy problémát, miután elég információt halmozott fel.
+### 🔍 Bevezetés
+
+A **belátásos tanulás** során a megoldás *nem fokozatosan*, hanem hirtelen ugrásszerűen jelenik meg – ezt nevezzük **„Aha” pillanatnak**.
+
+Ez a modul egy absztrakt aktivációs térkép szimulációval modellezi azt a folyamatot, ahogy a **kritikus szint** elérése után megtörténik a felismerés.
+
 """)
 
-# --- Paraméterek ---
-st.sidebar.header("🔧 Paraméterek")
-grid_size = st.sidebar.slider("Rács mérete", 5, 20, 10)
-episodes = st.sidebar.slider("Epizódok száma", 10, 100, 50)
-max_steps = st.sidebar.slider("Maximális lépések epizódonként", 10, 100, 30)
-insight_threshold = st.sidebar.slider("Belátási küszöbérték (θ)", 0.1, 5.0, 2.5, 0.1)
+# 🎛️ Csúszkák – paraméterek
+st.sidebar.header("🎚️ Szimulációs paraméterek")
 
-# --- Szimuláció ---
-def simulate_insight_learning(grid_size, episodes, max_steps, threshold):
-    activation_total = np.zeros((grid_size, grid_size))
-    insight_happened = False
-    insight_map = np.zeros_like(activation_total)
+grid_size = st.sidebar.slider("Rács méret", 5, 20, 10)
+episodes = st.sidebar.slider("Epizódok száma", 10, 500, 100, step=10)
+threshold = st.sidebar.slider("Belátás küszöbérték (θ)", 1, 100, 15)
+
+# 💡 Szimuláció
+def simulate(grid, episodes, threshold):
+    activation = np.zeros((grid, grid))
+    goal = (grid // 2, grid // 2)
+    insight_at = None
 
     for ep in range(episodes):
-        pos = [grid_size - 1, 0]
-        for _ in range(max_steps):
-            activation_total[pos[0], pos[1]] += 0.1
-            if pos[1] < grid_size - 1:
-                pos[1] += 1
-            else:
-                pos[0] = max(0, pos[0] - 1)
+        pos = [np.random.randint(grid), np.random.randint(grid)]
+        for _ in range(grid * 2):
+            dx, dy = np.random.choice([-1, 0, 1]), np.random.choice([-1, 0, 1])
+            pos[0] = np.clip(pos[0] + dx, 0, grid - 1)
+            pos[1] = np.clip(pos[1] + dy, 0, grid - 1)
+            activation[pos[0], pos[1]] += 1
 
-    activation_smoothed = gaussian_filter(activation_total, sigma=1.0)
-    if np.max(activation_smoothed) >= threshold:
-        insight_happened = True
-        insight_map = activation_smoothed >= threshold
+            if tuple(pos) == goal and activation[goal] >= threshold and insight_at is None:
+                insight_at = ep
+                break
 
-    return activation_smoothed, insight_happened, insight_map
+    return activation, goal, insight_at
 
-activation_map, insight_flag, insight_mask = simulate_insight_learning(
-    grid_size, episodes, max_steps, insight_threshold
-)
+activation_map, goal_pos, insight_ep = simulate(grid_size, episodes, threshold)
 
-# --- 2D Megjelenítés ---
-st.subheader("📈 Aktivációs térkép – 2D")
-fig2d, ax2d = plt.subplots()
-im = ax2d.imshow(activation_map, cmap="plasma")
-plt.colorbar(im, ax=ax2d)
-st.pyplot(fig2d)
+# 📊 2D Ábra
+st.subheader("🖼️ 2D Aktivációs térkép")
+fig, ax = plt.subplots()
+ax.imshow(activation_map, cmap="plasma", interpolation="nearest")
+ax.set_title("2D Aktivációs eloszlás")
+st.pyplot(fig)
 
-# --- 3D Plotly Megjelenítés ---
-st.subheader("🌋 Aktivációs térkép – 3D Plotly")
+# 🌐 3D Ábra – Plotly
+st.subheader("🌋 3D Aktivációs térkép")
 x, y = np.meshgrid(np.arange(grid_size), np.arange(grid_size))
-z = activation_map
-
-fig3d = go.Figure(data=[
-    go.Surface(z=z, x=x, y=y, colorscale="Inferno", showscale=False),
-    go.Scatter3d(
-        x=x[insight_mask], y=y[insight_mask], z=z[insight_mask] + 0.2,
-        mode='markers',
-        marker=dict(size=6, color='cyan'),
-        name="Belátási pontok"
-    )
-])
-fig3d.update_layout(title="3D Aktivációs térkép", scene=dict(
-    xaxis_title="X",
-    yaxis_title="Y",
-    zaxis_title="Aktiváció"
-))
+z = gaussian_filter(activation_map, sigma=1)
+fig3d = go.Figure(data=[go.Surface(z=z, x=x, y=y, colorscale='Inferno')])
+fig3d.update_layout(
+    scene=dict(
+        xaxis_title='X',
+        yaxis_title='Y',
+        zaxis_title='Aktiváció'),
+    margin=dict(l=10, r=10, t=30, b=10)
+)
 st.plotly_chart(fig3d, use_container_width=True)
 
-# --- Eredmények ---
-st.subheader("🧠 Belátás eredménye")
-if insight_flag:
-    st.success("✅ Belátás megtörtént! Az aktiváció átlépte a küszöbértéket.")
+# ✅ Eredmény kiértékelés
+st.subheader("📌 Eredmény")
+if insight_ep is not None:
+    st.success(f"✅ A belátás megtörtént a(z) {insight_ep}. epizódban!")
 else:
-    st.warning("❌ Még nem történt meg a belátás. Növeld az epizódok számát vagy csökkentsd a küszöböt.")
+    st.warning("🚫 A szimuláció során nem történt belátás.")
 
-# --- CSV export ---
-st.subheader("📥 CSV export")
-df_export = pd.DataFrame(activation_map)
-csv = df_export.to_csv(index=False).encode("utf-8")
-st.download_button("⬇️ Aktivációs mátrix letöltése", data=csv, file_name="insight_activation_map.csv")
+# 💾 CSV Export
+st.subheader("💾 CSV exportálás")
+df = pd.DataFrame(activation_map)
+csv = df.to_csv(index=False).encode("utf-8")
+st.download_button("⬇️ Aktivációs térkép letöltése", csv, file_name="activation_map.csv", mime="text/csv")
 
-# --- Tudományos háttér ---
-st.markdown("### 📘 Tudományos háttér")
-st.markdown(r"""
-A **belátásos tanulás** egy olyan tanulási forma, ahol a megoldás *nem fokozatosan* jön létre,
-hanem egy hirtelen felismerés révén:
+# 📚 Tudományos háttér
+st.markdown("### 📚 Tudományos háttér")
+st.latex(r"A_{i,j}^{(t+1)} = A_{i,j}^{(t)} + \Delta A")
+st.latex(r"\text{Ha } A_{\text{goal}} \geq \theta \Rightarrow \text{Belátás (Insight)}")
 
-#### Matematikai modell:
+st.markdown("""
+A **belátásos tanulás** (\(Insight Learning\)) során az egyén **nem próba-szerencse alapján**, hanem hirtelen
+„összeáll a kép”, amint elegendő tapasztalati aktiváció gyűlt össze a megoldási térben.
 
-Az aktivációs értékek egy rácsban gyűlnek össze epizódonként:
+Ez egy **nemlineáris átmenet**, amely az alábbi jellemzőkkel bír:
 
-$$
-A(x, y, t) = A(x, y, t-1) + \delta
-$$
+- **A(x, y)**: aktiváció egy adott pozíción
+- **θ (theta)**: kritikus aktivációs szint
+- A célhely (\(goal\)) aktivációjának elérése kiváltja a felismerést.
 
-Ahol:
-- \( A(x, y, t) \) az adott hely aktivációja \( t \)-edik időpillanatban
-- \( \delta \) az aktivációs hozzájárulás
-
-A belátás akkor történik, ha:
-
-$$
-\max_{x, y} A(x, y) \geq \theta
-$$
-
-Ahol:
-- \( \theta \) a belátási küszöb
-
-#### Használhatóság:
+#### 📈 Használhatóság:
 - Problémamegoldás modellezése
-- Viselkedés és memória tanulmányozása
-- Kreatív AI rendszerek szimulációja
+- Nonlineáris tanulási modellek szemléltetése
+- A „kritikus tömeg” elérésének dinamikus ábrázolása
 
-#### Következtetés:
-A modell lehetővé teszi annak vizsgálatát, hogy milyen feltételek mellett történik „aha” élmény, és miként terjed az aktiváció a memóriarendszerben.
+#### 🧪 Következtetés:
+A szimuláció alapján a **belátás egy adott epizódban, nem fokozatosan** jelenik meg, hanem egyetlen ugrással,
+amit a kritikus aktivációs küszöb átlépése vált ki.
+
 """)
 
-# Kötelező Streamlit hívás
-app = run = lambda: None
+# Kötelező app meghívás
+app = run
