@@ -1,11 +1,11 @@
-import streamlit as st 
-import numpy as np 
-import matplotlib.pyplot as plt 
-import time 
-import os from datetime 
-import datetime 
-import plotly.graph_objects as go from scipy.ndimage 
-import gaussian_filter
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+import os
+from datetime import datetime
+import plotly.graph_objects as go
+from scipy.ndimage import gaussian_filter
 
 Bevezető
 
