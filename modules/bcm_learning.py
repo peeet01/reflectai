@@ -63,8 +63,8 @@ def run():
     x = generate_input_signal(signal_type, steps, amplitude, noise_level)
     w, theta, y, dw, dtheta = bcm_learning(x, eta, tau, w0, theta0, steps)
 
-    # 📈 Vizualizáció
-    st.subheader("📈 Tanulási dinamika")
+    # 📈 2D Vizualizáció
+    st.subheader("📈 Tanulási dinamika (2D)")
     fig, ax = plt.subplots()
     ax.plot(w, label="Súly (w)")
     ax.plot(theta, label="Küszöb (θ)")
@@ -74,17 +74,18 @@ def run():
     ax.set_title("BCM tanulás időfüggvényei")
     ax.legend()
     st.pyplot(fig)
-    
+
     # 🌐 3D Vizualizáció: súly – küszöb – kimenet tér
     st.subheader("🌐 3D vizualizáció: Súly – Küszöb – Kimenet")
+    st.markdown("A színek a kimeneti aktivitás (y) értékét reprezentálják – minél világosabb, annál aktívabb a neuron.")
 
     fig3d = go.Figure(data=[go.Scatter3d(
         x=w,
         y=theta,
         z=y,
         mode='lines+markers',
-        marker=dict(size=3, color=y, colorscale='Viridis'),
-        line=dict(width=4, color='royalblue')
+        marker=dict(size=3, color=y, colorscale='Viridis', colorbar=dict(title="Kimenet (y)")),
+        line=dict(width=4, color='darkblue')
     )])
 
     fig3d.update_layout(
@@ -132,5 +133,5 @@ def run():
     - Neurobiológiai tanulási mechanizmusok szimulációja
     """)
 
-# Modul regisztráció
+# ✅ Modul regisztráció ReflectAI-kompatibilisan
 app = run
