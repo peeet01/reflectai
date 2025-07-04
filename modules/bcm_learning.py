@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 # ✅ BCM tanulási szabály implementációja
 def bcm_learning(x, eta=0.01, tau=100, w0=0.5, theta0=0.1, steps=500):
