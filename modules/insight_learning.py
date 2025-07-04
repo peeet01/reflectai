@@ -20,13 +20,13 @@ def run():
     # 🎛️ Paraméterek
     st.sidebar.header("🎚️ Paraméterek")
 
-    grid_size = st.sidebar.slider("Rács méret (N×N)", 5, 50, 20)
-    episodes = st.sidebar.slider("Epizódok száma", 10, 500, 100, step=10)
-    theta = st.sidebar.slider("Belátási küszöb θ", 10, 200, 40)
-    sigma = st.sidebar.slider("Gauss-szűrés simítás σ", 0.0, 5.0, 1.0)
-    max_steps = st.sidebar.slider("Lépések epizódonként", 1, 100, 20)
-    activation_increment = st.sidebar.slider("ΔA – aktiváció növekedés", 0.1, 5.0, 1.0, step=0.1)
-    seed = st.sidebar.number_input("Véletlenszám seed", value=42)
+    grid_size = st.sidebar.slider("Rács méret (N×N)", min_value=5, max_value=50, value=20)
+    episodes = st.sidebar.slider("Epizódok száma", min_value=10, max_value=1000, value=100, step=10)
+    theta = st.sidebar.slider("Belátási küszöb θ", min_value=5, max_value=500, value=40)
+    sigma = st.sidebar.slider("Gauss-szűrés simítás σ", min_value=0.0, max_value=10.0, value=1.0, step=0.1)
+    max_steps = st.sidebar.slider("Lépések epizódonként", min_value=1, max_value=200, value=20)
+    activation_increment = st.sidebar.slider("ΔA – aktiváció növekedés", min_value=0.01, max_value=10.0, value=1.0, step=0.1)
+    seed = st.sidebar.number_input("🔢 Véletlenszám seed", min_value=0, value=42, step=1)
 
     np.random.seed(int(seed))
 
@@ -92,31 +92,27 @@ def run():
     csv_data = df.to_csv(index=False).encode('utf-8')
     st.download_button("⬇️ Aktivációs térkép letöltése", data=csv_data, file_name="activation_map.csv")
 
-    # 📚 Tudományos háttér
+    # 📚 Tudományos háttér (LaTeX)
     st.markdown("### 📘 Tudományos háttér")
 
-    st.latex(r"""
-    \text{Aktiváció: } A_{i,j}^{(t+1)} = A_{i,j}^{(t)} + \Delta A
-    """)
-    st.latex(r"""
-    \text{Belátás feltétele: } A_{\text{goal}} \geq \theta
-    """)
+    st.latex(r"A_{i,j}^{(t+1)} = A_{i,j}^{(t)} + \Delta A")
+    st.latex(r"A_{\text{goal}} \geq \theta")
 
     st.markdown("""
-    A neuronhálózat aktivációja minden epizódban növekszik egy véletlenszerű séta során.
+**Képletek magyarázata:**
 
-    - **\( A_{i,j}^{(t)} \)**: aktiváció a \( t \)-edik időlépésben az adott (i,j) pozíción  
-    - **\( \Delta A \)**: aktivációs növekedés lépésenként  
-    - **\( \theta \)**: belátási küszöb – ha ezt a célpozíció aktivációja eléri, megtörténik az „aha!” pillanat  
+- \( A_{i,j}^{(t)} \): aktiváció az \( (i,j) \) helyen a \( t \)-edik időpillanatban  
+- \( \Delta A \): aktivációs növekmény egy-egy lépésnél  
+- \( \theta \): aktivációs küszöb a belátáshoz  
+- A belátás akkor történik meg, ha az aktiváció a célterületen \( \geq \theta \)
 
-    #### 🎓 Következtetések
+### Konklúzió:
 
-    - A **belátás** akkor valósul meg, amikor az aktiváció elég koncentráltan gyűlik össze egy régióban.
-    - A **σ** paraméterrel szabályozható a „mentális simítás”, amely befolyásolja a felismerés esélyét.
-    - A szimuláció **nem determinisztikus**, így ugyanazokkal a paraméterekkel is más-más eredmény adódhat.
-
-    Ez a modell egy leegyszerűsített, de jól illusztrált nézete a belátás alapú tanulási folyamatnak.
+- A folyamat a **tapasztalati tanulást** modellezi.
+- A **belátás** csak akkor történik, ha az aktiváció **tartósan és koncentráltan** elér egy kritikus szintet.
+- A simítás (σ) értéke **befolyásolja az „aha” pillanat létrejöttét**, szórt vagy fókuszált aktiváció révén.
+- A rendszer **sztochasztikus**, vagyis nem determinisztikusan kiszámítható.
     """)
 
-# 💡 Modul kompatibilitás
+# Modul kompatibilitás
 app = run
