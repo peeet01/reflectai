@@ -6,7 +6,7 @@ from modules.topo_protect import app as run_topo_protect
 from modules.lorenz_sim import app as run_lorenz_sim
 from modules.mlp_predict_lorenz import app as run_lorenz_pred
 from modules.berry_curvature import app as run_berry
-from modules.noise_robustness import app as run_noise
+from modules.noise_robustness import app as run_noise_robustness
 from modules.esn_prediction import app as run_esn
 from modules.plasticity_dynamics import app as run_plasticity
 from modules.fractal_dimension import app as run_fractal_dimension
@@ -39,7 +39,7 @@ registry = {
     "Lorenz szimuláció": run_lorenz_sim,
     "Lorenz predikció (MLP)": run_lorenz_pred,
     "Berry-görbület": run_berry,
-    "Zajtűrés": run_noise,
+    "Zajtűrés": run_noise_robustness,
     "ESN predikció": run_esn,
     "Plaszticitás dinamikája": run_plasticity,
     "Fraktál dimenzió": run_fractal_dimension,
