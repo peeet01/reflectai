@@ -50,6 +50,19 @@ def plot_lorenz_3d(x, y, z):
     )
     st.plotly_chart(fig, use_container_width=True)
 
+# 📈 Idősor megjelenítés
+def plot_timeseries(x, y, z, dt):
+    t = np.arange(len(x)) * dt
+    fig, ax = plt.subplots()
+    ax.plot(t, x, label='x(t)')
+    ax.plot(t, y, label='y(t)')
+    ax.plot(t, z, label='z(t)')
+    ax.set_title("Lorenz-idősor")
+    ax.set_xlabel("Idő")
+    ax.set_ylabel("Állapotváltozók")
+    ax.legend()
+    st.pyplot(fig)
+
 # 📉 Bifurkációs térkép
 def plot_bifurcation(sigma, beta, dt, x0, y0, z0):
     st.subheader("📉 Bifurkációs térkép – változó ρ")
@@ -58,14 +71,12 @@ def plot_bifurcation(sigma, beta, dt, x0, y0, z0):
 
     for rho_val in rhos:
         x, y, z = x0, y0, z0
-        # bemelegítés
-        for _ in range(1000):
+        for _ in range(1000):  # bemelegítés
             dx, dy, dz = lorenz_system(x, y, z, sigma, rho_val, beta)
             x += dx * dt
             y += dy * dt
             z += dz * dt
-        # gyűjtés
-        for _ in range(100):
+        for _ in range(100):  # gyűjtés
             dx, dy, dz = lorenz_system(x, y, z, sigma, rho_val, beta)
             x += dx * dt
             y += dy * dt
@@ -80,70 +91,80 @@ def plot_bifurcation(sigma, beta, dt, x0, y0, z0):
     ax_bif.set_title("Lorenz bifurkációs térkép")
     st.pyplot(fig_bif)
 
-# 🚀 App futtatása
+# 🚀 Streamlit app
 def run():
     st.set_page_config(layout="wide")
     st.title("🌀 Lorenz-rendszer szimuláció és bifurkáció")
 
     st.markdown("""
-A Lorenz-rendszer egy híres nemlineáris dinamikai modell, amelyet az időjárás modellezésére fejlesztettek ki,  
-de azóta az egyik legismertebb **kaotikus rendszerként** vált híressé.
+A **Lorenz-rendszer** három differenciálegyenletből álló nemlineáris rendszer,  
+amely **determinista káosz** tanulmányozására szolgál.  
+Vizsgáljuk meg a fázistérbeli trajektóriákat és időbeli viselkedést.
 """)
 
+    # 🌐 Paraméterek
     st.sidebar.header("⚙️ Paraméterek")
-    sigma = st.sidebar.slider("σ (Prandtl-szám)", 0.0, 20.0, 10.0)
-    rho = st.sidebar.slider("ρ (Rayleigh-szám)", 0.0, 60.0, 28.0)
-    beta = st.sidebar.slider("β", 0.0, 10.0, 8.0 / 3.0)
-    steps = st.sidebar.slider("⏱️ Iterációk száma", 1000, 20000, 10000, step=1000)
-    dt = st.sidebar.number_input("🧮 Időlépés (dt)", 0.001, 0.1, 0.01, 0.001)
+    sigma = st.sidebar.number_input("σ (Prandtl-szám)", 0.0, 20.0, 10.0)
+    rho = st.sidebar.number_input("ρ (Rayleigh-szám)", 0.0, 60.0, 28.0)
+    beta = st.sidebar.number_input("β", 0.0, 10.0, 8.0 / 3.0)
+    x0 = st.sidebar.number_input("x₀", -10.0, 10.0, 0.0)
+    y0 = st.sidebar.number_input("y₀", -10.0, 10.0, 1.0)
+    z0 = st.sidebar.number_input("z₀", -10.0, 10.0, 1.05)
+    steps = st.sidebar.slider("⏱️ Iterációk száma", 1000, 50000, 10000, step=1000)
+    dt = st.sidebar.slider("Δt – Időlépés", 0.001, 0.1, 0.01, step=0.001)
 
     if st.button("🌪️ Klasszikus Lorenz attraktor betöltése"):
-        sigma, rho, beta = 10.0, 28.0, 8.0 / 3.0
+        sigma, rho, beta, x0, y0, z0 = 10.0, 28.0, 8.0/3.0, 0., 1., 1.05
 
     # Szimuláció
-    x, y, z = simulate_lorenz(sigma, rho, beta, dt=dt, steps=steps)
-    st.subheader("🌐 3D Lorenz attraktor")
+    x, y, z = simulate_lorenz(sigma, rho, beta, dt=dt, steps=steps, x0=x0, y0=y0, z0=z0)
+
+    # 📈 Idősor
+    st.subheader("📊 Idősor – x(t), y(t), z(t)")
+    plot_timeseries(x, y, z, dt)
+
+    # 🌐 3D attraktor
+    st.subheader("🌐 Lorenz attraktor – 3D")
     plot_lorenz_3d(x, y, z)
 
-    # CSV letöltés
+    # 💾 CSV letöltés
     st.subheader("💾 Adatok letöltése")
     df = pd.DataFrame({"x": x, "y": y, "z": z})
     csv = df.to_csv(index=False).encode("utf-8")
     st.download_button("⬇️ CSV letöltése", data=csv, file_name="lorenz_attractor.csv", mime="text/csv")
 
-    # Bifurkációs térkép
+    # 📉 Bifurkációs térkép
     if st.checkbox("📉 Bifurkációs diagram (ρ mentén)"):
-        plot_bifurcation(sigma, beta, dt, x0=0., y0=1., z0=1.05)
+        plot_bifurcation(sigma, beta, dt, x0, y0, z0)
 
-    # Tudományos háttér
+    # 📘 Tudományos háttér
     st.markdown("### 📘 Tudományos háttér")
-
     st.latex(r"""
-    \begin{aligned}
-    \frac{dx}{dt} &= \sigma(y - x) \\
-    \frac{dy}{dt} &= x(\rho - z) - y \\
-    \frac{dz}{dt} &= xy - \beta z
-    \end{aligned}
+    \begin{cases}
+    \frac{dx}{dt} = \sigma (y - x) \\
+    \frac{dy}{dt} = x (\rho - z) - y \\
+    \frac{dz}{dt} = x y - \beta z
+    \end{cases}
     """)
 
     st.markdown(r"""
-**A Lorenz-rendszer** egy háromdimenziós nemlineáris differenciálegyenlet-rendszer, amely:
-- **σ**: Prandtl-szám – diffúziós viszonyokat szabályozza  
-- **ρ**: Rayleigh-szám – konvekciós erősség  
-- **β**: geometriai paraméter
+A Lorenz-rendszer egy híres **nemlineáris determinisztikus** rendszer, amely erősen **érzékeny a kezdeti feltételekre**.  
+A dinamikája a paraméterek függvényében drasztikusan változhat:
 
-A rendszer viselkedése **bifurkációkon** megy keresztül, ha ρ értéke nő:
+- **$ρ < 1$**: stabil fixpont  
+- **$1 < ρ < 24.74$**: oszcilláló, kvázi-periodikus állapot  
+- **$ρ > 24.74$**: kaotikus attraktor – Lorenz pillangó
 
-- $ρ < 1$: stabil fixpont
-- $1 < ρ < 24.74$: oszcilláló, kvázi-periodikus állapot
-- $ρ > 24.74$: **káosz**, azaz érzékenység a kezdeti feltételekre
+A **bifurkációs térkép** segítségével vizualizálható, mikor alakul ki **stabilitás vagy káosz** a rendszerben.
 
-**Bifurkációs diagram**: a rendszer hosszú távú állapotait ábrázolja egy változó paraméter (pl. ρ) mentén.  
-A kaotikus viselkedés sok szórt pontként jelenik meg a diagramon.
+**Alkalmazások**:
+- Meteorológiai modellezés  
+- Káoszelmélet  
+- Nemlineáris rendszerek oktatása
 """)
 
     st.subheader("📝 Megfigyelések")
     st.text_area("Mit figyeltél meg a Lorenz-rendszer szimuláció során?", placeholder="Írd ide...")
 
-# ReflectAI-kompatibilitás
+# ✅ ReflectAI-kompatibilitás
 app = run
