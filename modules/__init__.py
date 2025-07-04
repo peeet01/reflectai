@@ -53,7 +53,7 @@ registry = {
     "Súgó / Help": run_help,
     "Reflexió modul": run_reflection,
     "Kérdés-válasz modul": run_questions,
-    "Oja Learning": run_oja,
+    "Oja Learning": run_oja_learning,
     "Criticality explorer": run_criticality,
     "Neural Entropy": neural_entropy,
     "STDP tanulás": run_stdp,
