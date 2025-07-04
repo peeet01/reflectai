@@ -9,7 +9,7 @@ from modules.berry_curvature import app as run_berry
 from modules.noise_robustness import app as run_noise
 from modules.esn_prediction import app as run_esn
 from modules.plasticity_dynamics import app as run_plasticity
-from modules.fractal_dimension import app as run_fractal
+from modules.fractal_dimension import app as run_fractal_dimension
 from modules.persistent_homology import app as run_homology
 from modules.lyapunov_spectrum import app as run_lyapunov
 from modules.memory_landscape import app as run_memory_landscape
@@ -26,7 +26,7 @@ from modules.oja_learning import app as run_oja_learning
 from modules.stdp_learning import app as run_stdp_learning
 from modules.bcm_learning import app as run_bcm_learning
 from modules.snn_simulation import app as run_snn
-from modules.fractal_explorer import app as run_fractal
+from modules.fractal_explorer import app as run_fractal_explorer
 from modules.hebbian_learning_viz import app as run_hebbian_viz
 
 # Modulregisztráció (név -> függvény)
@@ -42,7 +42,7 @@ registry = {
     "Zajtűrés": run_noise,
     "ESN predikció": run_esn,
     "Plaszticitás dinamikája": run_plasticity,
-    "Fraktál dimenzió": run_fractal,
+    "Fraktál dimenzió": run_fractal_dimension,
     "Perzisztens homológia": run_homology,
     "Lyapunov spektrum": run_lyapunov,
     "Memória tájkép": run_memory_landscape,
@@ -59,6 +59,6 @@ registry = {
     "STDP tanulás": run_stdp,
     "BCM tanulás": run_bcm_learning,
     "Spiking Neural Network": run_snn,
-    "Fraktál Explorer": run_fractal,
+    "Fraktál Explorer": run_fractal_explorer,
     "Hebbian Learning Viz": run_hebbian_viz,
 }
