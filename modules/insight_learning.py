@@ -174,17 +174,32 @@ Cél elérve: {"Igen" if found else "Nem"}
                 st.download_button("⬇️ Letöltés", f, file_name=filename)
             os.remove(filename)
 
-    with st.expander("📘 Tudományos háttér – Mi az a belátás?"):
-        st.markdown("""
-        A **belátásos tanulás** (insight learning) egy kognitív folyamat, ahol a probléma megoldása nem véletlenszerű próbálkozással,  
-        hanem egy _strukturális átlátás_ révén történik.
+    # === TUDOMÁNYOS RÉSZ – FRISSÍTVE LATEX-KÉPLETEKKEL ===
+    st.markdown("### 📚 Tudományos háttér – Mi az a belátásos tanulás?")
+    st.markdown(r"""
+A **belátásos tanulás** (insight learning) egy kognitív folyamat, ahol a megoldás **nem fokozatos tanulással**,  
+hanem hirtelen, **strukturált megértéssel** jelenik meg.
 
-        ### 🐒 Köhler-féle csimpánz kísérlet:
-        - Egy banán elérhetetlen, de eszköz segítségével mégis megszerezhető.
-        - A megoldás **nem fokozatos**, hanem **hirtelen jelentkezik**.
+#### 🧠 Modell képletesen:
+A probléma belátásos megoldása:
 
-        A szimulált aktivációs térkép azt reprezentálja, hogy az „agy” mely régiói (pozíciói) milyen gyakran voltak aktívak a sikeres vagy sikertelen keresés során.
-        """)
+$$
+\text{Megértés} = \lim_{t \to t_c} \left[ \sum_{i=0}^{t} f(p_i, e_i) \right]
+$$
 
-# Kötelező ReflectAI-kompatibilitás
+Ahol:
+- \( p_i \): az aktuális pozíció vagy mentális állapot
+- \( e_i \): környezeti inger vagy esemény
+- \( t_c \): a belátás időpillanata
+
+#### 🧪 Klasszikus példák:
+- Köhler csimpánzkísérletei: eszközhasználat hirtelen fellépő megértéssel
+- Emberi probléma-megoldás: “aha-élmény”
+
+#### 📊 A modellben:
+- Az aktivációs térkép a viselkedési stratégiák fejlődését mutatja
+- A belátás aktiválása drámaian csökkentheti a célhoz vezető lépések számát
+    """)
+
+# 🔁 ReflectAI kompatibilitás
 app = run
