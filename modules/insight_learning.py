@@ -74,21 +74,76 @@ def plot_brain_activity_2d(activation_map):
     return fig
 
 def plot_brain_activity_3d(activation_map):
+    from scipy.ndimage import gaussian_filter
+
     z = gaussian_filter(activation_map, sigma=1.2)
     x, y = np.meshgrid(np.arange(z.shape[1]), np.arange(z.shape[0]))
 
-    fig = go.Figure(data=[
-        go.Surface(
-            z=z,
-            x=x,
-            y=y,
-            colorscale='Inferno',
-            opacity=0.95,
-            lighting=dict(ambient=0.5, diffuse=0.9, specular=1.0, roughness=0.2),
-            lightposition=dict(x=30, y=50, z=100),
-            contours=dict(
-                z=dict(show=True, usecolormap=True, highlightcolor="limegreen", project_z=True)
-            )
+    # Aha-szint definiálása
+    aha_level = np.max(z) * 0.7
+
+    # Kitörési pontok detektálása
+    eruption_mask = z > aha_level
+    erupt_x = x[eruption_mask]
+    erupt_y = y[eruption_mask]
+    erupt_z = z[eruption_mask]
+
+    fig = go.Figure()
+
+    # Domborzat (aktiváció)
+    fig.add_trace(go.Surface(
+        z=z,
+        x=x,
+        y=y,
+        colorscale='Inferno',
+        opacity=0.95,
+        showscale=False,
+        lighting=dict(ambient=0.5, diffuse=0.9, specular=1.0, roughness=0.2),
+        lightposition=dict(x=30, y=50, z=100)
+    ))
+
+    # Aha-szint sík (üveglapként)
+    fig.add_trace(go.Surface(
+        z=np.full_like(z, aha_level),
+        x=x,
+        y=y,
+        opacity=0.2,
+        showscale=False,
+        colorscale=[[0, 'white'], [1, 'white']],
+        name='Aha-szint'
+    ))
+
+    # Kitörési lávapontok
+    if len(erupt_z) > 0:
+        fig.add_trace(go.Scatter3d(
+            x=erupt_x,
+            y=erupt_y,
+            z=erupt_z + 0.2,  # picit emeld ki a felszínről
+            mode='markers',
+            marker=dict(
+                size=12,
+                color='red',
+                opacity=0.9,
+                symbol='circle',
+                line=dict(width=2, color='orangered')
+            ),
+            name='Lávakitörés'
+        ))
+
+    fig.update_layout(
+        title="🔥 3D agyi aktiváció – 'Aha' felismerés robbanással",
+        scene=dict(
+            xaxis_title="Neuron X",
+            yaxis_title="Neuron Y",
+            zaxis_title="Aktiváció",
+            xaxis=dict(showspikes=False),
+            yaxis=dict(showspikes=False),
+            zaxis=dict(nticks=6, range=[0, np.max(z) + 2])
+        ),
+        margin=dict(l=0, r=0, t=60, b=0),
+        template="plotly_dark"
+    )
+    return fig
         )
     ])
 
