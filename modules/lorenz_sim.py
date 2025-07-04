@@ -66,10 +66,22 @@ def plot_bifurcation(sigma, beta, dt, x0, y0, z0):
     ax.set_title("Bifurkációs diagram")
     st.pyplot(fig)
 
-# 🚀 App
+# 🚀 Streamlit alkalmazás
 def run():
     st.set_page_config(layout="wide")
     st.title("🌀 Lorenz-rendszer szimuláció és bifurkáció")
+
+    st.markdown("""
+    A **Lorenz-rendszer** egy nemlineáris dinamikai rendszer, amely három differenciálegyenlettel írható le.
+    A rendszer híres arról, hogy egyszerű szabályai ellenére kaotikus, kiszámíthatatlan viselkedést mutat.
+
+    Az alábbi alkalmazás segítségével vizsgálható:
+    - az időbeli alakulás (idősor)
+    - a fázistérbeli pálya (3D attraktor)
+    - a bifurkációs szerkezet (ρ paraméter mentén)
+
+    Alkalmazási területek: meteorológia, káoszelmélet, rendszerelmélet, oktatás.
+    """)
 
     st.sidebar.header("⚙️ Paraméterek")
     sigma = st.sidebar.number_input("σ", 0.0, 20.0, 10.0)
@@ -100,22 +112,32 @@ def run():
         plot_bifurcation(sigma, beta, dt, x0, y0, z0)
 
     st.markdown("### 📘 Tudományos háttér")
+
     st.latex(r'''
-    \\begin{cases}
-    \\frac{dx}{dt} = \\sigma (y - x) \\\\
-    \\frac{dy}{dt} = x (\\rho - z) - y \\\\
-    \\frac{dz}{dt} = x y - \\beta z
-    \\end{cases}
+    \begin{cases}
+    \frac{dx}{dt} = \sigma (y - x) \\\\
+    \frac{dy}{dt} = x (\rho - z) - y \\\\
+    \frac{dz}{dt} = x y - \beta z
+    \end{cases}
     ''')
-    st.markdown(r"""
-A Lorenz-rendszer a káoszelmélet egyik legismertebb példája. A bifurkációs térkép segítségével vizsgálhatók a stabil és kaotikus régiók.
-- **$ρ < 1$**: stabil fixpont
-- **$1 < ρ < 24.74$**: oszcilláció
-- **$ρ > 24.74$**: káosz
-""")
+
+    st.markdown("""
+- A fenti egyenletrendszer az időben változó állapotváltozók: \\(x, y, z\\) alakulását írja le.
+- A paraméterek jelentése:
+  - \\(\\sigma\\): viszkozitás (Prandtl-szám)
+  - \\(\\rho\\): hőmérséklet-gradiens (Rayleigh-szám)
+  - \\(\\beta\\): geometriai tényező
+
+**Stabilitás:**
+- \\(\\rho < 1\\): stabil fixpont
+- \\(1 < \\rho < 24.74\\): kvázi-periodikus oszcilláció
+- \\(\\rho > 24.74\\): kaotikus viselkedés (attraktor)
+
+**Kaotikus attraktor**: látszólag véletlenszerű, mégis determinisztikus pálya – az ún. pillangóhatás (érzékenység a kezdeti feltételekre).
+    """)
 
     st.subheader("📝 Megfigyelések")
     st.text_area("Mit figyeltél meg?", placeholder="Írd ide...")
 
-# ReflectAI-kompatibilitás
+# ✅ ReflectAI-kompatibilitás
 app = run
