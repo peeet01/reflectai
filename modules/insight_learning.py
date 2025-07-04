@@ -144,7 +144,7 @@ def plot_brain_activity_3d(activation_map):
         template="plotly_dark"
     )
     return fig
-        )
+        
     ])
 
     fig.update_layout(
