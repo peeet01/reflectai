@@ -73,6 +73,31 @@ def run():
     ax.set_title("BCM tanulás időfüggvényei")
     ax.legend()
     st.pyplot(fig)
+    
+    # 🌐 3D Vizualizáció: súly – küszöb – kimenet tér
+    st.subheader("🌐 3D vizualizáció: Súly – Küszöb – Kimenet")
+
+    fig3d = go.Figure(data=[go.Scatter3d(
+        x=w,
+        y=theta,
+        z=y,
+        mode='lines+markers',
+        marker=dict(size=3, color=y, colorscale='Viridis'),
+        line=dict(width=4, color='royalblue')
+    )])
+
+    fig3d.update_layout(
+        scene=dict(
+            xaxis_title="Súly (w)",
+            yaxis_title="Küszöb (θ)",
+            zaxis_title="Kimenet (y)"
+        ),
+        margin=dict(l=0, r=0, b=0, t=40),
+        height=600,
+        title="Tanulási állapotok evolúciója a BCM térben"
+    )
+
+    st.plotly_chart(fig3d, use_container_width=True)
 
     # 📥 CSV export
     st.subheader("📥 Eredmények letöltése")
