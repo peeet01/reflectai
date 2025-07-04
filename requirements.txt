@@ -10,4 +10,4 @@ pandas
 ripser
 persim
 scikit-image
-
+scipy
