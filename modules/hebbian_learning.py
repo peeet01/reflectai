@@ -80,13 +80,14 @@ amely a biológiai neuronhálók **szinaptikus erősödését** modellezi.
 > *„Azok a neuronok, amelyek együtt tüzelnek, együtt huzalozódnak.”*
 
 #### 📐 Súlyfrissítési képlet:
+
 $$
-w_i \\leftarrow w_i + \\eta \\cdot x_i \\cdot t
+w_i \leftarrow w_i + \eta \cdot x_i \cdot t
 $$
 
 Ahol:
 - \( w_i \): az i-edik bemeneti súly  
-- \( \\eta \): tanulási ráta  
+- \( \eta \): tanulási ráta  
 - \( x_i \): bemenet értéke  
 - \( t \): célérték vagy posztszinaptikus aktivitás
 
