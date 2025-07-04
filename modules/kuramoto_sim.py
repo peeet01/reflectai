@@ -144,6 +144,24 @@ def run():
     - Hálózati dinamika, például tűzfal vagy robotrajok koordinációja
     """)
 
+    # 💾 Szinkronizációs adatok exportálása (CSV)
+    import pandas as pd
+
+    df_export = pd.DataFrame({
+        "Időlépés": np.arange(1, steps + 1),
+        "Szinkronizáció (R)": order_params
+    })
+
+    csv = df_export.to_csv(index=False).encode("utf-8")
+
+    st.subheader("💾 Szinkronizációs adatok letöltése")
+    st.download_button(
+        label="⬇️ CSV letöltése",
+        data=csv,
+        file_name="kuramoto_sync.csv",
+        mime="text/csv"
+    )
+
     # 🗒️ Megfigyelések
     st.subheader("📝 Megfigyelések és jegyzetek")
     st.text_area("Mit tapasztaltál a szinkronizáció során?", placeholder="Írd ide...")
