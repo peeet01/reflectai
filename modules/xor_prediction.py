@@ -1,107 +1,105 @@
 import streamlit as st
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score
 import plotly.graph_objects as go
-from scipy.ndimage import gaussian_filter
-
-st.set_page_config(layout="wide")
 
 def run():
-    # Cím és leírás
-    st.title("🧠 Insight Learning – Belátás alapú tanulás szimuláció")
+    st.set_page_config(layout="wide")
+    st.title("🔀 XOR Predikció – Többrétegű Perceptron")
 
+    # 🧭 Bevezetés
     st.markdown("""
-A **belátásos tanulás** során a megoldás nem fokozatos próbálkozásokkal,
-hanem egy **hirtelen felismeréssel** (aha-élmény) jelenik meg.
+    A klasszikus **XOR logikai feladat** nem oldható meg egyrétegű perceptronnal,  
+    viszont egy **rejtett réteggel** ellátott MLP képes megtanulni.  
+    A modul bemutatja, hogyan változnak a súlyok, a döntési felület, és milyen pontossággal oldja meg a háló a problémát.
+    """)
 
-Ez a szimuláció egy **aktivációs térképen** modellezi a tapasztalati tanulást,
-ahol az aktiváció egy adott küszöb felett **belátást** vált ki.
-""")
+    # 🎛️ Paraméterek
+    st.sidebar.header("🎚️ Paraméterek")
+    hidden_size = st.sidebar.slider("Rejtett réteg mérete", 2, 10, 4)
+    learning_rate = st.sidebar.slider("Tanulási ráta", 0.001, 0.1, 0.01, step=0.001)
+    max_iter = st.sidebar.slider("Max iteráció", 100, 2000, 500, step=100)
+    solver = st.sidebar.selectbox("Solver", ["adam", "sgd", "lbfgs"])
 
-    # Paraméterek
-    st.sidebar.header("🔧 Paraméterek")
-    grid_size = st.sidebar.slider("📏 Rács mérete", 5, 50, 20)
-    episodes = st.sidebar.slider("🔁 Epizódok száma", 1, 200, 50)
-    activation_increment = st.sidebar.slider("⚡ Aktiváció növekedés (ΔA)", 0.1, 5.0, 1.0)
-    aha_threshold = st.sidebar.slider("🎯 Belátási küszöb (θ)", 1.0, 20.0, 10.0)
-    sigma = st.sidebar.slider("🧠 Mentális simítás (σ)", 0.0, 3.0, 1.0)
+    # 🧱 XOR adat
+    X = np.array([[0,0],[0,1],[1,0],[1,1]])
+    y = np.array([0,1,1,0])
 
-    # Aktivációs térkép generálása
-    def generate_activation_map(grid_size, episodes, increment, sigma):
-        activation_map = np.zeros((grid_size, grid_size))
-        for _ in range(episodes):
-            x, y = np.random.randint(0, grid_size, 2)
-            activation_map[x, y] += increment
-        if sigma > 0:
-            activation_map = gaussian_filter(activation_map, sigma=sigma)
-        return activation_map
+    # 🧠 Háló létrehozás + tanítás
+    model = MLPClassifier(hidden_layer_sizes=(hidden_size,),
+                          learning_rate_init=learning_rate,
+                          max_iter=max_iter,
+                          solver=solver,
+                          random_state=42)
+    model.fit(X, y)
+    preds = model.predict(X)
+    acc = accuracy_score(y, preds)
 
-    activation_map = generate_activation_map(grid_size, episodes, activation_increment, sigma)
-    center = grid_size // 2
-    center_activation = activation_map[center, center]
-    insight_occurred = center_activation >= aha_threshold
+    # 📉 2D döntési függvény
+    st.subheader("📈 Döntési felület (2D)")
+    xx, yy = np.meshgrid(np.linspace(0,1,200), np.linspace(0,1,200))
+    grid = np.c_[xx.ravel(), yy.ravel()]
+    Z = model.predict(grid).reshape(xx.shape)
+    plt.figure(figsize=(4,4))
+    plt.contourf(xx, yy, Z, alpha=0.3, cmap="RdBu")
+    plt.scatter(X[:,0], X[:,1], c=y, cmap="RdBu", edgecolor="k", s=100)
+    plt.title(f"Pontosság: {acc*100:.1f}%")
+    st.pyplot(plt.gcf())
 
-    # Aktivációs térkép – 2D
-    st.header("🗺️ Aktivációs térkép (2D)")
-    fig2d, ax2d = plt.subplots()
-    cax = ax2d.imshow(activation_map, cmap="plasma")
-    fig2d.colorbar(cax, ax=ax2d, label="Aktiváció")
-    ax2d.set_title("Aktiváció eloszlás")
-    st.pyplot(fig2d)
-
-    # Aktivációs felszín – 3D
-    st.header("🌐 Aktivációs felszín (3D)")
-    x, y = np.meshgrid(np.arange(grid_size), np.arange(grid_size))
-    fig3d = go.Figure(data=[go.Surface(z=activation_map, x=x, y=y, colorscale="Inferno")])
+    # 🌐 3D aktiválások
+    st.subheader("🌐 Rejtett réteg aktiváció (3D)")
+    act = model.predict_proba(grid)[:,1].reshape(xx.shape)
+    fig3d = go.Figure(data=[go.Surface(z=act, x=xx, y=yy, colorscale="Viridis")])
     fig3d.update_layout(
-        scene=dict(
-            xaxis_title="Neuron X",
-            yaxis_title="Neuron Y",
-            zaxis_title="Aktiváció"
-        ),
-        margin=dict(l=0, r=0, t=50, b=0)
-    )
+        scene=dict(xaxis_title="x₁", yaxis_title="x₂", zaxis_title="P(rejtett=1)"),
+        margin=dict(l=10,r=10,t=50,b=10),
+        height=600)
     st.plotly_chart(fig3d, use_container_width=True)
 
-    # Eredmény
-    st.header("📌 Belátás eredménye")
-    if insight_occurred:
-        st.success(f"✅ Belátás megtörtént! A középpont aktivációja: {center_activation:.2f} ≥ {aha_threshold}")
-    else:
-        st.warning(f"❌ Nem történt belátás. A középpont aktivációja: {center_activation:.2f} < {aha_threshold}")
+    # 🧩 Eredmény
+    st.subheader("🎯 Eredmények")
+    st.markdown(f"- Háló struktúrája: **Input–{hidden_size}–Output**\n"
+                f"- Solver: **{solver}**\n"
+                f"- Tanulási ráta: **{learning_rate}**\n"
+                f"- Iteráció: **{model.n_iter_}** / {max_iter}\n"
+                f"- Pontosság: **{acc*100:.2f}%**")
 
-    # CSV export
-    st.header("💾 CSV exportálás")
-    csv = "\n".join([",".join(map(str, row)) for row in activation_map])
-    st.download_button("⬇️ Aktivációs térkép letöltése", csv.encode("utf-8"), file_name="activation_map.csv")
+    # 📁 CSV export
+    st.subheader("💾 Súlyok exportálása CSV-ben")
+    weights = np.hstack([coef.flatten() for coef in model.coefs_])
+    df = pd.DataFrame(weights.reshape(1, -1),
+                      columns=[f"w{i}" for i in range(len(weights))])
+    csv = df.to_csv(index=False).encode('utf-8')
+    st.download_button("⬇️ Súlyok letöltése", data=csv, file_name="xor_weights.csv")
 
-    # Tudományos háttér
-    st.header("📘 Tudományos háttér")
-
+    # 📘 Tudományos háttér – Latex
+    st.markdown("### 📙 Tudományos háttér")
     st.latex(r"""
-    \text{Aktiváció:} \quad A_{i,j}^{(t+1)} = A_{i,j}^{(t)} + \Delta A
+    y = 
+    \begin{cases}
+        1 & \text{ha } x_1 \oplus x_2 = 1,\\
+        0 & \text{különben}
+    \end{cases}
     """)
     st.latex(r"""
-    \text{Belátás feltétele:} \quad A_{\text{goal}} \geq \theta
+    \text{MLP architektúra: } f(x) = \sigma\bigl(W^{(2)}\,\sigma(W^{(1)}x+b^{(1)}) + b^{(2)}\bigr)
     """)
-
+    st.latex(r"""
+    \text{Célfüggvény (log-loss): } 
+    L = -\frac{1}{N}\sum_i\left[y_i\log \hat y_i + (1-y_i)\log(1-\hat y_i)\right]
+    """)
     st.markdown("""
-A neuronhálózat aktivációja minden epizódban növekszik egy véletlenszerű séta során.
+    A modellben:
+    - \(W^{(1)}, b^{(1)}\): bemenet → rejtett réteg súlyai
+    - \(W^{(2)}, b^{(2)}\): rejtett réteg → kimenet
+    - \(\sigma\): nemlinearitás (ReLU vagy logistic)
+    - A log-loss minimalizálásával a háló megtanulja megoldani a XOR problémát, amit egyrétegű perceptron nem tud.
 
-- $A_{i,j}^{(t)}$: aktiváció a $(i,j)$ pozíción a $t$-edik időlépésben  
-- $\Delta A$: aktivációs növekedés lépésenként  
-- $\theta$: belátási küszöb – ha ezt a célpozíció aktivációja eléri, megtörténik az „aha!” pillanat
+    A pontosság mutatja, hogy minden bemeneti kombinációt helyesen prediktáltunk‑e.
+    """)
 
----
-
-### 🎓 Következtetések
-
-- A belátás akkor valósul meg, amikor az aktiváció koncentráltan gyűlik össze egy régióban.
-- A `σ` érték szabályozza a **mentális simítás** mértékét.
-- A szimuláció **nem determinisztikus**, tehát ugyanazon paraméterekkel is más eredmény adódhat.
-
-Ez a modell egy leegyszerűsített, de jól illusztrált nézete a belátásos tanulási folyamatnak.
-""")
-
-# Rendszerillesztéshez:
+# ReflectAI kompatibilitás
 app = run
