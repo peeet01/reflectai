@@ -151,6 +151,25 @@ def run():
     ax2.set_title("Hebbian tanulás hatása")
     st.pyplot(fig2)
 
+    # 💾 Eredmények exportálása
+    st.subheader("💾 Szinkronizációs adatok letöltése (CSV)")
+
+    import pandas as pd
+    df_export = pd.DataFrame({
+        "Időlépés": np.arange(len(sync)),
+        "Szinkronizáció (R)": sync,
+        "Átlagos W": avg_weights
+    })
+
+    csv = df_export.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        label="⬇️ CSV letöltése",
+        data=csv,
+        file_name="kuramoto_hebbian_results.csv",
+        mime="text/csv"
+    )
+
     # 📝 Jegyzetek
     st.subheader("📝 Megfigyelések és jegyzetek")
     st.text_area("Mit tapasztaltál a szinkronizáció és tanulás során?", placeholder="Írd ide...")
