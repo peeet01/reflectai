@@ -4,73 +4,67 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
-# 🔁 Hebbian tanulási algoritmus
 def hebbian_learning(X, T, eta, epochs):
     weights = np.zeros(X.shape[1])
     history = []
+
     for _ in range(epochs):
         for x, t in zip(X, T):
             weights += eta * x * t
             history.append(weights.copy())
+
     return np.array(history)
 
-# 🎯 Bemeneti adatok (AND logika)
 def generate_inputs():
     X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-    T = np.array([0, 0, 0, 1])
+    T = np.array([0, 0, 0, 1])  # AND logikai művelet
     return X, T
 
-# 🚀 Streamlit app
 def run():
-    st.title("🧠 Hebbian Learning – Egyszerű szinaptikus tanulás")
+    st.title("🧠 Hebbian Learning Szimuláció")
+    st.markdown("Fedezd fel a Hebb-szabály működését egy egyszerű példán keresztül.")
 
-    st.markdown("""
-    A Hebbian tanulás egy alapvető tanulási szabály, amely az agyban zajló **szinaptikus plaszticitást** modellezi.  
-    A tanulási folyamat során a súlyok módosulása attól függ, hogy a bemenet és a kimenet **egyszerre aktiválódik-e**.
-    """)
-
-    st.subheader("🔧 Paraméterek")
     eta = st.slider("Tanulási ráta (η)", 0.01, 1.0, 0.1, step=0.01)
     epochs = st.slider("Epoch-ok száma", 1, 100, 20)
 
     X, T = generate_inputs()
     history = hebbian_learning(X, T, eta, epochs)
 
-    # 📈 2D súlyváltozás
-    st.subheader("📉 Súlyváltozások időben (2D)")
+    # 2D vizualizáció
+    st.subheader("📈 Súlyváltozások 2D-ben")
     fig, ax = plt.subplots()
-    ax.plot(history[:, 0], label="w₀", linewidth=2)
-    ax.plot(history[:, 1], label="w₁", linewidth=2)
+    ax.plot(history[:, 0], label="w₀")
+    ax.plot(history[:, 1], label="w₁")
     ax.set_xlabel("Iteráció")
     ax.set_ylabel("Súly érték")
-    ax.set_title("Hebbian tanulás súlydinamikája")
+    ax.set_title("Hebbian súlytanulás")
     ax.legend()
     st.pyplot(fig)
 
-    # 🌐 3D vizualizáció
-    st.subheader("🌐 Súlypálya 3D térben")
+    # 3D vizualizáció
+    st.subheader("📊 Súlypálya vizualizáció 3D-ben")
     fig3d = go.Figure(data=[go.Scatter3d(
         x=history[:, 0],
         y=history[:, 1],
         z=np.arange(len(history)),
         mode='lines+markers',
-        marker=dict(size=4, color=np.arange(len(history)), colorscale='Viridis'),
-        line=dict(width=3, color='darkblue')
+        marker=dict(size=4),
+        line=dict(width=2)
     )])
     fig3d.update_layout(scene=dict(
         xaxis_title="w₀",
         yaxis_title="w₁",
         zaxis_title="Iteráció"
-    ), margin=dict(l=0, r=0, t=30, b=0), height=500)
-    st.plotly_chart(fig3d, use_container_width=True)
+    ), margin=dict(l=0, r=0, b=0, t=30), height=500)
+    st.plotly_chart(fig3d)
 
-    # 📥 CSV export
-    st.subheader("💾 Eredmények exportálása")
+    # CSV export
+    st.subheader("📥 Export")
     df = pd.DataFrame(history, columns=["w₀", "w₁"])
     csv = df.to_csv(index_label="iteráció").encode("utf-8")
-    st.download_button("⬇️ Súlyok letöltése CSV-ben", data=csv, file_name="hebb_weights.csv")
+    st.download_button("Súlyok letöltése CSV-ben", data=csv, file_name="hebb_weights.csv")
 
-    # 📚 Tudományos háttér
+    # Tudományos magyarázat
     st.markdown("### 📚 Tudományos háttér")
     st.markdown(r"""
 A **Hebbian tanulás** az egyik legegyszerűbb tanulási szabály,  
@@ -80,13 +74,14 @@ amely a biológiai neuronhálók **szinaptikus erősödését** modellezi.
 > *„Azok a neuronok, amelyek együtt tüzelnek, együtt huzalozódnak.”*
 
 #### 📐 Súlyfrissítési képlet:
+
 $$
-w_i \\leftarrow w_i + \\eta \\cdot x_i \\cdot t
+w_i \leftarrow w_i + \eta \cdot x_i \cdot t
 $$
 
 Ahol:
 - \( w_i \): az i-edik bemeneti súly  
-- \( \\eta \): tanulási ráta  
+- \( \eta \): tanulási ráta  
 - \( x_i \): bemenet értéke  
 - \( t \): célérték vagy posztszinaptikus aktivitás
 
@@ -99,5 +94,5 @@ Ezáltal az erősen korrelált bemenet–kimenet kapcsolatok megerősödnek.
 - Alkalmas asszociatív memória és klaszterezési modellek alapjául
     """)
 
-# ✅ ReflectAI kompatibilitás
+# 🔁 ReflectAI kompatibilitás
 app = run
