@@ -25,18 +25,26 @@ Vizsgáljuk meg a fázistérbeli trajektóriákat és idősorokat.
     # 🎛️ Paraméterek
     st.sidebar.header("⚙️ Szimulációs paraméterek")
 
-    sigma = st.sidebar.slider("σ (Prandtl-szám)", 0.0, 20.0, 10.0, 0.1)
-    rho = st.sidebar.slider("ρ (Rayleigh-szám)", 0.0, 50.0, 28.0, 0.5)
-    beta = st.sidebar.slider("β", 0.0, 10.0, 8.0 / 3.0, 0.05)
+    if st.sidebar.button("🌪️ Klasszikus Lorenz attraktor beállítása"):
+        st.session_state["sigma"] = 10.0
+        st.session_state["rho"] = 28.0
+        st.session_state["beta"] = 8.0 / 3.0
+        st.session_state["x0"] = 0.0
+        st.session_state["y0"] = 1.0
+        st.session_state["z0"] = 1.05
 
-    x0 = st.sidebar.number_input("x₀", value=0.0)
-    y0 = st.sidebar.number_input("y₀", value=1.0)
-    z0 = st.sidebar.number_input("z₀", value=1.05)
+    sigma = st.sidebar.number_input("σ (Prandtl-szám)", 0.0, 50.0, st.session_state.get("sigma", 10.0))
+    rho = st.sidebar.number_input("ρ (Rayleigh-szám)", 0.0, 100.0, st.session_state.get("rho", 28.0))
+    beta = st.sidebar.number_input("β", 0.0, 10.0, st.session_state.get("beta", 8.0 / 3.0))
 
-    steps = st.sidebar.slider("⏱️ Iterációk száma", 1000, 20000, 10000, 1000)
+    x0 = st.sidebar.number_input("x₀", value=st.session_state.get("x0", 0.0))
+    y0 = st.sidebar.number_input("y₀", value=st.session_state.get("y0", 1.0))
+    z0 = st.sidebar.number_input("z₀", value=st.session_state.get("z0", 1.05))
+
+    steps = st.sidebar.slider("⏱️ Iterációk száma", 1000, 50000, 10000, 1000)
     dt = st.sidebar.slider("Δt – Időlépés", 0.001, 0.1, 0.01, 0.001)
 
-    use_plotly = st.sidebar.checkbox("🎨 Plotly használata (3D)", value=False)
+    use_plotly = st.sidebar.checkbox("🎨 Plotly 3D megjelenítés", value=True)
 
     # 🔄 Szimuláció
     x = np.empty(steps)
@@ -67,15 +75,22 @@ Vizsgáljuk meg a fázistérbeli trajektóriákat és idősorokat.
     st.subheader("🌀 Lorenz attraktor 3D-ben")
 
     if use_plotly:
+        color_vals = np.linspace(0, 1, len(x))
         fig3d = go.Figure(data=go.Scatter3d(
             x=x, y=y, z=z,
             mode='lines',
-            line=dict(color=np.linspace(0, 1, len(x)), colorscale='Turbo', width=2)
+            line=dict(
+                color=color_vals,
+                colorscale='Turbo',
+                width=2
+            )
         ))
         fig3d.update_layout(
             margin=dict(l=0, r=0, b=0, t=30),
             scene=dict(
-                xaxis_title='x', yaxis_title='y', zaxis_title='z',
+                xaxis_title='x',
+                yaxis_title='y',
+                zaxis_title='z',
                 xaxis=dict(showticklabels=False),
                 yaxis=dict(showticklabels=False),
                 zaxis=dict(showticklabels=False)
@@ -122,5 +137,5 @@ Vizsgáljuk meg a fázistérbeli trajektóriákat és idősorokat.
     st.subheader("📝 Megfigyelések")
     st.text_area("Mit tapasztaltál az attraktor viselkedésében?", placeholder="Írd ide...")
 
-# ReflectAI kompatibilitás
+# ReflectAI-kompatibilitás
 app = run
