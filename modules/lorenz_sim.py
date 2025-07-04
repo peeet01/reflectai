@@ -1,5 +1,19 @@
 # modules/lorenz_sim.py
 
+"""
+📦 Lorenz-szimulátor modul
+
+Ez a modul a híres Lorenz-rendszer numerikus szimulációját és vizualizációját végzi.
+A rendszer három elsőrendű differenciálegyenletből áll, amelyek egy konvektív folyadékmozgást
+modelleznek, de ma már a determinisztikus káosz ikonikus példájává vált.
+
+Funkciók:
+- Lorenz-egyenletek megoldása Runge–Kutta módszerrel
+- Idősor és 3D attraktor vizualizáció
+- Paraméterek beállítása interaktív Streamlit UI segítségével
+- Bifurkációs térkép generálása a Rayleigh-szám mentén
+"""
+
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -101,17 +115,42 @@ def run():
 
     st.markdown("### 📘 Tudományos háttér")
     st.latex(r'''
-    \\begin{cases}
-    \\frac{dx}{dt} = \\sigma (y - x) \\\\
-    \\frac{dy}{dt} = x (\\rho - z) - y \\\\
-    \\frac{dz}{dt} = x y - \\beta z
-    \\end{cases}
+    \begin{cases}
+    \frac{dx}{dt} = \sigma (y - x) \\
+    \frac{dy}{dt} = x (\rho - z) - y \\
+    \frac{dz}{dt} = x y - \beta z
+    \end{cases}
     ''')
+
     st.markdown(r"""
-A Lorenz-rendszer a káoszelmélet egyik legismertebb példája. A bifurkációs térkép segítségével vizsgálhatók a stabil és kaotikus régiók.
-- **$ρ < 1$**: stabil fixpont
-- **$1 < ρ < 24.74$**: oszcilláció
-- **$ρ > 24.74$**: káosz
+A Lorenz-egyenletrendszer a konvekciós áramlás egyszerűsített modellje, amelyet **Edward Lorenz** vezetett be 1963-ban.
+
+A rendszer érzékeny a kezdeti feltételekre – ezt a jelenséget nevezzük **determinista káosznak**.
+A fenti egyenletek **nemlineáris** viselkedése miatt kis eltérések is drasztikus változásokat okozhatnak az időbeli alakulásban.
+
+---
+
+#### 🔍 További megjegyzések (LaTeX):
+
+- Az attraktor nem periodikus, mégis határolt és determinisztikus:
+
+\[
+\lim_{t \to \infty} \Vert x(t) - x'(t) \Vert \to \infty, \quad \text{ha } x(0) \ne x'(0)
+\]
+
+- Egyensúlyi pontok léteznek, és lineáris stabilitásanalízissel vizsgálhatók.
+- A Jacobian mátrix:
+
+\[
+J = \begin{bmatrix}
+-\sigma & \sigma & 0 \\
+\rho - z & -1 & -x \\
+y & x & -\beta
+\end{bmatrix}
+\]
+
+- Az attraktor **dimenziója fraktál**, és a rendszer **nem integrálható** zárt formában.
+
 """)
 
     st.subheader("📝 Megfigyelések")
