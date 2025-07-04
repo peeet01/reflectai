@@ -73,31 +73,21 @@ def run():
     st.markdown("""
 ## 🌪️ Bevezetés a Lorenz-rendszerbe
 
-A **Lorenz-rendszer** egy három differenciálegyenletből álló nemlineáris dinamikai modell, amely az időjárás modellezéséből indult, de ma már az egyik legismertebb **determinista káoszt** leíró rendszerként tartjuk számon.
+A **Lorenz-rendszer** egy három differenciálegyenletből álló nemlineáris dinamikai modell,  
+amely az időjárás modellezéséből indult, de ma már az egyik legismertebb **determinista káoszt** leíró rendszerként tartjuk számon.
 
 A rendszer egy egyszerűsített konvektív áramlást modellez, és rendkívül érzékeny a kezdeti feltételekre – ez a híres **pillangóhatás**.
+""")
 
----
-
-## 🧮 Matematikai háttér
-
-A Lorenz-egyenletek a következők:
-
-\\[
-\\begin{cases}
-\\frac{dx}{dt} = \\sigma(y - x) \\\\
-\\frac{dy}{dt} = x(\\rho - z) - y \\\\
-\\frac{dz}{dt} = xy - \\beta z
-\\end{cases}
-\\]
-
-Ahol:
-- \\( x, y, z \\): az állapotváltozók (sebességek, hőmérséklet)
-- \\( \\sigma \\): Prandtl-szám (tipikusan 10)
-- \\( \\rho \\): Rayleigh-szám (tipikusan 28)
-- \\( \\beta \\): geometriai állandó (tipikusan 8/3)
-
----
+    st.markdown("---")
+    st.markdown("## 🧮 Matematikai háttér")
+    st.latex(r'''
+    \begin{cases}
+    \frac{dx}{dt} = \sigma(y - x) \\
+    \frac{dy}{dt} = x(\rho - z) - y \\
+    \frac{dz}{dt} = xy - \beta z
+    \end{cases}
+    ''')
 
 ## 📊 A rendszer dinamikája
 
