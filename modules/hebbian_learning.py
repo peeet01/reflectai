@@ -80,26 +80,24 @@ amely a biológiai neuronhálók **szinaptikus erősödését** modellezi.
 > *„Azok a neuronok, amelyek együtt tüzelnek, együtt huzalozódnak.”*
 
 #### 📐 Súlyfrissítési képlet:
-
 $$
-w_i \leftarrow w_i + \eta \cdot x_i \cdot t
+w_i \\leftarrow w_i + \\eta \\cdot x_i \\cdot t
 $$
 
-**Ahol:**
+Ahol:
+- \( w_i \): az i-edik bemeneti súly  
+- \( \\eta \): tanulási ráta  
+- \( x_i \): bemenet értéke  
+- \( t \): célérték vagy posztszinaptikus aktivitás
 
-- \( w_i \): az *i*-edik bemeneti súly  
-- \( \eta \): tanulási ráta  
-- \( x_i \): a bemeneti neuron aktivációja  
-- \( t \): a kimeneti neuron aktivációja (vagy célérték)
+Ez a szabály csak akkor módosítja a súlyokat, ha **együtt aktiválódik** a bemenet és a célérték.  
+Ezáltal az erősen korrelált bemenet–kimenet kapcsolatok megerősödnek.
 
-Ez a szabály akkor módosítja a súlyokat, ha a bemenet és kimenet **együtt aktiválódik**, vagyis korrelálnak.  
-A Hebbian-elv alapvető szerepet játszik a **nem felügyelt tanulás** modellezésében, és megalapozza az asszociatív memóriák működését.
-
-#### 📌 Alkalmazás:
-- Biológiai tanulási mechanizmusok szimulációja  
-- Nem felügyelt neurális modellek alapja  
-- Szinaptikus erősségek időbeli változásának megértése
-""")
+#### 📌 Jelentősége:
+- Egyszerű modell a **nem felügyelt tanuláshoz**
+- Biológiai alapú tanulás szimulálása
+- Alkalmas asszociatív memória és klaszterezési modellek alapjául
+    """)
 
 # ✅ ReflectAI kompatibilitás
 app = run
