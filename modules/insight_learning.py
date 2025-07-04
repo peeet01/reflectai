@@ -13,7 +13,7 @@ def run():
     st.markdown("""
     A **belátásos tanulás** (insight learning) során a megoldás **nem fokozatos próbálkozásokkal**, hanem **egy hirtelen felismeréssel** jelenik meg.
 
-    A modellünk egy **aktivációs térképet** szimulál, ahol a neuronok tapasztalati úton aktiválódnak.  
+    A modell egy **aktivációs térképet** szimulál, ahol a neuronok tapasztalati úton aktiválódnak.  
     Amikor az aktiváció egy **kritikus szintet (θ)** elér egy célterületen, akkor történik meg a belátás, amit az "Aha!" pillanatként vizualizálunk.
     """)
 
@@ -22,25 +22,27 @@ def run():
 
     grid_size = st.sidebar.slider("Rács méret (N×N)", 5, 50, 20)
     episodes = st.sidebar.slider("Epizódok száma", 10, 500, 100, step=10)
-    theta = st.sidebar.slider("Belátási küszöb θ", 10, 100, 40)
-    sigma = st.sidebar.slider("Simítás (Gauss-szűrés)", 0.0, 5.0, 1.0)
-    seed = st.sidebar.number_input("Véletlenszám seed (opcionális)", value=42)
+    theta = st.sidebar.slider("Belátási küszöb θ", 10, 200, 40)
+    sigma = st.sidebar.slider("Gauss-szűrés simítás σ", 0.0, 5.0, 1.0)
+    max_steps = st.sidebar.slider("Lépések epizódonként", 1, 100, 20)
+    activation_increment = st.sidebar.slider("ΔA – aktiváció növekedés", 0.1, 5.0, 1.0, step=0.1)
+    seed = st.sidebar.number_input("Véletlenszám seed", value=42)
 
     np.random.seed(int(seed))
 
     # 🔁 Aktivációs szimuláció
-    def simulate_activation(grid, episodes, threshold):
+    def simulate_activation(grid, episodes, threshold, max_steps, delta_a):
         activation_map = np.zeros((grid, grid))
         goal = (grid // 2, grid // 2)
         insight_episode = None
 
         for ep in range(episodes):
             pos = [np.random.randint(grid), np.random.randint(grid)]
-            for _ in range(grid):  # korlátozott lépésszám
+            for _ in range(max_steps):
                 dx, dy = np.random.choice([-1, 0, 1]), np.random.choice([-1, 0, 1])
                 pos[0] = np.clip(pos[0] + dx, 0, grid - 1)
                 pos[1] = np.clip(pos[1] + dy, 0, grid - 1)
-                activation_map[pos[0], pos[1]] += 1
+                activation_map[pos[0], pos[1]] += delta_a
 
             if activation_map[goal] >= threshold and insight_episode is None:
                 insight_episode = ep
@@ -48,7 +50,9 @@ def run():
         return activation_map, goal, insight_episode
 
     # 🔢 Számítás
-    activation_raw, goal_pos, insight_ep = simulate_activation(grid_size, episodes, theta)
+    activation_raw, goal_pos, insight_ep = simulate_activation(
+        grid_size, episodes, theta, max_steps, activation_increment
+    )
     activation = gaussian_filter(activation_raw, sigma=sigma)
 
     # 🖼️ 2D Ábra
@@ -99,11 +103,11 @@ def run():
     """)
 
     st.markdown("""
-    A neuronhálózat aktivációja minden epizódban növekszik egy véletlenszerű séta (random walk) során.
+    A neuronhálózat aktivációja minden epizódban növekszik egy véletlenszerű séta során.
 
-    - **\( A_{i,j}^{(t)} \)**: az aktiváció a \( t \)-edik időlépésben az adott (i,j) pozíción  
-    - **\( \Delta A \)**: aktivációs növekedés lépésenként (itt 1-gyel növeljük)  
-    - **\( \theta \)**: a belátási küszöb – ha ezt a célpozíció aktivációja eléri, megtörténik az „aha!” pillanat
+    - **\( A_{i,j}^{(t)} \)**: aktiváció a \( t \)-edik időlépésben az adott (i,j) pozíción  
+    - **\( \Delta A \)**: aktivációs növekedés lépésenként  
+    - **\( \theta \)**: belátási küszöb – ha ezt a célpozíció aktivációja eléri, megtörténik az „aha!” pillanat  
 
     #### 🎓 Következtetések
 
@@ -111,8 +115,8 @@ def run():
     - A **σ** paraméterrel szabályozható a „mentális simítás”, amely befolyásolja a felismerés esélyét.
     - A szimuláció **nem determinisztikus**, így ugyanazokkal a paraméterekkel is más-más eredmény adódhat.
 
-    Ez a modell egy leegyszerűsített, de illusztratív nézete a belátás alapú tanulási folyamatnak.
+    Ez a modell egy leegyszerűsített, de jól illusztrált nézete a belátás alapú tanulási folyamatnak.
     """)
 
-# 👇 Ez kell a modulrendszeredhez
+# 💡 Modul kompatibilitás
 app = run
