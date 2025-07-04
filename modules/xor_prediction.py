@@ -1,225 +1,107 @@
+import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import streamlit as st
-import time
-import os
-import joblib
-from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import accuracy_score, ConfusionMatrixDisplay
 import plotly.graph_objects as go
-from sklearn.model_selection import train_test_split
+from scipy.ndimage import gaussian_filter
+
+st.set_page_config(layout="wide")
 
 def run():
-    st.title("🔁 XOR Prediction – Tudományos Neurális Hálózat Playground")
+    # Cím és leírás
+    st.title("🧠 Insight Learning – Belátás alapú tanulás szimuláció")
 
     st.markdown("""
-    Ez a modul egy neurális hálózatot alkalmaz az **XOR logikai művelet** megtanulására,  
-    tudományosan validálható módon: aktivációk, solverek, architektúra, export, riport és 3D hálóvizualizációval.
+A **belátásos tanulás** során a megoldás nem fokozatos próbálkozásokkal,
+hanem egy **hirtelen felismeréssel** (aha-élmény) jelenik meg.
+
+Ez a szimuláció egy **aktivációs térképen** modellezi a tapasztalati tanulást,
+ahol az aktiváció egy adott küszöb felett **belátást** vált ki.
+""")
+
+    # Paraméterek
+    st.sidebar.header("🔧 Paraméterek")
+    grid_size = st.sidebar.slider("📏 Rács mérete", 5, 50, 20)
+    episodes = st.sidebar.slider("🔁 Epizódok száma", 1, 200, 50)
+    activation_increment = st.sidebar.slider("⚡ Aktiváció növekedés (ΔA)", 0.1, 5.0, 1.0)
+    aha_threshold = st.sidebar.slider("🎯 Belátási küszöb (θ)", 1.0, 20.0, 10.0)
+    sigma = st.sidebar.slider("🧠 Mentális simítás (σ)", 0.0, 3.0, 1.0)
+
+    # Aktivációs térkép generálása
+    def generate_activation_map(grid_size, episodes, increment, sigma):
+        activation_map = np.zeros((grid_size, grid_size))
+        for _ in range(episodes):
+            x, y = np.random.randint(0, grid_size, 2)
+            activation_map[x, y] += increment
+        if sigma > 0:
+            activation_map = gaussian_filter(activation_map, sigma=sigma)
+        return activation_map
+
+    activation_map = generate_activation_map(grid_size, episodes, activation_increment, sigma)
+    center = grid_size // 2
+    center_activation = activation_map[center, center]
+    insight_occurred = center_activation >= aha_threshold
+
+    # Aktivációs térkép – 2D
+    st.header("🗺️ Aktivációs térkép (2D)")
+    fig2d, ax2d = plt.subplots()
+    cax = ax2d.imshow(activation_map, cmap="plasma")
+    fig2d.colorbar(cax, ax=ax2d, label="Aktiváció")
+    ax2d.set_title("Aktiváció eloszlás")
+    st.pyplot(fig2d)
+
+    # Aktivációs felszín – 3D
+    st.header("🌐 Aktivációs felszín (3D)")
+    x, y = np.meshgrid(np.arange(grid_size), np.arange(grid_size))
+    fig3d = go.Figure(data=[go.Surface(z=activation_map, x=x, y=y, colorscale="Inferno")])
+    fig3d.update_layout(
+        scene=dict(
+            xaxis_title="Neuron X",
+            yaxis_title="Neuron Y",
+            zaxis_title="Aktiváció"
+        ),
+        margin=dict(l=0, r=0, t=50, b=0)
+    )
+    st.plotly_chart(fig3d, use_container_width=True)
+
+    # Eredmény
+    st.header("📌 Belátás eredménye")
+    if insight_occurred:
+        st.success(f"✅ Belátás megtörtént! A középpont aktivációja: {center_activation:.2f} ≥ {aha_threshold}")
+    else:
+        st.warning(f"❌ Nem történt belátás. A középpont aktivációja: {center_activation:.2f} < {aha_threshold}")
+
+    # CSV export
+    st.header("💾 CSV exportálás")
+    csv = "\n".join([",".join(map(str, row)) for row in activation_map])
+    st.download_button("⬇️ Aktivációs térkép letöltése", csv.encode("utf-8"), file_name="activation_map.csv")
+
+    # Tudományos háttér
+    st.header("📘 Tudományos háttér")
+
+    st.latex(r"""
+    \text{Aktiváció:} \quad A_{i,j}^{(t+1)} = A_{i,j}^{(t)} + \Delta A
+    """)
+    st.latex(r"""
+    \text{Belátás feltétele:} \quad A_{\text{goal}} \geq \theta
     """)
 
-    # --- Adat generálás ---
-    X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-    y = np.array([0, 1, 1, 0])
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+    st.markdown("""
+A neuronhálózat aktivációja minden epizódban növekszik egy véletlenszerű séta során.
 
-    # --- Felhasználói beállítások ---
-    hidden_layer_size = st.slider("🔧 Rejtett réteg mérete", 2, 20, 4)
-    max_iter = st.slider("🔁 Iterációk száma", 100, 2000, 500, step=100)
-    activation = st.selectbox("📊 Aktivációs függvény", ["tanh", "relu", "logistic"])
-    solver = st.selectbox("🧲 Solver algoritmus", ["adam", "sgd", "lbfgs"])
-    learning_rate_init = st.slider("📈 Tanulási ráta", 0.001, 1.0, 0.01, step=0.01)
-    show_3d = st.checkbox("🌐 3D döntési felület", value=True)
+- $A_{i,j}^{(t)}$: aktiváció a $(i,j)$ pozíción a $t$-edik időlépésben  
+- $\Delta A$: aktivációs növekedés lépésenként  
+- $\theta$: belátási küszöb – ha ezt a célpozíció aktivációja eléri, megtörténik az „aha!” pillanat
 
-    # --- Modell létrehozása ---
-    model = MLPClassifier(
-        hidden_layer_sizes=(hidden_layer_size,),
-        activation=activation,
-        solver=solver,
-        learning_rate_init=learning_rate_init,
-        max_iter=max_iter,
-        random_state=42
-    )
+---
 
-    # --- Betöltés lehetőség ---
-    with st.expander("📦 Előző modell betöltése"):
-        if st.checkbox("🔁 Modell betöltése fájlból"):
-            uploaded = st.file_uploader("Válassz .pkl fájlt", type="pkl")
-            if uploaded:
-                model = joblib.load(uploaded)
-                st.success("✅ Modell betöltve")
+### 🎓 Következtetések
 
-    # --- Tanítás ---
-    start = time.time()
-    model.fit(X_train, y_train)
-    end = time.time()
+- A belátás akkor valósul meg, amikor az aktiváció koncentráltan gyűlik össze egy régióban.
+- A `σ` érték szabályozza a **mentális simítás** mértékét.
+- A szimuláció **nem determinisztikus**, tehát ugyanazon paraméterekkel is más eredmény adódhat.
 
-    y_pred = model.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
-    st.success(f"🌟 Modell pontossága: {acc:.2f} | Tanítás ideje: {end-start:.3f} másodperc")
+Ez a modell egy leegyszerűsített, de jól illusztrált nézete a belátásos tanulási folyamatnak.
+""")
 
-    # --- Loss görbe ---
-    if hasattr(model, 'loss_curve_'):
-        fig_loss, ax_loss = plt.subplots()
-        ax_loss.plot(model.loss_curve_)
-        ax_loss.set_xlabel("Iteráció")
-        ax_loss.set_ylabel("Veszteség")
-        ax_loss.set_title("📉 Tanulási veszteség")
-        st.pyplot(fig_loss)
-
-    # --- Konfúziós mátrix ---
-    fig_cm, ax_cm = plt.subplots()
-    ConfusionMatrixDisplay.from_predictions(y_test, y_pred, ax=ax_cm)
-    st.pyplot(fig_cm)
-
-    # --- 3D döntési felület ---
-    if show_3d:
-        xx, yy = np.meshgrid(np.linspace(0, 1, 100), np.linspace(0, 1, 100))
-        zz = np.array([
-            model.predict([[x, y]])[0] for x, y in zip(np.ravel(xx), np.ravel(yy))
-        ]).reshape(xx.shape)
-
-        fig = go.Figure(data=[
-            go.Surface(z=zz, x=xx, y=yy, colorscale='Viridis', opacity=0.85)
-        ])
-        fig.update_layout(
-            title="🧠 Döntési felület – tanult reprezentáció",
-            scene=dict(xaxis_title='X₁', yaxis_title='X₂', zaxis_title='Predikció'),
-            margin=dict(l=0, r=0, t=60, b=0)
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-    # --- Aktivációk megjelenítése ---
-    with st.expander("🧩 Rejtett réteg neuronjainak aktivációi"):
-        if activation == "logistic":
-            act_fn = lambda x: 1 / (1 + np.exp(-x))
-        elif activation == "tanh":
-            act_fn = np.tanh
-        elif activation == "relu":
-            act_fn = lambda x: np.maximum(0, x)
-        else:
-            act_fn = lambda x: x
-
-        W1 = model.coefs_[0]
-        b1 = model.intercepts_[0]
-        hidden_outputs = act_fn(np.dot(X, W1) + b1)
-
-        fig_hidden, ax_hidden = plt.subplots()
-        im = ax_hidden.imshow(hidden_outputs, cmap='coolwarm', aspect='auto')
-        ax_hidden.set_xticks(range(hidden_outputs.shape[1]))
-        ax_hidden.set_yticks(range(X.shape[0]))
-        ax_hidden.set_xlabel("Neuron index")
-        ax_hidden.set_ylabel("Bemeneti minta index")
-        ax_hidden.set_title("🔍 Aktivációk a rejtett rétegben")
-        fig_hidden.colorbar(im)
-        st.pyplot(fig_hidden)
-
-    # --- Modell mentése és riport ---
-    with st.expander("💾 Mentés / Export"):
-        if st.button("💾 Modell mentése"):
-            filename = f"xor_model_{int(time.time())}.pkl"
-            joblib.dump(model, filename)
-            with open(filename, "rb") as f:
-                st.download_button("⬇️ Letöltés", f, file_name=filename)
-            os.remove(filename)
-
-        if st.button("📝 Riport generálása"):
-            report = f"""# XOR Prediction Riport
-
-**Dátum**: {time.strftime('%Y-%m-%d %H:%M:%S')}
-**Pontosság**: {acc:.2f}
-**Tanítási idő**: {end - start:.3f} másodperc
-
-## Beállítások
-- Rejtett réteg méret: {hidden_layer_size}
-- Aktiváció: {activation}
-- Solver: {solver}
-- Iterációk: {max_iter}
-- Tanulási ráta: {learning_rate_init}
-
-A modell a klasszikus XOR-problémát tanulja meg. A döntési felület és az aktivációk vizualizálása segít a háló működésének értelmezésében.
-"""
-            st.download_button("📥 Riport letöltése (.txt)", report, file_name="xor_riport.txt")
-
-    # --- 3D háló vizualizáció ---
-    with st.expander("🧠 Háló architektúra (3D vizualizáció)"):
-        if st.button("👁️ Vizualizáld a hálót"):
-            layers = [X.shape[1]] + list(model.hidden_layer_sizes) + [1]
-            fig = go.Figure()
-            neuron_positions = []
-            x_spacing = 5
-            y_spacing = 1.5
-
-            for i, layer_size in enumerate(layers):
-                layer_positions = []
-                x = i * x_spacing
-                for j in range(layer_size):
-                    y = j * y_spacing - (layer_size - 1) * y_spacing / 2
-                    z = 0
-                    fig.add_trace(go.Scatter3d(
-                        x=[x], y=[y], z=[z],
-                        mode='markers+text',
-                        marker=dict(size=6, color='blue'),
-                        text=[f'L{i}N{j}'],
-                        textposition='top center',
-                        showlegend=False
-                    ))
-                    layer_positions.append((x, y, z))
-                neuron_positions.append(layer_positions)
-
-            for i in range(len(model.coefs_)):
-                weights = model.coefs_[i]
-                for j, src_pos in enumerate(neuron_positions[i]):
-                    for k, tgt_pos in enumerate(neuron_positions[i + 1]):
-                        w = weights[j, k]
-                        color = 'green' if w > 0 else 'red'
-                        width = min(6, max(1, abs(w * 5)))
-                        fig.add_trace(go.Scatter3d(
-                            x=[src_pos[0], tgt_pos[0]],
-                            y=[src_pos[1], tgt_pos[1]],
-                            z=[src_pos[2], tgt_pos[2]],
-                            mode='lines',
-                            line=dict(color=color, width=width),
-                            showlegend=False
-                        ))
-
-            fig.update_layout(
-                title="🧠 Neurális háló architektúra (rétegenként)",
-                margin=dict(l=0, r=0, t=60, b=0),
-                scene=dict(
-                    xaxis=dict(title='Réteg'),
-                    yaxis=dict(title='Neuron'),
-                    zaxis=dict(title='')
-                )
-            )
-            st.plotly_chart(fig, use_container_width=True)
-
-    # --- Matematikai háttér ---
-    with st.expander("📘 Matematikai háttér"):
-        st.markdown(r"""
-        Az **XOR** (exclusive OR) probléma egy nemlineárisan szeparálható logikai művelet:
-
-        $$
-        \text{XOR}(x_1, x_2) =
-        \begin{cases}
-        0, & \text{ha } x_1 = x_2 \\
-        1, & \text{ha } x_1 \neq x_2
-        \end{cases}
-        $$
-
-        Egyetlen rétegű perceptron nem képes ezt megtanulni.
-
-        A tanulási modell egy **többrétegű perceptron (MLP)**:
-        $$
-        \hat{y} = \sigma \left( W^{(2)} \cdot \sigma(W^{(1)}x + b^{(1)}) + b^{(2)} \right)
-        $$
-
-        A célfüggvény (pl. MSE):
-        $$
-        \mathcal{L} = \frac{1}{N} \sum_{i=1}^N \left(y_i - \hat{y}_i\right)^2
-        $$
-
-        A tanulás célja: a veszteség minimalizálása.
-        """)
-
-# Kötelező ReflectAI-kompatibilitás
+# Rendszerillesztéshez:
 app = run
