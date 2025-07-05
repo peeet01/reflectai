@@ -136,6 +136,39 @@ def run():
         - Idősoros predikció és nemlineáris rendszerek elemzése  
         - Gépi tanulási modellek tesztelése ismeretlen dinamikán
         """)
+
+    with st.expander("🔮 ESN Prediction – Echo State Network előrejelzés"):
+        st.markdown("""
+        **Cél:** Idősorok előrejelzése **rezervoár alapú** neurális hálózattal, ahol csak a kimeneti réteg tanulódik.
+
+        **Hálózati dinamika:**
+        """)
+        st.latex(r"\mathbf{x}(t+1) = \tanh(W_{res} \cdot \mathbf{x}(t) + W_{in} \cdot \mathbf{u}(t))")
+        st.latex(r"\hat{y}(t) = W_{out} \cdot \mathbf{x}(t)")
+
+        st.markdown("""
+        Ahol:  
+        - \( \mathbf{x}(t) \): rezervoár állapota  
+        - \( \mathbf{u}(t) \): bemeneti vektor az idő \( t \)-ben  
+        - \( W_{res} \): rezervoár súlymátrix (nem tanulódik)  
+        - \( W_{in} \): bemeneti súlyok  
+        - \( W_{out} \): kimeneti súlyok (tanulhatók)  
+        - \( \hat{y}(t) \): predikált érték
+
+        **Tanulás:**  
+        - Csak \( W_{out} \) kerül optimalizálásra (pl. lineáris regresszióval)  
+        - A többi komponens rögzített, így a tanulás gyors és hatékony
+
+        **Jellemzők:**  
+        - **Nemlineáris transzformáció** a rezervoárban  
+        - **Lineáris olvasás** az állapotokból  
+        - Gyors betanítás, alacsony költség
+
+        **Felhasználás:**  
+        - Kaotikus rendszerek (pl. Lorenz) predikciója  
+        - Szenzoradatok és fizikai folyamatok előrejelzése  
+        - Időbeli mintafelismerés és rendszerdinamika tanulása  
+        """)
         
     with st.expander("🧠 Hebbian Learning Viz – Szinaptikus erősödés szemléltetése"):
         st.latex(r"\Delta w = \eta \cdot x \cdot y")
