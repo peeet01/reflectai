@@ -50,6 +50,30 @@ def run():
         **Megjegyzés:**  
         A tiszta Hebbian tanulás instabil lehet – gyakran **normalizációval** egészítik ki (pl. Oja szabály).
         """)
+
+    with st.expander("💡 Insight Learning – Belátásos tanulás szimuláció"):
+        st.markdown(r"""
+        **Cél:** Egy probléma hirtelen, strukturált megoldásának megtalálása kísérleti vagy vizuális minták alapján.
+
+        **Elméleti háttér:**
+        - Az **insight** nem fokozatos tanuláson alapul, hanem hirtelen megértésen.
+        - Nem szükséges folyamatos megerősítés vagy hibajel – gyakran **strukturális reprezentációk átszervezéséből** születik a megoldás.
+        - A viselkedés ugrásszerűen javul, nem fokozatosan.
+
+        **Analógia – problématér átrendezése:**
+        $$ \text{Megértés: } \quad S_0 \xrightarrow{\text{transzformáció}} S^* $$
+        ahol:
+        - $S_0$: kezdeti mentális reprezentáció  
+        - $S^*$: új struktúra, amely lehetővé teszi a megoldást
+
+        **Felhasználás:**
+        - Viselkedéspszichológia (Köhler, Gestalt-pszichológia)  
+        - Gépi tanulásban: stratégiai újratervezés, problémamegoldás mintázatból  
+        - Robotikában: **hirtelen útvonaltervezés** vizuális minták alapján
+
+        **Példa:** Egy algoritmus nem a próbálkozások számával tanul, hanem a bemenet struktúrájának elemzésével képes felismerni az optimális lépést.
+
+        """)
         
     with st.expander("🧠 Hebbian Learning Viz – Szinaptikus erősödés szemléltetése"):
         st.latex(r"\Delta w = \eta \cdot x \cdot y")
