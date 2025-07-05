@@ -146,15 +146,14 @@ def run():
         st.latex(r"\mathbf{x}(t+1) = \tanh(W_{res} \cdot \mathbf{x}(t) + W_{in} \cdot \mathbf{u}(t))")
         st.latex(r"\hat{y}(t) = W_{out} \cdot \mathbf{x}(t)")
 
-        st.markdown("""
-        Ahol:  
-        - \( \mathbf{x}(t) \): rezervoár állapota  
-        - \( \mathbf{u}(t) \): bemeneti vektor az idő \( t \)-ben  
-        - \( W_{res} \): rezervoár súlymátrix (nem tanulódik)  
-        - \( W_{in} \): bemeneti súlyok  
-        - \( W_{out} \): kimeneti súlyok (tanulhatók)  
-        - \( \hat{y}(t) \): predikált érték
-
+        st.markdown("**Ahol:**")
+        st.latex(r"\mathbf{x}(t): \text{ rezervoár állapota}")
+        st.latex(r"\mathbf{u}(t): \text{ bemeneti vektor az idő } t \text{-ben}")
+        st.latex(r"W_{\text{res}}: \text{ rezervoár súlymátrix (nem tanulódik)}")
+        st.latex(r"W_{\text{in}}: \text{ bemeneti súlyok}")
+        st.latex(r"W_{\text{out}}: \text{ kimeneti súlyok (tanulhatók)}")
+        st.latex(r"\hat{y}(t): \text{ predikált érték}")
+        
         **Tanulás:**  
         - Csak \( W_{out} \) kerül optimalizálásra (pl. lineáris regresszióval)  
         - A többi komponens rögzített, így a tanulás gyors és hatékony
