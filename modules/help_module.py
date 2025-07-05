@@ -130,6 +130,34 @@ def run():
         A Hebbian tanulás egy alapvető **unsupervised learning** mechanizmus, amely a korrelált aktivitást preferálja, és a **neurális reprezentációk kialakulását** modellezi.
         """)
 
+    with st.expander("🧠 Oja Learning – Főkomponens tanulása"):
+        st.markdown(r"""
+        **Cél:** A modell megtanulja a bemenet legfontosabb irányát, azaz a **főkomponenst** (PCA-hasonló tanulás).
+
+        **Tanulási szabály:**
+        """)
+        st.latex(r"\Delta \mathbf{w} = \eta \cdot y \cdot (\mathbf{x} - y \cdot \mathbf{w})")
+        st.markdown(r"""
+        Ahol:  
+        - $\mathbf{x}$: bemeneti vektor  
+        - $\mathbf{w}$: súlyvektor  
+        - $y = \mathbf{w}^T \mathbf{x}$: neuron kimenete  
+        - $\eta$: tanulási ráta  
+        - $\Delta \mathbf{w}$: súlyváltozás
+
+        **Mechanizmus:**  
+        Az Oja-szabály a **Hebbian tanulást** egészíti ki egy normalizáló taggal, így stabilizálja a súlyok növekedését.
+
+        **Viselkedés:**
+        - A súlyvektor konvergál a legnagyobb sajátértékhez tartozó sajátvektor irányába  
+        - Hasonlóan viselkedik, mint a PCA első komponense
+
+        **Felhasználás:**  
+        - Dimenziócsökkentés neurális úton  
+        - Főkomponens detekció tanulás útján  
+        - Nem felügyelt tanulási folyamatok modellezése  
+        """)
+
     with st.expander("❌ XOR Predikció – Neurális hálózat"):
         st.latex(r"\hat{y} = \sigma(W^{(2)} \cdot \sigma(W^{(1)}x + b^{(1)}) + b^{(2)})")
         st.latex(r"\mathcal{L} = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}_i)^2")
