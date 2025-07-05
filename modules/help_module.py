@@ -82,11 +82,12 @@ def run():
 
         **BCM-egyenletek:**
         """)
+    
         st.latex(r"\frac{dw}{dt} = \eta \cdot x \cdot y \cdot (y - \theta)")
         st.latex(r"\frac{d\theta}{dt} = \frac{1}{\tau} (y^2 - \theta)")
 
         st.markdown(r"""
-        Ahol:
+        **Paraméterek:**
         - \( x \): bemeneti neuron aktivitása  
         - \( y \): kimeneti neuron aktivitása  
         - \( \eta \): tanulási ráta  
