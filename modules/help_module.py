@@ -171,6 +171,39 @@ def run():
         - Gépi tanulási modellek tesztelése ismeretlen dinamikán
         """)
 
+    with st.expander("🌪️ Lorenz-rendszer – Determinisztikus káosz szimulációja"):
+        st.markdown("""
+        **Cél:** A Lorenz-rendszer nemlineáris, kaotikus dinamikájának szemléltetése és vizsgálata.
+
+        **Dinamika:** A Lorenz-egyenletek három változóra ható, nemlineáris differenciálegyenletek:
+        """)
+        st.latex(r"\frac{dx}{dt} = \sigma(y - x)")
+        st.latex(r"\frac{dy}{dt} = x(\rho - z) - y")
+        st.latex(r"\frac{dz}{dt} = x y - \beta z")
+
+        st.markdown("**Ahol:**")
+        st.latex(r"x, y, z: \text{ a rendszer állapotváltozói}")
+        st.latex(r"\sigma: \text{ Prandtl-szám (tipikusan } \sigma = 10 \text{)}")
+        st.latex(r"\rho: \text{ Rayleigh-szám (tipikusan } \rho = 28 \text{)}")
+        st.latex(r"\beta: \text{ geometriai paraméter (tipikusan } \beta = 8/3 \text{)}")
+
+        st.markdown("""
+        **Tulajdonságok:**  
+        - A rendszer **érzékeny a kezdeti feltételekre**  
+        - Nemlineáris visszacsatolások miatt **determinista káosz** alakul ki  
+        - Jellemzője az ún. **Lorenz-attraktor**, amely egy fraktál geometriájú pályatér
+
+        **Tudományos jelentőség:**  
+        - A Lorenz-modell eredetileg a **légkör konvekciós áramlásait** írta le  
+        - Később a **kaotikus rendszerek ikonikus példájává** vált  
+        - Alapvető szerepet játszik a komplex dinamikák és nemlineáris viselkedések megértésében
+
+        **Felhasználás:**  
+        - Fizikai rendszerek, pl. klímamodellek, áramlások szimulációja  
+        - Gépi tanulási modellek tesztelése kaotikus dinamikán  
+        - Nemlineáris predikciós algoritmusok benchmarkolása
+        """)
+
     with st.expander("🔮 ESN Prediction – Echo State Network előrejelzés"):
         st.markdown("""
         **Cél:** Idősoros adatok előrejelzése egy **rezervoár alapú** neurális háló segítségével, minimális tanulással.
