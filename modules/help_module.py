@@ -335,6 +335,37 @@ def run():
         - Lineáris modellek korlátainak bemutatása  
         """)
 
+    with st.expander("📶 Noise Robustness – Tanulási rendszerek zajtűrése"):
+        st.markdown("""
+        **Cél:** Annak vizsgálata, hogy a neurális hálózatok mennyire képesek megőrizni teljesítményüket bemeneti zaj vagy belső fluktuációk jelenlétében.
+
+        **Zajos bemenet modellezése:**
+        """)
+        st.latex(r"x(t) = x_{\text{clean}}(t) + \xi(t)")
+        st.markdown("ahol:")
+        st.latex(r"x_{\text{clean}}(t): \text{ a zajmentes bemeneti jel}")
+        st.latex(r"\xi(t) \sim \mathcal{N}(0, \sigma^2): \text{ Gauss-zaj nulla várható értékkel és } \sigma^2 \text{ varianciával}")
+
+        st.markdown("**Predikció hibája zajos környezetben:**")
+        st.latex(r"\text{MSE} = \frac{1}{T} \sum_{t=1}^{T} (y(t) - \hat{y}(t))^2")
+
+        st.markdown("**Jel–zaj arány (SNR):**")
+        st.latex(r"\text{SNR (dB)} = 10 \cdot \log_{10} \left( \frac{\mathbb{E}[x_{\text{clean}}^2]}{\mathbb{E}[\xi^2]} \right)")
+
+        st.markdown("**Zajrobusztus tanulási célfüggvény:**")
+        st.latex(r"\min_{W} \ \mathbb{E}_{\xi} \left[ \| f_W(x + \xi) - y \|^2 \right]")
+
+        st.markdown("""
+        **Tudományos háttér:**  
+        A zajrobusztusság kulcsfontosságú jellemző a **biológiai idegrendszerekben**, ahol a bemenetek és kimenetek mindig tartalmaznak fluktuációt.  
+        A mesterséges hálózatokban ezt **regularizációval**, **adataugmentációval** vagy **dropout technikával** lehet fokozni.
+
+        **Alkalmazás:**  
+        - Valós idejű predikciós rendszerek stabilitása  
+        - Szenzoros feldolgozás hibás vagy hiányos jelek esetén  
+        - Biológiai inspirált hálózatok tesztelése természetes zaj környezetben
+        """)
+
     with st.expander("⏱️ STDP – Spike-Timing Dependent Plasticity"):
         st.markdown("**Cél:** A szinaptikus súlyok időzítésalapú módosítása – biológiailag inspirált tanulási szabály.")
 
