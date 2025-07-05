@@ -57,6 +57,26 @@ def run():
         - Lineáris modellek korlátainak bemutatása  
         """)
 
+    with st.expander("🧠 Memory Landscape – Asszociatív tárolási térkép"):
+        st.latex(r"E(\mathbf{s}) = -\frac{1}{2} \sum_{i \neq j} W_{ij} s_i s_j")
+        st.markdown("""
+        **Cél:** A neurális hálózat memóriastruktúráinak vizuális feltérképezése az energiafüggvény alapján.  
+
+        **Magyarázat:**
+        - $E(\\mathbf{s})$: az adott állapothoz tartozó hálózati energia  
+        - $W_{ij}$: szinaptikus súlymátrix elemei  
+        - $s_i$: az $i$-edik neuron állapota ($\\pm1$)  
+
+        **Felhasználás:**
+        - Minták stabilitásának és robusztusságának vizsgálata  
+        - Lokális minimumok detektálása az energiafelületen  
+        - Asszociatív memória térképezése (pl. Hopfield-háló)
+
+        **Tudományos háttér:**  
+        A memóriatárolás úgy történik, hogy a mintákhoz **energia-minimumok** rendelődnek. A hálózat dinamika szerint ezekbe a minimumokba **konvergál**:
+        """)
+        st.latex(r"s_i^{(t+1)} = \mathrm{sign} \left( \sum_j W_{ij} s_j^{(t)} \right)")
+        
     with st.expander("🌐 Berry-görbület – Kvantum topológia"):
         st.latex(r"\Omega(\mathbf{k}) = \nabla_{\mathbf{k}} \times \mathbf{A}(\mathbf{k}) \quad \text{ahol} \quad \mathbf{A}(\mathbf{k}) = -i \langle u(\mathbf{k}) | \nabla_{\mathbf{k}} | u(\mathbf{k}) \rangle")
         st.markdown("""
