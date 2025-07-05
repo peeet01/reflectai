@@ -79,14 +79,11 @@ def run():
         st.markdown(r"""
         **Cél:** A Lorenz-rendszer egyik komponensének (pl. \( x(t) \)) előrejelzése **többrétegű perceptron (MLP)** segítségével, kizárólag múltbeli adatok alapján.
 
-        **Lorenz-egyenletek:**
-        \begin{align}
-            \frac{dx}{dt} &= \sigma(y - x) \\
-            \frac{dy}{dt} &= x(\rho - z) - y \\
-            \frac{dz}{dt} &= xy - \beta z
-        \end{align}
-        ahol \( \sigma, \rho, \beta \) a rendszer paraméterei.
-
+        st.markdown("**Lorenz-egyenletek:**")
+        st.latex(r"\frac{dx}{dt} = \sigma(y - x)")
+        st.latex(r"\frac{dy}{dt} = x(\rho - z) - y")
+        st.latex(r"\frac{dz}{dt} = xy - \beta z")
+        st.markdown(r"Ahol \( \sigma, \rho, \beta \) a rendszer paraméterei.")
         **MLP célfüggvény:**
         $$ \hat{x}_{t+1} = f(x_t, x_{t-1}, \dots, x_{t-w}) $$
 
