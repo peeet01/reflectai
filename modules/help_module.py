@@ -75,6 +75,35 @@ def run():
 
         """)
 
+    with st.expander("🧠 BCM tanulás – Dinamikus küszöb-alapú tanulás"):
+        st.markdown(r"""
+        **Cél:** A neuronális aktivitás és tanulás összefüggéseinek modellezése egy dinamikus küszöb segítségével.  
+        A BCM-szabály (Bienenstock–Cooper–Munro) leírja, mikor erősödik vagy gyengül egy szinaptikus kapcsolat a kimeneti aktivitás függvényében.
+
+        **BCM-egyenletek:**
+        """)
+        st.latex(r"\frac{dw}{dt} = \eta \cdot x \cdot y \cdot (y - \theta)")
+        st.latex(r"\frac{d\theta}{dt} = \frac{1}{\tau} (y^2 - \theta)")
+
+        st.markdown(r"""
+        Ahol:
+        - \( x \): bemeneti neuron aktivitása  
+        - \( y \): kimeneti neuron aktivitása  
+        - \( \eta \): tanulási ráta  
+        - \( \theta \): aktivitásalapú küszöb, amely időben tanulódik  
+        - \( \tau \): időállandó a küszöb változására
+
+        **Magyarázat:**  
+        - Ha \( y > \theta \), akkor a szinapszis **erősödik** (LTP)  
+        - Ha \( y < \theta \), akkor a szinapszis **gyengül** (LTD)  
+        - A küszöb \( \theta \) maga is tanul az aktivitás négyzetének időbeli átlagaként
+
+        **Alkalmazás:**  
+        - Homeosztatikus plaszticitás modellezése  
+        - Neuronális stabilitás biztosítása tanulás során  
+        - Biológiailag realisztikus tanulási szabályok elemzése
+        """)
+
     with st.expander("🌪️ Lorenz-rendszer – MLP predikció"):
         st.markdown("""
         **Cél:** A Lorenz-rendszer egyik komponensének (pl. \( x(t) \)) előrejelzése **többrétegű perceptron (MLP)** segítségével, kizárólag múltbeli adatok alapján.
