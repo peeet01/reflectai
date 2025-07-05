@@ -401,46 +401,43 @@ def run():
         - Hebbian-elv továbbfejlesztett, időzített változata
         """)
 
-    with st.expander("⚡ SNN – LIF Neuronmodell és STDP tanulás"):
-        st.markdown("""
-        **Cél:** A szinaptikus tanulás és membránpotenciál dinamikájának szemléltetése az LIF neuronmodell és az STDP szabály kombinációjával.
-        """)
+    with st.expander("⚡ Spiking Neural Network – LIF neuron és STDP"):
+        st.markdown(r"""
+        **Cél:** Egy biológiailag inspirált neuronmodell (**Leaky Integrate-and-Fire**, LIF) szimulációja, amely **STDP** (Spike-Timing Dependent Plasticity) tanulást alkalmaz.
 
-        st.markdown("**LIF neuronmodell:**")
+        #### 🧠 LIF neuronmodell:
+        """)
         st.latex(r"\tau_m \frac{dV(t)}{dt} = -V(t) + R_m \cdot I_{ext}")
-        st.markdown("""
-        A modell egy elektromos analógián alapul, ahol:
+        st.markdown(r"""
+        Ahol:
         - \( V(t) \): membránpotenciál  
-        - \( \tau_m \): membrán időállandó  
         - \( R_m \): membránellenállás  
-        - \( I_{ext} \): külső bemeneti áram
+        - \( I_{ext} \): külső áram  
+        - \( \tau_m \): időállandó  
 
-        A neuron akkor tüzel, ha \( V(t) \geq V_{th} \), ezt követően \( V \) resetelődik.
+        A neuron tüzel, ha \( V(t) \geq V_{th} \), majd a potenciál visszaáll \( V_{reset} \)-re.
+
+        #### 🔁 STDP tanulási szabály:
         """)
-
-        st.markdown("**STDP tanulási szabály:**")
         st.latex(r"""
-        \Delta w(\Delta t) =
+        \Delta w =
         \begin{cases}
-        A_+ \cdot e^{-\Delta t / \tau_+}, & \text{ha } \Delta t > 0 \quad (\text{LTP}) \\\\
-        -A_- \cdot e^{\Delta t / \tau_-}, & \text{ha } \Delta t < 0 \quad (\text{LTD})
+        A_+ \cdot e^{-\Delta t / \tau_+}, & \text{ha } \Delta t > 0 \ (\text{LTP}) \\\\
+        -A_- \cdot e^{\Delta t / \tau_-}, & \text{ha } \Delta t < 0 \ (\text{LTD})
         \end{cases}
         """)
-        st.markdown("""
-        Ahol:
-        - \( \Delta t = t_{post} - t_{pre} \): poszt- és preszinaptikus spike közötti időeltérés  
-        - \( A_+ \), \( A_- \): tanulási amplitúdók  
-        - \( \tau_+ \), \( \tau_- \): időkonstansok LTP és LTD esetén
+        st.markdown(r"""
+        - \( \Delta t = t_{\text{post}} - t_{\text{pre}} \): spike időzítéskülönbség  
+        - \( A_+, A_- \): a súlymódosítás maximumai  
+        - \( \tau_+, \tau_- \): időállandók  
 
-        **Magyarázat:**  
-        - Ha a bemeneti aktivitás megelőzi a kimenetit → erősítés (**Long-Term Potentiation**)  
-        - Ha fordítva történik → gyengülés (**Long-Term Depression**)  
-        - A szabály időérzékeny, azaz a súlyváltozás a spike-időeltérés függvénye.
+        A szabály lehetővé teszi a szinaptikus súlyok **időzítésalapú módosítását** – alapvető a temporális mintázatok tanulásában.
 
-        **Alkalmazás:**  
-        - Biológiai neurális hálók időzítésalapú tanulása  
-        - Időbeli minták elsajátítása  
-        - Energiahatékony, eseményvezérelt hálózatok fejlesztése
+        #### 📊 Felhasználás:
+        - Neuromorf architektúrák (Loihi, TrueNorth)
+        - Szenzoros időjelek feldolgozása  
+        - Időfüggő minták felismerése (beszéd, mozgás)  
+        - Energiahatékony gépi tanulás biológiai inspirációval
         """)
 
     with st.expander("🧠 Memory Landscape – Asszociatív tárolási térkép"):
