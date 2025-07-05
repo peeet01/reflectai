@@ -117,6 +117,30 @@ def run():
         A fraktáldimenzió segítségével **rendszerek komplexitása** jellemezhető kvantitatív módon, különösen ott, ahol klasszikus mértékek (pl. topológiai dimenzió) csődöt mondanak.
         """)
 
+    with st.expander("🌋 Criticality Explorer – Neurális rendszerek kritikus állapota"):
+        st.latex(r"P(s) \propto s^{-\tau}")
+        st.markdown("""
+        **Cél:** A neurális rendszerek **önszerveződő kritikus viselkedésének** vizsgálata.  
+        A kritikus pontokon megfigyelhető, hogy az aktivitáseloszlás **skálafüggetlen**, azaz **hatványfüggvény** szerint alakul.
+
+        **Magyarázat:**
+        - $P(s)$: egy adott $s$ méretű aktivitási esemény valószínűsége  
+        - $\\tau$: hatványkitevő (tipikusan $\\sim 1.5$ körül)
+ 
+        **Jellemzők:**
+        - Nincs jellegzetes méret: **kis és nagy aktivitások** is előfordulnak  
+        - **Kritikus lejtő** jelenik meg log-log skálán  
+        - A rendszer érzékenyen reagál a bemenetekre
+
+        **Felhasználás:**
+        - Agyi aktivitás hullámzásainak (avalanches) modellezése  
+        - Kritikus állapotok keresése és jellemzése  
+        - Komplex rendszerek stabilitásának és tanulékonyságának optimalizálása
+
+        **Megjegyzés:**  
+        A kritikusitás közelében a hálózat **maximális információfeldolgozási kapacitással** működhet.
+        """)
+
     with st.expander("📉 Lyapunov Spectrum – Kaotikus rendszerek stabilitása"):
         st.latex(r"\lambda_i = \lim_{t \to \infty} \frac{1}{t} \ln \frac{||\delta x_i(t)||}{||\delta x_i(0)||}")
         st.markdown("""
