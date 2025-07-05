@@ -51,6 +51,40 @@ def run():
         A tiszta Hebbian tanulás instabil lehet – gyakran **normalizációval** egészítik ki (pl. Oja szabály).
         """)
 
+    with st.expander("🕸️ Kuramoto–Hebbian Szimuláció – Kollektív tanulás dinamikája"):
+        st.markdown("""
+        **Cél:** A Kuramoto-oszcillátorok és a Hebbian tanulás kombinált modelljének szimulációja.  
+        A kapcsolaterősségek időbeli módosulása az **együttes szinkronizáció** függvénye.
+
+        **Kuramoto-egyenletek a dinamikára:**
+        """)
+        st.latex(r"\frac{d\theta_i}{dt} = \omega_i + \sum_{j=1}^{N} K_{ij} \sin(\theta_j - \theta_i)")
+
+        st.markdown("**Hebbian tanulási szabály az élsúlyokra:**")
+        st.latex(r"\Delta K_{ij} = \eta \cdot \cos(\theta_i - \theta_j)")
+
+        st.markdown("**Ahol:**")
+        st.latex(r"\theta_i: \text{ az } i\text{-edik oszcillátor fázisa}")
+        st.latex(r"\omega_i: \text{ természetes frekvencia}")
+        st.latex(r"K_{ij}: \text{ kapcsolat erőssége } (i \leftrightarrow j)")
+        st.latex(r"\eta: \text{ tanulási ráta}")
+        st.latex(r"\Delta K_{ij}: \text{ a kapcsolat módosulása a Hebbian szabály szerint}")
+
+        st.markdown("""
+        **Magyarázat:**  
+        - A tanulási szabály megerősíti a szinkron fázisban lévő párok közötti kapcsolatot.  
+        - Az antiszinkron (ellentétes fázisú) párok között a kapcsolat gyengülhet.  
+        - Így a hálózat képes adaptívan módosítani a topológiáját az aktivitás alapján.
+
+        **Felhasználás:**  
+        - Biológiai és mesterséges hálózatok **önszervező** szinkronizációs mechanizmusainak modellezése  
+        - Neurodinamikai **plaszticitás** és **topológiai adaptáció** vizsgálata  
+        - Szinkronitás-alapú tanulás szimulációja
+
+        **Megjegyzés:**  
+        A modell kapcsolódik az agyi hálózatok azon hipotéziséhez, hogy a **szinkron tűzelés** hosszútávú kapcsolaterősödéshez vezet.
+        """)
+
     with st.expander("💡 Insight Learning – Belátásos tanulás szimuláció"):
         st.markdown(r"""
         **Cél:** Egy probléma hirtelen, strukturált megoldásának megtalálása kísérleti vagy vizuális minták alapján.
