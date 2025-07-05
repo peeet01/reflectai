@@ -441,6 +441,50 @@ def run():
         - Topológiai különbségek azonosítása  
         """)
 
+    with st.expander("🔬 Plasticity Dynamics – Szinaptikus plaszticitás dinamikája"):
+        st.markdown("""
+        **Cél:** A szinaptikus súlyok időbeli változásának modellezése különböző biológiai tanulási szabályok mentén.
+
+        **Általános Hebbian-plaszticitás egyenlete:**
+        """)
+        st.latex(r"\Delta w_{ij} = \eta \cdot x_i \cdot y_j")
+
+        st.markdown("**Normalizált Hebbian (Oja-szabály):**")
+        st.latex(r"\Delta w_{ij} = \eta \cdot y_j \cdot (x_i - y_j \cdot w_{ij})")
+
+        st.markdown("**BCM szabály dinamikus küszöbbel:**")
+        st.latex(r"\frac{dw}{dt} = \eta \cdot x \cdot y \cdot (y - \theta)")
+        st.latex(r"\frac{d\theta}{dt} = \frac{1}{\tau} (y^2 - \theta)")
+
+        st.markdown("**STDP – időzítésfüggő plaszticitás:**")
+        st.latex(r"""
+        \Delta w(\Delta t) =
+        \begin{cases}
+        A_+ \cdot e^{-\Delta t / \tau_+}, & \text{ha } \Delta t > 0 \\
+        -A_- \cdot e^{\Delta t / \tau_-}, & \text{ha } \Delta t < 0
+        \end{cases}
+        """)
+
+        st.markdown("**Magyarázat a változókhoz:**")
+        st.latex(r"x_i: \text{ preszinaptikus neuron aktivitása}")
+        st.latex(r"y_j: \text{ posztszinaptikus neuron aktivitása}")
+        st.latex(r"\eta: \text{ tanulási ráta}")
+        st.latex(r"\theta: \text{ aktivitásfüggő tanulási küszöb}")
+        st.latex(r"\tau: \text{ időállandó}")
+        st.latex(r"\Delta t = t_{\text{post}} - t_{\text{pre}}: \text{ spike időeltérés}")
+        st.latex(r"A_+, A_-: \text{ maximális súlyváltozási amplitúdók}")
+
+        st.markdown("""
+        **Felhasználás:**  
+        - Neurális hálózatok adaptív viselkedésének szimulációja  
+        - Tanulás és memóriafolyamatok dinamikus modellezése  
+        - Időzítésalapú szabályok biológiai validálása  
+
+        **Tudományos jelentőség:**  
+        A szinaptikus plaszticitás a **tanulás sejtbiológiai alapja**, amelynek pontos modellezése lehetővé teszi a **realisztikus neurális hálók** létrehozását.  
+        A különböző szabályok eltérő stabilitási és adaptációs viselkedést mutatnak.
+        """)
+
     with st.expander("🧠 Hopfield-háló – Asszociatív memória"):
         st.latex(r"W_{ij} = \sum_{\mu=1}^{P} \xi_i^\mu \xi_j^\mu")
         st.latex(r"s_i^{t+1} = \mathrm{sign} \left( \sum_j W_{ij} s_j^t \right)")
