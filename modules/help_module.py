@@ -168,6 +168,41 @@ def run():
         - Lineáris modellek korlátainak bemutatása  
         """)
 
+    with st.expander("⏱️ STDP – Spike-Timing Dependent Plasticity"):
+        st.markdown("**Cél:** A szinaptikus súlyok időzítésalapú módosítása – biológiailag inspirált tanulási szabály.")
+
+        st.markdown("**Tanulási szabály:**")
+        st.latex(r"""
+            \Delta w(\Delta t) =
+            \begin{cases}
+            A_+ \cdot e^{-\Delta t / \tau_+}, & \text{ha } \Delta t > 0 \ (\text{LTP}) \\\\
+            -A_- \cdot e^{\Delta t / \tau_-}, & \text{ha } \Delta t < 0 \ (\text{LTD})
+            \end{cases}
+        """)
+
+        st.markdown("**Ahol:**")
+        st.markdown("""
+        - \( \Delta t = t_{\text{post}} - t_{\text{pre}} \): a poszt- és preszinaptikus spike-ok közötti időeltolódás  
+        - \( A_+, A_- \): a súlyváltozás maximális amplitúdói  
+        - \( \tau_+, \tau_- \): időállandók LTP-re és LTD-re külön-külön  
+        - \( \Delta w \): a szinaptikus súlyváltozás
+        """)
+
+        st.markdown("**Magyarázat:**")
+        st.markdown("""
+        - Ha a **preszinaptikus** neuron tüzel *a posztszinaptikus előtt* ( \( \Delta t > 0 \) ), akkor **Long-Term Potentiation** (LTP) történik → erősödik a kapcsolat  
+        - Ha a **preszinaptikus** neuron később tüzel ( \( \Delta t < 0 \) ), akkor **Long-Term Depression** (LTD) történik → gyengül a kapcsolat  
+        - A változás mértéke exponenciálisan csökken az időeltolódás nagyságával
+        """)
+
+        st.markdown("**Alkalmazás:**")
+        st.markdown("""
+        - Időzítésalapú mintafelismerés tanulása  
+        - Biológiailag hiteles neurális modellek fejlesztése  
+        - Nem felügyelt tanulás ideghálózatokban  
+        - Hebbian-elv továbbfejlesztett, időzített változata
+        """)
+
     with st.expander("🧠 Memory Landscape – Asszociatív tárolási térkép"):
         st.latex(r"E(\mathbf{s}) = -\frac{1}{2} \sum_{i \neq j} W_{ij} s_i s_j")
         st.markdown("""
