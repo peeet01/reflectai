@@ -173,11 +173,11 @@ def run():
 
         st.markdown("**Tanulási szabály:**")
         st.latex(r"""
-            \Delta w(\Delta t) =
-            \begin{cases}
-            A_+ \cdot e^{-\Delta t / \tau_+}, & \text{ha } \Delta t > 0 \ (\text{LTP}) \\\\
-            -A_- \cdot e^{\Delta t / \tau_-}, & \text{ha } \Delta t < 0 \ (\text{LTD})
-            \end{cases}
+        \Delta w(\Delta t) =
+        \begin{cases}
+        A_+ \cdot e^{-\Delta t / \tau_+}, & \text{ha } \Delta t > 0 \ (\text{LTP}) \\\\
+        -A_- \cdot e^{\Delta t / \tau_-}, & \text{ha } \Delta t < 0 \ (\text{LTD})
+        \end{cases}
         """)
 
         st.markdown("**Ahol:**")
