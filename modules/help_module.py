@@ -168,6 +168,44 @@ def run():
         - Dinamikus rendszerek modellezése  
         - Online adaptív tanulás rezervoáralapú hálókkal
         """)
+
+    with st.expander("🧠 Neural Entropy – Információelméleti aktivitásmérés"):
+        st.markdown("""
+        **Cél:** Az idegi aktivitás entrópiájának mérése, mint a **komplexitás** és **információtartalom** kvantitatív mutatója.
+
+        **Shannon-entrópia definíciója:**
+        """)
+        st.latex(r"H(X) = - \sum_{i} p(x_i) \log_2 p(x_i)")
+
+        st.markdown("""
+        Ahol:  
+        """)
+        st.latex(r"X: \text{ diszkrét valószínűségi változó (pl. spike aktivitás)}")
+        st.latex(r"p(x_i): \text{ az } x_i \text{ állapot előfordulási valószínűsége}")
+
+        st.markdown("""
+        **Magyarázat:**  
+        - Magas entrópia → nagy **variabilitás** és **információtartalom**  
+        - Alacsony entrópia → **rendezettség**, vagy determinisztikus viselkedés  
+        - Használható időbeli vagy térbeli aktivitásminták elemzésére
+
+        **Alkalmazás:**  
+        - Neuronális hálózatok komplexitásának vizsgálata  
+        - Kritikus állapotok detektálása  
+        - EEG/MEG/fMRI adatok információtartalmának becslése  
+        - Tanulási folyamatok során bekövetkező entrópiaváltozások követése
+
+        **Kapcsolódó fogalom:**  
+        **Differenciális entrópia** folytonos eloszlásokra:
+        """)
+        st.latex(r"h(X) = - \int p(x) \log p(x) \, dx")
+
+        st.markdown("""
+        ahol \( p(x) \) a valószínűségi sűrűségfüggvény.
+
+        **Tudományos jelentőség:**  
+        Az entrópia alkalmazása lehetővé teszi az agyi rendszerek **adaptív dinamikájának** és **információfeldolgozó kapacitásának** objektív értékelését.
+        """)
         
     with st.expander("🧠 Hebbian Learning Viz – Szinaptikus erősödés szemléltetése"):
         st.latex(r"\Delta w = \eta \cdot x \cdot y")
