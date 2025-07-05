@@ -75,11 +75,13 @@ def draw_graph_3d(G, theta=None):
 def run():
     st.set_page_config(layout="wide")
     st.title("🔗 Gráfalapú szinkronizációs analízis")
+
     st.markdown("""
-    Vizsgáld meg, hogyan szinkronizálódnak oszcillátorok különböző gráfstruktúrákban a Kuramoto-modell alapján.
-    A szinkronizációt az ún. **rendparaméter** ($r$) jellemzi, amely $0$ és $1$ közötti értéket vehet fel.
+    Ez a modul a **Kuramoto-modell** segítségével vizsgálja, hogyan szinkronizálódnak oszcillátorok különböző gráfhálózatokon.
+    Megérthetjük, hogy a gráf szerkezete hogyan befolyásolja a szinkronizáció gyorsaságát és mértékét.
     """)
 
+    # 🎛️ Beállítások
     st.sidebar.header("⚙️ Beállítások")
     graph_type = st.sidebar.selectbox("Gráftípus", ["Erdős–Rényi", "Kör", "Rács", "Teljes gráf"])
     N = st.sidebar.slider("Csomópontok száma", 5, 100, 30)
@@ -89,6 +91,7 @@ def run():
     er_p = st.sidebar.slider("Erdős–Rényi élvalószínűség", 0.05, 1.0, 0.1, step=0.05)
     show_3d = st.sidebar.checkbox("🌐 3D gráf megjelenítés")
 
+    # ▶️ Szimuláció indítása
     if st.button("▶️ Szimuláció indítása"):
         if graph_type == "Erdős–Rényi":
             G = nx.erdos_renyi_graph(N, er_p)
@@ -110,6 +113,7 @@ def run():
         st.metric("📈 Végső szinkronizációs érték (r)", f"{r_values[-1]:.3f}")
         st.metric("📊 Átlagos szinkronizáció (⟨r⟩)", f"{np.mean(r_values):.3f}")
 
+        # 🔍 Eredmények
         st.subheader("📉 Szinkronizáció időbeli lefutása")
         fig1, ax1 = plt.subplots()
         ax1.plot(r_values)
@@ -129,26 +133,33 @@ def run():
         if notes:
             st.download_button("💾 Jegyzet mentése", data=notes, file_name="sync_notes.txt")
 
-    # 🔬 Tudományos háttér
-    st.subheader("📚 Tudományos háttér")
+    # 📘 Tudományos háttér
+    st.subheader("📘 Tudományos háttér")
     st.markdown(r"""
-A **Kuramoto-modell** a szinkronizációs jelenségek alapmodellje, ahol oszcillátorok egy gráfhálón keresztül hatnak egymásra.
+    A **Kuramoto-modell** a szinkronizációs jelenségek klasszikus leírása, ahol oszcillátorok egy gráfhálózaton keresztül hatnak egymásra.
 
-#### Fázisdinamika:
-$$
-\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_j A_{ij} \sin(\theta_j - \theta_i)
-$$
+    #### Fázisdinamika:
+    $$
+    \frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_j A_{ij} \sin(\theta_j - \theta_i)
+    $$
 
-#### Rendparaméter:
-$$
-r(t) = \left| \frac{1}{N} \sum_{j=1}^N e^{i\theta_j(t)} \right|
-$$
+    Itt:
+    - $\theta_i$: az $i$-edik oszcillátor fázisa
+    - $\omega_i$: természetes frekvenciája
+    - $K$: kapcsolódási erősség
+    - $A_{ij}$: gráf szomszédsági mátrixa
 
-- $r(t) \approx 0$: rendezetlenség  
-- $r(t) \approx 1$: teljes szinkronizáció
+    #### Rendparaméter:
+    $$
+    r(t) = \left| \frac{1}{N} \sum_{j=1}^N e^{i\theta_j(t)} \right|
+    $$
 
-A gráf topológiája (pl. Erdős–Rényi vagy teljes gráf) kulcsszerepet játszik a kollektív viselkedés kialakulásában.
-""")
+    Ez méri a szinkronizáció mértékét:
+    - $r = 1$: teljes szinkron
+    - $r \approx 0$: rendezetlenség
 
-# ✅ ReflectAI-kompatibilitás
+    A gráf szerkezete jelentősen befolyásolja a szinkronizáció sebességét és végső állapotát.
+    """)
+
+# ReflectAI kompatibilitás
 app = run
