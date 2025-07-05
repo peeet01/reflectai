@@ -139,34 +139,34 @@ def run():
 
     with st.expander("🔮 ESN Prediction – Echo State Network előrejelzés"):
         st.markdown("""
-        **Cél:** Idősorok előrejelzése **rezervoár alapú** neurális hálózattal, ahol csak a kimeneti réteg tanulódik.
+        **Cél:** Idősoros adatok előrejelzése egy **rezervoár alapú** neurális háló segítségével, minimális tanulással.
 
-        **Hálózati dinamika:**
+        **Dinamikai egyenlet:**  
+        A belső állapot frissítése:
         """)
-        st.latex(r"\mathbf{x}(t+1) = \tanh(W_{res} \cdot \mathbf{x}(t) + W_{in} \cdot \mathbf{u}(t))")
-        st.latex(r"\hat{y}(t) = W_{out} \cdot \mathbf{x}(t)")
+        st.latex(r"\mathbf{x}(t+1) = \tanh(W_{\text{res}} \cdot \mathbf{x}(t) + W_{\text{in}} \cdot \mathbf{u}(t))")
 
-        "**Ahol:**
+        st.markdown("**Kimenet számítása:**")
+        st.latex(r"\hat{y}(t) = W_{\text{out}} \cdot \mathbf{x}(t)")
+
+        st.markdown("**Ahol:**")
         st.latex(r"\mathbf{x}(t): \text{ rezervoár állapota}")
         st.latex(r"\mathbf{u}(t): \text{ bemeneti vektor az idő } t \text{-ben}")
         st.latex(r"W_{\text{res}}: \text{ rezervoár súlymátrix (nem tanulódik)}")
         st.latex(r"W_{\text{in}}: \text{ bemeneti súlyok}")
         st.latex(r"W_{\text{out}}: \text{ kimeneti súlyok (tanulhatók)}")
         st.latex(r"\hat{y}(t): \text{ predikált érték}")
-        
-        **Tanulás:**  
-        - Csak \( W_{out} \) kerül optimalizálásra (pl. lineáris regresszióval)  
-        - A többi komponens rögzített, így a tanulás gyors és hatékony
 
+        st.markdown("""
         **Jellemzők:**  
-        - **Nemlineáris transzformáció** a rezervoárban  
-        - **Lineáris olvasás** az állapotokból  
-        - Gyors betanítás, alacsony költség
+        - Csak a kimeneti réteg tanul  
+        - A belső dinamika komplex és **nemlineáris**, de nem kell optimalizálni  
+        - Hatékony időbeli minták felismerésére
 
-        **Felhasználás:**  
-        - Kaotikus rendszerek (pl. Lorenz) predikciója  
-        - Szenzoradatok és fizikai folyamatok előrejelzése  
-        - Időbeli mintafelismerés és rendszerdinamika tanulása  
+        **Alkalmazás:**  
+        - Idősoros előrejelzés (pl. klíma, gazdaság, neuronjelek)  
+        - Dinamikus rendszerek modellezése  
+        - Online adaptív tanulás rezervoáralapú hálókkal
         """)
         
     with st.expander("🧠 Hebbian Learning Viz – Szinaptikus erősödés szemléltetése"):
