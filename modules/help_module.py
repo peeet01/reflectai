@@ -53,6 +53,27 @@ def run():
         - Energia-alapú tanulási dinamika  
         """)
 
+    with st.expander("🧮 Fractal Dimension – Ön-szimiláris szerkezetek"):
+        st.latex(r"D = \lim_{\epsilon \to 0} \frac{\log N(\epsilon)}{\log (1/\epsilon)}")
+        st.markdown("""
+        **Cél:** A fraktáldimenzió a klasszikus dimenzió általánosítása, amely azt méri, hogy egy objektum **mennyire tölti ki a teret** különböző skálákon.  
+        A fenti képlet a **box-counting dimenzió** képlete, ahol:
+        - $N(\\epsilon)$: az objektum lefedéséhez szükséges $\epsilon$ méretű dobozok száma  
+        - $\epsilon$: a doboz mérete
+
+        **Alkalmazás:**
+        - Kaotikus attraktorok és természetes mintázatok (pl. felhők, erezetek) komplexitásának mérése  
+        - Neurális aktivitás komplexitásának jellemzése  
+        - MRI és EEG adatok skálafüggetlen szerkezeteinek feltárása  
+
+        **Jellemzők:**
+        - A fraktáldimenzió lehet **nem egész szám**, pl. Mandelbrot-halmaz: $D \\approx 1.26$  
+        - A dimenzió nő, ha az objektum egyre inkább „kitölti” a teret.
+
+        **Tudományos jelentőség:**  
+        A fraktáldimenzió segítségével **rendszerek komplexitása** jellemezhető kvantitatív módon, különösen ott, ahol klasszikus mértékek (pl. topológiai dimenzió) csődöt mondanak.
+        """)
+
     with st.expander("🌀 Fraktál Explorer – Kaotikus rendszerek"):
         st.latex(r"z_{n+1} = z_n^2 + c")
         st.markdown("""
