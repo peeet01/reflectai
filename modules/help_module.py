@@ -76,26 +76,29 @@ def run():
         """)
 
     with st.expander("🌪️ Lorenz-rendszer – MLP predikció"):
-        st.markdown(r"""
+        st.markdown("""
         **Cél:** A Lorenz-rendszer egyik komponensének (pl. \( x(t) \)) előrejelzése **többrétegű perceptron (MLP)** segítségével, kizárólag múltbeli adatok alapján.
+        """)
 
         st.markdown("**Lorenz-egyenletek:**")
         st.latex(r"\frac{dx}{dt} = \sigma(y - x)")
         st.latex(r"\frac{dy}{dt} = x(\rho - z) - y")
         st.latex(r"\frac{dz}{dt} = xy - \beta z")
         st.markdown(r"Ahol \( \sigma, \rho, \beta \) a rendszer paraméterei.")
-        **MLP célfüggvény:**
-        $$ \hat{x}_{t+1} = f(x_t, x_{t-1}, \dots, x_{t-w}) $$
 
+        st.markdown("**MLP célfüggvény:**")
+        st.latex(r"\hat{x}_{t+1} = f(x_t, x_{t-1}, \dots, x_{t-w})")
+
+        st.markdown("""
         A modell megtanulja az idősor **nemlineáris dinamikáját** egy csúszó ablakos megközelítéssel.
 
         **Tanulás:**
-        - Bemenet: \( w \) hosszú múltbeli szakasz
-        - Kimenet: a következő időlépés komponense (pl. \( x_{t+1} \))
+        - Bemenet: \( w \) hosszú múltbeli szakasz  
+        - Kimenet: a következő időlépés komponense (pl. \( x_{t+1} \))  
         - Loss: átlagos négyzetes hiba (MSE)
 
         **Teljesítménymutatók:**
-        - R² pontosság: a predikció magyarázati ereje  
+        - \( R^2 \): a predikció magyarázati ereje  
         - MSE: a hibák átlagos négyzete
 
         **Felhasználás:**
