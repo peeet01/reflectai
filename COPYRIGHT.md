@@ -1,36 +1,55 @@
-# 📄 Copyright Notice
+# 🛡️ Copyright Notice
 
 **Neurolab AI Sandbox**  
 Copyright © 2025 Kovacs Peter  
-All rights reserved.  
+All rights reserved.
 
 ---
 
-This software and its associated documentation files (the “Application”) are the intellectual property of **Kovacs Peter**.
+This software project and all its associated files (hereinafter the “Application”), including:
 
-Any unauthorized reproduction, redistribution, or commercial use of the Application, in whole or in part, is strictly prohibited without express written permission from the copyright holder.
+- source code, modules, scripts  
+- documentation, figures, data files  
+- user interfaces and visual assets  
 
----
+are the **intellectual property of Kovacs Peter**.
 
-## 🔐 Rights Reserved
-
-Unless explicitly stated otherwise, the following rights are **reserved**:
-
-- The right to reproduce or distribute this application commercially.
-- The right to create derivative works.
-- The right to include the application in proprietary or closed-source systems.
+No part of this Application may be **reproduced**, **distributed**, or **used commercially** in any form without the **prior written permission** of the copyright holder.
 
 ---
 
-## 📌 Notes
+## 🔒 Rights Reserved
 
-This copyright notice applies to all files, modules, assets, and ideas contained within the **Neurolab AI Sandbox** repository as of:
+Unless explicitly stated otherwise, the following rights are reserved:
 
-**📅 July 4, 2025**
+- The right to reproduce or distribute this application commercially  
+- The right to license, sublicense, or sell the software  
+- The right to create derivative or modified works  
+- The right to include the software in proprietary systems  
 
-If you wish to use or contribute to this software in a way not permitted by a standard open-source license, please contact:
+Any **unauthorized use, reuse, or redistribution** will be considered a violation of copyright law and may result in legal action.
 
-**📧 Email:** _[peeet01@gmail.com]_  
-(Replace with actual contact)
+---
+
+## 📆 Effective Date
+
+This notice applies to the Neurolab AI Sandbox repository and all included content as of:
+
+📅 **July 5, 2025**
+
+---
+
+## 📩 Contact
+
+To request permission for use, licensing, collaboration, or redistribution, contact:
+
+**Kovacs Peter**  
+✉️ Email: [peeet01@gmail.com](mailto:peeet01@gmail.com)
+
+---
+
+## 🧾 Licensing Options
+
+If you're interested in using the software for educational, research, or commercial purposes under a specific license (e.g., MIT, custom enterprise), please get in touch.
 
 ---
