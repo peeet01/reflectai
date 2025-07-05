@@ -74,6 +74,38 @@ def run():
         **Példa:** Egy algoritmus nem a próbálkozások számával tanul, hanem a bemenet struktúrájának elemzésével képes felismerni az optimális lépést.
 
         """)
+
+    with st.expander("🌪️ Lorenz-rendszer – MLP predikció"):
+        st.markdown(r"""
+        **Cél:** A Lorenz-rendszer egyik komponensének (pl. \( x(t) \)) előrejelzése **többrétegű perceptron (MLP)** segítségével, kizárólag múltbeli adatok alapján.
+
+        **Lorenz-egyenletek:**
+        \begin{align}
+            \frac{dx}{dt} &= \sigma(y - x) \\
+            \frac{dy}{dt} &= x(\rho - z) - y \\
+            \frac{dz}{dt} &= xy - \beta z
+        \end{align}
+        ahol \( \sigma, \rho, \beta \) a rendszer paraméterei.
+
+        **MLP célfüggvény:**
+        $$ \hat{x}_{t+1} = f(x_t, x_{t-1}, \dots, x_{t-w}) $$
+
+        A modell megtanulja az idősor **nemlineáris dinamikáját** egy csúszó ablakos megközelítéssel.
+
+        **Tanulás:**
+        - Bemenet: \( w \) hosszú múltbeli szakasz
+        - Kimenet: a következő időlépés komponense (pl. \( x_{t+1} \))
+        - Loss: átlagos négyzetes hiba (MSE)
+
+        **Teljesítménymutatók:**
+        - R² pontosság: a predikció magyarázati ereje  
+        - MSE: a hibák átlagos négyzete
+
+        **Felhasználás:**
+        - Determinisztikus káosz előrejelzése  
+        - Idősoros predikció és nemlineáris rendszerek elemzése  
+        - Gépi tanulási modellek tesztelése ismeretlen dinamikán
+        """)
         
     with st.expander("🧠 Hebbian Learning Viz – Szinaptikus erősödés szemléltetése"):
         st.latex(r"\Delta w = \eta \cdot x \cdot y")
