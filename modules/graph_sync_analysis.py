@@ -77,9 +77,10 @@ def run():
     st.title("🔗 Gráfalapú szinkronizációs analízis")
 
     st.markdown("""
-    Ez a modul a **Kuramoto-modell** segítségével vizsgálja, hogyan szinkronizálódnak oszcillátorok különböző gráfhálózatokon.
-    Megérthetjük, hogy a gráf szerkezete hogyan befolyásolja a szinkronizáció gyorsaságát és mértékét.
-    """)
+Ez a modul a **Kuramoto-modell** segítségével vizsgálja, hogyan szinkronizálódnak oszcillátorok különböző gráfhálózatokon.
+
+Megérthetjük, hogy a gráf szerkezete hogyan befolyásolja a szinkronizáció gyorsaságát és mértékét.
+""")
 
     # 🎛️ Beállítások
     st.sidebar.header("⚙️ Beállítások")
@@ -113,7 +114,6 @@ def run():
         st.metric("📈 Végső szinkronizációs érték (r)", f"{r_values[-1]:.3f}")
         st.metric("📊 Átlagos szinkronizáció (⟨r⟩)", f"{np.mean(r_values):.3f}")
 
-        # 🔍 Eredmények
         st.subheader("📉 Szinkronizáció időbeli lefutása")
         fig1, ax1 = plt.subplots()
         ax1.plot(r_values)
@@ -136,30 +136,30 @@ def run():
     # 📘 Tudományos háttér
     st.subheader("📘 Tudományos háttér")
     st.markdown(r"""
-    A **Kuramoto-modell** a szinkronizációs jelenségek klasszikus leírása, ahol oszcillátorok egy gráfhálózaton keresztül hatnak egymásra.
+A **Kuramoto-modell** a szinkronizációs jelenségek klasszikus leírása, ahol oszcillátorok egy gráfhálózaton keresztül hatnak egymásra.
 
-    #### Fázisdinamika:
-    $$
-    \frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_j A_{ij} \sin(\theta_j - \theta_i)
-    $$
+#### Fázisdinamika:
+$$
+\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_j A_{ij} \sin(\theta_j - \theta_i)
+$$
 
-    Itt:
-    - $\theta_i$: az $i$-edik oszcillátor fázisa
-    - $\omega_i$: természetes frekvenciája
-    - $K$: kapcsolódási erősség
-    - $A_{ij}$: gráf szomszédsági mátrixa
+Itt:
+- $\theta_i$: az $i$-edik oszcillátor fázisa
+- $\omega_i$: természetes frekvenciája
+- $K$: kapcsolódási erősség
+- $A_{ij}$: gráf szomszédsági mátrixa
 
-    #### Rendparaméter:
-    $$
-    r(t) = \left| \frac{1}{N} \sum_{j=1}^N e^{i\theta_j(t)} \right|
-    $$
+#### Rendparaméter:
+$$
+r(t) = \left| \frac{1}{N} \sum_{j=1}^N e^{i\theta_j(t)} \right|
+$$
 
-    Ez méri a szinkronizáció mértékét:
-    - $r = 1$: teljes szinkron
-    - $r \approx 0$: rendezetlenség
+Ez méri a szinkronizáció mértékét:
+- $r = 1$: teljes szinkron
+- $r \approx 0$: rendezetlenség
 
-    A gráf szerkezete jelentősen befolyásolja a szinkronizáció sebességét és végső állapotát.
-    """)
+A gráf szerkezete jelentősen befolyásolja a szinkronizáció sebességét és végső állapotát.
+""")
 
 # ReflectAI kompatibilitás
 app = run
