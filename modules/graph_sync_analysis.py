@@ -133,6 +133,21 @@ Megérthetjük, hogy a gráf szerkezete hogyan befolyásolja a szinkronizáció 
         if notes:
             st.download_button("💾 Jegyzet mentése", data=notes, file_name="sync_notes.txt")
 
+        st.subheader("💾 Eredmények exportálása")
+        sync_data = {
+            "time_step": list(range(len(r_values))),
+            "sync_r": r_values
+        }
+        import pandas as pd
+        df_sync = pd.DataFrame(sync_data)
+        csv_sync = df_sync.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="📥 Szinkronizációs értékek letöltése (CSV)",
+            data=csv_sync,
+            file_name="kuramoto_sync_values.csv",
+            mime="text/csv"
+        )
+
     # 📘 Tudományos háttér
     st.subheader("📘 Tudományos háttér")
     st.markdown(r"""
