@@ -146,7 +146,7 @@ def run():
         st.latex(r"\mathbf{x}(t+1) = \tanh(W_{res} \cdot \mathbf{x}(t) + W_{in} \cdot \mathbf{u}(t))")
         st.latex(r"\hat{y}(t) = W_{out} \cdot \mathbf{x}(t)")
 
-        st.markdown("**Ahol:**")
+        "**Ahol:**
         st.latex(r"\mathbf{x}(t): \text{ rezervoár állapota}")
         st.latex(r"\mathbf{u}(t): \text{ bemeneti vektor az idő } t \text{-ben}")
         st.latex(r"W_{\text{res}}: \text{ rezervoár súlymátrix (nem tanulódik)}")
