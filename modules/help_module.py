@@ -24,6 +24,33 @@ def run():
         - Ritmikus zavarok (pl. epilepszia) szimulációja  
         """)
         
+    with st.expander("🧠 Hebbian Learning – Szinaptikus erősítés elve"):
+        st.latex(r"\Delta w_{ij} = \eta \cdot x_i \cdot y_j")
+        st.markdown("""
+        **Cél:** A tanulás során megerősíteni azokat a kapcsolatokat, amelyek gyakran aktiválódnak együtt.
+
+        **Magyarázat:**
+        - $x_i$: preszinaptikus neuron aktivitása  
+        - $y_j$: posztszinaptikus neuron aktivitása  
+        - $\\eta$: tanulási ráta  
+        - $\\Delta w_{ij}$: a szinaptikus súly módosulása az $i \\to j$ kapcsolaton
+
+        **Alapelve:**  
+        „**Neurons that fire together, wire together**” – az együtt aktiválódó neuronok közötti kapcsolat erősödik.
+
+        **Jellemzők:**
+        - Egyszerű, biológiailag inspirált szabály  
+        - Nincs külső tanári jel (nem felügyelt tanulás)  
+        - A tanulás **pozitív visszacsatolást** eredményez
+
+        **Felhasználás:**
+        - Minták tanulása és reprezentációja  
+        - Alapja a későbbi komplex tanulási szabályoknak (pl. STDP, Oja, BCM)
+
+        **Megjegyzés:**  
+        A tiszta Hebbian tanulás instabil lehet – gyakran **normalizációval** egészítik ki (pl. Oja szabály).
+        """)
+        
     with st.expander("🧠 Hebbian Learning Viz – Szinaptikus erősödés szemléltetése"):
         st.latex(r"\Delta w = \eta \cdot x \cdot y")
         st.markdown("""
