@@ -57,4 +57,4 @@ cd neurolab-ai
 pip install -r requirements.txt
 streamlit run app.py
 
-This project is not intended for redistribution, reuse, or commercial deployment without explicit written consent.
+
