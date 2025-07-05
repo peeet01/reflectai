@@ -12,7 +12,7 @@ def kuramoto_step(theta, omega, A, K, dt):
     dtheta = omega + (K / N) * np.sum(A * np.sin(np.subtract.outer(theta, theta)), axis=1)
     return theta + dtheta * dt
 
-# ▶️ Szimuláció futtatása
+# ▶️ Szimuláció
 def run_simulation(G, steps, dt, K):
     N = len(G)
     theta = np.random.rand(N) * 2 * np.pi
@@ -27,10 +27,9 @@ def run_simulation(G, steps, dt, K):
         r = np.abs(np.mean(np.exp(1j * theta)))
         r_values.append(r)
         theta_history.append(theta.copy())
-
     return r_values, theta_history
 
-# 🖼️ 2D gráf rajzolás
+# 🖼️ Gráf rajzolás (2D)
 def draw_graph(G, theta=None):
     pos = nx.spring_layout(G, seed=42)
     node_colors = 'lightblue'
@@ -43,7 +42,7 @@ def draw_graph(G, theta=None):
     ax.set_title("🧠 Gráfstruktúra (fázis színezéssel)")
     st.pyplot(fig)
 
-# 🌐 3D gráfvizualizáció
+# 🌐 3D gráf megjelenítés
 def draw_graph_3d(G, theta=None):
     pos = nx.spring_layout(G, dim=3, seed=42)
     xyz = np.array([pos[v] for v in sorted(G)])
@@ -76,13 +75,12 @@ def draw_graph_3d(G, theta=None):
 def run():
     st.set_page_config(layout="wide")
     st.title("🔗 Gráfalapú szinkronizációs analízis")
-
     st.markdown("""
-    Ez a modul a **Kuramoto-modell** segítségével vizsgálja, hogyan szinkronizálódnak oszcillátorok különböző gráfhálózatokon.  
-    Megérthetjük, hogy a gráf szerkezete hogyan befolyásolja a szinkronizáció gyorsaságát és mértékét.
+    Vizsgáld meg, hogyan szinkronizálódnak oszcillátorok különböző gráfstruktúrákban a Kuramoto-modell alapján.
+    A szinkronizációt az ún. **rendparaméter** ($r$) jellemzi, amely $0$ és $1$ közötti értéket vehet fel.
     """)
 
-    st.sidebar.header("⚙️ Paraméterek")
+    st.sidebar.header("⚙️ Beállítások")
     graph_type = st.sidebar.selectbox("Gráftípus", ["Erdős–Rényi", "Kör", "Rács", "Teljes gráf"])
     N = st.sidebar.slider("Csomópontok száma", 5, 100, 30)
     K = st.sidebar.slider("Kapcsolódási erősség (K)", 0.0, 10.0, 2.0)
@@ -126,30 +124,31 @@ def run():
         st.subheader("🎯 Szinkronizált állapot")
         draw_graph_3d(G, theta_hist[-1]) if show_3d else draw_graph(G, theta_hist[-1])
 
-        st.subheader("📝 Megfigyelések")
-        notes = st.text_area("Írd le, mit tapasztaltál!", height=150)
+        st.subheader("📝 Jegyzet")
+        notes = st.text_area("Megfigyelések, következtetések:", height=150)
         if notes:
             st.download_button("💾 Jegyzet mentése", data=notes, file_name="sync_notes.txt")
 
-    with st.expander("📚 Tudományos háttér"):
-        st.markdown(r"""
-        A **Kuramoto-modell** a szinkronizációs jelenségek alapmodellje, ahol oszcillátorok egy gráfhálón keresztül hatnak egymásra.
+    # 🔬 Tudományos háttér
+    st.subheader("📚 Tudományos háttér")
+    st.markdown(r"""
+A **Kuramoto-modell** a szinkronizációs jelenségek alapmodellje, ahol oszcillátorok egy gráfhálón keresztül hatnak egymásra.
 
-        #### Fázisdinamika:
-        $$
-        \frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_j A_{ij} \sin(\theta_j - \theta_i)
-        $$
+#### Fázisdinamika:
+$$
+\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_j A_{ij} \sin(\theta_j - \theta_i)
+$$
 
-        #### Rendparaméter:
-        $$
-        r(t) = \left| \frac{1}{N} \sum_{j=1}^N e^{i\theta_j(t)} \right|
-        $$
+#### Rendparaméter:
+$$
+r(t) = \left| \frac{1}{N} \sum_{j=1}^N e^{i\theta_j(t)} \right|
+$$
 
-        - $r(t) \approx 0$: rendezetlen állapot
-        - $r(t) \approx 1$: teljes szinkronizáció
+- $r(t) \approx 0$: rendezetlenség  
+- $r(t) \approx 1$: teljes szinkronizáció
 
-        A gráf topológiája (pl. Erdős–Rényi vagy teljes gráf) kulcsfontosságú a kollektív viselkedés kialakulásában.
-        """)
+A gráf topológiája (pl. Erdős–Rényi vagy teljes gráf) kulcsszerepet játszik a kollektív viselkedés kialakulásában.
+""")
 
-# ReflectAI kompatibilitás
+# ✅ ReflectAI-kompatibilitás
 app = run
