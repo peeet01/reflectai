@@ -233,6 +233,48 @@ def run():
         - Hebbian-elv továbbfejlesztett, időzített változata
         """)
 
+    with st.expander("⚡ SNN – LIF Neuronmodell és STDP tanulás"):
+        st.markdown("""
+        **Cél:** A szinaptikus tanulás és membránpotenciál dinamikájának szemléltetése az LIF neuronmodell és az STDP szabály kombinációjával.
+        """)
+
+        st.markdown("**LIF neuronmodell:**")
+        st.latex(r"\tau_m \frac{dV(t)}{dt} = -V(t) + R_m \cdot I_{ext}")
+        st.markdown("""
+        A modell egy elektromos analógián alapul, ahol:
+        - \( V(t) \): membránpotenciál  
+        - \( \tau_m \): membrán időállandó  
+        - \( R_m \): membránellenállás  
+        - \( I_{ext} \): külső bemeneti áram
+
+        A neuron akkor tüzel, ha \( V(t) \geq V_{th} \), ezt követően \( V \) resetelődik.
+        """)
+
+        st.markdown("**STDP tanulási szabály:**")
+        st.latex(r"""
+        \Delta w(\Delta t) =
+        \begin{cases}
+        A_+ \cdot e^{-\Delta t / \tau_+}, & \text{ha } \Delta t > 0 \quad (\text{LTP}) \\\\
+        -A_- \cdot e^{\Delta t / \tau_-}, & \text{ha } \Delta t < 0 \quad (\text{LTD})
+        \end{cases}
+        """)
+        st.markdown("""
+        Ahol:
+        - \( \Delta t = t_{post} - t_{pre} \): poszt- és preszinaptikus spike közötti időeltérés  
+        - \( A_+ \), \( A_- \): tanulási amplitúdók  
+        - \( \tau_+ \), \( \tau_- \): időkonstansok LTP és LTD esetén
+
+        **Magyarázat:**  
+        - Ha a bemeneti aktivitás megelőzi a kimenetit → erősítés (**Long-Term Potentiation**)  
+        - Ha fordítva történik → gyengülés (**Long-Term Depression**)  
+        - A szabály időérzékeny, azaz a súlyváltozás a spike-időeltérés függvénye.
+
+        **Alkalmazás:**  
+        - Biológiai neurális hálók időzítésalapú tanulása  
+        - Időbeli minták elsajátítása  
+        - Energiahatékony, eseményvezérelt hálózatok fejlesztése
+        """)
+
     with st.expander("🧠 Memory Landscape – Asszociatív tárolási térkép"):
         st.latex(r"E(\mathbf{s}) = -\frac{1}{2} \sum_{i \neq j} W_{ij} s_i s_j")
         st.markdown("""
