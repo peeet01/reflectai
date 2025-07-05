@@ -97,6 +97,27 @@ def run():
         A fraktáldimenzió segítségével **rendszerek komplexitása** jellemezhető kvantitatív módon, különösen ott, ahol klasszikus mértékek (pl. topológiai dimenzió) csődöt mondanak.
         """)
 
+    with st.expander("📉 Lyapunov Spectrum – Kaotikus rendszerek stabilitása"):
+        st.latex(r"\lambda_i = \lim_{t \to \infty} \frac{1}{t} \ln \frac{||\delta x_i(t)||}{||\delta x_i(0)||}")
+        st.markdown("""
+        **Cél:** A dinamikus rendszer stabilitásának vizsgálata a Lyapunov-exponenseken keresztül.  
+
+        **Magyarázat:**
+        - $\lambda_i$: az $i$-edik Lyapunov-exponens  
+        - $\delta x_i$: perturbáció az állapottérben  
+        - A pozitív $\lambda$ értékek a rendszer **kaotikusságára** utalnak  
+        - A negatív értékek stabilitást jeleznek, míg a nulla semleges viselkedést
+
+        **Felhasználás:**
+        - Kaotikus rendszerek detektálása  
+        - Stabil/instabil viselkedés feltérképezése  
+        - Lorenz-rendszer, Rössler-attraktor, Kuramoto-hálózatok vizsgálata  
+
+        **Tudományos háttér:**  
+        A Lyapunov-spektrum a **nemlineáris dinamika** egyik alapvető eszköze. A teljes spektrum jellemzi a rendszer entrópiáját és prediktálhatóságát:
+        """)
+        st.latex(r"h_{KS} = \sum_{\lambda_i > 0} \lambda_i \quad \text{(Kolmogorov–Sinai entrópia)}")
+
     with st.expander("🌀 Fraktál Explorer – Kaotikus rendszerek"):
         st.latex(r"z_{n+1} = z_n^2 + c")
         st.markdown("""
