@@ -1,3 +1,5 @@
+© 2025 Kovacs Peter. All rights reserved. See `COPYRIGHT.md` for terms.
+
 # 🧠 Neurolab AI Sandbox
 
 **Interaktív tudományos szimulációk idegtudomány, komplex rendszerek és gépi tanulás területén.**  
@@ -54,3 +56,5 @@ git clone https://github.com/<felhasznalo>/neurolab-ai.git
 cd neurolab-ai
 pip install -r requirements.txt
 streamlit run app.py
+
+This project is not intended for redistribution, reuse, or commercial deployment without explicit written consent.
