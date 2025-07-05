@@ -45,3 +45,12 @@ cd neurolab-ai
 pip install -r requirements.txt
 streamlit run app.py
 
+
+## 🛡️ Licenc és jogi nyilatkozat
+
+© 2025 Kovacs Peter. Minden jog fenntartva.
+
+Ez a szoftver, valamint az összes hozzá tartozó fájl, dokumentáció és modul a **Kovacs Peter** szellemi tulajdonát képezi. Kereskedelmi célú felhasználás, másolás, terjesztés, vagy származékos munka létrehozása kizárólag a tulajdonos írásos engedélyével lehetséges.
+
+📄 Részletes feltételekért lásd a [`COPYRIGHT.md`](./COPYRIGHT.md) fájlt.
+
