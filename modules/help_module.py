@@ -109,16 +109,16 @@ def run():
         
     with st.expander("🧠 Hebbian Learning Viz – Szinaptikus erősödés szemléltetése"):
         st.latex(r"\Delta w = \eta \cdot x \cdot y")
+        st.latex(r"x: \text{ bemeneti neuron aktivitása}")
+        st.latex(r"y: \text{ kimeneti neuron aktivitása}")
+        st.latex(r"\eta: \text{ tanulási ráta}")
+        st.latex(r"\Delta w: \text{ szinaptikus súlyváltozás}")
+
         st.markdown("""
         **Cél:** A Hebbian tanulás bemutatása vizuálisan, ahol a bemenet ($x$) és a kimenet ($y$) együttes aktivitása megerősíti a szinaptikus kapcsolatot ($w$).  
 
-        **Magyarázat:**
-        - $x$: bemeneti neuron aktivitása  
-        - $y$: kimeneti neuron aktivitása  
-        - $\eta$: tanulási ráta  
-        - $\Delta w$: szinaptikus súlyváltozás
-
-        Ez a szabály a híres "Cells that fire together, wire together" elvét követi.  
+        **Magyarázat:**  
+        Ez a szabály a híres *"Cells that fire together, wire together"* elvét követi.  
         A modul vizuálisan mutatja be, hogy a gyakori együttes aktiváció hogyan növeli a kapcsolatok erősségét.
 
         **Alkalmazás:**
