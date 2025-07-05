@@ -23,6 +23,29 @@ def run():
         - Szinkron idegi aktivitás jellemzése  
         - Ritmikus zavarok (pl. epilepszia) szimulációja  
         """)
+        
+    with st.expander("🧠 Hebbian Learning Viz – Szinaptikus erősödés szemléltetése"):
+        st.latex(r"\Delta w = \eta \cdot x \cdot y")
+        st.markdown("""
+        **Cél:** A Hebbian tanulás bemutatása vizuálisan, ahol a bemenet ($x$) és a kimenet ($y$) együttes aktivitása megerősíti a szinaptikus kapcsolatot ($w$).  
+
+        **Magyarázat:**
+        - $x$: bemeneti neuron aktivitása  
+        - $y$: kimeneti neuron aktivitása  
+        - $\eta$: tanulási ráta  
+        - $\Delta w$: szinaptikus súlyváltozás
+
+        Ez a szabály a híres "Cells that fire together, wire together" elvét követi.  
+        A modul vizuálisan mutatja be, hogy a gyakori együttes aktiváció hogyan növeli a kapcsolatok erősségét.
+
+        **Alkalmazás:**
+        - Neurális adaptációk vizsgálata  
+        - Biológiai tanulási folyamatok megértése  
+        - Dinamikus hálózati súlymódosulások elemzése
+
+        **Tudományos háttér:**  
+        A Hebbian tanulás egy alapvető **unsupervised learning** mechanizmus, amely a korrelált aktivitást preferálja, és a **neurális reprezentációk kialakulását** modellezi.
+        """)
 
     with st.expander("❌ XOR Predikció – Neurális hálózat"):
         st.latex(r"\hat{y} = \sigma(W^{(2)} \cdot \sigma(W^{(1)}x + b^{(1)}) + b^{(2)})")
