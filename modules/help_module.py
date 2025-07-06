@@ -335,6 +335,63 @@ def run():
         - Lineáris modellek korlátainak bemutatása  
         """)
 
+    with st.expander("🧲 Ising-modell – Fázisátmenet és rendezettség vizsgálata"):
+        st.markdown("""
+        **Cél:** A klasszikus 2D **Ising-modell** dinamikájának bemutatása hőmérsékletfüggő viselkedéssel és rendezettségi mintázatokkal.
+    
+        **Rácsmodell:** A modell egy kétdimenziós négyzetrács, ahol minden ponton egy **spin** ($s_{i,j} = \pm 1$) található.
+
+        **Hamilton-függvény:** A rendszer energiáját az alábbi alak határozza meg:
+        """)
+        st.latex(r"H = -J \sum_{\langle i,j \rangle} s_i s_j")
+        st.markdown("**Ahol:**")
+        st.latex(r"J > 0 \quad \text{ferromágneses csatolás}")
+        st.latex(r"\langle i,j \rangle \quad \text{szomszédos spinpárok}")
+
+        st.markdown("""
+        **Mágnesezettség:** A globális rendezettség mértéke:
+        """)
+        st.latex(r"M = \frac{1}{N^2} \sum_{i,j} s_{i,j}")
+
+        st.markdown("""
+        **Energia:** Az átlagos belső energia:
+        """)
+        st.latex(r"E = -\frac{1}{N^2} \sum_{\langle i,j \rangle} s_i s_j")
+
+        st.markdown("""
+        **Sztochasztikus dinamika:**  
+        A szimuláció a **Metropolis–Monte Carlo** algoritmust használja a hőmérsékletfüggő konfigurációk generálására.  
+        A spinek frissítése a következő szabály szerint történik:
+        """)
+
+        st.latex(r"\Delta E = 2 s_{i,j} \sum_{\text{szomszédok}} s_k")
+        st.markdown("Az új állapot elfogadási valószínűsége:")
+        st.latex(r"P = \min \left( 1, \, e^{-\beta \Delta E} \right)")
+
+        st.markdown("""
+        **Fázisátmenet:**  
+        Az Ising-modell képes szemléltetni a **másodfajú fázisátmenetet**, ahol a rendszer viselkedése gyökeresen megváltozik a kritikus hőmérséklet környékén:
+        """)
+        st.latex(r"T_c \approx \frac{2}{\ln(1 + \sqrt{2})} \approx 2.27 \quad \text{(vagy)} \quad \beta_c \approx 0.44")
+
+        st.markdown("""
+        **Jellemzők:**  
+        - Alacsony hőmérsékleten: rendezettség ($M \ne 0$)  
+        - Magas hőmérsékleten: rendezetlenség ($M \approx 0$)  
+        - Kritikus pontban: skálafüggetlen fluktuációk
+
+        **Tudományos jelentőség:**  
+        - Egyszerű, de pontos modell **rendezettség** és **kritikusság** vizsgálatára  
+        - **Sztochasztikus folyamatok**, **szinkronizáció** és **neurális mintázatok** megértéséhez is releváns  
+        - Kapcsolatban áll **mezőelmélettel**, **statikus hálózatokkal**, és **gondolati dinamikákkal** is
+
+        **Felhasználás:**  
+        - Komplex rendszerek viselkedésének tanulmányozása  
+        - Gépi tanulási hálók (pl. Hopfield) ihletője  
+        - Kvantum Ising-modellen keresztül kvantuminformációs elméletek vizsgálata  
+        - **Társadalmi modellezés** (pl. véleménydinamika, döntések)
+        """)
+
     with st.expander("📶 Noise Robustness – Tanulási rendszerek zajtűrése"):
         st.markdown("""
         **Cél:** Annak vizsgálata, hogy a neurális hálózatok mennyire képesek megőrizni teljesítményüket bemeneti zaj vagy belső fluktuációk jelenlétében.
