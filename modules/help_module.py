@@ -379,7 +379,7 @@ def run():
         - Alacsony hőmérsékleten: rendezettség ($M \ne 0$)  
         - Magas hőmérsékleten: rendezetlenség ($M \approx 0$)  
         - Kritikus pontban: skálafüggetlen fluktuációk
-
+        """)
         st.markdown("""
         **Tudományos jelentőség:**  
         - Egyszerű, de pontos modell **rendezettség** és **kritikusság** vizsgálatára  
