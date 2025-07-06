@@ -380,16 +380,17 @@ def run():
         - Magas hőmérsékleten: rendezetlenség ($M \approx 0$)  
         - Kritikus pontban: skálafüggetlen fluktuációk
 
-        **Tudományos jelentőség:**  
+        st.markdown("""
+        **📌 Tudományos jelentőség:**  
         - Egyszerű, de pontos modell **rendezettség** és **kritikusság** vizsgálatára  
-        - **Sztochasztikus folyamatok**, **szinkronizáció** és **neurális mintázatok** megértéséhez is releváns  
-        - Kapcsolatban áll **mezőelmélettel**, **statikus hálózatokkal**, és **gondolati dinamikákkal** is
+        - Sztochasztikus folyamatok, szinkronizáció és neurális mintázatok értelmezésére  
+        - Kapcsolat mezőelmélettel, hálózatokkal, döntésdinamikákkal  
 
-        **Felhasználás:**  
-        - Komplex rendszerek viselkedésének tanulmányozása  
-        - Gépi tanulási hálók (pl. Hopfield) ihletője  
-        - Kvantum Ising-modellen keresztül kvantuminformációs elméletek vizsgálata  
-        - **Társadalmi modellezés** (pl. véleménydinamika, döntések)
+        **🔬 Felhasználás:**  
+        - Komplex rendszerek viselkedésének modellezése  
+        - Gépi tanulási hálók inspirálása (pl. Hopfield)  
+        - Kvantum Ising-modell kvantuminformációhoz  
+        - Véleménydinamika, társadalmi hálók modellezése
         """)
 
     with st.expander("📶 Noise Robustness – Tanulási rendszerek zajtűrése"):
