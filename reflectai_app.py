@@ -45,7 +45,7 @@ module_categories = {
         "Lorenz Sim": "lorenz_sim",
         "Plasticity Dynamics": "plasticity_dynamics",
         "Noise Robustness": "noise_robustness",
-        "Ising Sim": "ising_sim"
+        "Ising Sim": "ising_sim",
         
     },
     "🧪 Adatfeltöltés és predikciók": {
