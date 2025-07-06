@@ -22,6 +22,7 @@ module_categories = {
         "Persistent Homology": "persistent_homology",
         "Memory Landscape": "memory_landscape",
         "Fractal Explorer": "fractal_explorer",
+        "Graph Sync Analysis": "graph_sync_analysis",
         "Criticality Explorer": "criticality_explorer",
     },
     "🧠 Tanulási algoritmusok": {
@@ -49,7 +50,6 @@ module_categories = {
         "Neural Entropy": "neural_entropy",
     },
     "📚 Egyéb / Segéd modulok": {
-        "Graph Sync Analysis": "graph_sync_analysis",
         "Help": "help_module",
         "Questions": "questions",
         "Reflection Modul": "reflection_modul"
