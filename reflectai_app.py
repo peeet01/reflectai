@@ -33,6 +33,7 @@ module_categories = {
         "STDP Learning": "stdp_learning",
         "BCM tanulás": "bcm_learning",
         "Spiking Neural Network": "snn_simulation",
+        "ESN Prediction": "esn_prediction",
     },
     "⚗️ Szimulációk és dinamikák": {
         "Kuramoto Sim": "kuramoto_sim",
@@ -44,7 +45,6 @@ module_categories = {
     },
     "🧪 Adatfeltöltés és predikciók": {
         "Data Upload": "data_upload",
-        "ESN Prediction": "esn_prediction",
         "Berry Curvature": "berry_curvature",
         "Neural Entropy": "neural_entropy",
     },
