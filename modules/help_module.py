@@ -381,7 +381,7 @@ def run():
         - Kritikus pontban: skálafüggetlen fluktuációk
 
         st.markdown("""
-        **📌 Tudományos jelentőség:**  
+        **Tudományos jelentőség:**  
         - Egyszerű, de pontos modell **rendezettség** és **kritikusság** vizsgálatára  
         - Sztochasztikus folyamatok, szinkronizáció és neurális mintázatok értelmezésére  
         - Kapcsolat mezőelmélettel, hálózatokkal, döntésdinamikákkal  
