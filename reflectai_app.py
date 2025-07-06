@@ -23,6 +23,7 @@ module_categories = {
         "Memory Landscape": "memory_landscape",
         "Fractal Explorer": "fractal_explorer",
         "Berry Curvature": "berry_curvature",
+        "Neural Entropy": "neural_entropy",
         "Graph Sync Analysis": "graph_sync_analysis",
         "Criticality Explorer": "criticality_explorer",
     },
@@ -47,7 +48,6 @@ module_categories = {
     },
     "🧪 Adatfeltöltés és predikciók": {
         "Data Upload": "data_upload",
-        "Neural Entropy": "neural_entropy",
     },
     "📚 Egyéb / Segéd modulok": {
         "Help": "help_module",
