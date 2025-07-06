@@ -372,7 +372,8 @@ def run():
         **Fázisátmenet:**  
         Az Ising-modell képes szemléltetni a **másodfajú fázisátmenetet**, ahol a rendszer viselkedése gyökeresen megváltozik a kritikus hőmérséklet környékén:
         """)
-        st.latex(r"T_c \approx \frac{2}{\ln(1 + \sqrt{2})} \approx 2.27 \quad \text{(vagy)} \quad \beta_c \approx 0.44")
+        st.latex(r"T_c \approx \frac{2}{\ln(1 + \sqrt{2})} \approx 2.27")
+        st.latex(r"\beta_c \approx 0.44")
 
         st.markdown("""
         **Jellemzők:**  
