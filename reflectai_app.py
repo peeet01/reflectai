@@ -22,6 +22,7 @@ module_categories = {
         "Persistent Homology": "persistent_homology",
         "Memory Landscape": "memory_landscape",
         "Fractal Explorer": "fractal_explorer",
+        "Berry Curvature": "berry_curvature",
         "Graph Sync Analysis": "graph_sync_analysis",
         "Criticality Explorer": "criticality_explorer",
     },
@@ -46,7 +47,6 @@ module_categories = {
     },
     "🧪 Adatfeltöltés és predikciók": {
         "Data Upload": "data_upload",
-        "Berry Curvature": "berry_curvature",
         "Neural Entropy": "neural_entropy",
     },
     "📚 Egyéb / Segéd modulok": {
