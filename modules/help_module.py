@@ -386,7 +386,7 @@ def run():
         - Sztochasztikus folyamatok, szinkronizáció és neurális mintázatok értelmezésére  
         - Kapcsolat mezőelmélettel, hálózatokkal, döntésdinamikákkal  
 
-        **🔬 Felhasználás:**  
+        **Felhasználás:**  
         - Komplex rendszerek viselkedésének modellezése  
         - Gépi tanulási hálók inspirálása (pl. Hopfield)  
         - Kvantum Ising-modell kvantuminformációhoz  
