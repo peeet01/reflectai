@@ -37,7 +37,7 @@ module_categories = {
         "BCM tanulás": "bcm_learning",
         "Spiking Neural Network": "snn_simulation",
         "ESN Prediction": "esn_prediction",
-        "Critical Hebbian (3D)": "critical_hebbian",
+        "Critical Hebbian": "critical_hebbian",
     },
     "⚗️ Szimulációk és dinamikák": {
         "Kuramoto Sim": "kuramoto_sim",
