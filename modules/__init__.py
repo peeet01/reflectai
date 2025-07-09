@@ -64,5 +64,5 @@ registry = {
     "Fraktál Explorer": run_fractal_explorer,
     "Ising szimulácio": run_ising_sim,
     "Hebbian Learning Viz": run_hebbian_viz,
-    "Critical Hebbian tanulás (3D)": run_critical_hebbian,
+    "Critical Hebbian (3D)": run_critical_hebbian,
 }
