@@ -29,6 +29,7 @@ from modules.snn_simulation import app as run_snn
 from modules.fractal_explorer import app as run_fractal_explorer
 from modules.ising_sim import app as run_ising_sim
 from modules.hebbian_learning_viz import app as run_hebbian_viz
+from modules.critical_hebbian import app as run_critical_hebbian
 
 # Modulregisztráció (név -> függvény)
 registry = {
@@ -63,4 +64,5 @@ registry = {
     "Fraktál Explorer": run_fractal_explorer,
     "Ising szimulácio": run_ising_sim,
     "Hebbian Learning Viz": run_hebbian_viz,
+    "Critical Hebbian tanulás (3D)": run_critical_hebbian,
 }
