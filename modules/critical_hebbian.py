@@ -19,69 +19,65 @@ def generate_data(N, timesteps, eta, init_std=0.1):
     return np.array(history), x
 
 def visualize_weights_3d(data, method, step):
-    flattened = data[step].reshape(-1, 1)
+    matrix = data[step]  # shape: (N, N)
 
-    if method == "PCA":
-        model = PCA(n_components=3)
-    elif method == "t-SNE":
-        model = TSNE(n_components=3, perplexity=10, learning_rate='auto', init='pca')
-    else:  # Raw Grid
-        size = int(np.sqrt(flattened.shape[0]))
-        coords = np.indices((size, size)).reshape(2, -1).T
-        x, y = coords[:, 0], coords[:, 1]
-        z = flattened.flatten()
+    if method == "Raw Grid":
+        size = matrix.shape[0]
+        x, y = np.meshgrid(np.arange(size), np.arange(size))
+        z = matrix
+        fig = go.Figure(data=[go.Surface(z=z, x=x, y=y, colorscale='Viridis')])
+        return fig
+
+    flattened = matrix  # shape: (N, N), each row = one sample
+    try:
+        if method == "PCA":
+            model = PCA(n_components=3)
+        elif method == "t-SNE":
+            model = TSNE(n_components=3, perplexity=5, learning_rate='auto', init='pca')
+
+        coords = model.fit_transform(StandardScaler().fit_transform(flattened))
+        x, y, z = coords[:, 0], coords[:, 1], coords[:, 2]
+
         fig = go.Figure(data=[go.Scatter3d(
             x=x, y=y, z=z,
             mode='markers',
-            marker=dict(size=4, color=z, colorscale='Viridis', opacity=0.8)
+            marker=dict(size=5, color=z, colorscale='Plasma', opacity=0.8)
         )])
         return fig
+    except Exception as e:
+        st.error(f"Hiba a 3D vizualizáció során: {e}")
+        return go.Figure()
 
-    coords = model.fit_transform(StandardScaler().fit_transform(flattened))
-    x, y, z = coords[:, 0], coords[:, 1], coords[:, 2]
+def app():
+    st.title("🧠 Critical Hebbian – Szinaptikus tanulás és komplexitás")
 
-    fig = go.Figure(data=[go.Scatter3d(
-        x=x, y=y, z=z,
-        mode='markers',
-        marker=dict(size=5, color=z, colorscale='Plasma', opacity=0.8)
-    )])
-    return fig
+    # ▶️ Bevezetés és matematikai háttér
+    st.markdown(r"""
+    ### 🎯 Célkitűzés
 
-def run():
-    st.title("🌋 Critical Hebbian – Szinaptikus tanulás és komplexitás")
-
-    st.markdown("""
-    ### 🧠 Tudományos célkitűzés
-    Ez a modul a **Hebbian tanulás** dinamikáját és annak **kritikus viselkedéshez** való viszonyát mutatja be.  
-    A Hebbian-szabály önmagában pozitív visszacsatolású, és bizonyos feltételek mellett **kritikus fázishatár** közelébe tolhatja a hálózatot.
+    Ez a modul a **Hebbian tanulás** dinamikáját és annak **kritikus viselkedéshez** való viszonyát vizsgálja.  
+    A Hebbian szabály egy pozitív visszacsatoláson alapuló tanulási mechanizmus, amely önmagában képes kritikus komplexitású mintázatok kialakítására.
 
     ### ⚙️ Matematikai háttér
 
-    Hebbian tanulás:
-
+    Hebbian tanulási szabály:
     $$
     \Delta w_{ij} = \eta \cdot y_i \cdot x_j
     $$
 
-    Ahol:
-    - $x_j$: bemeneti neuron aktivitása
-    - $y_i$: kimeneti neuron aktivitása (pl. $\\tanh(Wx)$)
-    - $w_{ij}$: szinaptikus súly
-    - $\\eta$: tanulási ráta
-
-    Időben változó súlymátrix:  
+    A súlymátrix időfejlődése:
     $$
     W(t+1) = W(t) + \eta \cdot y(t) \cdot x(t)^T
     $$
 
-    ### 🎯 Cél
-    - Szemléltetni a Hebbian tanulás hatását a súlytér szerkezetére
-    - Feltárni a tanulási dinamika esetleges **kritikus pontközeli** viselkedését
-    - 3D-s vizualizációval értelmezni a súlytér alakulását különböző nézőpontokból
-
-    ---
+    Ahol:
+    - $x_j$ a bemeneti neuron aktivitása
+    - $y_i = \tanh(Wx)$ a kimeneti neuron válasza
+    - $W$ a szinaptikus súlymátrix
+    - $\eta$ a tanulási ráta
     """)
 
+    # 🎛️ Oldalsáv: Paraméterek
     st.sidebar.header("🔧 Paraméterek")
     N = st.sidebar.slider("Neuronok száma", 5, 100, 20, step=5)
     timesteps = st.sidebar.slider("Időlépések száma", 50, 500, 100, step=50)
@@ -95,31 +91,33 @@ def run():
     if 'data' not in st.session_state:
         st.session_state['data'], st.session_state['activity'] = generate_data(N, timesteps, eta)
 
+    # 📊 Vizualizáció
     st.subheader("🎥 Súlymátrix vizualizáció 3D-ben")
     fig = visualize_weights_3d(st.session_state['data'], viz_type, step)
     st.plotly_chart(fig, use_container_width=True)
 
-    # Export
+    # 💾 CSV mentés
     st.subheader("💾 Súlymátrix mentése CSV-be")
     W_df = pd.DataFrame(st.session_state['data'][step])
     st.dataframe(W_df)
     csv = W_df.to_csv(index=False).encode('utf-8')
     st.download_button("📥 Letöltés CSV formátumban", csv, "hebbian_weights.csv", "text/csv")
 
-    with st.expander("📚 Tudományos magyarázat és következtetések"):
-        st.markdown(r"""
-        A Hebbian szabály előnye, hogy egyszerű és biológiailag motivált, azonban **önmagában instabil** lehet.  
-        Képes **kritikus viselkedés** közelébe tolni a hálózatot, ami maximális komplexitást és információfeldolgozási képességet biztosít.
+    # 📖 Tudományos leírás
+    st.markdown("## 📚 Tudományos magyarázat és következtetések")
+    st.markdown(r"""
+    A Hebbian tanulás egy **alulról szerveződő**, lokális szabályon alapuló mechanizmus.  
+    Az alábbi jelenségek figyelhetők meg:
 
-        ### 🔍 Megfigyelhető jelenségek:
-        - A súlytér szerkezete **nemlineárisan változik** az idő során
-        - A PCA/t-SNE vizualizációk révén **rejtett minták** és **topológiai szerveződések** figyelhetők meg
-        - A tanulási ráta befolyásolja, hogy a hálózat **konvergál-e**, **divergál-e**, vagy **önszerveződő mintázatokat** mutat
+    ### 🔍 Megfigyelések:
+    - A tanulási ráta ($\eta$) értékétől függően a hálózat **konvergál**, **divergál**, vagy **önszerveződő mintázatokat** mutat
+    - A PCA és t-SNE módszerek **nemtriviális struktúrákat** fednek fel a súlytérben
+    - A rendszer bizonyos paramétereknél **kritikus pont** közelébe kerülhet
 
-        ### 💡 Tudományos jelentőség:
-        A Hebbian tanulás egyszerű szabálya mögött egy rendkívül gazdag dinamika rejlik, amely kapcsolatban áll a **kritikusság**, **emergencia** és **önszerveződés** fogalmaival.  
-        A megfelelő tanulási paraméterek mellett a hálózat a legnagyobb **adaptivitási** és **plaszticitási** potenciált mutatja.
-        """)
+    ### 💡 Tudományos jelentőség:
+    A kritikus Hebbian tanulás kapcsolódik a **kritikusság elméletéhez**, mely szerint egy rendszer legnagyobb komplexitását és alkalmazkodóképességét a **fázishatár körül** éri el.  
+    Ez az állapot jellemző a biológiai idegrendszerekre is, ahol a **plaszticitás** és **emergencia** kulcsfontosságú szerepet játszanak.
+    """)
 
-# Kötelező belépési pont
-app = run
+# 🔁 Kötelező belépési pont
+app = app
