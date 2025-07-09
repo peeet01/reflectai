@@ -325,6 +325,54 @@ def run():
         - Nem felügyelt tanulási folyamatok modellezése  
         """)
 
+    with st.expander("🧠 Critical Hebbian (3D) – Kritikus tanulási dinamika vizualizációja"):
+        st.markdown("""
+        **Cél:**  
+        A Hebbian tanulási szabály által vezérelt **dinamikus súlymódosulás** interaktív, 3D vizualizációja.  
+        A rendszer célja a **kritikus állapot** közelébe való konvergálás – ahol a hálózat **maximális komplexitást és adaptivitást** mutat.
+
+        **Tanulási szabály:**
+        """)
+        st.latex(r"\Delta W_{ij}(t) = \eta \cdot x_i(t) \cdot x_j(t)")
+
+        st.markdown("""
+        **Ahol:**
+        """)
+        st.latex(r"x_i(t): \text{ az } i\text{-edik neuron aktivációja időben}")
+        st.latex(r"\eta: \text{ tanulási ráta}")
+        st.latex(r"W_{ij}: \text{ szinaptikus súly a } i \rightarrow j \text{ kapcsolaton}")
+
+        st.markdown("""
+        A tanulás során a súlymátrix fejlődik, és a hálózat konfigurációja **önszerveződő módon** alakul ki.
+
+        #### 🔬 Kritikusitás jellemzése:
+        A rendszer viselkedése a **kritikus pont** közelében:
+        """)
+        st.latex(r"P(s) \propto s^{-\tau}")
+        st.markdown("""
+        Ahol:
+        """)
+        st.latex(r"s: \text{ aktivitási esemény mérete}, \quad \tau \approx 1.5")
+        st.markdown("""
+        Ez az eloszlás azt mutatja, hogy a rendszer **skálafüggetlen fluktuációkat** mutat – a kritikus rendszerek jellemzője.
+
+        #### Vizualizáció:
+        A súlymátrix időbeli fejlődése különböző **3D beágyazási módszerekkel** tekinthető meg:
+        - **Raw Grid** – egyszerű térbeli elhelyezés  
+        - **PCA** – főkomponens-alapú vetítés  
+        - **t-SNE** – nemlineáris szerkezetek kiemelése
+
+        #### Kimenet:
+        A vizualizációhoz tartozó súlymátrix exportálható `.csv` formában.
+
+        #### Tudományos jelentőség:
+        - A kritikus dinamikák növelhetik a **rendszer válaszkészségét**  
+        - Optimalizálhatják az **információfeldolgozást**  
+        - **Önszerveződő komplexitás** jelenik meg
+
+        **Kapcsolódás:** A modul a Hebbian tanulás és a **kritikus fázisátmenetek** egyesítésével vizsgálja a tanulás **nemlineáris viselkedését** – ideális oktatási és kutatási célokra.
+        """)
+
     with st.expander("❌ XOR Predikció – Neurális hálózat"):
         st.latex(r"\hat{y} = \sigma(W^{(2)} \cdot \sigma(W^{(1)}x + b^{(1)}) + b^{(2)})")
         st.latex(r"\mathcal{L} = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}_i)^2")
