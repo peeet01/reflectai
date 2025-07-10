@@ -2,17 +2,16 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.metrics import mutual_info_score
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import plotly.graph_objects as go
 
-# 🔧 Mutual information becslés (javított)
+# 🔧 Mutual information becslés (javított verzió)
 def compute_mutual_info(x, y):
-    x_binned = pd.Categorical(pd.qcut(x, q=10, duplicates='drop')).codes
-    return mutual_info_score(x_binned, y)
+    x_cat = pd.qcut(x, q=10, duplicates='drop')
+    x_codes = x_cat.astype("category").cat.codes
+    return mutual_info_score(x_codes, y)
 
 # 🎯 Information Bottleneck veszteségfüggvény
 def information_bottleneck_loss(I_xt, I_ty, beta):
