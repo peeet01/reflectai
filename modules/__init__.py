@@ -30,6 +30,7 @@ from modules.fractal_explorer import app as run_fractal_explorer
 from modules.ising_sim import app as run_ising_sim
 from modules.hebbian_learning_viz import app as run_hebbian_viz
 from modules.critical_hebbian import app as run_critical_hebbian
+from modules.information_bottleneck import app as run_information_bottleneck
 
 # Modulregisztráció (név -> függvény)
 registry = {
@@ -65,4 +66,5 @@ registry = {
     "Ising szimulácio": run_ising_sim,
     "Hebbian Learning Viz": run_hebbian_viz,
     "Critical Hebbian": run_critical_hebbian,
+    "Information Bottleneck": run_information_bottleneck,
 }
