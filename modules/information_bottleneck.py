@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 
 # 🔧 Mutual information becslés (javított)
 def compute_mutual_info(x, y):
-    x_binned = pd.qcut(x, q=10, duplicates='drop').cat.codes
+    x_binned = pd.qcut(x, q=10, duplicates='drop').astype('category').cat.codes
     return mutual_info_score(x_binned, y)
 
 # 🎯 Information Bottleneck veszteségfüggvény
