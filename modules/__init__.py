@@ -66,5 +66,5 @@ registry = {
     "Ising szimulácio": run_ising_sim,
     "Hebbian Learning Viz": run_hebbian_viz,
     "Critical Hebbian": run_critical_hebbian,
-    "Information Bottleneck": run_information_bottleneck,
+    "Information Bottleneck": run_information_bottleneck
 }
