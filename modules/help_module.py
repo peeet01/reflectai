@@ -273,6 +273,52 @@ def run():
         **Tudományos jelentőség:**  
         Az entrópia alkalmazása lehetővé teszi az agyi rendszerek **adaptív dinamikájának** és **információfeldolgozó kapacitásának** objektív értékelését.
         """)
+
+    with st.expander("🔐 Information Bottleneck – Releváns reprezentációk kivonása"):
+        st.markdown("""
+        **Cél:**  
+        Az információelmélet alapján olyan **releváns reprezentációk** megtalálása, amelyek a bemenet ($X$) és a célváltozó ($Y$) közötti **információtartalmat** megőrzik, miközben a fölösleges zajt eltávolítják.
+
+        Ez a kompromisszum a **tömörítés** és az **informatív predikció** között zajlik.
+
+        #### 🧠 Alapelv – Információs célfüggvény:
+        Az Information Bottleneck formalizmusa a következő optimalizálási problémát definiálja:
+        """)
+        st.latex(r"\min_{p(t|x)} \ \mathcal{L} = I(X;T) - \beta \cdot I(T;Y)")
+        st.markdown("""
+        Ahol:  
+        - $T$: kódolt (tömörített) reprezentáció  
+        - $I(X;T)$: mennyi információ marad meg $X$-ből a reprezentációban  
+        - $I(T;Y)$: mennyi releváns információ van $T$-ben $Y$-ra vonatkozóan  
+        - $\\beta$: szabályozó paraméter a tömörítés és predikció között
+
+        #### 🔍 Magyarázat:
+        - A cél az, hogy $T$ **minél kevesebb információt** tartalmazzon $X$-ről  
+        - Ugyanakkor $T$ tartalmazza a $Y$-ra nézve **maximálisan prediktív információt**  
+        - A $\\beta$ paraméter egyensúlyt teremt a két cél között (nagy $\\beta$ → több releváns információ)
+
+        #### 📊 Vizuális kimenet:
+        A modul 3D térben ábrázolja a kódolt reprezentációkat ($T$), különféle beágyazásokkal:
+        - **Raw Grid**: alap térbeli eloszlás  
+        - **PCA**: főkomponens-analízis  
+        - **t-SNE**: nemlineáris beágyazás a rejtett szerkezetek kiemelésére
+
+        A pontok színkódolása a célt változó (pl. címkék) szerint történik, így jól látható, hogy mennyire szeparálhatóak a reprezentációk.
+
+        #### 📁 Kimenet:
+        A 3D-ben megjelenített kódolt reprezentáció exportálható `.csv` formátumban is további elemzéshez.
+
+        #### 🧪 Tudományos jelentőség:
+        - A modell **információmegőrző tömörítést** végez, amely elengedhetetlen a hatékony reprezentációk kialakításához  
+        - Alapja a **deep variational bottleneck** modelleknek  
+        - Fontos eszköz a neurális hálózatok **rejtett rétegeinek értelmezésében**
+
+        #### 📚 Alkalmazások:
+        - Mély tanulási modellek belső reprezentációinak vizsgálata  
+        - Feature kiválasztás és dimenziócsökkentés  
+        - Adattömörítés, rejtett klaszterstruktúrák feltárása  
+        - Információelméleti regularizálás neurális hálókban  
+        """)
         
     with st.expander("🧠 Hebbian Learning Viz – Szinaptikus erősödés szemléltetése"):
         st.latex(r"\Delta w = \eta \cdot x \cdot y")
