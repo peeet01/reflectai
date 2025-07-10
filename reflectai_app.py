@@ -38,7 +38,7 @@ module_categories = {
         "Spiking Neural Network": "snn_simulation",
         "ESN Prediction": "esn_prediction",
         "Critical Hebbian": "critical_hebbian",
-        "Information Bottleneck": "information_bottleneck",
+        
     },
     "⚗️ Szimulációk és dinamikák": {
         "Kuramoto Sim": "kuramoto_sim",
@@ -48,6 +48,7 @@ module_categories = {
         "Plasticity Dynamics": "plasticity_dynamics",
         "Noise Robustness": "noise_robustness",
         "Ising Sim": "ising_sim",
+        "Information Bottleneck": "information_bottleneck",
         
     },
     "🧪 Adatfeltöltés és predikciók": {
