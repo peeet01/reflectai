@@ -1,101 +1,104 @@
 import streamlit as st
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+import pandas as pd
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
+# === Boltzmann-eloszlás definíciója ===
+def boltzmann_distribution(energy, T, k=1.0):
+    return np.exp(-energy / (k * T))
 
+# === Energia tér generálása ===
+def generate_energy_surface(x_range, y_range, scale=1.0):
+    x = np.linspace(*x_range, 100)
+    y = np.linspace(*y_range, 100)
+    X, Y = np.meshgrid(x, y)
+    Z = scale * (X**2 + Y**2)
+    return X, Y, Z
+
+# === Main app ===
 def run():
-    st.title("🌡️ Boltzmann-gép – Energián alapuló tanulás")
+    st.set_page_config(layout="wide")
+    st.title("🌡️ Boltzmann-eloszlás – Energia és valószínűségi eloszlás")
 
     st.markdown("""
-    A **Boltzmann-gép** egy generatív, energián alapuló modell, amely képes **mintázatokat tárolni és rekonstruálni**.
-    A tanulás alapja az energia minimalizálása és a valószínűségi aktiváció.
-
-    Az alábbi szimuláció egy kis **Bináris Boltzmann-gépet** mutat be.
+    A **Boltzmann-eloszlás** leírja a részecskék energia szerinti eloszlását egy hőmérsékleten.  
+    Az energia növekedésével a valószínűség exponenciálisan csökken.
+    
+    A következő vizualizáció egy 2D energiateret generál, amelyhez hozzárendeljük a Boltzmann-súlyokat, majd 3D-ben ábrázoljuk.
     """)
 
-    # 🔧 Paraméterek
-    n_visible = st.slider("Látható egységek száma", 2, 10, 6)
-    n_hidden = st.slider("Rejtett egységek száma", 2, 10, 4)
-    temperature = st.slider("Hőmérséklet (T)", 0.1, 5.0, 1.0, 0.1)
-    epochs = st.slider("Epochok száma", 10, 500, 100, 10)
+    # === Beállítások ===
+    st.sidebar.header("⚙️ Paraméterek")
+    T = st.sidebar.slider("Hőmérséklet (T)", 0.1, 5.0, 1.0, 0.1)
+    energy_scale = st.sidebar.slider("Energiafelület skálázása", 0.1, 5.0, 1.0, 0.1)
+    x_range = (-3, 3)
+    y_range = (-3, 3)
 
-    np.random.seed(42)
-    W = np.random.normal(0, 0.1, size=(n_visible + n_hidden, n_visible + n_hidden))
-    np.fill_diagonal(W, 0)
-    state = np.random.randint(0, 2, size=n_visible + n_hidden)
+    # === Energiafelület ===
+    X, Y, E = generate_energy_surface(x_range, y_range, scale=energy_scale)
+    P = boltzmann_distribution(E, T)
+    
+    # === 3D Plotly grafikon ===
+    st.subheader("🌐 3D Boltzmann-eloszlás felület")
+    fig3d = go.Figure(data=[go.Surface(
+        x=X, y=Y, z=P,
+        surfacecolor=E,
+        colorscale='Viridis',
+        colorbar=dict(title='Energia'),
+        showscale=True
+    )])
+    fig3d.update_layout(
+        scene=dict(
+            xaxis_title='X',
+            yaxis_title='Y',
+            zaxis_title='Valószínűség',
+        ),
+        title="Boltzmann-eloszlás energiafüggvény mentén",
+        margin=dict(l=0, r=0, t=60, b=0),
+        height=600
+    )
+    st.plotly_chart(fig3d, use_container_width=True)
 
-    # 📉 Energia számítás
-    def energy(s, W):
-        return -0.5 * np.dot(s, np.dot(W, s.T))
+    # === 2D metszet ===
+    st.subheader("📈 2D metszet az energia mentén")
+    E_1d = np.linspace(0, 10, 200)
+    P_1d = boltzmann_distribution(E_1d, T)
 
-    energies = []
-    snapshots = []
+    fig2d, ax = plt.subplots()
+    ax.plot(E_1d, P_1d, color="crimson")
+    ax.set_xlabel("Energia")
+    ax.set_ylabel("Valószínűség")
+    ax.set_title(f"Boltzmann-eloszlás (T = {T})")
+    st.pyplot(fig2d)
 
-    for _ in range(epochs):
-        for i in range(len(state)):
-            net_input = np.dot(W[i], state)
-            p = sigmoid(net_input / temperature)
-            state[i] = np.random.rand() < p
-        energies.append(energy(state, W))
-        snapshots.append(state.copy())
-
-    snapshots = np.array(snapshots)
-
-    # 📈 Energia alakulása
-    st.subheader("📉 Energiagörbe")
-    fig1, ax1 = plt.subplots()
-    ax1.plot(energies, color='orange')
-    ax1.set_xlabel("Iteráció")
-    ax1.set_ylabel("Energia")
-    ax1.set_title("Rendszer energiájának alakulása")
-    st.pyplot(fig1)
-
-    # 🌐 3D Állapottér vizualizáció (redundáns térkép)
-    st.subheader("🌐 3D Állapotminták vizualizációja")
-    if n_visible + n_hidden >= 3:
-        fig3d = go.Figure(data=[go.Scatter3d(
-            x=snapshots[:, 0],
-            y=snapshots[:, 1],
-            z=snapshots[:, 2],
-            mode='markers+lines',
-            marker=dict(size=3, color=np.arange(len(snapshots)), colorscale='Viridis'),
-            line=dict(width=2)
-        )])
-        fig3d.update_layout(
-            scene=dict(xaxis_title='Bit 0', yaxis_title='Bit 1', zaxis_title='Bit 2'),
-            margin=dict(l=0, r=0, b=0, t=30)
-        )
-        st.plotly_chart(fig3d, use_container_width=True)
-    else:
-        st.info("3D megjelenítéshez legalább 3 egység szükséges.")
-
-    # 💾 CSV export
-    st.subheader("💾 Állapotminták exportálása")
-    df = pd.DataFrame(snapshots, columns=[f"unit_{i}" for i in range(n_visible + n_hidden)])
+    # === CSV letöltés ===
+    st.subheader("📥 CSV export")
+    df = pd.DataFrame({
+        "X": X.flatten(),
+        "Y": Y.flatten(),
+        "Energia": E.flatten(),
+        "Valószínűség": P.flatten()
+    })
     csv = df.to_csv(index=False).encode("utf-8")
-    st.download_button("⬇️ Letöltés CSV-ben", data=csv, file_name="boltzmann_states.csv")
+    st.download_button("⬇️ Letöltés (CSV)", data=csv, file_name="boltzmann_distribution.csv")
 
-    # 📘 Tudományos háttér
-    st.markdown("### 📘 Tudományos háttér")
+    # === Tudományos háttér ===
+    st.markdown("### 📚 Tudományos háttér")
     st.latex(r"""
-    E(s) = -\frac{1}{2} s^T W s
+    P(E) = \frac{1}{Z} \exp\left(-\frac{E}{kT}\right)
     """)
     st.markdown("""
-    - \( s \): bináris állapotvektor
-    - \( W \): súlymátrix (szimmetrikus, önmagát nem kapcsolja)
-    - Az alacsonyabb energiaállapotok valószínűbbek
+    - **\( P(E) \)**: valószínűség, hogy a rendszer \( E \) energiájú állapotban van  
+    - **\( k \)**: Boltzmann-állandó (itt 1-nek tekintjük)  
+    - **\( T \)**: hőmérséklet  
+    - **\( Z \)**: partíciós függvény (összegzés minden lehetséges állapoton)
 
-    A tanulás célja, hogy a rendszer az **alacsony energiájú állapotokat részesítse előnyben**,  
-    melyek reprezentálják az eltanult mintákat.
-
-    **Felhasználás:**
-    - Mintafelismerés
-    - Dimenziócsökkentés (mély Boltzmann-hálók)
-    - Generatív modellezés
+    Az eloszlás alapja a **termodinamika** és **statikus fizika** törvényein alapul, valamint széleskörű alkalmazása van:
+    - Molekuláris dinamika
+    - Anyagszerkezetek modellezése
+    - Valószínűségi gépi tanulás (pl. Boltzmann-gépek)
     """)
 
+# App futtatása ReflectAI-hez
 app = run
