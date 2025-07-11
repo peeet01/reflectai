@@ -1,116 +1,101 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
-st.set_page_config(layout="wide")
-
-# 🔁 Sigmoid aktiváció
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
-# 🔄 RBM súlyfrissítés
-def train_rbm(data, n_hidden, epochs, lr):
-    n_visible = data.shape[1]
-    weights = np.random.normal(0, 0.1, (n_visible, n_hidden))
-    history = []
-
-    for epoch in range(epochs):
-        # Pozitív fázis
-        pos_hidden_probs = sigmoid(np.dot(data, weights))
-        pos_associations = np.dot(data.T, pos_hidden_probs)
-
-        # Rekonstrukció
-        neg_visible_probs = sigmoid(np.dot(pos_hidden_probs, weights.T))
-        neg_hidden_probs = sigmoid(np.dot(neg_visible_probs, weights))
-        neg_associations = np.dot(neg_visible_probs.T, neg_hidden_probs)
-
-        # Súlyfrissítés
-        weights += lr * (pos_associations - neg_associations.T) / data.shape[0]
-
-        history.append(weights.copy())
-
-    return weights, np.array(history)
-
-# 🎛️ Felület
 def run():
-    st.title("🧠 Boltzmann Machine – Energetikai tanulásvizualizáció")
+    st.title("🌡️ Boltzmann-gép – Energián alapuló tanulás")
 
     st.markdown("""
-    Ez a szimuláció egy **Restricted Boltzmann Machine (RBM)** egyszerűsített tanulási folyamatát mutatja be.  
-    A rendszer egyenergiájú állapotokat tanul meg, és próbálja rekonstruálni a bemenetet.
+    A **Boltzmann-gép** egy generatív, energián alapuló modell, amely képes **mintázatokat tárolni és rekonstruálni**.
+    A tanulás alapja az energia minimalizálása és a valószínűségi aktiváció.
 
-    A tanulás során a súlyok változását követheted 3D vizualizációval.
+    Az alábbi szimuláció egy kis **Bináris Boltzmann-gépet** mutat be.
     """)
 
-    n_visible = st.slider("🔢 Látható egységek száma", 2, 10, 4)
-    n_hidden = st.slider("🧠 Rejtett egységek száma", 2, 10, 3)
-    epochs = st.slider("⏱️ Epoch-ok", 1, 100, 30)
-    lr = st.slider("📈 Tanulási ráta", 0.001, 0.2, 0.05)
+    # 🔧 Paraméterek
+    n_visible = st.slider("Látható egységek száma", 2, 10, 6)
+    n_hidden = st.slider("Rejtett egységek száma", 2, 10, 4)
+    temperature = st.slider("Hőmérséklet (T)", 0.1, 5.0, 1.0, 0.1)
+    epochs = st.slider("Epochok száma", 10, 500, 100, 10)
 
-    # 🔣 Adat generálás (egyszerű bináris input)
-    data = np.random.randint(0, 2, (100, n_visible))
+    np.random.seed(42)
+    W = np.random.normal(0, 0.1, size=(n_visible + n_hidden, n_visible + n_hidden))
+    np.fill_diagonal(W, 0)
+    state = np.random.randint(0, 2, size=n_visible + n_hidden)
 
-    weights, history = train_rbm(data, n_hidden, epochs, lr)
+    # 📉 Energia számítás
+    def energy(s, W):
+        return -0.5 * np.dot(s, np.dot(W, s.T))
 
-    st.subheader("📊 3D Plotly vizualizáció a súlytér változásairól")
-    frames = []
+    energies = []
+    snapshots = []
 
-    for epoch in range(history.shape[0]):
-        w = history[epoch]
-        x, y, z = np.meshgrid(np.arange(n_visible), np.arange(n_hidden), [epoch])
-        u = x.flatten()
-        v = y.flatten()
-        w_values = w.T.flatten()
-        frames.append(go.Scatter3d(
-            x=u,
-            y=v,
-            z=np.full_like(u, epoch),
-            mode='markers',
-            marker=dict(size=6, color=w_values, colorscale='Inferno', opacity=0.8),
-            name=f"Epoch {epoch}"
-        ))
+    for _ in range(epochs):
+        for i in range(len(state)):
+            net_input = np.dot(W[i], state)
+            p = sigmoid(net_input / temperature)
+            state[i] = np.random.rand() < p
+        energies.append(energy(state, W))
+        snapshots.append(state.copy())
 
-    fig = go.Figure(data=frames)
-    fig.update_layout(
-        scene=dict(
-            xaxis_title="Látható egység",
-            yaxis_title="Rejtett egység",
-            zaxis_title="Epoch"
-        ),
-        margin=dict(l=0, r=0, b=0, t=40),
-        height=600
-    )
-    st.plotly_chart(fig)
+    snapshots = np.array(snapshots)
 
-    st.markdown("### 📘 Matematikai háttér")
-    st.latex(r"E(v, h) = -\sum_i v_i a_i - \sum_j h_j b_j - \sum_{i,j} v_i h_j w_{ij}")
+    # 📈 Energia alakulása
+    st.subheader("📉 Energiagörbe")
+    fig1, ax1 = plt.subplots()
+    ax1.plot(energies, color='orange')
+    ax1.set_xlabel("Iteráció")
+    ax1.set_ylabel("Energia")
+    ax1.set_title("Rendszer energiájának alakulása")
+    st.pyplot(fig1)
+
+    # 🌐 3D Állapottér vizualizáció (redundáns térkép)
+    st.subheader("🌐 3D Állapotminták vizualizációja")
+    if n_visible + n_hidden >= 3:
+        fig3d = go.Figure(data=[go.Scatter3d(
+            x=snapshots[:, 0],
+            y=snapshots[:, 1],
+            z=snapshots[:, 2],
+            mode='markers+lines',
+            marker=dict(size=3, color=np.arange(len(snapshots)), colorscale='Viridis'),
+            line=dict(width=2)
+        )])
+        fig3d.update_layout(
+            scene=dict(xaxis_title='Bit 0', yaxis_title='Bit 1', zaxis_title='Bit 2'),
+            margin=dict(l=0, r=0, b=0, t=30)
+        )
+        st.plotly_chart(fig3d, use_container_width=True)
+    else:
+        st.info("3D megjelenítéshez legalább 3 egység szükséges.")
+
+    # 💾 CSV export
+    st.subheader("💾 Állapotminták exportálása")
+    df = pd.DataFrame(snapshots, columns=[f"unit_{i}" for i in range(n_visible + n_hidden)])
+    csv = df.to_csv(index=False).encode("utf-8")
+    st.download_button("⬇️ Letöltés CSV-ben", data=csv, file_name="boltzmann_states.csv")
+
+    # 📘 Tudományos háttér
+    st.markdown("### 📘 Tudományos háttér")
+    st.latex(r"""
+    E(s) = -\frac{1}{2} s^T W s
+    """)
     st.markdown("""
-    A Boltzmann-gép célja az **energiafüggvény minimalizálása**, ahol:
-    
-    - \(v_i\): látható egység állapota  
-    - \(h_j\): rejtett egység állapota  
-    - \(a_i, b_j\): bias értékek (itt kihagyva)  
-    - \(w_{ij}\): súly a \(v_i \leftrightarrow h_j\) kapcsolatban
+    - \( s \): bináris állapotvektor
+    - \( W \): súlymátrix (szimmetrikus, önmagát nem kapcsolja)
+    - Az alacsonyabb energiaállapotok valószínűbbek
 
-    **Tanulási szabály:**
-    $$ \Delta w_{ij} = \epsilon (\langle v_i h_j \\rangle_{\text{data}} - \langle v_i h_j \\rangle_{\text{recon}}) $$
+    A tanulás célja, hogy a rendszer az **alacsony energiájú állapotokat részesítse előnyben**,  
+    melyek reprezentálják az eltanult mintákat.
 
-    - Az elv a **görbe alatti energiafelület tanulása**: az inputokat jellemző eloszlást a súlyok internalizálják.
-
-    **Alkalmazások:**
-    - Jellemzőkinyerés (feature learning)
-    - Eloszlás-modellezés
-    - Mély tanulási architektúrák (Deep Belief Network alapja)
-
-    A Boltzmann Machine alapvető tanulási mintázatokat reprezentál.
+    **Felhasználás:**
+    - Mintafelismerés
+    - Dimenziócsökkentés (mély Boltzmann-hálók)
+    - Generatív modellezés
     """)
 
-    st.download_button(
-        "📥 Súlytörténet letöltése (CSV)",
-        data=pd.DataFrame(history[-1]).to_csv(index=False).encode("utf-8"),
-        file_name="rbm_weights.csv"
-    )
-
-# App futtatás
 app = run
