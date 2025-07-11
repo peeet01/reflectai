@@ -49,7 +49,7 @@ module_categories = {
         "Plasticity Dynamics": "plasticity_dynamics",
         "Noise Robustness": "noise_robustness",
         "Ising Sim": "ising_sim",
-        "Boltzmann Machine": "boltzmann_machone",
+        "Boltzmann Machine": "boltzmann_machine",
         
     },
     "🧪 Adatfeltöltés és predikciók": {
