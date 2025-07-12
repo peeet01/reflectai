@@ -870,13 +870,52 @@ def run():
         """)
         st.latex(r"h_{KS} = \sum_{\lambda_i > 0} \lambda_i \quad \text{(Kolmogorov–Sinai entrópia)}")
 
-    with st.expander("🌀 Fraktál Explorer – Kaotikus rendszerek"):
-        st.latex(r"z_{n+1} = z_n^2 + c")
-        st.markdown("""
-        **Cél:** Mandelbrot- és Julia-halmazok megjelenítése.  
-        **Felhasználás:**
-        - Stabil és kaotikus zónák feltárása  
-        - Nemlineáris dinamika vizualizálása  
+    with st.expander("🌀 Fraktál Explorer – Kaotikus rendszerek és komplex dinamika"):
+        st.markdown(r"""
+        A **Mandelbrot-halmaz** a komplex sík azon pontjait tartalmazza, amelyekre az alábbi rekurzió nem divergens:
+
+        $$
+        z_{n+1} = z_n^2 + c
+        $$
+
+        A modul e fraktál **vizuális feltérképezésére** szolgál, lehetőséget adva:
+        - a részletes zoomolásra,
+        - paraméterek finomhangolására,
+        - 2D és 3D megjelenítésre (Plotly segítségével).
+
+        ---
+
+        ### 🧩 Alkalmazási területek:
+        - **Nemlineáris rendszerek** vizsgálata
+        - **Stabil vs. kaotikus** zónák feltérképezése
+        - **Önhasonlóság és fraktálszerkezet** vizsgálata
+
+        ---
+
+        ### 📐 Matematikai háttér:
+
+        A Mandelbrot-halmaz \( \mathbb{C} \) komplex síkon értelmezett. Egy adott \( c \in \mathbb{C} \) akkor része a halmaznak, ha az iterációs sorozat:
+
+        $$
+        z_0 = 0, \quad z_{n+1} = z_n^2 + c
+        $$
+
+        sosem tart végtelenbe, azaz \( |z_n| \leq 2 \) minden \( n \)-re.
+
+        - A fraktál **határán** kaotikusan viselkedő zónák alakulnak ki.
+        - Belseje **stabil**, zárt pályákat alkot.
+        - **Zoomolva** önhasonló mintázatok (Julia-halmaz szigetek) jelennek meg.
+
+        ---
+
+        ### 🌐 Modul funkciói:
+
+        - 🖼️ 2D színezett fraktálmegjelenítés
+        - 🌐 Interaktív 3D Plotly-nézet az iterációs értékekkel mint magasság
+        - 📥 Letölthető fraktálkép
+        - 🔍 Zoom, pozíció, iteráció kontroll
+
+        A Mandelbrot-halmaz remek **vizuális példája** annak, hogy egyszerű szabályból **végtelenül összetett**, strukturált, de mégis kaotikus viselkedés jöhet létre.
         """)
 
     with st.expander("🔄 Echo State Network – Idősoros előrejelzés"):
