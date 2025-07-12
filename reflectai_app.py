@@ -74,11 +74,11 @@ selected_category = st.sidebar.radio("Kategória:", category_names)
 if selected_category == main_menu:
     with st.container():
         st.image("static/nyitokep.png", use_column_width=True)
-    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-    st.image("static/logo.png", width=180)
-    st.markdown("<h3>Neurolab AI – Intelligens szimulációs platform</h3>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown("👉 Válassz modult a bal oldali menüből.")
+        st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+        st.image("static/logo.png", width=180)
+        st.markdown("<h3>Neurolab AI – Intelligens szimulációs platform</h3>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("👉 Válassz modult a bal oldali menüből.")
 else:
     modules = module_categories[selected_category]
     selected_title = st.sidebar.radio("Modul:", list(modules.keys()))
