@@ -977,9 +977,45 @@ def run():
 
     with st.expander("🧩 Generative Kuramoto – Struktúra és dinamika"):
         st.markdown("""
-        **Cél:** Random gráf generálása és annak dinamikai szimulációja.  
-        **Felhasználás:**
-        - Gráf topológia és szinkronizáció kapcsolatának feltárása  
+        ### 🧠 Kuramoto modell hálózaton
+
+        A **Kuramoto-modell** dinamikus rendszerek szinkronizációját írja le,  
+        különösen akkor, ha az egyes elemek (oszcillátorok) egy gráf struktúrához vannak rendelve.
+        """)
+
+        st.markdown("### 🧮 Dinamika (differenciálegyenlet):")
+        st.latex(r"\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} A_{ij} \sin(\theta_j - \theta_i)")
+
+        st.markdown("#### Jelölések:")
+        st.markdown(r"""
+        - \( \theta_i \): az *i*-edik oszcillátor fázisa  
+        - \( \omega_i \): sajátfrekvencia (véletlenszerűen generált)  
+        - \( A_{ij} \): szomszédsági mátrix (él a gráfban)  
+        - \( K \): globális kapcsolódási erősség  
+        """)
+
+        st.markdown("### 📈 Szinkronizációs mérték:")
+        st.latex(r"R(t) = \left| \frac{1}{N} \sum_{j=1}^N e^{i\theta_j(t)} \right|")
+
+        st.markdown("""
+        - \( R(t) = 1 \): teljes szinkronizáció  
+        - \( R(t) \approx 0 \): dekoherens, rendezetlen állapot  
+        """)
+
+        st.markdown("### 🔧 Modul tartalma:")
+        st.markdown("""
+        - Erdős–Rényi véletlen gráf generálása: \( G(N, p) \)  
+        - Kuramoto dinamika szimulációja a gráfon  
+        - Szinkronizációs görbe vizualizálása  
+        - 3D gráfábra fázis-színezéssel  
+        - CSV export szinkronizációs időfüggvényhez
+        """)
+
+        st.markdown("### 💡 Felhasználás:")
+        st.markdown("""
+        - Hálózattopológia és szinkronizáció **interakciójának vizsgálata**  
+        - **Biológiai, társadalmi vagy technológiai rendszerek** modellezése  
+        - Gráfalapú dinamikus viselkedések feltérképezése
         """)
 
     with st.expander("🧮 Graph Sync Analysis – Hálózati stabilitás"):
