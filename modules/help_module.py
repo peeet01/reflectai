@@ -667,21 +667,49 @@ def run():
         """)
         st.latex(r"s_i^{(t+1)} = \mathrm{sign} \left( \sum_j W_{ij} s_j^{(t)} \right)")
         
-    with st.expander("🌐 Berry-görbület – Kvantum topológiai fázisok"):
-        st.latex(r"\Omega(\mathbf{k}) = \nabla_{\mathbf{k}} \times \mathbf{A}(\mathbf{k}) \quad \text{ahol} \quad \mathbf{A}(\mathbf{k}) = -i \langle u(\mathbf{k}) | \nabla_{\mathbf{k}} | u(\mathbf{k}) \rangle")
-        st.markdown("""
-        **Cél:** A kvantumállapotok geometriai fázisának (Berry-fázis) **görbületként való reprezentálása**,  
-        amely topológiai invariánsokat (pl. Chern-szám) definiál.
+    with st.expander("🌐 Berry-görbület – Topológiai jellemzők"):
+        st.markdown(r"""
+        A Berry-görbület egy kvantumos állapottér geometriai tulajdonságát méri, amelyből topológiai invariánsok (pl. **Chern-szám**) számolhatók.
 
-        **Tudományos jelentőség:**
-        - A Berry-görbület lokális információt hordoz a Bloch-térben  
-        - Integrálja topológiai invariánsokká (pl. kvantált Hall-vezetőképesség)  
-        - Kapcsolatban áll **topologikus szigetelőkkel**, **szuperfolyadékokkal**, **kvantum spin Hall-effektussal**
+        ### 🧮 Matematikai háttér
 
-        **Felhasználás:**
-        - Kvantumanyagok fázisainak osztályozása  
-        - Topológiai átmenetek detektálása  
-        - Adatvezérelt bandastruktúra-analízis (pl. gépi tanulással)
+        A Berry-kapcsolat:
+
+        $$
+        \mathbf{A}(\mathbf{k}) = i \langle u(\mathbf{k}) | \nabla_{\mathbf{k}} u(\mathbf{k}) \rangle
+        $$
+
+        A Berry-görbület a kapcsolat rotációja:
+
+        $$
+        \Omega(\mathbf{k}) = \nabla_{\mathbf{k}} \times \mathbf{A}(\mathbf{k})
+        $$
+
+        A Berry-fázis zárt pálya mentén integrált geometriai fázis:
+
+        $$
+        \gamma = \oint_C \mathbf{A}(\mathbf{k}) \cdot d\mathbf{k} = \int_S \Omega(\mathbf{k}) \, d^2k
+        $$
+
+        ### 🔬 Fizikai jelentés
+        - A Berry-görbület lokálisan méri a **sávstruktúra topológiai torzulását**
+        - A teljes térre integrálva a **Chern-számot** adja, ami:
+        - Kvantált vezetőképességhez vezet (pl. Kvantum Hall-effektus)
+        - Topológiai szigetelők peremállapotainak számát határozza meg
+
+        ### 📈 Mit csinál ez a modul?
+
+        - **Kontúrplot**: Berry-görbület a Brillouin-zónában
+        - **3D vizualizáció**: Felületként ábrázolt görbület
+        - **Berry-fázis**: Zárt kör mentén numerikus fázisszámítás
+        - **d-vektor vizualizáció**: Állapottér iránygörbe a Bloch-gömbön
+
+        A **delta** paraméter változtatásával a szimuláció topológiai átmeneteket is képes jelezni (pl. ha a Chern-szám 0 → ±1-re vált).
+
+        ### 📥 Kimenet
+        - Interaktív 2D és 3D görbületképek
+        - Berry-fázis értéke adott kör mentén
+        - CSV exportálható görbületadatokkal
         """)
 
     with st.expander("🔬 Plasticity Dynamics – Szinaptikus plaszticitás dinamikája"):
