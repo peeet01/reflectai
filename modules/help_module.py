@@ -667,13 +667,21 @@ def run():
         """)
         st.latex(r"s_i^{(t+1)} = \mathrm{sign} \left( \sum_j W_{ij} s_j^{(t)} \right)")
         
-    with st.expander("🌐 Berry-görbület – Kvantum topológia"):
+    with st.expander("🌐 Berry-görbület – Kvantum topológiai fázisok"):
         st.latex(r"\Omega(\mathbf{k}) = \nabla_{\mathbf{k}} \times \mathbf{A}(\mathbf{k}) \quad \text{ahol} \quad \mathbf{A}(\mathbf{k}) = -i \langle u(\mathbf{k}) | \nabla_{\mathbf{k}} | u(\mathbf{k}) \rangle")
         st.markdown("""
-        **Cél:** Kvantált topológiai mennyiségek megjelenítése.  
+        **Cél:** A kvantumállapotok geometriai fázisának (Berry-fázis) **görbületként való reprezentálása**,  
+        amely topológiai invariánsokat (pl. Chern-szám) definiál.
+
+        **Tudományos jelentőség:**
+        - A Berry-görbület lokális információt hordoz a Bloch-térben  
+        - Integrálja topológiai invariánsokká (pl. kvantált Hall-vezetőképesség)  
+        - Kapcsolatban áll **topologikus szigetelőkkel**, **szuperfolyadékokkal**, **kvantum spin Hall-effektussal**
+
         **Felhasználás:**
-        - Kvantum Hall-effektus modellezése  
-        - Topológiai különbségek azonosítása  
+        - Kvantumanyagok fázisainak osztályozása  
+        - Topológiai átmenetek detektálása  
+        - Adatvezérelt bandastruktúra-analízis (pl. gépi tanulással)
         """)
 
     with st.expander("🔬 Plasticity Dynamics – Szinaptikus plaszticitás dinamikája"):
