@@ -67,7 +67,7 @@ main_menu = "🏠 Kezdőlap"
 
 # 🧭 Oldalsáv felépítése – először kategória, aztán modul
  with st.sidebar:
-     st.markdown(
+    st.markdown(
         """
         <div style='position: relative; height: 120px; margin-bottom: -90px;'>
             <div style='
