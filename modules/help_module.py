@@ -1020,9 +1020,53 @@ def run():
 
     with st.expander("🧮 Graph Sync Analysis – Hálózati stabilitás"):
         st.markdown("""
-        **Cél:** Szinkronizáció erőssége és Laplace spektrum elemzése.  
-        **Felhasználás:**
-        - Stabilitás és hálózatszerkezet összefüggéseinek feltárása  
+        ### 🧠 Kuramoto-modell gráfhálózaton
+
+        A **Kuramoto-modell** szinkronizációs dinamikát ír le, ahol a csomópontok egy gráfhálózat  
+        szerkezete alapján hatnak egymásra.
+
+        Ez a szakasz bemutatja, hogyan függ a szinkronizáció mértéke a gráf topológiájától.
+        """)
+
+        st.markdown("### 🧮 Dinamikai egyenlet:")
+        st.latex(r"\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} A_{ij} \sin(\theta_j - \theta_i)")
+
+        st.markdown("#### Jelölések:")
+        st.markdown(r"""
+        - \( \theta_i \): az *i*-edik oszcillátor fázisa  
+        - \( \omega_i \): sajátfrekvencia  
+        - \( K \): globális kapcsolódási erősség  
+        - \( A_{ij} \): gráf szomszédsági mátrixa  
+        """)
+
+        st.markdown("### 📈 Rendparaméter:")
+        st.latex(r"r(t) = \left| \frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j(t)} \right|")
+
+        st.markdown(r"""
+        A rendparaméter \( r(t) \) a rendszer szinkronizációs szintjét méri:
+
+        - \( r = 1 \): teljes szinkronizáció  
+        - \( r \approx 0 \): rendezetlen, dekoherens állapot  
+        """)
+
+        st.markdown("### 🧪 Vizsgálható szempontok:")
+        st.markdown(r"""
+        - A **gráftípus** hatása a szinkronizációra: pl. kör, rács, teljes gráf  
+        - A **kapcsolódási erősség** (K) szerepe  
+        - Az **Erdős–Rényi élvalószínűség** befolyása  
+        """)
+
+        st.markdown("### 💾 Kimenet:")
+        st.markdown(r"""
+        - Szinkronizációs görbe időfüggése  
+        - 2D vagy 3D gráfvizualizáció kezdeti és végállapottal  
+        - CSV export \( r(t) \) értékekkel  
+        """)
+
+        st.markdown("### 💡 Felhasználás:")
+        st.markdown(r"""
+        - Gráfalapú dinamikus rendszerek stabilitásvizsgálata  
+        - Topológiai jellemzők és kollektív viselkedés összefüggéseinek feltárása  
         """)
 
     with st.expander("🏔️ Persistent Homology – Topológiai adatértelmezés"):
