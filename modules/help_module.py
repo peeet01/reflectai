@@ -10,18 +10,42 @@ def run():
     """)
 
     with st.expander("🕸️ Kuramoto Modell – Szinkronizációs Dinamika"):
-        st.latex(r"\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} A_{ij} \sin(\theta_j - \theta_i)")
         st.markdown("""
-        **Kollektív viselkedés:** Egyedi oszcillátorok fázisszinkronizációját írja le.  
-        Order parameter:
+        ### 🧠 Kuramoto-modell áttekintés
+
+        A **Kuramoto-modell** leírja, hogyan hangolódnak össze idővel különálló oszcillátorok  
+        (pl. neuronok, kémiai reakciók, tűzlégyek) egy hálózati kapcsolatrendszer mentén.
         """)
-        st.latex(r"R(t) = \left| \frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j(t)} \right|")
+
+        st.markdown("### 🔢 Fázisdinamika egyenlete:")
+
+        st.latex(r"\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} A_{ij} \sin(\theta_j - \theta_i)")
+
         st.markdown("""
-        **Cél:** Modellezi a neuronhálózatok kollektív állapotait.  
-        **Felhasználás:**
-        - Hálózati instabilitások detektálása  
-        - Szinkron idegi aktivitás jellemzése  
-        - Ritmikus zavarok (pl. epilepszia) szimulációja  
+        - **$\theta_i$**: az $i$-edik oszcillátor pillanatnyi fázisa  
+        - **$\omega_i$**: saját (természetes) frekvencia  
+        - **$K$**: kapcsolódási erősség  
+        - **$A_{ij}$**: szomszédsági mátrix, amely meghatározza, kik hatnak egymásra
+        """)
+
+        st.markdown("### 📏 Szinkronizáció mérőszáma – Order parameter")
+
+        st.latex(r"R(t) = \left| \frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j(t)} \right|")
+
+        st.markdown("""
+        - **$R(t) = 1$**: tökéletes szinkronizáció  
+        - **$R(t) \approx 0$**: rendezetlen, káoszos állapot  
+        - Az $R(t)$ görbéje mutatja, hogy az oszcillátorok mennyire működnek együtt időben.
+        """)
+
+        st.markdown("### 🎯 Cél és alkalmazások")
+
+        st.markdown("""
+        - **Cél:** A szinkronizációs jelenségek modellezése komplex rendszerekben  
+        - **Alkalmazás:**
+        - Neurális hálózatok ritmuszavarainak modellezése (pl. epilepszia)
+        - Szívsejtek, biológiai ritmusok szinkronizációja  
+        - Hálózati robusztusság vizsgálata, decentralizált vezérlés  
         """)
         
     with st.expander("🧠 Hebbian Learning – Szinaptikus erősítés elve"):
