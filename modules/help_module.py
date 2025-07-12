@@ -376,16 +376,6 @@ def run():
         - A második tag a **negatív fázis** (a modell által generált adatokon)  
         - \( \eta \): tanulási ráta
 
-        **3D Vizualizáció lehetősége (pl. energiafelszín):**  
-        A bemeneti mintákhoz tartozó energiaértékek vizualizálása például a következőképp:
-
-        """)
-    
-        st.code("""
-        fig = go.Figure(data=[go.Surface(z=energy_matrix)])
-        st.plotly_chart(fig)
-        """, language="python")
-
         st.markdown(r"""
         **Alkalmazás:**  
         - Mintafelismerés és jellemzőtanulás  
