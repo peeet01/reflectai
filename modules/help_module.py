@@ -919,13 +919,60 @@ def run():
         """)
 
     with st.expander("🔄 Echo State Network – Idősoros előrejelzés"):
+        st.markdown("""
+        ### 🧠 Mi az az ESN?
+
+        Az **Echo State Network (ESN)** egy speciális rekurrens neurális hálózat,  
+        melynek belső dinamikája véletlenszerűen generált és *nem tanítható*,  
+        csak a **kimeneti réteg súlyai** kerülnek optimalizálásra.
+
+        Ez lehetővé teszi:
+        - nagyon **gyors tanítást**,
+        - **nemlineáris idősorok** hatékony modellezését.
+        """)
+
+        st.markdown("### 🧮 Matematikai modell:")
         st.latex(r"\mathbf{x}(t+1) = \tanh(W_{res} \cdot \mathbf{x}(t) + W_{in} \cdot \mathbf{u}(t))")
         st.latex(r"\hat{y}(t) = W_{out} \cdot \mathbf{x}(t)")
+
+        st.markdown(r"""
+        **Jelölések:**
+        - \( \mathbf{x}(t) \): belső (reservoir) állapot  
+        - \( \mathbf{u}(t) \): bemeneti jelsorozat  
+        - \( W_{res}, W_{in} \): véletlenszerű, fix súlymátrixok  
+        - \( W_{out} \): egyedüli tanított súly, lineáris olvasóréteg
+        """)
+
+        st.markdown("### 🔧 Modul működése:")
         st.markdown("""
-        **Cél:** Idősoros előrejelzés kis tanítási költséggel.  
-        **Felhasználás:**
-        - Komplex rendszerek predikciója  
-        - Dinamikus mintafelismerés  
+        - Szintetikus szinuszjel generálása, zajjal torzítva  
+        - Csúszóablakos bemenetek készítése  
+        - ESN segítségével történő **előrejelzés**
+        - Plotly-grafikon a predikció és valós értékek összehasonlítására  
+        - **MSE hibamérték**, valamint CSV export letöltésként
+        """)
+
+        st.markdown("### 💡 Miért érdekes?")
+        st.markdown("""
+        Az ESN ideális, ha:
+
+        - komplex, időbeli **mintázatokat** szeretnél modellezni
+        - **kevés adatod van**, és gyors tanulást vársz el
+        - **nemlineáris viselkedést** akarsz követni vagy előrejelezni
+
+        A hálózat egyszerűen beállítható, és meglepően jó teljesítményt nyújt sokféle alkalmazásban.
+        """)
+
+        st.markdown("### 📌 Használati példák:")
+        st.markdown("""
+        - Biológiai jelenségek predikciója (pl. EEG, szívritmus)  
+        - Rendszeridentifikáció mérnöki rendszerekben  
+        - Időfüggő folyamatok **mintázatfelismerése** (pl. gazdasági trendek)
+        """)
+
+        st.markdown("""
+        Az Echo State Network a **reservoir computing** paradigmán belül egy kiemelkedően hatékony megközelítés,  
+        amely minimális tanítási költség mellett képes komplex nemlineáris idősorokat előrejelezni.
         """)
 
     with st.expander("🧩 Generative Kuramoto – Struktúra és dinamika"):
