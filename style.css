@@ -18,7 +18,7 @@ h1, h2, h3, h4 {
 
 /* === Sidebar – Üveghatás, fix, ráúszó === */
 section[data-testid="stSidebar"] {
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(15, 23, 42, 0.3);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-right: 1px solid rgba(255, 255, 255, 0.05);
