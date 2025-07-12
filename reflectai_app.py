@@ -77,7 +77,7 @@ with st.sidebar:
                 transform: translateX(-50%);
                 width: 180px;
                 height: 180px;
-                background: radial-gradient(circle, rgba(56,189,248,0.4) 0%, rgba(0,0,0,0) 80%);
+                background: radial-gradient(circle, rgba(56,189,248,0.6) 0%, rgba(0,0,0,0) 80%);
                 filter: blur(28px);
                 z-index: 0;
             '></div>
