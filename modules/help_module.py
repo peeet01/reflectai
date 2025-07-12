@@ -379,7 +379,7 @@ def run():
         st.markdown(r"""
         **Alkalmazás:**  
         - Mintafelismerés és jellemzőtanulás  
-        - Generatív modellek (pl. Restricted Boltzmann Machines – RBM)  
+        - Generatív modellek (pl. Restricted Boltzmann Machines - RBM)  
         - Dimenziócsökkentés és előfeldolgozás  
         - Gépi látás és jelfeldolgozás
 
