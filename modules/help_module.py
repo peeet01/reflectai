@@ -1071,10 +1071,50 @@ def run():
 
     with st.expander("🏔️ Persistent Homology – Topológiai adatértelmezés"):
         st.markdown("""
-        **Cél:** Perzisztens topológiai struktúrák kiszűrése.  
-        **Felhasználás:**
-        - Zaj és valódi szerkezet megkülönböztetése  
-        - Gépi tanulási jellemzők generálása  
+        ### 🧠 Perzisztens homológia
+
+        A **perzisztens homológia** topológiai módszer, amely különböző léptékeken keresztül  
+        elemzi az adatok geometriai szerkezetét.
+
+        Ez lehetővé teszi, hogy **zajos adatokból kiszűrjük a valódi topológiai mintázatokat**.
+        """)
+
+        st.markdown("### 🔢 Topológiai objektumok:")
+
+        st.markdown(r"""
+        - **$H_0$ komponensek**: kapcsolódó klaszterek, összefüggő részek  
+        - **$H_1$ komponensek**: zárt hurkok, ciklusok  
+        - **$H_2$ és magasabb**: üregek, zárt felszínek  
+        """)
+
+        st.markdown("### 📈 Perzisztencia diagram")
+
+        st.markdown(r"""
+        A diagram minden pontja egy topológiai jellemzőt jelöl, mely a következő értékekkel bír:
+        """)
+
+        st.latex(r"\text{Születés: } b_i \quad \text{és Halál: } d_i")
+
+        st.latex(r"\text{Perzisztencia: } p_i = d_i - b_i")
+
+        st.markdown(r"""
+        - Minél nagyobb \( p_i \), annál **jelentősebb** a mintázat  
+        - Rövid életű pontok valószínűleg **zajból származnak**
+        """)
+
+        st.markdown("### 🔍 Értelmezés:")
+
+        st.markdown(r"""
+        - Az **adat geometriája** alapján zajtól független, robusztus minták detektálhatók  
+        - A **különböző léptékű lyukak** és komponensek időbeli életciklusát ábrázolja  
+        """)
+
+        st.markdown("### 📚 Felhasználás:")
+
+        st.markdown(r"""
+        - Gépi tanulási jellemzők (feature) kinyerése  
+        - Zajos klaszterek elkülönítése  
+        - Képfeldolgozás, bioinformatika, komplex hálózatok  
         """)
 
     st.markdown("""---  
