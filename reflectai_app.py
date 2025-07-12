@@ -76,7 +76,7 @@ with st.sidebar:
                 left: 50%;
                 transform: translateX(-50%);
                 width: 260px;
-                height: 160px;
+                height: 260px;
                 background: radial-gradient(circle, rgba(56,189,248,0.6) 0%, rgba(0,0,0,0) 80%);
                 filter: blur(28px);
                 z-index: 0;
