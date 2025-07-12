@@ -74,17 +74,16 @@ selected_category = st.sidebar.radio("Kategória:", category_names)
 if selected_category == main_menu:
     st.markdown("""
         <style>
-        img.header {
+        .header-img {
             width: 100%;
             height: auto;
-            max-height: 650px;
-            object-fit: cover;
+            max-width: 1000px;
             display: block;
             margin-left: auto;
             margin-right: auto;
         }
         </style>
-        <img src="static/nyitokep.png" class="header">
+        <img src="static/nyitokep.png" class="header-img">
     """, unsafe_allow_html=True)
     st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
     st.image("static/logo.png", width=180)
