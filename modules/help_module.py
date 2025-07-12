@@ -10,42 +10,70 @@ def run():
     """)
 
     with st.expander("🕸️ Kuramoto Modell – Szinkronizációs Dinamika"):
-        st.markdown("""
-        ### 🧠 Kuramoto-modell áttekintés
+        st.markdown("### 🧠 Bevezetés")
 
-        A **Kuramoto-modell** leírja, hogyan hangolódnak össze idővel különálló oszcillátorok  
-        (pl. neuronok, kémiai reakciók, tűzlégyek) egy hálózati kapcsolatrendszer mentén.
+        st.markdown("""
+        A **Kuramoto-modell** a fázis-szinkronizáció egyik legegyszerűbb, mégis rendkívül mély jelentőségű matematikai modellje.  
+        A rendszer különböző oszcillátorokat (pl. neuronokat, generátorokat, szívsejteket) ír le, amelyek önálló ritmusban működnek,  
+        de egy hálózat révén kölcsönhatásba lépnek – így idővel **összehangolódhatnak**.
         """)
 
-        st.markdown("### 🔢 Fázisdinamika egyenlete:")
+        st.markdown("### 🔄 Fázisdinamika egyenlete")
 
         st.latex(r"\frac{d\theta_i}{dt} = \omega_i + \frac{K}{N} \sum_{j=1}^{N} A_{ij} \sin(\theta_j - \theta_i)")
 
         st.markdown("""
-        - **$\theta_i$**: az $i$-edik oszcillátor pillanatnyi fázisa  
-        - **$\omega_i$**: saját (természetes) frekvencia  
-        - **$K$**: kapcsolódási erősség  
-        - **$A_{ij}$**: szomszédsági mátrix, amely meghatározza, kik hatnak egymásra
+        Itt:
+
+        - $\\theta_i$ – az $i$-edik oszcillátor fázisa  
+        - $\\omega_i$ – az oszcillátor sajátfrekvenciája (normál eloszlásból)  
+        - $K$ – szinkronizációs (kapcsolódási) erősség  
+        - $A_{ij}$ – szomszédsági mátrix (gráf topológia)
+
+        Az egyenlet azt mutatja meg, hogy az oszcillátor fázisa hogyan változik a saját ritmusa és a szomszédokkal való kölcsönhatás hatására.
         """)
 
-        st.markdown("### 📏 Szinkronizáció mérőszáma – Order parameter")
+        st.markdown("### 📏 Szinkronizációs mérőszám – **Order parameter**")
 
         st.latex(r"R(t) = \left| \frac{1}{N} \sum_{j=1}^{N} e^{i\theta_j(t)} \right|")
 
         st.markdown("""
-        - **$R(t) = 1$**: tökéletes szinkronizáció  
-        - **$R(t) \approx 0$**: rendezetlen, káoszos állapot  
-        - Az $R(t)$ görbéje mutatja, hogy az oszcillátorok mennyire működnek együtt időben.
+        - $R(t) = 1$ → tökéletes szinkronizáció (minden oszcillátor együtt pulzál)  
+        - $R(t) \\approx 0$ → teljes rendezetlenség (kaotikus viselkedés)  
+        - Az $R$ értéke **azonnali információt** ad a rendszer aktuális kohéziójáról.
+
+        > 💡 Érdekesség: az order parameter a komplex síkon mért "irányított átlag", egyfajta fázis-kompassz.
         """)
 
-        st.markdown("### 🎯 Cél és alkalmazások")
+        st.markdown("### 🧪 Szimulációs jellemzők és lehetőségek")
 
         st.markdown("""
-        - **Cél:** A szinkronizációs jelenségek modellezése komplex rendszerekben  
-        - **Alkalmazás:**
-        - Neurális hálózatok ritmuszavarainak modellezése (pl. epilepszia)
-        - Szívsejtek, biológiai ritmusok szinkronizációja  
-        - Hálózati robusztusság vizsgálata, decentralizált vezérlés  
+        - Tetszőleges **gráf-topológia** választható (pl. teljes, véletlen, kis-világ, skálafüggetlen)
+        - Állítható: oszcillátorok száma, kapcsolati erősség, lépésszám
+        - A fázisok 3D-ben **vizualizálva** vannak (Plotly), ahol a színek a fázisokat jelölik
+
+        > ✨ A vizualizáció segít elképzelni, hogyan "hangolódik össze" a rendszer időben.
+        """)
+
+        st.markdown("### 📌 Alkalmazási területek")
+
+        st.markdown("""
+        - **Neurális hálózatok** kollektív aktivitása  
+        - **Epilepsziás rohamok** modellezése (hiperszinkron állapotok)  
+        - **Szívritmus**, **biológiai órák** szinkronja  
+        - **Smart grid** hálózatok szinkron generátorai  
+        - **Robotkarok**, **drónrajok**, **forgalomirányítás**
+
+        > 📈 A Kuramoto-modell segíthet megérteni, mikor és hogyan "robban ki" vagy áll helyre a rendszer szinkronitása.
+        """)
+
+        st.markdown("### 📘 További megjegyzés")
+
+        st.markdown("""
+        A modell **nemlineáris**, és már kis változások is **drámai hatással lehetnek** a rendszerre.  
+        Ha $K$ túl kicsi, nincs szinkronizáció. Ha elég nagy, hirtelen együtt mozdul minden – **fázisátmenet**.
+
+        > 🧩 Ez a jelenség erősen kötődik a **komplex rendszerek** és a **kritikus átmenetek** vizsgálatához.
         """)
         
     with st.expander("🧠 Hebbian Learning – Szinaptikus erősítés elve"):
