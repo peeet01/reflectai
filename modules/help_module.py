@@ -756,14 +756,52 @@ def run():
         A különböző szabályok eltérő stabilitási és adaptációs viselkedést mutatnak.
         """)
 
-    with st.expander("🧠 Hopfield-háló – Asszociatív memória"):
-        st.latex(r"W_{ij} = \sum_{\mu=1}^{P} \xi_i^\mu \xi_j^\mu")
-        st.latex(r"s_i^{t+1} = \mathrm{sign} \left( \sum_j W_{ij} s_j^t \right)")
-        st.markdown("""
-        **Cél:** Minták visszakeresése zajos állapotból.  
-        **Felhasználás:**
-        - Memóriaállapotok visszanyerése  
-        - Energia-alapú tanulási dinamika  
+    with st.expander("🧠 Hopfield-háló – Asszociatív memória és dinamikus visszakeresés"):
+        st.markdown(r"""
+        A **Hopfield-háló** egy visszacsatolt bináris neuronhálózat, mely képes tanult minták **tárolására** és **visszakeresésére** részleges vagy zajos bemenetből.
+
+        ### 🧮 Matematikai háttér
+
+        A tanulási szabály:
+
+        $$
+        W_{ij} = \sum_{\mu=1}^{P} \xi_i^\mu \, \xi_j^\mu \quad (\text{Hebbian tanulás})
+        $$
+
+        A frissítési dinamika:
+
+        $$
+        s_i^{(t+1)} = \mathrm{sign} \left( \sum_j W_{ij} \, s_j^{(t)} \right)
+        $$
+
+        - $W_{ij}$: szinaptikus súly mátrix
+        - $\xi_i^\mu$: a $\mu$-edik tanult minta $i$-edik komponense
+        - $s_i^{(t)}$: az $i$-edik neuron állapota az $t$-edik időlépésben
+
+        ### 📈 Mit csinál a modul?
+
+        - **Minták betanítása** bináris (±1) képként
+        - **Zajos bemenetből indulva** rekonstruálja a korábban tárolt mintát
+        - **Energiafüggvény** alapján lejt mozgás – konvergens, stabil háló
+
+        ### 🧩 Alkalmazási területek
+
+        - Asszociatív memória (mint az emberi emlékezés modellezése)
+        - Mintafelismerés zajos környezetben
+        - Neurális dinamika és stabilitás modellezése
+
+        ### ⚙️ Topológia
+
+        - Teljesen összekapcsolt szimmetrikus háló
+        - Nincs önkapcsolat: \( W_{ii} = 0 \)
+
+        Az energiafüggvény garantálja, hogy a háló **stabil fixpontokra** konvergál:
+
+        $$
+        E = -\frac{1}{2} \sum_{i,j} W_{ij} s_i s_j
+        $$
+
+        A Hopfield-háló egy egyszerű, de erőteljes modell a **nemlineáris dinamikus rendszerek** és **memóriastruktúrák** tanulmányozására.
         """)
 
     with st.expander("🧮 Fractal Dimension – Ön-szimiláris szerkezetek"):
