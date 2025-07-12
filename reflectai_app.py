@@ -66,6 +66,8 @@ module_categories = {
 main_menu = "🏠 Kezdőlap"
 
 # 🧭 Oldalsáv felépítése – először kategória, aztán modul
+with st.sidebar:
+    st.image("static/logo.png", width=160)
 st.sidebar.subheader("🧪 Modulválasztó")
 category_names = [main_menu] + list(module_categories.keys())
 selected_category = st.sidebar.radio("Kategória:", category_names)
