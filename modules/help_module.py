@@ -343,6 +343,69 @@ def run():
         A Hebbian tanulás egy alapvető **unsupervised learning** mechanizmus, amely a korrelált aktivitást preferálja, és a **neurális reprezentációk kialakulását** modellezi.
         """)
 
+    with st.expander("🧠 Boltzmann-gép – Energián alapuló generatív tanulás"):
+        st.markdown(r"""
+        **Cél:** A Boltzmann-gép egy **statisztikai mechanikán** alapuló, generatív neurális hálózat,  
+        amely képes tanulni a bemenetek valószínűségi szerkezetét az **energia** és a **hőmérséklet** elvével.
+
+        A modell a **neurális komponensek közötti szimmetrikus súlykapcsolatokkal** dolgozik, és a tanulás célja  
+        az energiagörbe minimalizálása a tanuló minták alapján.
+
+        **Boltzmann-energiafüggvény:**
+        """)
+
+        st.latex(r"E(v, h) = - \sum_i b_i v_i - \sum_j c_j h_j - \sum_{i,j} v_i W_{ij} h_j")
+
+        st.markdown(r"""
+        **Paraméterek:**
+        - \( v_i \): látható réteg (bemenet)
+        - \( h_j \): rejtett réteg (neurális reprezentációk)
+        - \( b_i, c_j \): bias paraméterek a rétegekhez
+        - \( W_{ij} \): súlykapcsolatok a két réteg között
+
+        **Magyarázat:**  
+        A hálózat célja, hogy minimalizálja az \( E(v, h) \) energiafüggvényt a tanult eloszlás szerint.
+
+        **Tanulási szabály (Contrastive Divergence – CD):**
+        """)
+
+        st.latex(r"\Delta W_{ij} = \eta (\langle v_i h_j \rangle_{\text{data}} - \langle v_i h_j \rangle_{\text{model}})")
+
+        st.markdown(r"""
+        - Az első tag a **pozitív fázis** (valós adatokon számolt korreláció)  
+        - A második tag a **negatív fázis** (a modell által generált adatokon)  
+        - \( \eta \): tanulási ráta
+
+        **3D Vizualizáció lehetősége (pl. energiafelszín):**  
+        A bemeneti mintákhoz tartozó energiaértékek vizualizálása például a következőképp:
+
+        """)
+    
+        st.code("""
+        fig = go.Figure(data=[go.Surface(z=energy_matrix)])
+        st.plotly_chart(fig)
+        """, language="python")
+
+        st.markdown(r"""
+        **Alkalmazás:**  
+        - Mintafelismerés és jellemzőtanulás  
+        - Generatív modellek (pl. Restricted Boltzmann Machines – RBM)  
+        - Dimenziócsökkentés és előfeldolgozás  
+        - Gépi látás és jelfeldolgozás
+
+        **Megjegyzés:**  
+        A Boltzmann-gépek **nem determinisztikus** modellek, a neurális egységek aktivációja valószínűségi alapon történik:
+
+        """)
+
+        st.latex(r"P(h_j = 1 | v) = \sigma(\sum_i W_{ij} v_i + c_j)")
+
+        st.markdown("""
+        Ahol \( \sigma \) a logisztikus aktivációs függvény.
+
+        Ez a modell hidat képez a **fizikai rendszerek** és a **mély tanulási algoritmusok** között.
+        """)
+
     with st.expander("🧠 Oja Learning – Főkomponens tanulása"):
         st.markdown(r"""
         **Cél:** A modell megtanulja a bemenet legfontosabb irányát, azaz a **főkomponenst** (PCA-hasonló tanulás).
