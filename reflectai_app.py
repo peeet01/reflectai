@@ -72,7 +72,19 @@ selected_category = st.sidebar.radio("Kategória:", category_names)
 
 # 🏠 Kezdőlap
 if selected_category == main_menu:
-    st.markdown('<img src="static/nyitokep_v2.png" class="header-img">', unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    .header-img {
+        width: 100%;
+        max-width: 1000px;
+        height: auto;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    </style>
+    <img src="https://raw.githubusercontent.com/peeet01/reflectai/main/static/nyitokep_v2.png" class="header-img">
+""", unsafe_allow_html=True)
     st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
     st.image("static/logo.png", width=180)
     st.markdown("<h3>Neurolab AI – Intelligens szimulációs platform</h3>", unsafe_allow_html=True)
