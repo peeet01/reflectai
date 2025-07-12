@@ -66,8 +66,8 @@ module_categories = {
 main_menu = "🏠 Kezdőlap"
 
 # 🧭 Oldalsáv felépítése – először kategória, aztán modul
- with st.sidebar:
-        st.markdown(
+with st.sidebar:
+    st.markdown(
         """
         <div style='position: relative;'>
             <div style='
@@ -77,7 +77,7 @@ main_menu = "🏠 Kezdőlap"
                 transform: translateX(-50%);
                 width: 180px;
                 height: 180px;
-                background: radial-gradient(circle, rgba(56,189,248,0.3), transparent 70%);
+                background: radial-gradient(circle, rgba(56,189,248,0.4) 0%, rgba(0,0,0,0) 80%);
                 filter: blur(28px);
                 z-index: 0;
             '></div>
@@ -85,6 +85,7 @@ main_menu = "🏠 Kezdőlap"
         """,
         unsafe_allow_html=True
     )
+    st.image("static/logo.png", width=180)
 st.sidebar.subheader("🧪 Modulválasztó")
 category_names = [main_menu] + list(module_categories.keys())
 selected_category = st.sidebar.radio("Kategória:", category_names)
