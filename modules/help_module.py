@@ -375,6 +375,7 @@ def run():
         - Az első tag a **pozitív fázis** (valós adatokon számolt korreláció)  
         - A második tag a **negatív fázis** (a modell által generált adatokon)  
         - \( \eta \): tanulási ráta
+        """)
 
         st.markdown(r"""
         **Alkalmazás:**  
