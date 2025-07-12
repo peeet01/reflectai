@@ -66,9 +66,6 @@ module_categories = {
 main_menu = "🏠 Kezdőlap"
 
 # 🧭 Oldalsáv felépítése – először kategória, aztán modul
-with st.sidebar:
-    st.image("static/logo.png", width=180)
-    st.markdown("<div style='text-align:center; font-size: 0.8em; color: gray'>Neurolab AI³</div>", unsafe_allow_html=True)
 st.sidebar.subheader("🧪 Modulválasztó")
 category_names = [main_menu] + list(module_categories.keys())
 selected_category = st.sidebar.radio("Kategória:", category_names)
