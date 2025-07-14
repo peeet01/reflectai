@@ -63,7 +63,6 @@ def run():
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # --- ⚙️ Beállítások ---
     st.sidebar.header("🛠️ Paraméterek")
     z_dim = st.sidebar.slider("Z dimenzió", 64, 256, 100, step=16)
     lr = st.sidebar.slider("Tanulási ráta", 1e-5, 1e-3, 2e-4, format="%.1e")
@@ -71,7 +70,6 @@ def run():
     batch_size = st.sidebar.slider("Batch méret", 32, 256, 128, step=32)
 
     if st.button("🧪 Tanítás indítása"):
-        # --- 📥 Adatbetöltés ---
         transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.5,), (0.5,))
@@ -79,17 +77,14 @@ def run():
         dataset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-        # --- 🧠 Modellek inicializálása ---
         generator = Generator(z_dim).to(device)
         discriminator = Discriminator().to(device)
-
         optim_g = optim.Adam(generator.parameters(), lr=lr)
         optim_d = optim.Adam(discriminator.parameters(), lr=lr)
         criterion = nn.BCELoss()
 
         g_losses, d_losses = [], []
 
-        # --- 🔁 Tanítás ---
         for epoch in range(epochs):
             for real_imgs, _ in loader:
                 real_imgs = real_imgs.view(-1, 28*28).to(device)
@@ -98,10 +93,8 @@ def run():
                 real = torch.ones(batch, 1).to(device)
                 fake = torch.zeros(batch, 1).to(device)
 
-                # Diszkriminátor frissítése
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
-
                 loss_real = criterion(discriminator(real_imgs), real)
                 loss_fake = criterion(discriminator(fake_imgs.detach()), fake)
                 loss_d = (loss_real + loss_fake) / 2
@@ -110,7 +103,6 @@ def run():
                 loss_d.backward()
                 optim_d.step()
 
-                # Generátor frissítése
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_g = criterion(discriminator(fake_imgs), real)
@@ -123,7 +115,6 @@ def run():
             d_losses.append(loss_d.item())
             st.text(f"Epoch {epoch+1}/{epochs} | Loss G: {loss_g.item():.4f} | D: {loss_d.item():.4f}")
 
-        # --- 📈 Loss vizualizáció ---
         st.subheader("📉 Veszteséggörbék")
         fig, ax = plt.subplots()
         ax.plot(g_losses, label="Generátor")
@@ -133,9 +124,8 @@ def run():
         ax.legend()
         st.pyplot(fig)
 
-        # --- 🖼️ Generált képek ---
         st.subheader("🖼️ Generált minták")
         show_generated_images(generator, z_dim, device)
 
-# --- 📎 Modulregisztráció Streamlit keretrendszerhez ---
+# --- 📎 Kötelező Streamlit export ---
 app = run
