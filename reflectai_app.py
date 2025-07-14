@@ -39,7 +39,6 @@ module_categories = {
         "ESN Prediction": "esn_prediction",
         "Critical Hebbian": "critical_hebbian",
         "Information Bottleneck": "information_bottleneck",
-        "NeuroGAN Lab": "neurogan_lab",
         
     },
     "⚗️ Szimulációk és dinamikák": {
@@ -51,6 +50,7 @@ module_categories = {
         "Noise Robustness": "noise_robustness",
         "Ising Sim": "ising_sim",
         "Boltzmann Machine": "boltzmann_machine",
+        "NeuroGAN Lab": "neurogan_lab",
         
     },
     "🧪 Adatfeltöltés és predikciók": {
