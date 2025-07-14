@@ -50,7 +50,7 @@ module_categories = {
         "Noise Robustness": "noise_robustness",
         "Ising Sim": "ising_sim",
         "Boltzmann Machine": "boltzmann_machine",
-        "NeuroGAN Lab": "neurogan_lab",
+        "GAN Lab": "gan_lab",
         
     },
     "🧪 Adatfeltöltés és predikciók": {
