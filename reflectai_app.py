@@ -42,6 +42,7 @@ module_categories = {
         
     },
     "⚗️ Szimulációk és dinamikák": {
+        "NeuroGAN Lab": "neurogan_lab",
         "Kuramoto Sim": "kuramoto_sim",
         "Kuramoto Hebbian Sim": "kuramoto_hebbian_sim",
         "Generative Kuramoto": "generative_kuramoto",
