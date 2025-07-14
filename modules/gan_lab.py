@@ -1,7 +1,5 @@
 # --- 📦 Könyvtárak importálása ---
 import streamlit as st
-
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
