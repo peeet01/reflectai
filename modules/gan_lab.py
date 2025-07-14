@@ -1,3 +1,4 @@
+# --- 📦 Könyvtárak importálása ---
 import streamlit as st
 import torch
 import torch.nn as nn
@@ -7,7 +8,7 @@ from torch.utils.data import DataLoader
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 
-# 🎯 Generátor architektúra
+# --- 🎯 Generátor ---
 class Generator(nn.Module):
     def __init__(self, z_dim=100, img_dim=28*28):
         super().__init__()
@@ -23,7 +24,7 @@ class Generator(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-# ❌ Diszkriminátor architektúra
+# --- ❌ Diszkriminátor ---
 class Discriminator(nn.Module):
     def __init__(self, img_dim=28*28):
         super().__init__()
@@ -39,7 +40,7 @@ class Discriminator(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-# 📈 Képmegjelenítés
+# --- 🖼️ Képmegjelenítő ---
 def show_generated_images(generator, z_dim, device):
     generator.eval()
     with torch.no_grad():
@@ -51,25 +52,26 @@ def show_generated_images(generator, z_dim, device):
         ax.axis("off")
         st.pyplot(fig)
 
-# 🚀 App – GAN szimuláció
-def app():
-    st.title("🧠 NeuroGAN – Generative Adversarial Network")
+# --- 🚀 GAN App ---
+def run():
+    st.title("🧠 GAN Lab – Generative Adversarial Network")
     st.markdown("""
-    Egy egyszerű GAN architektúra az MNIST adathalmazon.  
-    A **Generátor** képeket hoz létre zajból,  
-    míg a **Diszkriminátor** megpróbálja azokat megkülönböztetni a valódiaktól.
+    A GAN (Generative Adversarial Network) egy generatív modell,  
+    ahol két hálózat (Generátor és Diszkriminátor) tanul egymással szemben.  
+    Az egyik képeket próbál generálni, a másik megkülönböztetni azokat a valósaktól.
     """)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # 🔧 Paraméterek
-    z_dim = st.sidebar.slider("🎲 Z dimenzió (zaj vektor)", 64, 256, 100, step=16)
-    lr = st.sidebar.slider("📉 Tanulási ráta", 1e-5, 1e-3, 2e-4, format="%.1e")
-    epochs = st.sidebar.slider("🔁 Epochok száma", 1, 50, 5)
-    batch_size = st.sidebar.slider("📦 Batch méret", 32, 256, 128, step=32)
+    # --- ⚙️ Beállítások ---
+    st.sidebar.header("🛠️ Paraméterek")
+    z_dim = st.sidebar.slider("Z dimenzió", 64, 256, 100, step=16)
+    lr = st.sidebar.slider("Tanulási ráta", 1e-5, 1e-3, 2e-4, format="%.1e")
+    epochs = st.sidebar.slider("Epochok", 1, 50, 5)
+    batch_size = st.sidebar.slider("Batch méret", 32, 256, 128, step=32)
 
-    if st.button("🏁 Tanítás indítása"):
-        # 📥 Adatok
+    if st.button("🧪 Tanítás indítása"):
+        # --- 📥 Adatbetöltés ---
         transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.5,), (0.5,))
@@ -77,18 +79,17 @@ def app():
         dataset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-        # 🧠 Modellek
+        # --- 🧠 Modellek inicializálása ---
         generator = Generator(z_dim).to(device)
         discriminator = Discriminator().to(device)
 
-        # ⚙️ Optimalizálók, loss
         optim_g = optim.Adam(generator.parameters(), lr=lr)
         optim_d = optim.Adam(discriminator.parameters(), lr=lr)
         criterion = nn.BCELoss()
 
         g_losses, d_losses = [], []
 
-        # 🔄 Tanítási ciklus
+        # --- 🔁 Tanítás ---
         for epoch in range(epochs):
             for real_imgs, _ in loader:
                 real_imgs = real_imgs.view(-1, 28*28).to(device)
@@ -97,7 +98,7 @@ def app():
                 real = torch.ones(batch, 1).to(device)
                 fake = torch.zeros(batch, 1).to(device)
 
-                # ❌ Diszkriminátor frissítés
+                # Diszkriminátor frissítése
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
 
@@ -109,7 +110,7 @@ def app():
                 loss_d.backward()
                 optim_d.step()
 
-                # ✅ Generátor frissítés
+                # Generátor frissítése
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_g = criterion(discriminator(fake_imgs), real)
@@ -118,25 +119,23 @@ def app():
                 loss_g.backward()
                 optim_g.step()
 
-            # 💾 Epoch végén loss naplózása
             g_losses.append(loss_g.item())
             d_losses.append(loss_d.item())
             st.text(f"Epoch {epoch+1}/{epochs} | Loss G: {loss_g.item():.4f} | D: {loss_d.item():.4f}")
 
-        # 📊 Veszteséggörbék
+        # --- 📈 Loss vizualizáció ---
+        st.subheader("📉 Veszteséggörbék")
         fig, ax = plt.subplots()
         ax.plot(g_losses, label="Generátor")
         ax.plot(d_losses, label="Diszkriminátor")
-        ax.set_title("Veszteségfüggvények")
+        ax.set_xlabel("Epoch")
+        ax.set_ylabel("Loss")
         ax.legend()
         st.pyplot(fig)
 
-        # 🎨 Generált képek
-        st.subheader("🖼️ Generált képek")
+        # --- 🖼️ Generált képek ---
+        st.subheader("🖼️ Generált minták")
         show_generated_images(generator, z_dim, device)
 
-# 🔁 Modul kompatibilitás
-def run():
-    app()
-
+# --- 📎 Modulregisztráció Streamlit keretrendszerhez ---
 app = run
