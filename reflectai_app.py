@@ -42,7 +42,6 @@ module_categories = {
         
     },
     "⚗️ Szimulációk és dinamikák": {
-        "NeuroGAN Lab": "neurogan_lab",
         "Kuramoto Sim": "kuramoto_sim",
         "Kuramoto Hebbian Sim": "kuramoto_hebbian_sim",
         "Generative Kuramoto": "generative_kuramoto",
@@ -51,6 +50,7 @@ module_categories = {
         "Noise Robustness": "noise_robustness",
         "Ising Sim": "ising_sim",
         "Boltzmann Machine": "boltzmann_machine",
+        "NeuroGAN Lab": "neurogan_lab",
         
     },
     "🧪 Adatfeltöltés és predikciók": {
