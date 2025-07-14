@@ -32,7 +32,7 @@ from modules.hebbian_learning_viz import app as run_hebbian_viz
 from modules.critical_hebbian import app as run_critical_hebbian
 from modules.information_bottleneck import app as run_information_bottleneck
 from modules.boltzmann_machine import app as run_boltzmann_machine
-from modules.gan_labs import app as run_gan_labs
+from modules.gan_lab import app as run_gan_lab
 
 # Modulregisztráció (név -> függvény)
 registry = {
@@ -70,5 +70,5 @@ registry = {
     "Critical Hebbian": run_critical_hebbian,
     "Information Bottleneck": run_information_bottleneck,
     "Boltzmann Machine": run_boltzmann_machine,
-    "GAN Lab": run_gan_labs,
+    "GAN Lab": run_gan_lab,
 }
