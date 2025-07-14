@@ -135,7 +135,7 @@ def app():
         st.subheader("🖼️ Generált képek")
         show_generated_images(generator, z_dim, device)
 
-# 🔁 Modulbetöltés-kompatibilis futtatás
+# 🔁 Modul kompatibilitás
 def run():
     app()
 
