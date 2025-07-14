@@ -1,5 +1,5 @@
 from modules.kuramoto_sim import app as run_kuramoto
-from modules.neurogan_lab import app as run_neurogan_lab
+from modules.gan_lab import app as run_gan_lab
 from modules.hebbian_learning import app as run_hebbian
 from modules.xor_prediction import app as run_xor
 from modules.kuramoto_hebbian_sim import app as run_kuramoto_hebbian
@@ -37,7 +37,7 @@ from modules.boltzmann_machine import app as run_boltzmann_machine
 # Modulregisztráció (név -> függvény)
 registry = {
     "Kuramoto szimuláció": run_kuramoto,
-    "NeuroGAN Lab": run_neurogan_lab,
+    "GAN Lab": run_gan_lab,
     "Hebbian tanulás": run_hebbian,
     "XOR predikció": run_xor,
     "Kuramoto–Hebbian háló": run_kuramoto_hebbian,
