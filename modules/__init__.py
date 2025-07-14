@@ -37,7 +37,7 @@ from modules.boltzmann_machine import app as run_boltzmann_machine
 # Modulregisztráció (név -> függvény)
 registry = {
     "Kuramoto szimuláció": run_kuramoto,
-    "NeuroGan labor": run_neurogan_lab,
+    "NeuroGan Lab": run_neurogan_lab,
     "Hebbian tanulás": run_hebbian,
     "XOR predikció": run_xor,
     "Kuramoto–Hebbian háló": run_kuramoto_hebbian,
