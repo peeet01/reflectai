@@ -128,7 +128,5 @@ def app():
         show_generated_images(generator, z_dim, device)
 
 # 🔁 Kompatibilitás a betöltő rendszereddel
-def run():
-    app()
 
 app = run
