@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 
-# 🎯 Generátor
+# 🎯 Generátor architektúra
 class Generator(nn.Module):
     def __init__(self, z_dim=100, img_dim=28*28):
         super().__init__()
@@ -23,7 +23,7 @@ class Generator(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-# ❌ Diszkriminátor
+# ❌ Diszkriminátor architektúra
 class Discriminator(nn.Module):
     def __init__(self, img_dim=28*28):
         super().__init__()
@@ -51,22 +51,25 @@ def show_generated_images(generator, z_dim, device):
         ax.axis("off")
         st.pyplot(fig)
 
-# 🚀 App főfüggvény
+# 🚀 App – GAN szimuláció
 def app():
-    st.title("✨ NeuroGAN – Generative Adversarial Network")
+    st.title("🧠 NeuroGAN – Generative Adversarial Network")
     st.markdown("""
-    Ez a modul egy egyszerű GAN architektúrát demonstrál az MNIST adathalmazon.  
-    A **Generátor** képeket próbál létrehozni, míg a **Diszkriminátor** megpróbálja azokat megkülönböztetni a valódiaktól.
+    Egy egyszerű GAN architektúra az MNIST adathalmazon.  
+    A **Generátor** képeket hoz létre zajból,  
+    míg a **Diszkriminátor** megpróbálja azokat megkülönböztetni a valódiaktól.
     """)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
+    # 🔧 Paraméterek
     z_dim = st.sidebar.slider("🎲 Z dimenzió (zaj vektor)", 64, 256, 100, step=16)
     lr = st.sidebar.slider("📉 Tanulási ráta", 1e-5, 1e-3, 2e-4, format="%.1e")
     epochs = st.sidebar.slider("🔁 Epochok száma", 1, 50, 5)
     batch_size = st.sidebar.slider("📦 Batch méret", 32, 256, 128, step=32)
 
     if st.button("🏁 Tanítás indítása"):
+        # 📥 Adatok
         transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.5,), (0.5,))
@@ -74,15 +77,18 @@ def app():
         dataset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
+        # 🧠 Modellek
         generator = Generator(z_dim).to(device)
         discriminator = Discriminator().to(device)
 
+        # ⚙️ Optimalizálók, loss
         optim_g = optim.Adam(generator.parameters(), lr=lr)
         optim_d = optim.Adam(discriminator.parameters(), lr=lr)
         criterion = nn.BCELoss()
 
         g_losses, d_losses = [], []
 
+        # 🔄 Tanítási ciklus
         for epoch in range(epochs):
             for real_imgs, _ in loader:
                 real_imgs = real_imgs.view(-1, 28*28).to(device)
@@ -91,7 +97,7 @@ def app():
                 real = torch.ones(batch, 1).to(device)
                 fake = torch.zeros(batch, 1).to(device)
 
-                # ❌ Diszkriminátor
+                # ❌ Diszkriminátor frissítés
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
 
@@ -103,7 +109,7 @@ def app():
                 loss_d.backward()
                 optim_d.step()
 
-                # ✅ Generátor
+                # ✅ Generátor frissítés
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_g = criterion(discriminator(fake_imgs), real)
@@ -112,21 +118,25 @@ def app():
                 loss_g.backward()
                 optim_g.step()
 
+            # 💾 Epoch végén loss naplózása
             g_losses.append(loss_g.item())
             d_losses.append(loss_d.item())
             st.text(f"Epoch {epoch+1}/{epochs} | Loss G: {loss_g.item():.4f} | D: {loss_d.item():.4f}")
 
-        # 📊 Loss görbék
+        # 📊 Veszteséggörbék
         fig, ax = plt.subplots()
-        ax.plot(g_losses, label="Generátor veszteség")
-        ax.plot(d_losses, label="Diszkriminátor veszteség")
-        ax.set_title("Veszteségfüggvények alakulása")
+        ax.plot(g_losses, label="Generátor")
+        ax.plot(d_losses, label="Diszkriminátor")
+        ax.set_title("Veszteségfüggvények")
         ax.legend()
         st.pyplot(fig)
 
-        # 🖼️ Képgenerálás
+        # 🎨 Generált képek
+        st.subheader("🖼️ Generált képek")
         show_generated_images(generator, z_dim, device)
 
-# 🔁 Kompatibilitás a betöltő rendszereddel
+# 🔁 Modulbetöltés-kompatibilis futtatás
+def run():
+    app()
 
 app = run
