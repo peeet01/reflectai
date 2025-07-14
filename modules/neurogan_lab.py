@@ -51,7 +51,7 @@ def show_generated_images(generator, z_dim, device):
         ax.axis("off")
         st.pyplot(fig)
 
-# 🚀 Fő Streamlit app
+# 🚀 App főfüggvény
 def app():
     st.title("✨ NeuroGAN – Generative Adversarial Network")
     st.markdown("""
@@ -127,7 +127,7 @@ def app():
         # 🖼️ Képgenerálás
         show_generated_images(generator, z_dim, device)
 
-# 🔁 Kompatibilis run-architektúra
+# 🔁 Kompatibilitás a betöltő rendszereddel
 def run():
     app()
 
