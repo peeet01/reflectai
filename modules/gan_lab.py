@@ -7,6 +7,8 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
+import pandas as pd
+import io
 
 # --- 🎯 Generátor ---
 class Generator(nn.Module):
@@ -51,15 +53,31 @@ def show_generated_images(generator, z_dim, device):
         ax.imshow(grid.permute(1, 2, 0))
         ax.axis("off")
         st.pyplot(fig)
+        return fake_imgs
+
+# --- 📜 Tudományos leírás ---
+def show_theory():
+    st.markdown("## 📚 GAN Elméleti háttér")
+    st.markdown(r"""
+A **Generative Adversarial Network (GAN)** egy olyan gépi tanulási architektúra, amely két neurális hálózatot tartalmaz:
+
+- **Generátor** \(G\): célja, hogy hamis adatokat generáljon, amelyek hasonlítanak a valódi adatokra.
+- **Diszkriminátor** \(D\): célja, hogy megkülönböztesse a valódi adatokat a generáltaktól.
+
+A cél a következő játékelméleti optimum:
+
+\[
+\min_G \max_D \mathbb{E}_{x \sim p_\text{data}(x)}[\log D(x)] + \mathbb{E}_{z \sim p_z(z)}[\log(1 - D(G(z)))]
+\]
+
+""")
 
 # --- 🚀 GAN App ---
 def run():
     st.title("🧠 GAN Lab – Generative Adversarial Network")
-    st.markdown("""
-    A GAN (Generative Adversarial Network) egy generatív modell,  
-    ahol két hálózat (Generátor és Diszkriminátor) tanul egymással szemben.  
-    Az egyik képeket próbál generálni, a másik megkülönböztetni azokat a valósaktól.
-    """)
+    st.caption("Csúcsmodul – generatív hálók vizsgálata")
+
+    show_theory()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -68,6 +86,7 @@ def run():
     lr = st.sidebar.slider("Tanulási ráta", 1e-5, 1e-3, 2e-4, format="%.1e")
     epochs = st.sidebar.slider("Epochok", 1, 50, 5)
     batch_size = st.sidebar.slider("Batch méret", 32, 256, 128, step=32)
+    show_csv = st.sidebar.checkbox("📄 CSV export generált mintákról", value=True)
 
     if st.button("🧪 Tanítás indítása"):
         transform = transforms.Compose([
@@ -84,6 +103,8 @@ def run():
         criterion = nn.BCELoss()
 
         g_losses, d_losses = [], []
+
+        progress = st.progress(0, text="Tanítás folyamatban...")
 
         for epoch in range(epochs):
             for real_imgs, _ in loader:
@@ -113,7 +134,9 @@ def run():
 
             g_losses.append(loss_g.item())
             d_losses.append(loss_d.item())
-            st.text(f"Epoch {epoch+1}/{epochs} | Loss G: {loss_g.item():.4f} | D: {loss_d.item():.4f}")
+            progress.progress((epoch + 1) / epochs, text=f"Epoch {epoch+1}/{epochs} – G: {loss_g.item():.4f}, D: {loss_d.item():.4f}")
+
+        progress.empty()
 
         st.subheader("📉 Veszteséggörbék")
         fig, ax = plt.subplots()
@@ -125,7 +148,14 @@ def run():
         st.pyplot(fig)
 
         st.subheader("🖼️ Generált minták")
-        show_generated_images(generator, z_dim, device)
+        generated_imgs = show_generated_images(generator, z_dim, device)
+
+        if show_csv:
+            img_flat = generated_imgs.view(generated_imgs.size(0), -1).numpy()
+            df = pd.DataFrame(img_flat)
+            buffer = io.StringIO()
+            df.to_csv(buffer, index=False)
+            st.download_button("⬇️ Minták letöltése CSV-ben", buffer.getvalue(), file_name="generated_samples.csv", mime="text/csv")
 
 # --- 📎 Kötelező Streamlit export ---
 app = run
