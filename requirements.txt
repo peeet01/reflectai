@@ -11,3 +11,4 @@ ripser
 persim
 scikit-image
 scipy
+# Force rebuild
