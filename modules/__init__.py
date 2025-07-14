@@ -1,5 +1,4 @@
 from modules.kuramoto_sim import app as run_kuramoto
-from modules.gan_lab import app as run_gan_lab
 from modules.hebbian_learning import app as run_hebbian
 from modules.xor_prediction import app as run_xor
 from modules.kuramoto_hebbian_sim import app as run_kuramoto_hebbian
@@ -33,12 +32,12 @@ from modules.hebbian_learning_viz import app as run_hebbian_viz
 from modules.critical_hebbian import app as run_critical_hebbian
 from modules.information_bottleneck import app as run_information_bottleneck
 from modules.boltzmann_machine import app as run_boltzmann_machine
+from modules.gan_lab import app as run_gan_lab
 
 # Modulregisztráció (név -> függvény)
 registry = {
     "Kuramoto szimuláció": run_kuramoto,
-    "GAN Lab": run_gan_lab,
-    "Hebbian tanulás": run_hebbian,
+     "Hebbian tanulás": run_hebbian,
     "XOR predikció": run_xor,
     "Kuramoto–Hebbian háló": run_kuramoto_hebbian,
     "Topológiai szinkronizáció": run_topo_protect,
@@ -71,4 +70,5 @@ registry = {
     "Critical Hebbian": run_critical_hebbian,
     "Information Bottleneck": run_information_bottleneck,
     "Boltzmann Machine": run_boltzmann_machine,
+    "GAN Lab": run_gan_lab,
 }
