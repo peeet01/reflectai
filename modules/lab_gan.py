@@ -1,110 +1,155 @@
-import streamlit as st import torch import torch.nn as nn import torch.optim as optim from torchvision import datasets, transforms from torch.utils.data import DataLoader from torchvision.utils import make_grid import matplotlib.pyplot as plt import pandas as pd
+import streamlit as st
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
+from torchvision.utils import make_grid
+import matplotlib.pyplot as plt
+import pandas as pd
 
-Generator hálózat
+# 🎯 Generátor
+class Generator(nn.Module):
+    def __init__(self, z_dim=100, img_dim=28*28):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(z_dim, 256),
+            nn.ReLU(True),
+            nn.Linear(256, 512),
+            nn.ReLU(True),
+            nn.Linear(512, img_dim),
+            nn.Tanh()
+        )
 
-class Generator(nn.Module): def init(self, z_dim=100, img_dim=28*28): super().init() self.net = nn.Sequential( nn.Linear(z_dim, 256), nn.ReLU(True), nn.Linear(256, 512), nn.ReLU(True), nn.Linear(512, img_dim), nn.Tanh() )
+    def forward(self, x):
+        return self.net(x)
 
-def forward(self, x):
-    return self.net(x)
+# ❌ Diszkriminátor
+class Discriminator(nn.Module):
+    def __init__(self, img_dim=28*28):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(img_dim, 512),
+            nn.LeakyReLU(0.2),
+            nn.Linear(512, 256),
+            nn.LeakyReLU(0.2),
+            nn.Linear(256, 1),
+            nn.Sigmoid()
+        )
 
-Diszkriminátor hálózat
+    def forward(self, x):
+        return self.net(x)
 
-class Discriminator(nn.Module): def init(self, img_dim=28*28): super().init() self.net = nn.Sequential( nn.Linear(img_dim, 512), nn.LeakyReLU(0.2), nn.Linear(512, 256), nn.LeakyReLU(0.2), nn.Linear(256, 1), nn.Sigmoid() )
+# 🖼️ Képmegjelenítő
+def show_generated_images(generator, z_dim, device):
+    generator.eval()
+    with torch.no_grad():
+        z = torch.randn(16, z_dim).to(device)
+        fake_imgs = generator(z).view(-1, 1, 28, 28).cpu()
+        grid = make_grid(fake_imgs, nrow=4, normalize=True)
+        fig, ax = plt.subplots(figsize=(4, 4))
+        ax.imshow(grid.permute(1, 2, 0))
+        ax.axis("off")
+        st.pyplot(fig)
 
-def forward(self, x):
-    return self.net(x)
+# 🚀 GAN modul
+def run():
+    st.set_page_config(layout="wide")
+    st.title("🧪 GAN Lab – Generative Adversarial Network")
 
-Képgenerálás megjelenítése
+    st.markdown("""
+A **GAN** egy generatív modell, amely két hálót tanít egymás ellen:
+- **Generátor (G)**: új képeket próbál létrehozni.
+- **Diszkriminátor (D)**: eldönti, hogy kép valódi vagy generált.
+    """)
 
-def show_generated_images(generator, z_dim, device): generator.eval() with torch.no_grad(): z = torch.randn(16, z_dim).to(device) fake_imgs = generator(z).view(-1, 1, 28, 28).cpu() grid = make_grid(fake_imgs, nrow=4, normalize=True) fig, ax = plt.subplots(figsize=(4, 4)) ax.imshow(grid.permute(1, 2, 0)) ax.axis("off") st.pyplot(fig)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
-Streamlit app futtatása
+    # Paraméterek
+    st.sidebar.header("🛠️ Paraméterek")
+    z_dim = st.sidebar.slider("Z dimenzió", 64, 256, 100, step=16)
+    lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3], value=2e-4)
+    epochs = st.sidebar.slider("Epochok", 1, 30, 5)
+    batch_size = st.sidebar.slider("Batch méret", 32, 256, 128, step=32)
+    seed = st.sidebar.number_input("Seed", 0, 9999, 42)
 
-def run(): st.set_page_config(layout="wide") st.title("GAN Labor - Generative Adversarial Network")
+    if st.button("▶️ Tanítás indítása"):
+        torch.manual_seed(seed)
 
-st.markdown("""
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.5,), (0.5,))
+        ])
+        dataset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
+        loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-A GAN (Generative Adversarial Network) egy olyan modell, amely két neurális hálót tanít egymás ellen:
+        generator = Generator(z_dim).to(device)
+        discriminator = Discriminator().to(device)
+        optim_g = optim.Adam(generator.parameters(), lr=lr)
+        optim_d = optim.Adam(discriminator.parameters(), lr=lr)
+        criterion = nn.BCELoss()
 
-A Generátor új képeket próbál létrehozni.
+        g_losses, d_losses = [], []
 
-A Diszkriminátor megpróbálja eldönteni, hogy a kép valódi vagy generált. """)
+        for epoch in range(epochs):
+            for real_imgs, _ in loader:
+                real_imgs = real_imgs.view(-1, 28*28).to(device)
+                batch = real_imgs.size(0)
+                real = torch.ones(batch, 1).to(device)
+                fake = torch.zeros(batch, 1).to(device)
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+                # Diszkriminátor
+                z = torch.randn(batch, z_dim).to(device)
+                fake_imgs = generator(z)
+                loss_real = criterion(discriminator(real_imgs), real)
+                loss_fake = criterion(discriminator(fake_imgs.detach()), fake)
+                loss_d = (loss_real + loss_fake) / 2
+                optim_d.zero_grad()
+                loss_d.backward()
+                optim_d.step()
 
-Paraméterek oldalsávon
+                # Generátor
+                z = torch.randn(batch, z_dim).to(device)
+                fake_imgs = generator(z)
+                loss_g = criterion(discriminator(fake_imgs), real)
+                optim_g.zero_grad()
+                loss_g.backward()
+                optim_g.step()
 
-st.sidebar.header("Beállítások") z_dim = st.sidebar.slider("Z dimenzió", 64, 256, 100, step=16) lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3], value=2e-4) epochs = st.sidebar.slider("Epochok száma", 1, 30, 5) batch_size = st.sidebar.slider("Batch méret", 32, 256, 128, step=32) seed = st.sidebar.number_input("Seed", 0, 9999, 42)
+            g_losses.append(loss_g.item())
+            d_losses.append(loss_d.item())
+            st.text(f"Epoch {epoch+1}/{epochs} | G: {loss_g.item():.4f} | D: {loss_d.item():.4f}")
 
-if st.button("Indítás"): torch.manual_seed(seed)
+        # Loss plot
+        st.subheader("📉 Veszteségek")
+        fig, ax = plt.subplots()
+        ax.plot(g_losses, label="Generátor")
+        ax.plot(d_losses, label="Diszkriminátor")
+        ax.set_xlabel("Epoch")
+        ax.set_ylabel("Loss")
+        ax.legend()
+        st.pyplot(fig)
 
-transform = transforms.Compose([
-      transforms.ToTensor(),
-      transforms.Normalize((0.5,), (0.5,))
-  ])
-  dataset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
-  loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+        # Minták
+        st.subheader("🖼️ Generált minták")
+        show_generated_images(generator, z_dim, device)
 
-  generator = Generator(z_dim).to(device)
-  discriminator = Discriminator().to(device)
-  optim_g = optim.Adam(generator.parameters(), lr=lr)
-  optim_d = optim.Adam(discriminator.parameters(), lr=lr)
-  criterion = nn.BCELoss()
+        # CSV export
+        z = torch.randn(100, z_dim).to(device)
+        samples = generator(z).view(-1, 28*28).cpu().detach().numpy()
+        df = pd.DataFrame(samples)
+        csv = df.to_csv(index=False).encode("utf-8")
+        st.download_button("⬇️ Minták CSV-ben", data=csv, file_name="gan_samples.csv")
 
-  g_losses, d_losses = [], []
+        # Elmélet
+        st.subheader("📚 GAN elméleti háttér")
+        st.latex(r"""
+\min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}}[\log D(x)] + 
+\mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))]
+""")
+        st.markdown("""
+A GAN célja, hogy a generátor olyan adatokat állítson elő, amelyeket a diszkriminátor ne tudjon megkülönböztetni a valódiaktól.
+""")
 
-  for epoch in range(epochs):
-      for real_imgs, _ in loader:
-          real_imgs = real_imgs.view(-1, 28*28).to(device)
-          batch = real_imgs.size(0)
-          real = torch.ones(batch, 1).to(device)
-          fake = torch.zeros(batch, 1).to(device)
-
-          # Diszkriminátor frissítése
-          z = torch.randn(batch, z_dim).to(device)
-          fake_imgs = generator(z)
-          loss_real = criterion(discriminator(real_imgs), real)
-          loss_fake = criterion(discriminator(fake_imgs.detach()), fake)
-          loss_d = (loss_real + loss_fake) / 2
-          optim_d.zero_grad()
-          loss_d.backward()
-          optim_d.step()
-
-          # Generátor frissítése
-          z = torch.randn(batch, z_dim).to(device)
-          fake_imgs = generator(z)
-          loss_g = criterion(discriminator(fake_imgs), real)
-          optim_g.zero_grad()
-          loss_g.backward()
-          optim_g.step()
-
-      g_losses.append(loss_g.item())
-      d_losses.append(loss_d.item())
-      st.text(f"Epoch {epoch+1}/{epochs} | Generator loss: {loss_g.item():.4f}, Discriminator loss: {loss_d.item():.4f}")
-
-  # Loss ábrázolása
-  st.subheader("Veszteségfüggvény alakulása")
-  fig, ax = plt.subplots()
-  ax.plot(g_losses, label="Generátor")
-  ax.plot(d_losses, label="Diszkriminátor")
-  ax.set_xlabel("Epoch")
-  ax.set_ylabel("Loss")
-  ax.legend()
-  st.pyplot(fig)
-
-  # Generált minták megjelenítése
-  st.subheader("Generált képek")
-  show_generated_images(generator, z_dim, device)
-
-  # CSV export
-  z = torch.randn(100, z_dim).to(device)
-  samples = generator(z).view(-1, 28*28).cpu().detach().numpy()
-  df = pd.DataFrame(samples)
-  csv = df.to_csv(index=False).encode("utf-8")
-  st.download_button("Minták letöltése CSV-ben", data=csv, file_name="gan_samples.csv")
-
-
-ReflectAI kompatibilitás
-
+# ReflectAI-kompatibilitás
 app = run
-
