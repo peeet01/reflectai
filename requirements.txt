@@ -6,6 +6,7 @@ seaborn
 networkx
 plotly
 torch
+torchvision
 pandas
 ripser
 persim
