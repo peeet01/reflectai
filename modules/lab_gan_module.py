@@ -7,7 +7,9 @@ from torch.utils.data import DataLoader
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 import pandas as pd
+import time
 
+# --- GAN komponensek ---
 class Generator(nn.Module):
     def __init__(self, z_dim=64, img_dim=28 * 28):
         super().__init__()
@@ -57,18 +59,19 @@ def run():
     st.title("🧪 GAN – Generative Adversarial Network")
 
     st.markdown("""
-    A Generative Adversarial Network (GAN) két modellből áll:
+A Generative Adversarial Network (GAN) két modellből áll:
 
-    - **Generátor**: új adatminta generálása a zajból  
-    - **Diszkriminátor**: eldönti, hogy a bemenő kép valódi vagy hamis
+- **Generátor**: új adatminta generálása a zajból  
+- **Diszkriminátor**: eldönti, hogy a bemenő kép valódi vagy hamis
 
-    A cél: a generátor megtanuljon olyan jól hamisítani, hogy a diszkriminátor ne tudjon különbséget tenni.
+A cél: a generátor megtanuljon olyan jól hamisítani, hogy a diszkriminátor ne tudjon különbséget tenni.
 
-    $$ \min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}}[\log D(x)] + \mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))] $$
-    """)
+$$ \min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}}[\log D(x)] + \mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))] $$
+""")
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
+    # Oldalsáv
     st.sidebar.header("Beállítások")
     z_dim = st.sidebar.slider("Z dimenzió", 32, 128, 64, step=16)
     lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3], value=2e-4)
@@ -93,7 +96,8 @@ def run():
         criterion = nn.BCELoss()
 
         g_losses, d_losses = [], []
-        progress = st.progress(0.0, text="Tanítás indult...")
+        progress_bar = st.progress(0)
+        status_text = st.empty()
 
         for epoch in range(epochs):
             for real_imgs, _ in loader:
@@ -102,6 +106,7 @@ def run():
                 real = torch.ones(batch, 1).to(device)
                 fake = torch.zeros(batch, 1).to(device)
 
+                # Diszkriminátor lépés
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_real = criterion(discriminator(real_imgs), real)
@@ -111,6 +116,7 @@ def run():
                 loss_d.backward()
                 optim_d.step()
 
+                # Generátor lépés
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_g = criterion(discriminator(fake_imgs), real)
@@ -120,10 +126,13 @@ def run():
 
             g_losses.append(loss_g.item())
             d_losses.append(loss_d.item())
-            st.markdown(f"📊 **Epoch {epoch+1}/{epochs}** | Generator: {loss_g.item():.4f} | Diszkriminátor: {loss_d.item():.4f}")
-            progress.progress((epoch + 1) / epochs, text=f"Folyamat: {epoch+1}/{epochs}")
 
-        st.subheader("📉 Loss alakulása")
+            status_text.markdown(f"📊 **Epoch {epoch+1}/{epochs}** | Generator: `{loss_g.item():.4f}` | Diszkriminátor: `{loss_d.item():.4f}`")
+            progress_bar.progress((epoch + 1) / epochs)
+            time.sleep(0.01)
+
+        # Loss ábrázolása
+        st.subheader("📉 Loss görbék")
         fig, ax = plt.subplots()
         ax.plot(g_losses, label="Generátor")
         ax.plot(d_losses, label="Diszkriminátor")
@@ -132,22 +141,24 @@ def run():
         ax.legend()
         st.pyplot(fig)
 
+        # Generált képek
         st.subheader("🖼️ Generált minták")
         show_generated_images(generator, z_dim, device)
 
+        # CSV export
         z = torch.randn(100, z_dim).to(device)
         samples = generator(z).view(-1, 28 * 28).cpu().detach().numpy()
         df = pd.DataFrame(samples)
         csv = df.to_csv(index=False).encode("utf-8")
         st.download_button("⬇️ Minták letöltése (CSV)", data=csv, file_name="gan_samples.csv")
 
+        # Tudományos értékelés
         st.subheader("🧠 Tudományos értékelés")
         st.markdown("""
-        A veszteségértékek változása alapján látható, hogy a generátor és diszkriminátor kiegyensúlyozottan fejlődnek.
+A veszteségek alapján látható, hogy a hálózatok egymással tanulnak. A diszkriminátor először jobban teljesít, de a generátor egyre inkább megtanul hasonló mintákat előállítani, mint az MNIST adatbázis képei.
 
-        A generált minták még nem tökéletesek, de bizonyos mintázatok kezdődnek kialakulni, ami azt jelenti, hogy a hálózat tanulási folyamata elindult.
+A tanulás további finomhangolással, epoch növeléssel, vagy komplexebb architektúrákkal tovább fejleszthető.
+""")
 
-        A további epochok és finomhangolás valószínűleg tovább javítja majd a minőséget.
-        """)
-
+# ReflectAI kompatibilitás
 app = run
