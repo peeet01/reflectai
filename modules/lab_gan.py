@@ -55,7 +55,7 @@ def show_generated_images(generator, z_dim, device):
 # Streamlit app futtatása
 def run():
     st.set_page_config(layout="wide")
-    st.title("GAN Lab – Generative Adversarial Network")
+    st.title("🧪 GAN Lab – Generative Adversarial Network")
 
     st.markdown("""
 A GAN két neurális hálózatból áll:
@@ -138,7 +138,7 @@ A GAN két neurális hálózatból áll:
         samples = generator(z).view(-1, 28*28).cpu().detach().numpy()
         df = pd.DataFrame(samples)
         csv = df.to_csv(index=False).encode("utf-8")
-        st.download_button("Minták letöltése CSV-ben", data=csv, file_name="gan_samples.csv")
+        st.download_button("⬇️ Minták CSV-ben", data=csv, file_name="gan_samples.csv")
 
 # ReflectAI-kompatibilitás
 app = run
