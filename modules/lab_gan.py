@@ -8,7 +8,7 @@ from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# 🎯 Generátor
+# Generátor hálózat
 class Generator(nn.Module):
     def __init__(self, z_dim=100, img_dim=28*28):
         super().__init__()
@@ -24,7 +24,7 @@ class Generator(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-# ❌ Diszkriminátor
+# Diszkriminátor hálózat
 class Discriminator(nn.Module):
     def __init__(self, img_dim=28*28):
         super().__init__()
@@ -40,7 +40,7 @@ class Discriminator(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-# 🖼️ Képmegjelenítő
+# Képgenerálás megjelenítése
 def show_generated_images(generator, z_dim, device):
     generator.eval()
     with torch.no_grad():
@@ -52,28 +52,27 @@ def show_generated_images(generator, z_dim, device):
         ax.axis("off")
         st.pyplot(fig)
 
-# 🚀 GAN modul
+# Streamlit app futtatása
 def run():
     st.set_page_config(layout="wide")
-    st.title("🧪 GAN Lab – Generative Adversarial Network")
+    st.title("GAN Lab – Generative Adversarial Network")
 
     st.markdown("""
-A **GAN** egy generatív modell, amely két hálót tanít egymás ellen:
-- **Generátor (G)**: új képeket próbál létrehozni.
-- **Diszkriminátor (D)**: eldönti, hogy kép valódi vagy generált.
+A GAN két neurális hálózatból áll:
+- **Generátor**: új képeket hoz létre
+- **Diszkriminátor**: eldönti, hogy egy kép valódi vagy hamis
     """)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # Paraméterek
-    st.sidebar.header("🛠️ Paraméterek")
+    st.sidebar.header("Beállítások")
     z_dim = st.sidebar.slider("Z dimenzió", 64, 256, 100, step=16)
     lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3], value=2e-4)
     epochs = st.sidebar.slider("Epochok", 1, 30, 5)
     batch_size = st.sidebar.slider("Batch méret", 32, 256, 128, step=32)
     seed = st.sidebar.number_input("Seed", 0, 9999, 42)
 
-    if st.button("▶️ Tanítás indítása"):
+    if st.button("Tanítás indítása"):
         torch.manual_seed(seed)
 
         transform = transforms.Compose([
@@ -98,7 +97,7 @@ A **GAN** egy generatív modell, amely két hálót tanít egymás ellen:
                 real = torch.ones(batch, 1).to(device)
                 fake = torch.zeros(batch, 1).to(device)
 
-                # Diszkriminátor
+                # Diszkriminátor lépés
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_real = criterion(discriminator(real_imgs), real)
@@ -108,7 +107,7 @@ A **GAN** egy generatív modell, amely két hálót tanít egymás ellen:
                 loss_d.backward()
                 optim_d.step()
 
-                # Generátor
+                # Generátor lépés
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_g = criterion(discriminator(fake_imgs), real)
@@ -120,8 +119,8 @@ A **GAN** egy generatív modell, amely két hálót tanít egymás ellen:
             d_losses.append(loss_d.item())
             st.text(f"Epoch {epoch+1}/{epochs} | G: {loss_g.item():.4f} | D: {loss_d.item():.4f}")
 
-        # Loss plot
-        st.subheader("📉 Veszteségek")
+        # Loss görbék
+        st.subheader("Loss görbék")
         fig, ax = plt.subplots()
         ax.plot(g_losses, label="Generátor")
         ax.plot(d_losses, label="Diszkriminátor")
@@ -130,8 +129,8 @@ A **GAN** egy generatív modell, amely két hálót tanít egymás ellen:
         ax.legend()
         st.pyplot(fig)
 
-        # Minták
-        st.subheader("🖼️ Generált minták")
+        # Generált minták
+        st.subheader("Generált minták")
         show_generated_images(generator, z_dim, device)
 
         # CSV export
@@ -139,17 +138,7 @@ A **GAN** egy generatív modell, amely két hálót tanít egymás ellen:
         samples = generator(z).view(-1, 28*28).cpu().detach().numpy()
         df = pd.DataFrame(samples)
         csv = df.to_csv(index=False).encode("utf-8")
-        st.download_button("⬇️ Minták CSV-ben", data=csv, file_name="gan_samples.csv")
-
-        # Elmélet
-        st.subheader("📚 GAN elméleti háttér")
-        st.latex(r"""
-\min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}}[\log D(x)] + 
-\mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))]
-""")
-        st.markdown("""
-A GAN célja, hogy a generátor olyan adatokat állítson elő, amelyeket a diszkriminátor ne tudjon megkülönböztetni a valódiaktól.
-""")
+        st.download_button("Minták letöltése CSV-ben", data=csv, file_name="gan_samples.csv")
 
 # ReflectAI-kompatibilitás
 app = run
