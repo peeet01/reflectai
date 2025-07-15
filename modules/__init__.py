@@ -33,7 +33,6 @@ from modules.critical_hebbian import app as run_critical_hebbian
 from modules.information_bottleneck import app as run_information_bottleneck
 from modules.boltzmann_machine import app as run_boltzmann_machine
 from modules.lab_gan import app as run_lab_gan
-
 # Modulregisztráció (név -> függvény)
 registry = {
     "Kuramoto szimuláció": run_kuramoto,
