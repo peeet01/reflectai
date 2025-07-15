@@ -8,7 +8,6 @@ from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# --- GAN komponensek ---
 class Generator(nn.Module):
     def __init__(self, z_dim=64, img_dim=28 * 28):
         super().__init__()
@@ -73,9 +72,10 @@ def run():
     st.sidebar.header("Beállítások")
     z_dim = st.sidebar.slider("Z dimenzió", 32, 128, 64, step=16)
     lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3], value=2e-4)
-    epochs = 5  # fixáltuk
     batch_size = st.sidebar.slider("Batch méret", 16, 128, 32, step=16)
     seed = st.sidebar.number_input("Seed", 0, 9999, 42)
+
+    epochs = 5  # Fixen 5, ahogy kérted
 
     if st.button("🚀 Tanítás indítása"):
         torch.manual_seed(seed)
@@ -94,7 +94,7 @@ def run():
         criterion = nn.BCELoss()
 
         g_losses, d_losses = [], []
-        progress = st.progress(0.0, text="Tanítás folyamatban...")
+        progress = st.progress(0.0, text="Tanítás indult...")
 
         for epoch in range(epochs):
             for real_imgs, _ in loader:
@@ -103,7 +103,6 @@ def run():
                 real = torch.ones(batch, 1).to(device)
                 fake = torch.zeros(batch, 1).to(device)
 
-                # Diszkriminátor
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_real = criterion(discriminator(real_imgs), real)
@@ -113,7 +112,6 @@ def run():
                 loss_d.backward()
                 optim_d.step()
 
-                # Generátor
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_g = criterion(discriminator(fake_imgs), real)
@@ -124,7 +122,7 @@ def run():
             g_losses.append(loss_g.item())
             d_losses.append(loss_d.item())
             st.markdown(f"📊 **Epoch {epoch+1}/{epochs}** | Generator: {loss_g.item():.4f} | Diszkriminátor: {loss_d.item():.4f}")
-            progress.progress((epoch + 1) / epochs, text=f"Epoch {epoch+1} befejezve")
+            progress.progress((epoch + 1) / epochs, text=f"Folyamat: {epoch+1} / {epochs}")
 
         st.subheader("📉 Loss alakulása")
         fig, ax = plt.subplots()
@@ -146,13 +144,12 @@ def run():
 
         st.subheader("🧠 Tudományos értékelés")
         st.markdown("""
-        A veszteségértékek alapján a generátor és a diszkriminátor fokozatosan tanulnak.
+        A veszteségértékek változása alapján látható, hogy a generátor és diszkriminátor kiegyensúlyozottan fejlődnek.
 
-        Bár a generált minták még nem élethűek, a hálózat elindult a megfelelő irányba.  
-        Több epoch és finomhangolás segítene a generált minták minőségének javításában.
+        A generált minták még nem tökéletesek, de bizonyos mintázatok kezdődnek kialakulni, ami azt jelenti, hogy a hálózat tanulási folyamata elindult.
 
-        A tanulási görbék vizsgálata segít az optimalizálásban, a torzítások és divergencia jelei gyorsan kiszűrhetők.
+        A további epochok és finomhangolás valószínűleg tovább javítja majd a minőséget.
         """)
 
-# Fontos: ahogy kérted, ez a forma marad
+# NEVÉN NE VÁLTOZTASSUNK – a fájlszerkezethez igazodva:
 app = run
