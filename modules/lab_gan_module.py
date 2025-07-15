@@ -64,17 +64,17 @@ def run():
     - **Diszkriminátor**: eldönti, hogy a bemenő kép valódi vagy hamis
 
     A cél: a generátor megtanuljon olyan jól hamisítani, hogy a diszkriminátor ne tudjon különbséget tenni.
-    
+
     $$ \min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}}[\log D(x)] + \mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))] $$
     """)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     st.sidebar.header("Beállítások")
-    z_dim = 64
-    lr = 2e-4
-    epochs = 5
-    batch_size = 32
+    z_dim = st.sidebar.slider("Z dimenzió", 32, 128, 64, step=16)
+    lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3], value=2e-4)
+    epochs = st.sidebar.slider("Epochok száma", 1, 20, 5)
+    batch_size = st.sidebar.slider("Batch méret", 16, 128, 32, step=16)
     seed = st.sidebar.number_input("Seed", 0, 9999, 42)
 
     if st.button("🚀 Tanítás indítása"):
@@ -146,12 +146,11 @@ def run():
 
         st.subheader("🧠 Tudományos értékelés")
         st.markdown("""
-        A loss alakulása alapján a generátor vesztesége kezdetben magasabb volt, de csökkenő trendet mutatott,
-        ami arra utal, hogy a hálózat tanul. A diszkriminátor vesztesége szintén kontrolláltan alakult,
-        így nem uralta túlzottan a tanítást. Ez egyensúlyban lévő GAN tanulásra utal.
+        A veszteségértékek változása alapján látható, hogy a generátor és diszkriminátor kiegyensúlyozottan fejlődnek.
 
-        A generált képek még zajosak, de néhol felismerhetők a karakterformák, ami 5 epoch után korrekt eredmény.
-        További tanítás és finomhangolás javíthatja az élességet és részletességet.
+        A generált minták még nem tökéletesek, de bizonyos mintázatok kezdődnek kialakulni, ami azt jelenti, hogy a hálózat tanulási folyamata elindult.
+
+        A további epochok és finomhangolás valószínűleg tovább javítja majd a minőséget.
         """)
 
 app = run
