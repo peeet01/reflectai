@@ -1,4 +1,3 @@
-# --- 📦 Könyvtárak importálása ---
 import streamlit as st
 import torch
 import torch.nn as nn
@@ -53,29 +52,22 @@ def show_generated_images(generator, z_dim, device):
         ax.axis("off")
         st.pyplot(fig)
 
-# --- 🚀 GAN App ---
+# 🚀 ReflectAI-kompatibilis GAN modul
 def run():
-    st.title("🧠 GAN Lab – Generative Adversarial Network")
+    st.set_page_config(layout="wide")
+    st.title("🧪 GAN Lab – Generative Adversarial Network")
 
-    st.markdown(r"""
-A **GAN** egy generatív modell, amelyben két neurális hálózat – a **Generátor** és a **Diszkriminátor** – verseng egymással:
+    st.markdown("""
+A **GAN** egy generatív modell, amely két hálót tanít egymás ellen:
+- **Generátor (G)**: új képeket próbál létrehozni.
+- **Diszkriminátor (D)**: eldönti, hogy kép valódi vagy generált.
 
-- A generátor célja, hogy valósághű adatokat generáljon:
-  \[
-  G(z) \rightarrow \hat{x}
-  \]
-
-- A diszkriminátor célja, hogy eldöntse, az adat valós ($x$) vagy hamis ($\hat{x}$):
-  \[
-  D(x) \in [0, 1]
-  \]
-
-A cél: a generátor megtanul olyan adatokat generálni, amit a diszkriminátor nem tud megkülönböztetni a valóditól.
-""")
+Ez a versengés miatt a generátor egyre reálisabb képeket tanul.
+    """)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # --- ⚙️ Paraméterek ---
+    # 🛠️ Paraméterek
     st.sidebar.header("🛠️ Paraméterek")
     z_dim = st.sidebar.slider("Z dimenzió", 64, 256, 100, step=16)
     lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3], value=2e-4)
@@ -83,10 +75,9 @@ A cél: a generátor megtanul olyan adatokat generálni, amit a diszkriminátor 
     batch_size = st.sidebar.slider("Batch méret", 32, 256, 128, step=32)
     seed = st.sidebar.number_input("Seed", 0, 9999, 42)
 
-    if st.button("🧪 Tanítás indítása"):
+    if st.button("▶️ Tanítás indítása"):
         torch.manual_seed(seed)
 
-        # 📥 Adatok
         transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.5,), (0.5,))
@@ -94,17 +85,14 @@ A cél: a generátor megtanul olyan adatokat generálni, amit a diszkriminátor 
         dataset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-        # 🧠 Hálók
         generator = Generator(z_dim).to(device)
         discriminator = Discriminator().to(device)
-
         optim_g = optim.Adam(generator.parameters(), lr=lr)
         optim_d = optim.Adam(discriminator.parameters(), lr=lr)
         criterion = nn.BCELoss()
 
         g_losses, d_losses = [], []
 
-        # 🔁 Tanítás
         for epoch in range(epochs):
             for real_imgs, _ in loader:
                 real_imgs = real_imgs.view(-1, 28*28).to(device)
@@ -112,7 +100,7 @@ A cél: a generátor megtanul olyan adatokat generálni, amit a diszkriminátor 
                 real = torch.ones(batch, 1).to(device)
                 fake = torch.zeros(batch, 1).to(device)
 
-                # Diszkriminátor
+                # D lépés
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_real = criterion(discriminator(real_imgs), real)
@@ -122,7 +110,7 @@ A cél: a generátor megtanul olyan adatokat generálni, amit a diszkriminátor 
                 loss_d.backward()
                 optim_d.step()
 
-                # Generátor
+                # G lépés
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_g = criterion(discriminator(fake_imgs), real)
@@ -134,8 +122,8 @@ A cél: a generátor megtanul olyan adatokat generálni, amit a diszkriminátor 
             d_losses.append(loss_d.item())
             st.text(f"Epoch {epoch+1}/{epochs} | G: {loss_g.item():.4f} | D: {loss_d.item():.4f}")
 
-        # 📈 Loss-görbék
-        st.subheader("📉 Veszteséggörbék")
+        # 📉 Loss görbék
+        st.subheader("📉 Veszteségek")
         fig, ax = plt.subplots()
         ax.plot(g_losses, label="Generátor")
         ax.plot(d_losses, label="Diszkriminátor")
@@ -153,21 +141,21 @@ A cél: a generátor megtanul olyan adatokat generálni, amit a diszkriminátor 
         samples = generator(z).view(-1, 28*28).cpu().detach().numpy()
         df = pd.DataFrame(samples)
         csv = df.to_csv(index=False).encode("utf-8")
-        st.download_button("⬇️ Minták letöltése CSV-ben", data=csv, file_name="gan_samples.csv")
+        st.download_button("⬇️ Minták CSV-ben", data=csv, file_name="gan_samples.csv")
 
-        # 📚 Tudományos háttér
-        st.markdown("### 📚 Tudományos háttér")
+        # 📚 Elmélet
+        st.subheader("📚 GAN elméleti háttér")
         st.latex(r"""
-        \min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}}[\log D(x)] + 
-        \mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))]
-        """)
+\min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}}[\log D(x)] + 
+\mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))]
+""")
         st.markdown("""
-A GAN modell egy min-max játékot játszik:
-- A **generátor** minimalizálja a diszkriminátor sikerességét
-- A **diszkriminátor** maximalizálja a saját osztályozási pontosságát
+A GAN célja:
+- G úgy tanuljon, hogy D ne tudja megkülönböztetni a generált adatokat a valóditól.
+- Ez egy **min-max** játék két hálózat között.
 
-Ez a versengés vezet el a reális, megtanult eloszlású mintákhoz.
+Ezáltal G megtanulja a valódi adateloszlást.
 """)
 
-# 📎 Kötelező export
+# ReflectAI-kompatibilitás
 app = run
