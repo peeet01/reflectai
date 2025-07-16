@@ -414,7 +414,6 @@ def run():
         - 👁️ Számítógépes látás: adatkiegészítés, zajszűrés  
         - 🎮 Játékfejlesztés: térképek, pályák generálása  
         - 🧪 Tudományos modellezés nemlineáris rendszerekre
-
         """)
         
     with st.expander("🧠 Hebbian Learning Viz – Szinaptikus erősödés szemléltetése"):
