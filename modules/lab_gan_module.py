@@ -8,15 +8,16 @@ from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 import pandas as pd
 
+# --- GAN komponensek ---
 class Generator(nn.Module):
-    def __init__(self, z_dim=64, img_dim=28*28):
+    def __init__(self, z_dim=64, img_dim=28 * 28):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(z_dim, 256),
+            nn.Linear(z_dim, 128),
             nn.ReLU(True),
-            nn.Linear(256, 512),
+            nn.Linear(128, 256),
             nn.ReLU(True),
-            nn.Linear(512, img_dim),
+            nn.Linear(256, img_dim),
             nn.Tanh()
         )
 
@@ -24,14 +25,14 @@ class Generator(nn.Module):
         return self.net(x)
 
 class Discriminator(nn.Module):
-    def __init__(self, img_dim=28*28):
+    def __init__(self, img_dim=28 * 28):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(img_dim, 512),
+            nn.Linear(img_dim, 256),
             nn.LeakyReLU(0.2),
-            nn.Linear(512, 256),
+            nn.Linear(256, 128),
             nn.LeakyReLU(0.2),
-            nn.Linear(256, 1),
+            nn.Linear(128, 1),
             nn.Sigmoid()
         )
 
@@ -54,32 +55,23 @@ def run():
     st.title("🧪 GAN – Generative Adversarial Network")
 
     st.markdown("""
-    A Generative Adversarial Network (GAN) két modellből áll:
+A Generative Adversarial Network (GAN) két modellből áll:
 
-    - **Generátor**: új adatminta generálása a zajból
-    - **Diszkriminátor**: eldönti, hogy a bemenő kép valódi vagy hamis
+- **Generátor**: új adatminta generálása a zajból
+- **Diszkriminátor**: eldönti, hogy a bemenő kép valódi vagy hamis
 
-    A cél: a generátor megtanuljon olyan jól hamisítani, hogy a diszkriminátor ne tudjon különbséget tenni.
+A cél: a generátor megtanuljon olyan jól hamisítani, hogy a diszkriminátor ne tudjon különbséget tenni.
 
-    $$ \\min_G \\max_D V(D, G) = \\mathbb{E}_{x \\sim p_{data}}[\\log D(x)] + \\mathbb{E}_{z \\sim p_z}[\\log(1 - D(G(z)))] $$
-
-    ### 🔬 Tudományos háttér
-
-    A GAN-ok játékelméleti keretben működnek, ahol két modell (generátor és diszkriminátor) verseng egymással:
-
-    - A generátor célja, hogy meggyőzze a diszkriminátort, hogy az általa generált adat valódi.
-    - A diszkriminátor célja, hogy helyesen azonosítsa, mely adat valódi és mely hamis.
-
-    Ez a dinamikus tanulási folyamat lehetővé teszi, hogy a generátor egyre valósághűbb mintákat hozzon létre.
-    """)
+$$ \\min_G \\max_D V(D, G) = \\mathbb{E}_{x \\sim p_{data}}[\\log D(x)] + \\mathbb{E}_{z \\sim p_z}[\\log(1 - D(G(z)))] $$
+""")
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     st.sidebar.header("Beállítások")
     z_dim = st.sidebar.slider("Z dimenzió", 32, 128, 64, step=16)
-    lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3], value=2e-4)
-    epochs = st.sidebar.slider("Epochok száma", 1, 20, 5)
-    batch_size = st.sidebar.slider("Batch méret", 16, 128, 32, step=16)
+    lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4, 5e-4], value=2e-4)
+    epochs = st.sidebar.slider("Epochok", 1, 10, 3)
+    batch_size = st.sidebar.slider("Batch méret", 16, 64, 32, step=16)
     seed = st.sidebar.number_input("Seed", 0, 9999, 42)
 
     if st.button("🚀 Tanítás indítása"):
@@ -107,7 +99,7 @@ def run():
                 real = torch.ones(batch, 1).to(device)
                 fake = torch.zeros(batch, 1).to(device)
 
-                # Diszkriminátor tanítása
+                # Diszkriminátor
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_real = criterion(discriminator(real_imgs), real)
@@ -117,7 +109,7 @@ def run():
                 loss_d.backward()
                 optim_d.step()
 
-                # Generátor tanítása
+                # Generátor
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_g = criterion(discriminator(fake_imgs), real)
@@ -127,14 +119,14 @@ def run():
 
             g_losses.append(loss_g.item())
             d_losses.append(loss_d.item())
-            st.markdown(f"📊 **Epoch {epoch+1}/{epochs}** | Generator: {loss_g.item():.4f} | Diszkriminátor: {loss_d.item():.4f}")
+            st.text(f"Epoch {epoch+1}/{epochs} | Generator loss: {loss_g.item():.4f} | Discriminator loss: {loss_d.item():.4f}")
 
-        st.subheader("📉 Loss alakulása")
+        st.subheader("📉 Loss görbe")
         fig, ax = plt.subplots()
         ax.plot(g_losses, label="Generátor")
         ax.plot(d_losses, label="Diszkriminátor")
         ax.set_xlabel("Epoch")
-        ax.set_ylabel("Loss érték")
+        ax.set_ylabel("Loss")
         ax.legend()
         st.pyplot(fig)
 
@@ -149,12 +141,9 @@ def run():
 
         st.subheader("🧠 Tudományos értékelés")
         st.markdown("""
-        Az eredmények alapján látható, hogy a veszteségértékek (loss) csökkenése esetén a generátor és a diszkriminátor fokozatosan fejlődnek.
+A fenti ábrák és veszteségértékek azt mutatják, hogy a hálózat képes elkezdeni megtanulni a valós adatok jellemzőit.
+A generált minták szubjektíven is értékelhetők, és a későbbi fejlesztések során további finomításra van lehetőség pl. mélyebb architektúrával vagy több epochkal.
+""")
 
-        - **Alacsony diszkriminátor loss**: jól felismeri a hamis adatokat.
-        - **Alacsony generátor loss**: sikeresen becsapja a diszkriminátort.
-
-        A generált képek minősége az epochok növelésével általában javul. A legjobb teljesítményt a két hálózat egyensúlyi állapotában várhatjuk.
-        """)
-
+# ReflectAI-kompatibilitás
 app = run
