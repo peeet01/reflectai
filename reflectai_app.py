@@ -80,6 +80,19 @@ if selected_category == main_menu:
         st.markdown("<h3>Neurolab AI – Intelligens szimulációs platform</h3>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
         st.markdown("👉 Válassz modult a bal oldali menüből.")
+    with st.expander("📘 Mi ez a platform?", expanded=True):
+            st.markdown("""
+            **Neurolab AI Sandbox** egy interaktív szimulációs platform, amely az **agyműködés**, **tanulás**, **hálózati dinamika** és **komplex rendszerek** megértését segíti elő.  
+            A cél, hogy **vizuálisan értelmezhető módon** tanulmányozzuk az **idegtudományi és gépi tanulási modelleket**.
+
+            🧪 **Kinek ajánlott?**  
+            - Kutatók  
+            - Oktatók  
+            - Egyetemi hallgatók  
+            - Adattudósok, AI-rajongók
+
+            📊 A modulok különféle területeket fednek le: tanulási algoritmusok, szinkronizációs rendszerek, vizualizációk és adatelemzések.
+            """)
 else:
     modules = module_categories[selected_category]
     selected_title = st.sidebar.radio("Modul:", list(modules.keys()))
