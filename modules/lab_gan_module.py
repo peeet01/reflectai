@@ -8,7 +8,7 @@ from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Generator
+# Generator hálózat
 class Generator(nn.Module):
     def __init__(self, z_dim=100, img_dim=28*28):
         super().__init__()
@@ -18,10 +18,11 @@ class Generator(nn.Module):
             nn.Linear(128, img_dim),
             nn.Tanh()
         )
+
     def forward(self, x):
         return self.model(x)
 
-# Discriminator
+# Discriminator hálózat
 class Discriminator(nn.Module):
     def __init__(self, img_dim=28*28):
         super().__init__()
@@ -31,10 +32,11 @@ class Discriminator(nn.Module):
             nn.Linear(128, 1),
             nn.Sigmoid()
         )
+
     def forward(self, x):
         return self.model(x)
 
-# Generált képek
+# Generált képek megjelenítése
 def show_images(generator, z_dim, device):
     generator.eval()
     with torch.no_grad():
@@ -46,27 +48,32 @@ def show_images(generator, z_dim, device):
         ax.axis("off")
         st.pyplot(fig)
 
-# Fő futás
+# Fő alkalmazás
 def run():
     st.set_page_config(layout="wide")
     st.title("🧪 GAN – Generative Adversarial Network")
 
     st.markdown(r"""
-    A GAN célja, hogy a generátor megtanuljon valósághű képeket generálni.
-    A célfüggvény:
+A Generative Adversarial Network (GAN) két modellből áll:
 
-    $$
-    \min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_\text{data}} [\log D(x)] + \mathbb{E}_{z \sim p_z} [\log(1 - D(G(z)))]
-    $$
-    """)
+- **Generátor**: új adatmintákat generál a bemeneti zajból.
+- **Diszkriminátor**: megpróbálja eldönteni, hogy egy minta valós vagy hamis.
+
+A cél, hogy a generátor olyan jól tanuljon, hogy a diszkriminátor ne tudjon különbséget tenni.
+
+A GAN célfüggvénye:
+
+$$
+\min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_\text{data}} [\log D(x)] + \mathbb{E}_{z \sim p_z} [\log(1 - D(G(z)))]
+$$
+""")
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # Oldalsáv
-    st.sidebar.header("Beállítások")
+    st.sidebar.header("🛠️ Paraméterek")
     z_dim = st.sidebar.slider("Z dimenzió", 32, 256, 64, step=16)
-    lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4], value=2e-4)
-    epochs = st.sidebar.slider("Epochok száma", 1, 10, 3)
+    lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4, 5e-4], value=2e-4)
+    epochs = st.sidebar.slider("Epochok száma", 1, 20, 3)
     batch_size = st.sidebar.slider("Batch méret", 32, 256, 64, step=32)
     seed = st.sidebar.number_input("Seed", 0, 9999, 42)
 
@@ -92,25 +99,25 @@ def run():
             for real_imgs, _ in loader:
                 real_imgs = real_imgs.view(-1, 28*28).to(device)
                 batch = real_imgs.size(0)
-                real = torch.ones(batch, 1).to(device)
-                fake = torch.zeros(batch, 1).to(device)
+                real_labels = torch.ones(batch, 1).to(device)
+                fake_labels = torch.zeros(batch, 1).to(device)
 
-                # Diszkriminátor
+                # Diszkriminátor lépés
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 d_real = discriminator(real_imgs)
                 d_fake = discriminator(fake_imgs.detach())
-                loss_d = (criterion(d_real, real) + criterion(d_fake, fake)) / 2
+                loss_d = (criterion(d_real, real_labels) + criterion(d_fake, fake_labels)) / 2
 
                 optim_d.zero_grad()
                 loss_d.backward()
                 optim_d.step()
 
-                # Generátor
+                # Generátor lépés
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 d_fake = discriminator(fake_imgs)
-                loss_g = criterion(d_fake, real)
+                loss_g = criterion(d_fake, real_labels)
 
                 optim_g.zero_grad()
                 loss_g.backward()
@@ -120,29 +127,44 @@ def run():
             d_losses.append(loss_d.item())
             st.write(f"📊 Epoch {epoch+1}/{epochs} | G: {loss_g.item():.4f} | D: {loss_d.item():.4f}")
 
-        # Loss görbe
+        # Loss görbék
         st.subheader("📉 Loss")
         fig, ax = plt.subplots()
         ax.plot(g_losses, label="Generátor")
         ax.plot(d_losses, label="Diszkriminátor")
+        ax.set_xlabel("Epoch")
+        ax.set_ylabel("Loss érték")
         ax.legend()
         st.pyplot(fig)
 
+        # Minták
         st.subheader("🖼️ Minták")
         show_images(generator, z_dim, device)
 
-        # CSV export
-        z = torch.randn(100, z_dim).to(device)
-        samples = generator(z).view(-1, 28*28).cpu().detach().numpy()
-        df = pd.DataFrame(samples)
-        csv = df.to_csv(index=False).encode("utf-8")
-        st.download_button("⬇️ Minták (CSV)", data=csv, file_name="gan_samples.csv")
+        # 🎲 Új minták külön gombbal
+        st.subheader("🔁 Új minták generálása")
+        if st.button("🎲 Generálj új mintákat"):
+            show_images(generator, z_dim, device)
 
+        # 💾 Loss értékek mentése CSV-be
+        st.subheader("📁 Loss értékek letöltése")
+        df_loss = pd.DataFrame({
+            "Generátor loss": g_losses,
+            "Diszkriminátor loss": d_losses
+        })
+        csv_loss = df_loss.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            "⬇️ Loss letöltése (CSV)",
+            data=csv_loss,
+            file_name="gan_loss.csv"
+        )
+
+        # 🧠 Tudományos megjegyzés
         st.subheader("🧠 Tudományos megjegyzés")
         st.markdown("""
-        A GAN egyensúlyi játéka nehezen tanítható, de már néhány epoch után is megfigyelhetők mintázatok.
-        A diszkriminátor loss értékének stabilizálódása és a generált minták minősége mutatja a tanulás előrehaladását.
+A GAN egyensúlyi játéka nehezen tanítható, de már néhány epoch után is megfigyelhetők mintázatok.  
+A diszkriminátor loss értékének stabilizálódása és a generált minták minősége mutatja a tanulás előrehaladását.
         """)
 
-# ReflectAI-hoz
+# ReflectAI-kompatibilis
 app = run
