@@ -8,9 +8,8 @@ from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# --- GAN komponensek ---
 class Generator(nn.Module):
-    def __init__(self, z_dim=64, img_dim=28 * 28):
+    def __init__(self, z_dim=64, img_dim=28*28):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(z_dim, 256),
@@ -24,9 +23,8 @@ class Generator(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-
 class Discriminator(nn.Module):
-    def __init__(self, img_dim=28 * 28):
+    def __init__(self, img_dim=28*28):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(img_dim, 512),
@@ -40,7 +38,6 @@ class Discriminator(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-
 def show_generated_images(generator, z_dim, device):
     generator.eval()
     with torch.no_grad():
@@ -52,7 +49,6 @@ def show_generated_images(generator, z_dim, device):
         ax.axis("off")
         st.pyplot(fig)
 
-
 def run():
     st.set_page_config(layout="wide")
     st.title("🧪 GAN – Generative Adversarial Network")
@@ -60,10 +56,21 @@ def run():
     st.markdown("""
     A Generative Adversarial Network (GAN) két modellből áll:
 
-    - **Generátor**: új adatminta generálása a zajból  
-    - **Diszkriminátor**: eldönti, hogy a bemenő kép valódi vagy hamis  
+    - **Generátor**: új adatminta generálása a zajból
+    - **Diszkriminátor**: eldönti, hogy a bemenő kép valódi vagy hamis
 
-    $$ \min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}}[\log D(x)] + \mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))] $$
+    A cél: a generátor megtanuljon olyan jól hamisítani, hogy a diszkriminátor ne tudjon különbséget tenni.
+
+    $$ \\min_G \\max_D V(D, G) = \\mathbb{E}_{x \\sim p_{data}}[\\log D(x)] + \\mathbb{E}_{z \\sim p_z}[\\log(1 - D(G(z)))] $$
+
+    ### 🔬 Tudományos háttér
+
+    A GAN-ok játékelméleti keretben működnek, ahol két modell (generátor és diszkriminátor) verseng egymással:
+
+    - A generátor célja, hogy meggyőzze a diszkriminátort, hogy az általa generált adat valódi.
+    - A diszkriminátor célja, hogy helyesen azonosítsa, mely adat valódi és mely hamis.
+
+    Ez a dinamikus tanulási folyamat lehetővé teszi, hogy a generátor egyre valósághűbb mintákat hozzon létre.
     """)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -142,11 +149,12 @@ def run():
 
         st.subheader("🧠 Tudományos értékelés")
         st.markdown("""
-        A veszteségértékek változása alapján látható, hogy a generátor és diszkriminátor kiegyensúlyozottan fejlődnek.
+        Az eredmények alapján látható, hogy a veszteségértékek (loss) csökkenése esetén a generátor és a diszkriminátor fokozatosan fejlődnek.
 
-        A generált minták még nem tökéletesek, de bizonyos mintázatok kezdődnek kialakulni, ami azt jelenti, hogy a hálózat tanulási folyamata elindult.
+        - **Alacsony diszkriminátor loss**: jól felismeri a hamis adatokat.
+        - **Alacsony generátor loss**: sikeresen becsapja a diszkriminátort.
 
-        A további epochok és finomhangolás valószínűleg tovább javítja majd a minőséget.
+        A generált képek minősége az epochok növelésével általában javul. A legjobb teljesítményt a két hálózat egyensúlyi állapotában várhatjuk.
         """)
 
 app = run
