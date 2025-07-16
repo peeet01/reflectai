@@ -8,6 +8,7 @@ from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 import pandas as pd
 
+# --- GAN komponensek ---
 class Generator(nn.Module):
     def __init__(self, z_dim=64, img_dim=28 * 28):
         super().__init__()
@@ -19,8 +20,10 @@ class Generator(nn.Module):
             nn.Linear(512, img_dim),
             nn.Tanh()
         )
+
     def forward(self, x):
         return self.net(x)
+
 
 class Discriminator(nn.Module):
     def __init__(self, img_dim=28 * 28):
@@ -33,8 +36,10 @@ class Discriminator(nn.Module):
             nn.Linear(256, 1),
             nn.Sigmoid()
         )
+
     def forward(self, x):
         return self.net(x)
+
 
 def show_generated_images(generator, z_dim, device):
     generator.eval()
@@ -47,6 +52,7 @@ def show_generated_images(generator, z_dim, device):
         ax.axis("off")
         st.pyplot(fig)
 
+
 def run():
     st.set_page_config(layout="wide")
     st.title("🧪 GAN – Generative Adversarial Network")
@@ -55,9 +61,7 @@ def run():
     A Generative Adversarial Network (GAN) két modellből áll:
 
     - **Generátor**: új adatminta generálása a zajból  
-    - **Diszkriminátor**: eldönti, hogy a bemenő kép valódi vagy hamis
-
-    A cél: a generátor megtanuljon olyan jól hamisítani, hogy a diszkriminátor ne tudjon különbséget tenni.
+    - **Diszkriminátor**: eldönti, hogy a bemenő kép valódi vagy hamis  
 
     $$ \min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}}[\log D(x)] + \mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))] $$
     """)
@@ -72,7 +76,6 @@ def run():
     seed = st.sidebar.number_input("Seed", 0, 9999, 42)
 
     if st.button("🚀 Tanítás indítása"):
-        st.info("Tanítás indult...")
         torch.manual_seed(seed)
 
         transform = transforms.Compose([
@@ -89,8 +92,6 @@ def run():
         criterion = nn.BCELoss()
 
         g_losses, d_losses = [], []
-        progress = st.progress(0.0)
-        status_text = st.empty()
 
         for epoch in range(epochs):
             for real_imgs, _ in loader:
@@ -99,6 +100,7 @@ def run():
                 real = torch.ones(batch, 1).to(device)
                 fake = torch.zeros(batch, 1).to(device)
 
+                # Diszkriminátor tanítása
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_real = criterion(discriminator(real_imgs), real)
@@ -108,6 +110,7 @@ def run():
                 loss_d.backward()
                 optim_d.step()
 
+                # Generátor tanítása
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 loss_g = criterion(discriminator(fake_imgs), real)
@@ -118,8 +121,6 @@ def run():
             g_losses.append(loss_g.item())
             d_losses.append(loss_d.item())
             st.markdown(f"📊 **Epoch {epoch+1}/{epochs}** | Generator: {loss_g.item():.4f} | Diszkriminátor: {loss_d.item():.4f}")
-            progress.progress((epoch + 1) / epochs)
-            status_text.text(f"{epoch + 1} / {epochs} epoch")
 
         st.subheader("📉 Loss alakulása")
         fig, ax = plt.subplots()
