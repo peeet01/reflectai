@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 import pandas as pd
+import os
 
 # Generator hálózat
 class Generator(nn.Module):
@@ -36,7 +37,7 @@ class Discriminator(nn.Module):
     def forward(self, x):
         return self.model(x)
 
-# Generált képek megjelenítése
+# Képek megjelenítése
 def show_images(generator, z_dim, device):
     generator.eval()
     with torch.no_grad():
@@ -48,7 +49,7 @@ def show_images(generator, z_dim, device):
         ax.axis("off")
         st.pyplot(fig)
 
-# Fő alkalmazás
+# Fő futtatás
 def run():
     st.set_page_config(layout="wide")
     st.title("🧪 GAN – Generative Adversarial Network")
@@ -72,14 +73,14 @@ $$
 
     st.sidebar.header("🛠️ Paraméterek")
     z_dim = st.sidebar.slider("Z dimenzió", 32, 256, 64, step=16)
-    lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4, 5e-4], value=2e-4)
+    lr = st.sidebar.select_slider("Tanulási ráta", options=[1e-5, 5e-5, 1e-4, 2e-4], value=2e-4)
     epochs = st.sidebar.slider("Epochok száma", 1, 20, 3)
     batch_size = st.sidebar.slider("Batch méret", 32, 256, 64, step=32)
     seed = st.sidebar.number_input("Seed", 0, 9999, 42)
+    show_outputs = st.sidebar.checkbox("📊 Ábrák és minták megjelenítése", value=True)
 
     if st.button("🚀 Tanítás indítása"):
         torch.manual_seed(seed)
-
         transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.5,), (0.5,))
@@ -102,7 +103,7 @@ $$
                 real_labels = torch.ones(batch, 1).to(device)
                 fake_labels = torch.zeros(batch, 1).to(device)
 
-                # Diszkriminátor lépés
+                # --- Diszkriminátor ---
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 d_real = discriminator(real_imgs)
@@ -113,7 +114,7 @@ $$
                 loss_d.backward()
                 optim_d.step()
 
-                # Generátor lépés
+                # --- Generátor ---
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 d_fake = discriminator(fake_imgs)
@@ -125,46 +126,43 @@ $$
 
             g_losses.append(loss_g.item())
             d_losses.append(loss_d.item())
-            st.write(f"📊 Epoch {epoch+1}/{epochs} | G: {loss_g.item():.4f} | D: {loss_d.item():.4f}")
+            st.write(f"📊 Epoch {epoch+1}/{epochs} | Generator: {loss_g.item():.4f} | Discriminator: {loss_d.item():.4f}")
+            torch.cuda.empty_cache()
 
-        # Loss görbék
-        st.subheader("📉 Loss")
-        fig, ax = plt.subplots()
-        ax.plot(g_losses, label="Generátor")
-        ax.plot(d_losses, label="Diszkriminátor")
-        ax.set_xlabel("Epoch")
-        ax.set_ylabel("Loss érték")
-        ax.legend()
-        st.pyplot(fig)
+        if show_outputs:
+            # Loss görbe
+            st.subheader("📉 Loss görbe")
+            fig, ax = plt.subplots()
+            ax.plot(g_losses, label="Generátor")
+            ax.plot(d_losses, label="Diszkriminátor")
+            ax.set_xlabel("Epoch")
+            ax.set_ylabel("Loss")
+            ax.legend()
+            st.pyplot(fig)
 
-        # Minták
-        st.subheader("🖼️ Minták")
-        show_images(generator, z_dim, device)
-
-        # 🎲 Új minták külön gombbal
-        st.subheader("🔁 Új minták generálása")
-        if st.button("🎲 Generálj új mintákat"):
+            # Generált képek
+            st.subheader("🖼️ Generált minták")
             show_images(generator, z_dim, device)
 
-        # 💾 Loss értékek mentése CSV-be
-        st.subheader("📁 Loss értékek letöltése")
-        df_loss = pd.DataFrame({
-            "Generátor loss": g_losses,
-            "Diszkriminátor loss": d_losses
-        })
-        csv_loss = df_loss.to_csv(index=False).encode("utf-8")
-        st.download_button(
-            "⬇️ Loss letöltése (CSV)",
-            data=csv_loss,
-            file_name="gan_loss.csv"
-        )
+        # CSV mentés
+        z = torch.randn(100, z_dim).to(device)
+        samples = generator(z).view(-1, 28*28).cpu().detach().numpy()
+        df = pd.DataFrame(samples)
+        filename = f"gan_samples_z{z_dim}_e{epochs}_b{batch_size}.csv"
+        csv = df.to_csv(index=False).encode("utf-8")
+        st.download_button("⬇️ Minták mentése (CSV)", data=csv, file_name=filename)
 
-        # 🧠 Tudományos megjegyzés
-        st.subheader("🧠 Tudományos megjegyzés")
+        # Tudományos értékelés
+        st.subheader("🧠 Tudományos értékelés")
         st.markdown("""
-A GAN egyensúlyi játéka nehezen tanítható, de már néhány epoch után is megfigyelhetők mintázatok.  
-A diszkriminátor loss értékének stabilizálódása és a generált minták minősége mutatja a tanulás előrehaladását.
+A veszteségértékek változása alapján megfigyelhető, hogy a generátor és diszkriminátor versengő tanulása során egyensúly alakul ki.
+
+- Ha a generátor loss csökken, az azt jelenti, hogy egyre jobban képes megtéveszteni a diszkriminátort.
+- A diszkriminátor loss növekedése azt mutatja, hogy nehezebb megkülönböztetni a valódi és hamis mintákat.
+- A loss értékek kiegyenlítődése utal a GAN konvergenciájára.
+
+További finomhangolással és hosszabb tanítással javítható a minták minősége.
         """)
 
-# ReflectAI-kompatibilis
+# ReflectAI-kompatibilitás
 app = run
