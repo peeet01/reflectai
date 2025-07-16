@@ -1,4 +1,5 @@
-© 2025 Kovacs Peter. All rights reserved. See `COPYRIGHT.md` for terms.
+© 2025 Kovacs Peter. All rights reserved.  
+See [COPYRIGHT.md](./COPYRIGHT.md) for terms.
 
 # 🧠 Neurolab AI Sandbox
 
@@ -16,55 +17,53 @@ A Neurolab célja az agyi működés, tanulás, hálózati dinamika és topológ
 ## 🧩 Modulok kategóriák szerint
 
 ### 🧠 Tanulási algoritmusok
+- Hebbian Learning
+- Oja Learning
+- BCM tanulás
+- STDP Learning
+- Critical Hebbian
+- Insight Learning
+- XOR Prediction
+- MLP Predict Lorenz
+- ESN Prediction
+- Spiking Neural Network
+- Information Bottleneck
 
-- `Hebbian Learning`  
-- `Oja Learning`  
-- `BCM tanulás`  
-- `STDP Learning`  
-- `Critical Hebbian`  
-- `Insight Learning`  
-- `XOR Prediction`  
-- `MLP Predict Lorenz`  
-- `ESN Prediction`  
-- `Spiking Neural Network`  
-- `Information Bottleneck`
+### 📉 Vizualizációk és analízis
+- Fractal Dimension
+- Fractal Explorer
+- Hebbian Learning Viz
+- Lyapunov Spectrum
+- Persistent Homology
+- Memory Landscape
+- Neural Entropy
+- Berry Curvature
+- Graph Sync Analysis
+- Criticality Explorer
 
-### 📈 Vizualizációk és analízis
-
-- `Fractal Dimension`  
-- `Fractal Explorer`  
-- `Hebbian Learning Viz`  
-- `Lyapunov Spectrum`  
-- `Persistent Homology`  
-- `Memory Landscape`  
-- `Neural Entropy`  
-- `Berry Curvature`  
-- `Graph Sync Analysis`  
-- `Criticality Explorer`
-
-### ⚗️ Szimulációk és dinamikák
-
-- `Kuramoto Sim`  
-- `Kuramoto Hebbian Sim`  
-- `Generative Kuramoto`  
-- `Lorenz Sim`  
-- `Plasticity Dynamics`  
-- `Noise Robustness`  
-- `Ising Sim`
+### 🧬 Szimulációk és dinamikák
+- Kuramoto Sim
+- Kuramoto Hebbian Sim
+- Generative Kuramoto
+- Lorenz Sim
+- Plasticity Dynamics
+- Noise Robustness
+- Ising Sim
+- Boltzmann Machine
+- Laboratory GAN
 
 ### 🧪 Adatfeltöltés és meta
-
-- `Data Upload`  
-- `Help`  
-- `Questions`  
-- `Reflection Modul`
+- Data Upload
+- Help
+- Questions
+- Reflection Modul
 
 ---
 
 ## 🚀 Telepítés
 
 ```bash
-git clone https://github.com/peeeet01/neurolab-ai.git
+git clone https://github.com/peeet01/neurolab-ai
 cd neurolab-ai
 pip install -r requirements.txt
 streamlit run app.py
