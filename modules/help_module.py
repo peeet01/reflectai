@@ -371,6 +371,51 @@ def run():
         - Adattömörítés, rejtett klaszterstruktúrák feltárása  
         - Információelméleti regularizálás neurális hálókban  
         """)
+
+    with st.expander("🧪 GAN – Generative Adversarial Network"):
+        st.markdown("""
+        **Cél:**  
+        A GAN (Generative Adversarial Network) célja, hogy egy **generátor hálózat** képes legyen új adatokat (pl. képeket) előállítani, amelyek **megtévesztően hasonlítanak** a valós adatokra, miközben egy **diszkriminátor hálózat** megpróbálja megkülönböztetni a valódi és a generált adatokat.
+
+        A két hálózat **ellenfelekként tanul**, és egy **minimax játékot** játszanak egymással.
+
+        #### 🎯 Alapelv – Célfüggvény:
+        A GAN-ek tanítása a következő játékelméleti formulára épül:
+        """)
+        st.latex(r"\min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_\text{data}} [\log D(x)] + \mathbb{E}_{z \sim p_z} [\log(1 - D(G(z)))]")
+        st.markdown("""
+        Ahol:  
+        - $G$: generátor hálózat  
+        - $D$: diszkriminátor hálózat  
+        - $x$: valódi adat  
+        - $z$: véletlen zajvektor (pl. normális eloszlásból)  
+        - $G(z)$: generált adat
+
+        #### 🔍 Működés:
+        - A generátor zajból képeket próbál generálni  
+        - A diszkriminátor megkülönbözteti a valódi és a hamis képeket  
+        - A generátor célja megtéveszteni a diszkriminátort  
+        - A diszkriminátor célja jól felismerni a generált mintákat  
+        - Ez iteratívan egyre jobb generált mintákhoz vezet
+
+        #### 📊 Kimenetek:
+        - **Loss görbék**: nyomon követhető, hogyan tanul a két hálózat  
+        - **Mintaképek**: a generátor aktuális teljesítménye vizuálisan ellenőrizhető  
+        - **CSV export**: a generált minták letölthetők további elemzéshez
+
+        #### 🧠 Tudományos jelentőség:
+        - A GAN az egyik legjelentősebb generatív modell a gépi tanulásban  
+        - Képes teljesen új, mégis valószerű adatokat létrehozni  
+        - Alkalmazható képgenerálásban, adatbővítésben, szuper-rezolúcióban, stílustranszferben és még sok más területen
+
+        #### 📚 Alkalmazások:
+        - 🖼️ Művészi stílusú képgenerálás (pl. DALL·E, StyleGAN)  
+        - 🧬 Molekuláris szerkezetek modellezése  
+        - 👁️ Számítógépes látás: adatkiegészítés, zajszűrés  
+        - 🎮 Játékfejlesztés: térképek, pályák generálása  
+        - 🧪 Tudományos modellezés nemlineáris rendszerekre
+
+        """)
         
     with st.expander("🧠 Hebbian Learning Viz – Szinaptikus erősödés szemléltetése"):
         st.latex(r"\Delta w = \eta \cdot x \cdot y")
