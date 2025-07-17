@@ -362,9 +362,8 @@ def run():
         1. Nyomd meg a *Tanítás indítása* gombot  
         2. Várj, amíg a tanulás lefut (~12 epoch)  
         3. Nézd meg:
-        - 📊 a latens tér eloszlását  
-        - 🔁 a képek rekonstruált változatát  
-
+            - 📊 a latens tér eloszlását  
+            - 🔁 a képek rekonstruált változatát  
         """)
 
     with st.expander("🔐 Information Bottleneck – Releváns reprezentációk kivonása"):
