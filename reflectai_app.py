@@ -26,6 +26,7 @@ module_categories = {
         "Neural Entropy": "neural_entropy",
         "Graph Sync Analysis": "graph_sync_analysis",
         "Criticality Explorer": "criticality_explorer",
+        "Autoencoder Visualization": "autoencoder_vis",
     },
     "🧠 Tanulási algoritmusok": {
         "Hebbian Learning": "hebbian_learning",
