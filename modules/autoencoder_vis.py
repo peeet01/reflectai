@@ -5,12 +5,8 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import numpy as np
-
-# ----- Inicializálás -----
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-torch.manual_seed(42)
+import pandas as pd
+import plotly.express as px
 
 # ----- Adatok betöltése -----
 transform = transforms.ToTensor()
@@ -26,12 +22,12 @@ test_loader = torch.utils.data.DataLoader(
 # ----- Autoencoder modell -----
 class Autoencoder(nn.Module):
     def __init__(self):
-        super(Autoencoder, self).__init__()
+        super().__init__()
         self.encoder = nn.Sequential(
             nn.Flatten(),
             nn.Linear(28 * 28, 128),
             nn.ReLU(),
-            nn.Linear(128, 3)  # 3D latent space
+            nn.Linear(128, 3)
         )
         self.decoder = nn.Sequential(
             nn.Linear(3, 128),
@@ -45,43 +41,70 @@ class Autoencoder(nn.Module):
         x_recon = self.decoder(z)
         return x_recon
 
-# Streamlit UI
+# ----- App -----
 def app():
-    st.title("🧠 Autoencoder Vizualizáció – 3D Latens Tér")
+    st.set_page_config(layout="wide")
+    st.title("🧠 Autoencoder Vizualizáció – 3D Latens tér")
 
-    epochs = st.sidebar.slider("Epochok száma", 1, 30, 10)
-    learning_rate = st.sidebar.select_slider("Tanulási ráta", options=[1e-4, 5e-4, 1e-3, 2e-3], value=1e-3)
+    with st.expander("📘 Mi történik ebben a modulban?", expanded=True):
+        st.markdown("""
+        Egy **autoencoder** célja, hogy a bemeneti adatot **egy alacsony dimenziós térbe leképezze**, majd onnan visszaállítsa azt.  
+        A középső 3-dimenziós kódolt reprezentáció segítségével **vizualizálni tudjuk az adatokat**.
 
-    if st.button("🚀 Tanítás indítása"):
-        model = Autoencoder().to(device)
-        criterion = nn.MSELoss()
-        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        #### 🧠 Alapstruktúra:
+        - **Encoder**: $x \\rightarrow z$
+        - **Decoder**: $z \\rightarrow \\hat{x}$
 
+        #### 💡 Célfüggvény:
+        A modell célja, hogy minimalizálja a rekonstrukciós hibát:
+
+        $$
+        \\mathcal{L} = \\frac{1}{N} \\sum_i \\| x_i - \\hat{x}_i \\|^2
+        $$
+
+        Ahol:
+        - $x_i$: eredeti kép
+        - $\\hat{x}_i$: rekonstruált kép
+        - $z$: latens reprezentáció
+
+        A 3D latens tér lehetővé teszi, hogy a **képek kategóriái külön klaszterekként** jelenjenek meg.
+
+        """)
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = Autoencoder().to(device)
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+
+    if st.button("🚀 Tanítás indítása (12 epoch)"):
         loss_history = []
-        for epoch in range(epochs):
+
+        for epoch in range(12):
             model.train()
-            running_loss = 0.0
+            total_loss = 0
             for data, _ in train_loader:
                 data = data.to(device)
                 optimizer.zero_grad()
-                outputs = model(data)
-                loss = criterion(outputs, data.view(-1, 28 * 28).to(device))
+                output = model(data)
+                loss = criterion(output, data.view(-1, 28*28))
                 loss.backward()
                 optimizer.step()
-                running_loss += loss.item()
-            avg_loss = running_loss / len(train_loader)
+                total_loss += loss.item()
+
+            avg_loss = total_loss / len(train_loader)
             loss_history.append(avg_loss)
-            st.write(f"📊 Epoch {epoch+1}/{epochs} | Loss: {avg_loss:.4f}")
+            st.write(f"📊 Epoch {epoch+1}/12 | Loss: {avg_loss:.4f}")
 
-        # Loss ábra
-        st.subheader("📉 Veszteség alakulása")
-        fig1, ax1 = plt.subplots()
-        ax1.plot(loss_history)
-        ax1.set_xlabel("Epoch")
-        ax1.set_ylabel("MSE Loss")
-        st.pyplot(fig1)
+        # Loss görbe
+        st.subheader("📉 Rekonstrukciós hiba alakulása")
+        fig, ax = plt.subplots()
+        ax.plot(loss_history)
+        ax.set_xlabel("Epoch")
+        ax.set_ylabel("Loss")
+        ax.set_title("Rekonstrukciós hiba")
+        st.pyplot(fig)
 
-        # Rekonstrukciók
+        # Képek rekonstruálása
         st.subheader("🖼️ Rekonstruált képek")
         model.eval()
         with torch.no_grad():
@@ -93,16 +116,27 @@ def app():
         grid = make_grid(decoded[:10], nrow=5, normalize=True)
         st.image(grid.permute(1, 2, 0).numpy(), clamp=True)
 
-        # Latens tér
-        st.subheader("🌌 3D Latens tér")
-        encoded_np = encoded.cpu().numpy()
-        labels_np = test_labels.numpy()
+        # 3D Plotly scatter
+        st.subheader("🌌 3D Latens tér (Plotly)")
+        z = encoded.cpu().numpy()
+        labels = test_labels.numpy()
+        df = pd.DataFrame(z, columns=["x", "y", "z"])
+        df["label"] = labels
+        fig = px.scatter_3d(df, x="x", y="y", z="z", color=df["label"].astype(str),
+                            title="MNIST latens reprezentáció", width=800, height=600)
+        st.plotly_chart(fig)
 
-        fig2 = plt.figure()
-        ax = fig2.add_subplot(111, projection='3d')
-        ax.scatter(encoded_np[:, 0], encoded_np[:, 1], encoded_np[:, 2], c=labels_np, cmap='tab10', s=10)
-        ax.set_title("MNIST rejtett reprezentáció (3D)")
-        st.pyplot(fig2)
+        # Tudományos értékelés
+        st.subheader("🧪 Tudományos értékelés")
+        st.markdown("""
+        Az autoencoder sikeresen leképezte az MNIST számjegyeket egy **3D latens térbe**, ahol az egyes osztályok láthatóan klasztereződnek.
 
-# ReflectAI kompatibilitás
+        Ez azt mutatja, hogy a modell képes **kompakt reprezentációkat** kialakítani, amelyek **megőrzik a kategória-információt**.
+
+        #### 🔬 Következtetés:
+        - A kódolt tér **szerkezetet tükröz**, nem véletlenszerű
+        - Alkalmazható **dimenziócsökkentésre**, **adatvizualizációra** és **előfeldolgozásra**
+        """)
+
+# ReflectAI-kompatibilis
 app = app
