@@ -325,6 +325,47 @@ def run():
         **Tudományos jelentőség:**  
         Az entrópia alkalmazása lehetővé teszi az agyi rendszerek **adaptív dinamikájának** és **információfeldolgozó kapacitásának** objektív értékelését.
         """)
+        
+    with st.expander("🧠 Autoencoder 3D – Latens tér és rekonstrukció"):
+        st.markdown(r"""
+        Az **Autoencoder** egy olyan neurális hálózat, amely megtanulja a bemeneti adat **tömörített reprezentációját** (ún. *latens térbeli kód*), majd újra létrehozza az eredeti adatot ebből a kódból.
+
+        Célja, hogy a leképezés során a lehető legtöbb információ **megmaradjon**:
+
+        $$
+        x \rightarrow h = f(x) \rightarrow \hat{x} = g(h)
+        $$
+
+        ahol:
+        - \( x \): bemeneti adat  
+        - \( h \): rejtett (latens) reprezentáció  
+        - \( \hat{x} \): rekonstruált adat  
+        - \( f \): encoder háló  
+        - \( g \): decoder háló
+
+        ### 🔍 Funkciók ebben a modulban:
+        - 🌀 A **3D latens tér** megjelenítése (pontszínezéssel osztálycímkék szerint)
+        - 🖼️ A **rekonstruált képek** vizualizálása
+        - 📉 A tanulási folyamat **loss görbéje** (MSE):
+
+        $$
+        \mathcal{L}(x, \hat{x}) = \frac{1}{n} \sum_{i=1}^{n} (x_i - \hat{x}_i)^2
+        $$
+
+        ### 🧪 Mire jó az Autoencoder?
+        - Dimenziócsökkentés (\( \mathbb{R}^d \rightarrow \mathbb{R}^3 \))
+        - Rejtett struktúrák feltárása
+        - Zajszűrés (denoising autoencoder)
+        - Adattömörítés és mintázat-keresés
+
+        ### 📌 Használati útmutató:
+        1. Nyomd meg a *Tanítás indítása* gombot  
+        2. Várj, amíg a tanulás lefut (~12 epoch)  
+        3. Nézd meg:
+        - 📊 a latens tér eloszlását  
+        - 🔁 a képek rekonstruált változatát  
+
+        """)
 
     with st.expander("🔐 Information Bottleneck – Releváns reprezentációk kivonása"):
         st.markdown("""
