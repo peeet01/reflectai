@@ -9,12 +9,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import io
 
-# ----------------------
-# Neurális hálók
-# ----------------------
-
+# Generator hálózat
 class Generator(nn.Module):
-    def __init__(self, z_dim=100, img_dim=28 * 28):
+    def __init__(self, z_dim=100, img_dim=28*28):
         super().__init__()
         self.model = nn.Sequential(
             nn.Linear(z_dim, 128),
@@ -26,8 +23,9 @@ class Generator(nn.Module):
     def forward(self, x):
         return self.model(x)
 
+# Discriminator hálózat
 class Discriminator(nn.Module):
-    def __init__(self, img_dim=28 * 28):
+    def __init__(self, img_dim=28*28):
         super().__init__()
         self.model = nn.Sequential(
             nn.Linear(img_dim, 128),
@@ -39,16 +37,13 @@ class Discriminator(nn.Module):
     def forward(self, x):
         return self.model(x)
 
-# ----------------------
-# Képmegjelenítés
-# ----------------------
-
+# Képek megjelenítése – cache: generator → _generator
 @st.cache_resource
-def show_images(generator, z_dim, device):
-    generator.eval()
+def show_images(_generator, z_dim, device):
+    _generator.eval()
     with torch.no_grad():
         z = torch.randn(16, z_dim).to(device)
-        fake_imgs = generator(z).view(-1, 1, 28, 28).cpu()
+        fake_imgs = _generator(z).view(-1, 1, 28, 28).cpu()
         grid = make_grid(fake_imgs, nrow=4, normalize=True)
         fig, ax = plt.subplots()
         ax.imshow(grid.permute(1, 2, 0))
@@ -59,6 +54,7 @@ def show_images(generator, z_dim, device):
         save_image(fake_imgs, buffer, format='png')
         st.download_button("⬇️ Minták letöltése (PNG)", data=buffer.getvalue(), file_name="samples.png", mime="image/png")
 
+# Adatok betöltése cache-selve
 @st.cache_data
 def load_data(batch_size):
     transform = transforms.Compose([
@@ -68,27 +64,24 @@ def load_data(batch_size):
     dataset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
     return DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-# ----------------------
-# ReflectAI futtatás
-# ----------------------
-
+# Fő alkalmazás
 def run():
     st.set_page_config(layout="wide")
     st.title("🧪 GAN – Generative Adversarial Network")
 
     st.markdown(r"""
-A **Generative Adversarial Network (GAN)** két hálózat versengésére épül:
+A **Generative Adversarial Network (GAN)** egy neurális hálózati architektúra, amely két egymással versengő hálózatot – egy *generátort* és egy *diszkriminátort* – használ az adatok modellezésére. 
 
-- **Generátor**: új adatokat próbál létrehozni, amik megtévesztően valódinak tűnnek.
-- **Diszkriminátor**: megpróbálja megkülönböztetni a valódi és hamis adatokat.
+**Elméleti háttér:**
+- A generátor célja, hogy meggyőző hamis adatokat hozzon létre.
+- A diszkriminátor célja, hogy megkülönböztesse a valódi adatokat a generált mintáktól.
 
-A GAN minimax célfüggvénye:
-
+Matematikailag egy minimax játékként fogható fel:
 $$
 \min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}}[\log D(x)] + \mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))]
 $$
 
-A GAN-ok használata forradalmasította a képgenerálást, stílusátvitelt, képjavítást, deepfake technikákat, stb.
+A GAN-ok használata forradalmasította a képgenerálást, szuperfelbontást, stílustranszfert és még sok más területet a gépi látásban.
 """)
 
     # Paraméterek
@@ -117,12 +110,12 @@ A GAN-ok használata forradalmasította a képgenerálást, stílusátvitelt, k�
 
         for epoch in range(epochs):
             for real_imgs, _ in loader:
-                real_imgs = real_imgs.view(-1, 28 * 28).to(device)
+                real_imgs = real_imgs.view(-1, 28*28).to(device)
                 batch = real_imgs.size(0)
                 real_labels = torch.ones(batch, 1).to(device)
                 fake_labels = torch.zeros(batch, 1).to(device)
 
-                # Diszkriminátor
+                # Diszkriminátor tanítása
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 d_real = discriminator(real_imgs)
@@ -133,7 +126,7 @@ A GAN-ok használata forradalmasította a képgenerálást, stílusátvitelt, k�
                 loss_d.backward()
                 optim_d.step()
 
-                # Generátor
+                # Generátor tanítása
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 d_fake = discriminator(fake_imgs)
@@ -159,10 +152,10 @@ A GAN-ok használata forradalmasította a képgenerálást, stílusátvitelt, k�
             st.pyplot(fig)
 
             st.subheader("🖼️ Generált minták")
-            show_images(generator, z_dim, device)
+            show_images(_generator=generator, z_dim=z_dim, device=device)
 
         z = torch.randn(100, z_dim).to(device)
-        samples = generator(z).view(-1, 28 * 28).cpu().detach().numpy()
+        samples = generator(z).view(-1, 28*28).cpu().detach().numpy()
         df = pd.DataFrame(samples)
         filename = f"gan_samples_z{z_dim}_e{epochs}_b{batch_size}.csv"
         csv = df.to_csv(index=False).encode("utf-8")
@@ -172,13 +165,13 @@ A GAN-ok használata forradalmasította a képgenerálást, stílusátvitelt, k�
         st.markdown("""
 A tanulás során megfigyelhető veszteséggörbék alapján következtethetünk a GAN stabilitására:
 
-- Ha a generátor vesztesége csökken: egyre jobb mintákat generál.
-- Ha a diszkriminátor vesztesége nő: nehezebb eldöntenie, melyik minta valós.
-- Ha a két háló vesztesége közel egyensúlyba kerül: valószínűleg jól konvergált a rendszer.
+- Ha a generátor loss csökken, javul a hamis minták minősége.
+- Ha a diszkriminátor loss nő, a diszkriminátor nehezebben különbözteti meg a valódi és hamis adatokat.
+- A két hálózat közötti egyensúly kulcsfontosságú – ha az egyik túl gyorsan tanul, a másik nem tud alkalmazkodni.
+- A GAN konvergenciája nem garantált, de a loss értékek stabilizálódása és a generált képek vizuális minősége alapján jól értékelhető a rendszer fejlődése.
 
-A GAN-ok instabilitásra hajlamosak, de a veszteségek elemzésével és a vizuális minták alapján következtetni tudunk a tanulás minőségére.
+A további iterációk során a képminőség, a stabilitás és a generalizálhatóság javítható fejlettebb architektúrákkal (pl. DCGAN, WGAN, StyleGAN).
         """)
 
-# ReflectAI belépési pont
-def app():
-    run()
+# ReflectAI-kompatibilitás
+app = run
