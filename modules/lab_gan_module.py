@@ -8,6 +8,8 @@ from torchvision.utils import make_grid, save_image
 import matplotlib.pyplot as plt
 import pandas as pd
 import io
+import plotly.express as px
+import numpy as np
 
 # Generator hálózat
 class Generator(nn.Module):
@@ -19,7 +21,6 @@ class Generator(nn.Module):
             nn.Linear(128, img_dim),
             nn.Tanh()
         )
-
     def forward(self, x):
         return self.model(x)
 
@@ -33,11 +34,10 @@ class Discriminator(nn.Module):
             nn.Linear(128, 1),
             nn.Sigmoid()
         )
-
     def forward(self, x):
         return self.model(x)
 
-# Képek megjelenítése (nem cache-elve a warning miatt!)
+# Képek megjelenítése
 def show_images(_generator, z_dim, device):
     _generator.eval()
     with torch.no_grad():
@@ -53,7 +53,7 @@ def show_images(_generator, z_dim, device):
         save_image(fake_imgs, buffer, format='png')
         st.download_button("⬇️ Minták letöltése (PNG)", data=buffer.getvalue(), file_name="samples.png", mime="image/png")
 
-# Adatok betöltése cache-selve
+# Adatok betöltése
 @st.cache_data
 def load_data(batch_size):
     transform = transforms.Compose([
@@ -71,16 +71,10 @@ def run():
     st.markdown(r"""
 A **Generative Adversarial Network (GAN)** egy neurális hálózati architektúra, amely két egymással versengő hálózatot – egy *generátort* és egy *diszkriminátort* – használ az adatok modellezésére. 
 
-**Elméleti háttér:**
-- A generátor célja, hogy meggyőző hamis adatokat hozzon létre.
-- A diszkriminátor célja, hogy megkülönböztesse a valódi adatokat a generált mintáktól.
-
 Matematikailag egy minimax játékként fogható fel:
 $$
 \min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}}[\log D(x)] + \mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))]
 $$
-
-A GAN-ok használata forradalmasította a képgenerálást, szuperfelbontást, stílustranszfert és még sok más területet a gépi látásban.
 """)
 
     # Paraméterek
@@ -114,7 +108,6 @@ A GAN-ok használata forradalmasította a képgenerálást, szuperfelbontást, s
                 real_labels = torch.ones(batch, 1).to(device)
                 fake_labels = torch.zeros(batch, 1).to(device)
 
-                # Diszkriminátor tanítása
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 d_real = discriminator(real_imgs)
@@ -125,7 +118,6 @@ A GAN-ok használata forradalmasította a képgenerálást, szuperfelbontást, s
                 loss_d.backward()
                 optim_d.step()
 
-                # Generátor tanítása
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
                 d_fake = discriminator(fake_imgs)
@@ -153,7 +145,7 @@ A GAN-ok használata forradalmasította a képgenerálást, szuperfelbontást, s
             st.subheader("🖼️ Generált minták")
             show_images(_generator=generator, z_dim=z_dim, device=device)
 
-        # 1000 mintára limitálás
+        # Mentés CSV-be (1000 minta)
         z = torch.randn(1000, z_dim).to(device)
         samples = generator(z).view(-1, 28*28).cpu().detach().numpy()
         df = pd.DataFrame(samples)
@@ -161,16 +153,28 @@ A GAN-ok használata forradalmasította a képgenerálást, szuperfelbontást, s
         csv = df.to_csv(index=False).encode("utf-8")
         st.download_button("⬇️ Minták mentése (CSV)", data=csv, file_name=filename)
 
+        # 🎯 3D vizualizáció
+        if show_outputs:
+            st.subheader("🌌 3D Latens tér (Plotly)")
+            z_np = z.cpu().numpy()
+            if z_np.shape[1] >= 3:
+                df3d = pd.DataFrame(z_np[:, :3], columns=["x", "y", "z"])
+                fig3d = px.scatter_3d(df3d, x="x", y="y", z="z", opacity=0.7,
+                                      title="Generált minták latens 3D térben",
+                                      color=np.linalg.norm(z_np[:, :3], axis=1),
+                                      color_continuous_scale="Viridis")
+                fig3d.update_traces(marker=dict(size=3))
+                st.plotly_chart(fig3d, use_container_width=True)
+            else:
+                st.warning("A 3D vizualizációhoz legalább 3D-s Z tér szükséges (z_dim >= 3).")
+
         st.subheader("📚 Tudományos értelmezés")
         st.markdown("""
 A tanulás során megfigyelhető veszteséggörbék alapján következtethetünk a GAN stabilitására:
 
 - Ha a generátor loss csökken, javul a hamis minták minősége.
-- Ha a diszkriminátor loss nő, a diszkriminátor nehezebben különbözteti meg a valódi és hamis adatokat.
-- A két hálózat közötti egyensúly kulcsfontosságú – ha az egyik túl gyorsan tanul, a másik nem tud alkalmazkodni.
-- A GAN konvergenciája nem garantált, de a loss értékek stabilizálódása és a generált képek vizuális minősége alapján jól értékelhető a rendszer fejlődése.
-
-A további iterációk során a képminőség, a stabilitás és a generalizálhatóság javítható fejlettebb architektúrákkal (pl. DCGAN, WGAN, StyleGAN).
+- Ha a diszkriminátor loss nő, nehezebb megkülönböztetni a valódi és hamis adatokat.
+- A GAN konvergenciája nem garantált, de a loss stabilizálódása és a generált képek minősége alapján jól értelmezhető a fejlődés.
         """)
 
 # ReflectAI-kompatibilitás
