@@ -9,9 +9,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import io
 
-# -----------------------------
 # Generator hálózat
-# -----------------------------
 class Generator(nn.Module):
     def __init__(self, z_dim=100, img_dim=28*28):
         super().__init__()
@@ -25,9 +23,7 @@ class Generator(nn.Module):
     def forward(self, x):
         return self.model(x)
 
-# -----------------------------
 # Discriminator hálózat
-# -----------------------------
 class Discriminator(nn.Module):
     def __init__(self, img_dim=28*28):
         super().__init__()
@@ -41,10 +37,7 @@ class Discriminator(nn.Module):
     def forward(self, x):
         return self.model(x)
 
-# -----------------------------
-# Generált képek megjelenítése
-# -----------------------------
-@st.cache_resource
+# Képek megjelenítése (nem cache-elve a warning miatt!)
 def show_images(_generator, z_dim, device):
     _generator.eval()
     with torch.no_grad():
@@ -60,40 +53,34 @@ def show_images(_generator, z_dim, device):
         save_image(fake_imgs, buffer, format='png')
         st.download_button("⬇️ Minták letöltése (PNG)", data=buffer.getvalue(), file_name="samples.png", mime="image/png")
 
-# -----------------------------
-# Adatok betöltése
-# -----------------------------
+# Adatok betöltése cache-selve
 @st.cache_data
-def load_data(batch_size, limit=1000):
+def load_data(batch_size):
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,))
     ])
     dataset = datasets.MNIST(root="./data", train=True, download=True, transform=transform)
-    subset = torch.utils.data.Subset(dataset, range(min(limit, len(dataset))))
-    return DataLoader(subset, batch_size=batch_size, shuffle=True)
+    return DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-# -----------------------------
 # Fő alkalmazás
-# -----------------------------
 def run():
     st.set_page_config(layout="wide")
     st.title("🧪 GAN – Generative Adversarial Network")
 
     st.markdown(r"""
-A **Generative Adversarial Network (GAN)** egy neurális architektúra, amely két egymással versengő hálózatot – egy *generátort* és egy *diszkriminátort* – használ.  
-Cél: olyan hamis mintákat generálni, melyek megkülönböztethetetlenek a valódiaktól.
+A **Generative Adversarial Network (GAN)** egy neurális hálózati architektúra, amely két egymással versengő hálózatot – egy *generátort* és egy *diszkriminátort* – használ az adatok modellezésére. 
 
-### 🎓 Matematikai háttér:
+**Elméleti háttér:**
+- A generátor célja, hogy meggyőző hamis adatokat hozzon létre.
+- A diszkriminátor célja, hogy megkülönböztesse a valódi adatokat a generált mintáktól.
+
+Matematikailag egy minimax játékként fogható fel:
 $$
 \min_G \max_D V(D, G) = \mathbb{E}_{x \sim p_{data}}[\log D(x)] + \mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))]
 $$
 
-GAN-ok használata:
-- Képgenerálás
-- Stílusátvitel
-- Szuperfelbontás
-- Deepfake technológiák
+A GAN-ok használata forradalmasította a képgenerálást, szuperfelbontást, stílustranszfert és még sok más területet a gépi látásban.
 """)
 
     # Paraméterek
@@ -103,12 +90,12 @@ GAN-ok használata:
     epochs = st.sidebar.slider("Epochok száma", 1, 20, 3)
     batch_size = st.sidebar.slider("Batch méret", 32, 256, 64, step=32)
     seed = st.sidebar.number_input("Seed", 0, 9999, 42)
-    show_outputs = st.sidebar.checkbox("📊 Eredmények megjelenítése", value=True)
+    show_outputs = st.sidebar.checkbox("📊 Ábrák és minták megjelenítése", value=True)
 
     if st.button("🚀 Tanítás indítása"):
         torch.manual_seed(seed)
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        loader = load_data(batch_size=batch_size, limit=1000)  # ❗ max 1000 kép
+        loader = load_data(batch_size)
 
         generator = Generator(z_dim).to(device)
         discriminator = Discriminator().to(device)
@@ -166,26 +153,25 @@ GAN-ok használata:
             st.subheader("🖼️ Generált minták")
             show_images(_generator=generator, z_dim=z_dim, device=device)
 
-        # 🔻 CSV export (minták)
-        z = torch.randn(100, z_dim).to(device)
+        # 1000 mintára limitálás
+        z = torch.randn(1000, z_dim).to(device)
         samples = generator(z).view(-1, 28*28).cpu().detach().numpy()
         df = pd.DataFrame(samples)
         filename = f"gan_samples_z{z_dim}_e{epochs}_b{batch_size}.csv"
         csv = df.to_csv(index=False).encode("utf-8")
         st.download_button("⬇️ Minták mentése (CSV)", data=csv, file_name=filename)
 
-        # 📚 Tudományos értelmezés
         st.subheader("📚 Tudományos értelmezés")
         st.markdown("""
-A veszteséggörbék alapján megfigyelhető a tanulási dinamika:
-- A generátor loss csökkenése a minta minőség javulását mutatja.
-- A diszkriminátor loss növekedése a hamis minták megtévesztőbbé válását jelzi.
-- A kiegyenlített fejlődés stabil tanulásra utal.
+A tanulás során megfigyelhető veszteséggörbék alapján következtethetünk a GAN stabilitására:
 
-A GAN tanítása érzékeny a hiperparaméterekre, és nem garantált a konvergencia.  
-A jelen példa célja az **alapelvek demonstrálása 1000 mintán**.
-""")
+- Ha a generátor loss csökken, javul a hamis minták minősége.
+- Ha a diszkriminátor loss nő, a diszkriminátor nehezebben különbözteti meg a valódi és hamis adatokat.
+- A két hálózat közötti egyensúly kulcsfontosságú – ha az egyik túl gyorsan tanul, a másik nem tud alkalmazkodni.
+- A GAN konvergenciája nem garantált, de a loss értékek stabilizálódása és a generált képek vizuális minősége alapján jól értékelhető a rendszer fejlődése.
 
+A további iterációk során a képminőség, a stabilitás és a generalizálhatóság javítható fejlettebb architektúrákkal (pl. DCGAN, WGAN, StyleGAN).
+        """)
 
-# ✅ ReflectAI kompatibilitás
+# ReflectAI-kompatibilitás
 app = run
