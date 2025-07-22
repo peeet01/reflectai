@@ -95,16 +95,19 @@ $$
         criterion = nn.BCELoss()
         g_losses, d_losses = [], []
 
+        # Tréning
         for epoch in range(epochs):
+            g_loss_val, d_loss_val = 0, 0
             for real_imgs, _ in loader:
                 real_imgs = real_imgs.view(-1, 28*28).to(device)
                 batch = real_imgs.size(0)
                 real_labels = torch.ones(batch, 1).to(device)
                 fake_labels = torch.zeros(batch, 1).to(device)
 
-                # Diszkriminátor
                 z = torch.randn(batch, z_dim).to(device)
                 fake_imgs = generator(z)
+
+                # Diszkriminátor
                 d_real = discriminator(real_imgs)
                 d_fake = discriminator(fake_imgs.detach())
                 loss_d = (criterion(d_real, real_labels) + criterion(d_fake, fake_labels)) / 2
@@ -121,9 +124,12 @@ $$
                 loss_g.backward()
                 optim_g.step()
 
-            g_losses.append(loss_g.item())
-            d_losses.append(loss_d.item())
-            st.write(f"📊 Epoch {epoch+1}/{epochs} | Generator: {loss_g.item():.4f} | Discriminator: {loss_d.item():.4f}")
+                g_loss_val += loss_g.item()
+                d_loss_val += loss_d.item()
+
+            g_losses.append(g_loss_val / len(loader))
+            d_losses.append(d_loss_val / len(loader))
+            st.write(f"📊 Epoch {epoch+1}/{epochs} | Generator: {g_losses[-1]:.4f} | Discriminator: {d_losses[-1]:.4f}")
 
         if show_outputs:
             st.subheader("📉 Loss görbe")
@@ -138,17 +144,16 @@ $$
             st.subheader("🖼️ Generált minták")
             show_images(generator, z_dim, device)
 
-            # 🌌 3D Plotly vizualizáció
+            st.subheader("🌈 3D Latens tér")
             z = torch.randn(1000, z_dim).to(device)
             with torch.no_grad():
                 fake = generator(z).cpu().view(-1, 28*28)
             df = pd.DataFrame(fake[:, :3].numpy(), columns=["x", "y", "z"])
-            st.subheader("🌈 3D Latens tér")
             fig3d = px.scatter_3d(df, x="x", y="y", z="z", color=df["z"], opacity=0.7,
-                                  title="Latens tér 3 dimenzióban (minták első 3 komponense)")
+                                  title="Latens tér 3 dimenzióban")
             st.plotly_chart(fig3d, use_container_width=True)
 
-        # Mentés CSV-be (1000 minta)
+        # CSV mentés
         z = torch.randn(1000, z_dim).to(device)
         samples = generator(z).view(-1, 28*28).cpu().detach().numpy()
         df = pd.DataFrame(samples)
