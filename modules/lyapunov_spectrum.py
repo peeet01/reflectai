@@ -16,7 +16,6 @@ def d_quadratic_map(r, x):   # f'(x) = -2x
     return -2*x
 
 # FIGYELEM: a "Henon" 1D változat nem a valódi 2D Hénon-térkép!
-# Ha maradjon, nevezzük inkább "egyszerű kvadratikus" verziónak.
 def pseudo_henon_map(r, x):  # x_{n+1} = 1 - r x^2 (csak demonstráció)
     return 1 - r * x**2
 def d_pseudo_henon_map(r, x):
@@ -25,7 +24,7 @@ def d_pseudo_henon_map(r, x):
 map_functions = {
     "Logisztikus térkép": (logistic_map, d_logistic_map),
     "Kvadratikus térkép": (quadratic_map, d_quadratic_map),
-    "Pseudo-Hénon (1D)": (pseudo_henon_map, d_pseudo_henon_map),  # jelöljük egyértelműen
+    "Pseudo-Hénon (1D)": (pseudo_henon_map, d_pseudo_henon_map),
 }
 
 # ==== Lyapunov számítás analitikus deriválttal + burn-in ====
@@ -34,22 +33,21 @@ def lyapunov_spectrum_1d(map_f, dmap_f, r_vals, x0=0.5, steps=1500, burn_in=500)
     λ(r) = lim (1/N) Σ ln | f'(x_n; r) |  a burn-in utáni lépésekre.
     Minden r-hez külön trajektória fut (vektorosítva).
     """
-    r_vals = np.asarray(r_vals)
+    r_vals = np.asarray(r_vals, dtype=np.float64)
     x = np.full_like(r_vals, fill_value=x0, dtype=np.float64)
 
     # Burn-in: csak evolválunk, nem átlagolunk
     for _ in range(burn_in):
         x = map_f(r_vals, x)
 
-    # Fokozatos átlaghoz tartozó görbe felvételéhez eltároljuk a részátlagot is
+    # Fő ciklus: átlag a burn-in utáni lépésekre
     lyap_sum = np.zeros_like(r_vals, dtype=np.float64)
     lyap_history = []  # (iter, r) mátrix a 3D felülethez
 
-    # Fő ciklus: átlag a burn-in utáni lépésekre
     for n in range(1, steps + 1):
-        # analitikus derivált – numerikus stabilitás: elkerüljük a log(0)-t
+        # analitikus derivált – numerikus stabilitás
         deriv = np.abs(dmap_f(r_vals, x))
-        deriv = np.clip(deriv, 1e-300, None)  # sose legyen 0
+        deriv = np.clip(deriv, 1e-300, None)  # elkerüljük a log(0)-t
         lyap_sum += np.log(deriv)
         lyap_history.append(lyap_sum / n)
         x = map_f(r_vals, x)
@@ -58,9 +56,9 @@ def lyapunov_spectrum_1d(map_f, dmap_f, r_vals, x0=0.5, steps=1500, burn_in=500)
     lyap_history = np.vstack(lyap_history)    # shape: (steps, len(r_vals))
     return lyap_vals, lyap_history
 
-# ==== Opcionális: véges differenciás közelítés olyan f-ekhez, ahol nincs d f ====
+# ==== Opcionális: véges differenciás közelítés ====
 def lyapunov_finite_diff(map_f, r_vals, x0=0.5, steps=1500, burn_in=500, delta=1e-8):
-    r_vals = np.asarray(r_vals)
+    r_vals = np.asarray(r_vals, dtype=np.float64)
     x = np.full_like(r_vals, fill_value=x0, dtype=np.float64)
 
     for _ in range(burn_in):
@@ -125,19 +123,41 @@ Pozitív \\(\\lambda\\) → **káosz**, negatív → **stabil** (attraktorba hú
     ax.set_title(f"Lyapunov-spektrum – {map_choice}")
     st.pyplot(fig2d)
 
-    # === 3D plot: a részátlag konvergenciája ===
+    # === 3D plot: a részátlag konvergenciája (ROBOSZTUS) ===
     st.subheader("🌐 3D – Konvergencia az iterációk mentén")
     R, Ngrid = np.meshgrid(r_values, np.arange(1, steps+1))
-    fig3d = go.Figure(data=[go.Surface(
-        x=R, y=Ngrid, z=lyap_hist, colorscale="Viridis"
-    )])
-    fig3d.update_layout(
-        title="Részátlagolt λ(r, n) felület",
-        scene=dict(xaxis_title='r', yaxis_title='n (iteráció)', zaxis_title='λ részátlag'),
-        margin=dict(l=0, r=0, t=60, b=0),
-        height=520
-    )
-    st.plotly_chart(fig3d, use_container_width=True)
+
+    # Biztonság: csak véges értékekkel dolgozunk
+    Z = np.array(lyap_hist, dtype=np.float64)
+    Z[~np.isfinite(Z)] = np.nan
+
+    finite = Z[np.isfinite(Z)]
+    if finite.size == 0 or (np.nanmax(Z) - np.nanmin(Z) < 1e-9):
+        # Fallback: 2D hőtérkép, ha túl lapos vagy minden NaN
+        st.warning("A 3D felület túl lapos vagy nem véges értékeket tartalmaz – 2D hőtérkép jelenik meg.")
+        fighm = go.Figure(data=[go.Heatmap(x=r_values, y=np.arange(1, steps+1), z=Z)])
+        fighm.update_layout(
+            xaxis_title='r', yaxis_title='n (iteráció)', title='Részátlagolt λ – hőtérkép',
+            margin=dict(l=0, r=0, t=60, b=0), height=520
+        )
+        st.plotly_chart(fighm, use_container_width=True)
+    else:
+        # Dinamikus színtartomány – szélsőségek levágása, hogy ne „feketedjen” a felület
+        cmin = float(np.nanpercentile(Z, 2))
+        cmax = float(np.nanpercentile(Z, 98))
+        if cmax - cmin < 1e-9:  # extra biztosíték
+            cmin, cmax = float(np.nanmin(Z)), float(np.nanmax(Z))
+
+        fig3d = go.Figure(data=[go.Surface(
+            x=R, y=Ngrid, z=Z, colorscale="Viridis", cmin=cmin, cmax=cmax, showscale=True
+        )])
+        fig3d.update_layout(
+            title="Részátlagolt λ(r, n) felület",
+            scene=dict(xaxis_title='r', yaxis_title='n (iteráció)', zaxis_title='λ részátlag'),
+            margin=dict(l=0, r=0, t=60, b=0),
+            height=520
+        )
+        st.plotly_chart(fig3d, use_container_width=True)
 
     # === CSV export ===
     st.subheader("⬇️ Adatok letöltése")
