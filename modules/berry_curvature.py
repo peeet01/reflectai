@@ -4,18 +4,9 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import pandas as pd
 
-# Berry-görbület számítás
-def compute_berry_curvature(kx, ky, delta=0.1):
-    d = np.array([
-        np.sin(kx),
-        np.sin(ky),
-        delta + np.cos(kx) + np.cos(ky)
-    ])
-    norm = np.linalg.norm(d)
-    d_hat = d / (norm + 1e-8)
-    return 0.5 * d_hat[2] / (norm**2 + 1e-8)
+# --- Matematikai függvények ---
 
-# d-vektor definiálása
+# d-vektor
 def d_vector(kx, ky, delta=0.1):
     return np.array([
         np.sin(kx),
@@ -23,31 +14,57 @@ def d_vector(kx, ky, delta=0.1):
         delta + np.cos(kx) + np.cos(ky)
     ])
 
-# Berry-fázis kör mentén
-def compute_berry_phase(radius=1.0, center=(0.0, 0.0), n_points=200, delta=0.1):
-    angles = np.linspace(0, 2 * np.pi, n_points, endpoint=False)
-    berry_phase = 0.0
-    prev_vec = None
+# Berry-görbület (helyes formula)
+def compute_berry_curvature(kx, ky, delta=0.1):
+    d = d_vector(kx, ky, delta)
+    n = np.linalg.norm(d)
+    if n < 1e-10:
+        return 0.0
+    dkx = np.array([np.cos(kx), 0.0, -np.sin(kx)])
+    dky = np.array([0.0, np.cos(ky), -np.sin(ky)])
+    num = np.dot(d, np.cross(dkx, dky))
+    den = n**3 + 1e-12
+    return 0.5 * num / den
 
-    for angle in angles:
-        kx = center[0] + radius * np.cos(angle)
-        ky = center[1] + radius * np.sin(angle)
-        d = d_vector(kx, ky, delta)
-        d_hat = d / (np.linalg.norm(d) + 1e-8)
+# Sajátvektor az alsó sávhoz
+def lower_band_spinor(d):
+    n = np.linalg.norm(d) + 1e-15
+    v = np.array([d[0] - 1j*d[1], n - d[2]], dtype=complex)
+    return v / (np.linalg.norm(v) + 1e-15)
 
-        if prev_vec is not None:
-            inner_product = np.vdot(prev_vec, d_hat)
-            angle_diff = np.angle(inner_product + 1e-8)
-            berry_phase += angle_diff
+# Berry-fázis (Wilson-loop)
+def compute_berry_phase(radius=1.0, center=(0.0, 0.0), n_points=400, delta=0.1):
+    angles = np.linspace(0, 2*np.pi, n_points, endpoint=False)
+    spinors = []
+    for a in angles:
+        kx = center[0] + radius*np.cos(a)
+        ky = center[1] + radius*np.sin(a)
+        spinors.append(lower_band_spinor(d_vector(kx, ky, delta)))
+    spinors.append(spinors[0])  # zárjuk a hurkot
+    prod = 1.0 + 0j
+    for i in range(len(spinors)-1):
+        prod *= np.vdot(spinors[i], spinors[i+1])
+    return np.angle(prod)
 
-        prev_vec = d_hat
+# Chern-szám számítás
+def compute_chern_number(delta, N=101):
+    kx_vals = np.linspace(-np.pi, np.pi, N)
+    ky_vals = np.linspace(-np.pi, np.pi, N)
+    dk = (2*np.pi)/(N-1)
+    tot = 0.0
+    for kx in kx_vals:
+        for ky in ky_vals:
+            tot += compute_berry_curvature(kx, ky, delta)
+    chern = tot * dk * dk / (2*np.pi)
+    return np.round(chern, 5), chern
 
-    return berry_phase
-
+# Bloch-gömb pálya
 def plot_3d_d_vectors(radius, center, delta=0.1):
-    angles = np.linspace(0, 2 * np.pi, 200)
+    angles = np.linspace(0, 2*np.pi, 200)
     d_vectors = np.array([
-        d_vector(center[0] + radius * np.cos(a), center[1] + radius * np.sin(a), delta)
+        d_vector(center[0] + radius * np.cos(a),
+                 center[1] + radius * np.sin(a),
+                 delta)
         for a in angles
     ])
     norms = np.linalg.norm(d_vectors, axis=1, keepdims=True)
@@ -71,10 +88,10 @@ def plot_3d_d_vectors(radius, center, delta=0.1):
     )
     return fig
 
-# STREAMLIT APP
+# --- Streamlit modul ---
 def run():
     st.header("🌀 Topológiai védettség és Berry-görbület")
-    st.markdown("Ez a szimuláció a 2D Brillouin-zónában vizsgálja a Berry-görbület és Berry-fázis viselkedését.")
+    st.markdown("Ez a szimuláció a 2D Brillouin-zónában vizsgálja a Berry-görbület, Berry-fázis és Chern-szám viselkedését.")
 
     delta = st.slider("Delta (rés paraméter)", 0.0, 2.0, 0.1, 0.01)
     N = st.slider("Pontok száma tengelyenként", 30, 150, 80, 10)
@@ -131,31 +148,23 @@ def run():
     st.success(f"Berry-fázis értéke: `{phase:.4f}` rad")
 
     fig_d = plot_3d_d_vectors(radius=radius, center=(cx, cy), delta=delta)
-
-    col = st.columns([1])[0]
-    with col:
-        st.markdown("### 🧭 d-vektor útvonala a Bloch-gömbön")
-        st.markdown("&nbsp;", unsafe_allow_html=True)
-
     st.plotly_chart(fig_d, use_container_width=True)
+
+    # Chern-szám kiírás
+    chern_int, chern_exact = compute_chern_number(delta)
+    st.info(f"🔢 Chern-szám (numerikusan): {chern_int}  |  Pontosabb: {chern_exact:.6f}")
 
     # Tudományos magyarázat
     st.markdown("---")
     st.subheader("📚 Matematikai háttér")
-
     st.markdown(r"""
-    A **Berry-görbület** egy topológiai invariáns, amelyet kvantumos rendszerek állapottérgörbületeként értelmezhetünk. 
-    Matematikailag:
-    
-    $$ \Omega(k) = \nabla_k \times \mathbf{A}(k), \quad \text{ahol } \mathbf{A}(k) = i \langle u_k | \nabla_k u_k \rangle $$
+    A **Berry-görbület** egy topológiai invariáns, amelyet kvantumos rendszerek állapottér-görbületeként értelmezhetünk:  
+    $$ \Omega(\mathbf k) = \frac{1}{2} \frac{\mathbf d \cdot (\partial_{k_x}\mathbf d \times \partial_{k_y}\mathbf d)}{|\mathbf d|^3} $$
 
-    A **Berry-fázis** egy zárt görbe mentén a hullámfüggvény által szerzett geometriai fázis:
+    A **Berry-fázis** egy zárt görbe mentén a hullámfüggvény által szerzett geometriai fázis (Wilson-loop):  
+    $$ \gamma = \oint_C \mathbf{A}(k) \cdot d\mathbf{k} $$
 
-    $$ \gamma = \oint_C \mathbf{A}(k) \cdot d\mathbf{k} = \int_S \Omega(k) \, d^2k $$
-
-    A fenti szimulációk egy effektív **d-vektor** modellel közelítik a rendszer dinamikáját, mely alapján a Berry-görbület numerikusan számítható.
-
-    A görbület integrálja egész Brillouin-zónában kvantált érték: ez a **Chern-szám**, amely topológiai szigetelőkben meghatározza a szélállapotok számát.
+    A görbület integrálja egész Brillouin-zónában kvantált érték: ez a **Chern-szám**, amely meghatározza a topológiai szigetelők szélállapotainak számát.
     """)
 
 # Kötelező ReflectAI kompatibilitás
