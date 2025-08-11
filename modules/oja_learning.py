@@ -17,26 +17,24 @@ def generate_input_data(kind, dim, samples):
         return np.zeros((samples, dim))
 
 def oja_learning(X, eta, epochs):
-    # opcionális: középre tolás (javítja a konvergenciát)
+    # opcionális: középre tolás
     Xc = X - np.mean(X, axis=0, keepdims=True)
 
-    # inicializálás: egyszeri normálás OK
+    # inicializálás
     w = np.random.randn(X.shape[1])
     w /= np.linalg.norm(w) + 1e-12
 
     history = []
 
     for _ in range(epochs):
-        # keverés: elkerülni a sorreny-artefaktumokat
         idx = np.random.permutation(len(Xc))
         for x in Xc[idx]:
             y = np.dot(w, x)
             dw = eta * y * (x - y * w)  # Oja update
             w += dw
-            # NINCS per-iterációs normálás!
             history.append(w.copy())
 
-        # numerikai higiénia (ritka, enyhe újraskálázás)
+        # numerikai stabilizálás
         nrm = np.linalg.norm(w)
         if not np.isfinite(nrm) or nrm > 1e6:
             w /= nrm + 1e-12
@@ -117,4 +115,3 @@ A súlyok konvergálnak az első főkomponens irányába.
 """)
 
 app = run
-```0
