@@ -100,28 +100,33 @@ def run():
     csv = df_out.to_csv(index=False).encode('utf-8')
     st.download_button("⬇️ Letöltés CSV formátumban", data=csv, file_name="lorenz_predictions.csv")
 
-    # 📚 Tudományos háttér
-    st.markdown("""
+    st.markdown(r"""
     ### 📘 Tudományos háttér
 
     A Lorenz-egyenletek:
+
+    $$
     \begin{align}
-        \frac{dx}{dt} &= \sigma(y - x) \\
-        \frac{dy}{dt} &= x(\rho - z) - y \\
-        \frac{dz}{dt} &= xy - \beta z
+    \frac{dx}{dt} &= \sigma (y - x) \\
+    \frac{dy}{dt} &= x (\rho - z) - y \\
+    \frac{dz}{dt} &= xy - \beta z
     \end{align}
+    $$
 
     A rendszer determinisztikus, de kaotikusan viselkedik, ezért nehéz hosszútávon pontosan előre jelezni.
 
+    ---
+
     Az MLP regressziós modell célja:
-    \begin{align}
-        \hat{x}_{t+1} = f(x_t, x_{t-1}, ..., x_{t-w})
-    \end{align}
 
-    ahol \( w \) az ablakméret. A bemenetek egy csúszó ablakban kiválasztott múltbeli állapotok,
-    amelyek alapján a modell becslést ad a következő \( x \) értékre (vagy \( y \), \( z \)).
+    $$
+    \hat{x}_{t+1} = f(x_t, x_{t-1}, \dots, x_{t-w})
+    $$
 
-    A pontosságot az R² érték és az átlagos négyzetes hiba (MSE) mutatja.
+    bahol \( w \) az ablakméret. A bemenetek egy csúszó ablakban kiválasztott múltbeli állapotok,
+    amelyek alapján a modell becslést ad a következő \( x \) értékre (vagy \( y \), \( z \) komponensekre).
+
+    A pontosságot az \( R^2 \) érték és az átlagos négyzetes hiba (MSE) mutatja.
     """)
 
 # ReflectAI kompatibilis
