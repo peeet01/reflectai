@@ -3,15 +3,15 @@ from datetime import datetime
 import importlib
 import os  # 📁 Fájlok listázásához
 
+# 🌐 Metaadat – EZ legyen az első Streamlit hívás!
+st.set_page_config(page_title="Neurolab AI", layout="wide")
+
 # 💅 Stílus betöltése
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 local_css("style.css")  # vagy "static/style.css", ha ott van
-
-# 🌐 Metaadat – ez legyen az első Streamlit hívás!
-st.set_page_config(page_title="Neurolab AI", layout="wide")
 
 # 📁 Modul-kategóriák
 module_categories = {
@@ -40,7 +40,6 @@ module_categories = {
         "ESN Prediction": "esn_prediction",
         "Critical Hebbian": "critical_hebbian",
         "Information Bottleneck": "information_bottleneck",
-        
     },
     "⚗️ Szimulációk és dinamikák": {
         "Kuramoto Sim": "kuramoto_sim",
@@ -52,7 +51,6 @@ module_categories = {
         "Ising Sim": "ising_sim",
         "Boltzmann Machine": "boltzmann_machine",
         "Laboratory GAN": "lab_gan_module",
-         
     },
     "🧪 Adatfeltöltés és predikciók": {
         "Data Upload": "data_upload",
@@ -81,28 +79,30 @@ if selected_category == main_menu:
         st.markdown("<h3>Neurolab AI – Intelligens szimulációs platform</h3>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
         st.markdown("👉 Válassz modult a bal oldali menüből.")
+
+        # ✅ HELYES BEHÚZÁS
         with st.expander("📘 Mi ez a platform?", expanded=True):
-        st.markdown("""
-        **Neurolab AI Sandbox** – interaktív játszótér az **agyműködés**, a **tanulás** és a **komplex rendszerek** felfedezéséhez.  
-        Itt élőben futtathatsz és hangolhatsz **valós idejű modelleket**, miközben azonnal látod a hatásukat 2D/3D vizualizációkon.
+            st.markdown("""
+**Neurolab AI Sandbox** – interaktív játszótér az **agyműködés**, a **tanulás** és a **komplex rendszerek** felfedezéséhez.  
+Itt élőben futtathatsz és hangolhatsz **valós idejű modelleket**, miközben azonnal látod a hatásukat 2D/3D vizualizációkon.
 
-        ### Mit tud a platform?
-        - 🧠 **Neurális és tanulási modellek** – Hebbian, Oja, STDP, MLP/ESN, XOR stb.  
-        - 🔁 **Dinamikus rendszerek** – Kuramoto, Lorenz, Ising, kritikalitás, zajtűrés  
-        - 📊 **Erős vizualizáció** – interaktív grafikonok, 3D felületek, hálózati nézetek  
-        - 📂 **Adatfeltöltés** – saját CSV-vel is kísérletezhetsz (modulfüggő)
+### Mit tud a platform?
+- 🧠 **Neurális és tanulási modellek** – Hebbian, Oja, STDP, MLP/ESN, XOR stb.  
+- 🔁 **Dinamikus rendszerek** – Kuramoto, Lorenz, Ising, kritikalitás, zajtűrés  
+- 📊 **Erős vizualizáció** – interaktív grafikonok, 3D felületek, hálózati nézetek  
+- 📂 **Adatfeltöltés** – saját CSV-vel is kísérletezhetsz (modulfüggő)
 
-        ### Kinek készült?
-        Kutatóknak, oktatóknak, hallgatóknak és kíváncsi alkotóknak, akik **nem csak olvasni**, hanem **kísérletezni** is akarnak.
+### Kinek készült?
+Kutatóknak, oktatóknak, hallgatóknak és kíváncsi alkotóknak, akik **nem csak olvasni**, hanem **kísérletezni** is akarnak.
 
-        ### Hogyan kezdj bele?
-        1) Válassz modult balra a listából.  
-        2) Állítsd a csúszkákat, nézd meg, hogyan változik a viselkedés.  
-        3) Jegyzetelj, exportáld az eredményeket, és próbálj ki új paramétereket.
+### Hogyan kezdj bele?
+1) Válassz modult balra a listából.  
+2) Állítsd a csúszkákat, nézd meg, hogyan változik a viselkedés.  
+3) Jegyzetelj, exportáld az eredményeket, és próbálj ki új paramétereket.
 
-        Lásd meg a **rejtett mintázatokat** – és alakítsd őket saját kezedben!
-        """)
-        
+Lásd meg a **rejtett mintázatokat** – és alakítsd őket a saját kezedben!
+""")
+
 else:
     modules = module_categories[selected_category]
     selected_title = st.sidebar.radio("Modul:", list(modules.keys()))
