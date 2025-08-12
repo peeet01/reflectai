@@ -100,64 +100,32 @@ def run():
     csv = df_out.to_csv(index=False).encode('utf-8')
     st.download_button("⬇️ Letöltés CSV formátumban", data=csv, file_name="lorenz_predictions.csv")
 
-    st.markdown(r"""
-    ### 📘 Tudományos háttér
-
-    **Lorenz-egyenletek** (determinista, de kaotikus dinamikával):
-    $$
+    st.markdown("### 📘 Tudományos háttér")
+    st.markdown("A **Lorenz-egyenletek**:")
+    st.latex(r"""
     \begin{aligned}
-    \frac{dx}{dt} &= \sigma \,(y - x),\\
-    \frac{dy}{dt} &= x(\rho - z) - y,\\
-    \frac{dz}{dt} &= xy - \beta z.
+    \frac{dx}{dt} &= \sigma (y - x) \\
+    \frac{dy}{dt} &= x (\rho - z) - y \\
+    \frac{dz}{dt} &= xy - \beta z
     \end{aligned}
-    $$
+    """)
 
-    A rendszer rövid távon jól előrejelezhető, de a pozitív Lyapunov-exponensek miatt **hosszú távon érzékeny a kezdeti feltételekre** (káosz), ezért a hibák exponenciálisan felerősödnek.
+    st.markdown("A rendszer determinisztikus, de **kaotikusan** viselkedik, ezért hosszú távon nehéz pontosan előre jelezni.")
+    st.markdown("---")
 
-    ---
+    st.markdown("Az **MLP regressziós modell** célja (ablakméret: $w$):")
+    st.latex(r"""
+    \hat{x}_{t+1} = f\big(x_t, x_{t-1}, \dots, x_{t-w+1}\big)
+    """)
 
-    **Késleltetett beágyazás (Takens) az MLP bemenetéhez**  
-    (csúszó ablak a múltbeli mintákból):
-    $$
-    \mathbf{x}_t \;=\; \big[x_t,\; x_{t-1},\; \dots,\; x_{t-w+1}\big]^\top,
-    $$
-    ahol \(w\) az ablakméret (window). Általánosabban késleltetéssel \(\tau\):
-    $$
-    \mathbf{x}_t \;=\; \big[x_t,\; x_{t-\tau},\; \dots,\; x_{t-(w-1)\tau}\big]^\top.
-    $$
+    st.markdown("A bemenetek a csúszó ablak múltbeli állapotai; a modell ezekből becsli a következő $x$ értéket (opcionálisan $y$, $z$ komponenseket is).")
 
-    **MLP-alapú regresszió (egy-lépéses előrejelzés):**
-    $$
-    \hat{x}_{t+1} \;=\; f_\theta(\mathbf{x}_t),
-    $$
-    illetve \(h\)-lépéses horizontnál:
-    $$
-    \hat{x}_{t+h} \;=\; f_\theta(\mathbf{x}_t).
-    $$
-
-    ---
-
-    **Ridge-regressziós baseline** (összehasonlításként):
-    $$
-    \min_{\mathbf{w}} \;\; \|X\mathbf{w} - \mathbf{y}\|_2^2 \;+\; \alpha \|\mathbf{w}\|_2^2,
-    $$
-    ahol \(\alpha>0\) a \(L_2\)-regularizáció súlya.
-
-    ---
-
-    **Kiértékelési metrikák:**
-
-    - **RMSE** (gyök-négyzetes átlagos hiba):
-    $$
-    \mathrm{RMSE} \;=\; \sqrt{\frac{1}{N}\sum_{i=1}^N \big(\hat{x}_i - x_i\big)^2},
-    $$
-
-    - **Determinációs együttható**:
-    $$
-    R^2 \;=\; 1 \;-\; \frac{\sum_{i=1}^N (x_i - \hat{x}_i)^2}{\sum_{i=1}^N (x_i - \bar{x})^2}.
-    $$
-
-    > **Megjegyzés:** Kaotikus dinamikán a rövid horizontú (\(h\) kicsi) előrejelzés reális cél; hosszú távon az előrejelzés **eloszlás-szintű** (statisztikai) megfelelésére érdemes törekedni.
+    st.markdown("A pontosságot az $R^2$ és az **átlagos négyzetes hiba** (MSE) mutatja:")
+    st.latex(r"""
+    R^2 = 1 - \frac{\sum_{i=1}^N (x_i - \hat{x}_i)^2}{\sum_{i=1}^N (x_i - \bar{x})^2}
+    """)
+    st.latex(r"""
+    \mathrm{MSE} = \frac{1}{N} \sum_{i=1}^N \big(\hat{x}_i - x_i\big)^2
     """)
 
 # ReflectAI kompatibilis
