@@ -103,30 +103,61 @@ def run():
     st.markdown(r"""
     ### 📘 Tudományos háttér
 
-    A **Lorenz-egyenletek**:
-
+    **Lorenz-egyenletek** (determinista, de kaotikus dinamikával):
     $$
     \begin{aligned}
-    \frac{dx}{dt} &= \sigma (y - x) \\
-    \frac{dy}{dt} &= x (\rho - z) - y \\
-    \frac{dz}{dt} &= xy - \beta z
+    \frac{dx}{dt} &= \sigma \,(y - x),\\
+    \frac{dy}{dt} &= x(\rho - z) - y,\\
+    \frac{dz}{dt} &= xy - \beta z.
     \end{aligned}
     $$
 
-    A rendszer determinisztikus, de **kaotikusan** viselkedik, ezért hosszú távon nehéz pontosan előre jelezni.
+    A rendszer rövid távon jól előrejelezhető, de a pozitív Lyapunov-exponensek miatt **hosszú távon érzékeny a kezdeti feltételekre** (káosz), ezért a hibák exponenciálisan felerősödnek.
 
     ---
 
-    Az **MLP regressziós modell** célja:
-
+    **Késleltetett beágyazás (Takens) az MLP bemenetéhez**  
+    (csúszó ablak a múltbeli mintákból):
     $$
-    \hat{x}_{t+1} = f(x_t, x_{t-1}, \dots, x_{t-w+1})
+    \mathbf{x}_t \;=\; \big[x_t,\; x_{t-1},\; \dots,\; x_{t-w+1}\big]^\top,
+    $$
+    ahol \(w\) az ablakméret (window). Általánosabban késleltetéssel \(\tau\):
+    $$
+    \mathbf{x}_t \;=\; \big[x_t,\; x_{t-\tau},\; \dots,\; x_{t-(w-1)\tau}\big]^\top.
     $$
 
-    ahol \( w \) az ablakméret.  
-    A bemenetek egy csúszó ablakban kiválasztott múltbeli állapotok, amelyek alapján a modell becslést ad a következő \( x \) értékre (vagy \( y \), \( z \) komponensekre).
+    **MLP-alapú regresszió (egy-lépéses előrejelzés):**
+    $$
+    \hat{x}_{t+1} \;=\; f_\theta(\mathbf{x}_t),
+    $$
+    illetve \(h\)-lépéses horizontnál:
+    $$
+    \hat{x}_{t+h} \;=\; f_\theta(\mathbf{x}_t).
+    $$
 
-    A pontosságot az \( R^2 \) érték és az **átlagos négyzetes hiba** (MSE) mutatja.
+    ---
+
+    **Ridge-regressziós baseline** (összehasonlításként):
+    $$
+    \min_{\mathbf{w}} \;\; \|X\mathbf{w} - \mathbf{y}\|_2^2 \;+\; \alpha \|\mathbf{w}\|_2^2,
+    $$
+    ahol \(\alpha>0\) a \(L_2\)-regularizáció súlya.
+
+    ---
+
+    **Kiértékelési metrikák:**
+
+    - **RMSE** (gyök-négyzetes átlagos hiba):
+    $$
+    \mathrm{RMSE} \;=\; \sqrt{\frac{1}{N}\sum_{i=1}^N \big(\hat{x}_i - x_i\big)^2},
+    $$
+
+    - **Determinációs együttható**:
+    $$
+    R^2 \;=\; 1 \;-\; \frac{\sum_{i=1}^N (x_i - \hat{x}_i)^2}{\sum_{i=1}^N (x_i - \bar{x})^2}.
+    $$
+
+    > **Megjegyzés:** Kaotikus dinamikán a rövid horizontú (\(h\) kicsi) előrejelzés reális cél; hosszú távon az előrejelzés **eloszlás-szintű** (statisztikai) megfelelésére érdemes törekedni.
     """)
 
 # ReflectAI kompatibilis
