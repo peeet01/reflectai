@@ -74,34 +74,43 @@ def run():
     csv = "\n".join([",".join(map(str, row)) for row in activation_map])
     st.download_button("⬇️ Aktivációs térkép letöltése", csv.encode("utf-8"), file_name="activation_map.csv")
 
+    # --- Tudományos háttér (LaTeX) ---
     st.markdown("### 📘 Tudományos háttér")
 
-    st.markdown("**Lorenz-egyenletek**")
+    st.markdown("A **Lorenz-egyenletek**:")
     st.latex(r"""
     \begin{aligned}
-    \frac{dx}{dt} &= \sigma\,(y - x),\\
-    \frac{dy}{dt} &= x\,(\rho - z) - y,\\
-    \frac{dz}{dt} &= x\,y - \beta\,z.
+    \frac{dx}{dt} &= \sigma \,(y - x) \\
+    \frac{dy}{dt} &= x \,(\rho - z) - y \\
+    \frac{dz}{dt} &= x y - \beta z
     \end{aligned}
     """)
 
-    st.markdown("A rendszer determinisztikus, de **kaotikus**, ezért a hosszú távú előrejelzés erősen érzékeny a kezdeti feltételekre.")
+    st.markdown(
+        "A rendszer determinisztikus, mégis **kaotikusan** viselkedik: "
+        "kicsi kezdeti eltérések gyorsan felnagyítódnak, ezért a hosszú távú "
+        "előrejelzés bizonytalan."
+    )
 
-    st.markdown("---")
-    st.markdown("**MLP-alapú előrejelzés (csúszóablak)**")
+    st.markdown("**Időkésleltetett beágyazás (Takens) és bemeneti vektor:**")
     st.latex(r"""
-    \hat{x}_{t+1} = f\!\big(x_t,\, x_{t-1},\, \dots,\, x_{t-w+1}\big)
+    \mathbf{x}_t \;=\; \begin{bmatrix}
+    x_t & x_{t-1} & \dots & x_{t-w+1}
+    \end{bmatrix}^{\!\top}
     """)
-    st.markdown(r"ahol \(w\) az ablakméret; a bemenetek a múltbeli minták, a kimenet a következő \(x\) érték.")
 
-    st.markdown("**Teljesítménymutatók**")
-    st.markdown("- Determinációs együttható \(R^2\)")
+    st.markdown("**MLP regressziós cél:** a következő állapot előrejelzése az ablakból:")
     st.latex(r"""
-    R^2 = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y}_i)^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}
+    \hat{x}_{t+1} \;=\; f_\theta\!\left(\mathbf{x}_t\right)
     """)
-    st.markdown("- Átlagos négyzetes hiba (MSE)")
+
+    st.markdown("**Értékelő metrikák:**")
     st.latex(r"""
-    \mathrm{MSE} = \frac{1}{n}\sum_{i=1}^{n}\big(y_i - \hat{y}_i\big)^2
+    \mathrm{MSE} \;=\; \frac{1}{N}\sum_{i=1}^{N} \bigl(\hat{x}_i - x_i\bigr)^2
+    """)
+    st.latex(r"""
+    R^2 \;=\; 1 \;-\; \frac{\sum_{i=1}^{N} \bigl(\hat{x}_i - x_i\bigr)^2}
+                         {\sum_{i=1}^{N} \bigl(x_i - \bar{x}\bigr)^2}
     """)
 
 app = run
