@@ -103,30 +103,30 @@ def run():
     st.markdown(r"""
     ### 📘 Tudományos háttér
 
-    A Lorenz-egyenletek:
+    A **Lorenz-egyenletek**:
 
     $$
-    \begin{align}
+    \begin{aligned}
     \frac{dx}{dt} &= \sigma (y - x) \\
     \frac{dy}{dt} &= x (\rho - z) - y \\
     \frac{dz}{dt} &= xy - \beta z
-    \end{align}
+    \end{aligned}
     $$
 
-    A rendszer determinisztikus, de kaotikusan viselkedik, ezért nehéz hosszútávon pontosan előre jelezni.
+    A rendszer determinisztikus, de **kaotikusan** viselkedik, ezért hosszú távon nehéz pontosan előre jelezni.
 
     ---
 
-    Az MLP regressziós modell célja:
+    Az **MLP regressziós modell** célja:
 
     $$
-    \hat{x}_{t+1} = f(x_t, x_{t-1}, \dots, x_{t-w})
+    \hat{x}_{t+1} = f(x_t, x_{t-1}, \dots, x_{t-w+1})
     $$
 
-    bahol \( w \) az ablakméret. A bemenetek egy csúszó ablakban kiválasztott múltbeli állapotok,
-    amelyek alapján a modell becslést ad a következő \( x \) értékre (vagy \( y \), \( z \) komponensekre).
+    ahol \( w \) az ablakméret.  
+    A bemenetek egy csúszó ablakban kiválasztott múltbeli állapotok, amelyek alapján a modell becslést ad a következő \( x \) értékre (vagy \( y \), \( z \) komponensekre).
 
-    A pontosságot az \( R^2 \) érték és az átlagos négyzetes hiba (MSE) mutatja.
+    A pontosságot az \( R^2 \) érték és az **átlagos négyzetes hiba** (MSE) mutatja.
     """)
 
 # ReflectAI kompatibilis
