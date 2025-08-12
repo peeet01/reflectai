@@ -101,21 +101,37 @@ def run():
     st.download_button("⬇️ Letöltés CSV formátumban", data=csv, file_name="lorenz_predictions.csv")
 
     st.markdown("### 📘 Tudományos háttér")
-    st.markdown("A **Lorenz-egyenletek**:")
-    st.latex(r"""
-    \begin{aligned}
-    \frac{dx}{dt} &= \sigma (y - x) \\
-    \frac{dy}{dt} &= x (\rho - z) - y \\
-    \frac{dz}{dt} &= xy - \beta z
-    \end{aligned}
+
+    st.markdown("""
+    A **Lorenz-egyenletek** a következők:
     """)
 
-    st.markdown("A rendszer determinisztikus, de **kaotikusan** viselkedik, ezért hosszú távon nehéz pontosan előre jelezni.")
-    st.markdown("---")
+    st.latex(r"\frac{dx}{dt} = \sigma (y - x)")
+    st.latex(r"\frac{dy}{dt} = x (\rho - z) - y")
+    st.latex(r"\frac{dz}{dt} = xy - \beta z")
 
-    st.markdown("Az **MLP regressziós modell** célja (ablakméret: $w$):")
-    st.latex(r"""
-    \hat{x}_{t+1} = f\big(x_t, x_{t-1}, \dots, x_{t-w+1}\big)
+    st.markdown("""
+    Ez egy determinisztikus, de **kaotikusan viselkedő** rendszer, amelyet eredetileg az időjárási folyamatok modellezésére vezettek be.  
+    A kaotikus jelleg miatt a hosszú távú előrejelzés nehéz.
+
+    ---
+
+    Az **MLP regressziós modell** célja a Lorenz-rendszer egyik komponensének előrejelzése:
+    """)
+
+    st.latex(r"\hat{x}_{t+1} = f(x_t, x_{t-1}, \dots, x_{t-w+1})")
+
+    st.markdown("""
+    ahol \( w \) az ablakméret, vagyis a múltbeli minták száma, amelyet a modell a predikcióhoz használ.  
+    A bemenet egy **csúszóablak**, amelyből a modell megtanulja az időbeli mintázatokat, és becslést ad a következő állapotra.
+    
+    A pontosságot az \( R^2 \) érték és az **átlagos négyzetes hiba** (MSE) mutatja:
+    """)
+
+    st.latex(r"MSE = \frac{1}{N} \sum_{i=1}^{N} \left( y_i - \hat{y}_i \right)^2")
+
+    st.markdown("""
+    Magas \( R^2 \) érték és alacsony MSE jó illeszkedést jelez.
     """)
 
     st.markdown("A bemenetek a csúszó ablak múltbeli állapotai; a modell ezekből becsli a következő $x$ értéket (opcionálisan $y$, $z$ komponenseket is).")
