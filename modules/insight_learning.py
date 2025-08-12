@@ -74,32 +74,34 @@ def run():
     csv = "\n".join([",".join(map(str, row)) for row in activation_map])
     st.download_button("⬇️ Aktivációs térkép letöltése", csv.encode("utf-8"), file_name="activation_map.csv")
 
-    # Tudományos háttér
-    st.header("📘 Tudományos háttér")
+    st.markdown("### 📘 Tudományos háttér")
 
+    st.markdown("**Lorenz-egyenletek**")
     st.latex(r"""
-    \text{Aktiváció:} \quad A_{i,j}^{(t+1)} = A_{i,j}^{(t)} + \Delta A
+    \begin{aligned}
+    \frac{dx}{dt} &= \sigma\,(y - x),\\
+    \frac{dy}{dt} &= x\,(\rho - z) - y,\\
+    \frac{dz}{dt} &= x\,y - \beta\,z.
+    \end{aligned}
     """)
+
+    st.markdown("A rendszer determinisztikus, de **kaotikus**, ezért a hosszú távú előrejelzés erősen érzékeny a kezdeti feltételekre.")
+
+    st.markdown("---")
+    st.markdown("**MLP-alapú előrejelzés (csúszóablak)**")
     st.latex(r"""
-    \text{Belátás feltétele:} \quad A_{\text{goal}} \geq \theta
+    \hat{x}_{t+1} = f\!\big(x_t,\, x_{t-1},\, \dots,\, x_{t-w+1}\big)
     """)
+    st.markdown(r"ahol \(w\) az ablakméret; a bemenetek a múltbeli minták, a kimenet a következő \(x\) érték.")
 
-    st.markdown("""
-    A neuronhálózat aktivációja minden epizódban növekszik egy véletlenszerű séta során.
-
-    - $A_{i,j}^{(t)}$: aktiváció a $(i,j)$ pozíción a $t$-edik időlépésben  
-    - $\Delta A$: aktivációs növekedés lépésenként  
-    - $\theta$: belátási küszöb – ha ezt a célpozíció aktivációja eléri, megtörténik az „aha!” pillanat
-
-    ---
-
-    ### 🎓 Következtetések
-
-    - A belátás akkor valósul meg, amikor az aktiváció koncentráltan gyűlik össze egy régióban.
-    - A `σ` érték szabályozza a **mentális simítás** mértékét.
-    - A szimuláció **nem determinisztikus**, tehát ugyanazon paraméterekkel is más eredmény adódhat.
-
-    Ez a modell egy leegyszerűsített, de jól illusztrált nézete a belátásos tanulási folyamatnak.
+    st.markdown("**Teljesítménymutatók**")
+    st.markdown("- Determinációs együttható \(R^2\)")
+    st.latex(r"""
+    R^2 = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y}_i)^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}
+    """)
+    st.markdown("- Átlagos négyzetes hiba (MSE)")
+    st.latex(r"""
+    \mathrm{MSE} = \frac{1}{n}\sum_{i=1}^{n}\big(y_i - \hat{y}_i\big)^2
     """)
 
 app = run
