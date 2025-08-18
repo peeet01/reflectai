@@ -171,15 +171,15 @@ Pozitív \\(\\lambda\\) → **káosz**, negatív → **stabil** (attraktorba hú
 
     st.subheader("📚 Tudományos háttér")
 
-st.latex(r"\lambda = \lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^{n}\ln\!\left|f'(x_i)\right|,\qquad x_{i+1}=f(x_i).")
+    st.latex(r"\lambda = \lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^{n}\ln\!\left|f'(x_i)\right|,\qquad x_{i+1}=f(x_i).")
 
-st.latex(r"\text{Logisztikus térkép: }\; x_{n+1}=r x_n(1-x_n),\quad f'(x)=r(1-2x)")
-st.latex(r"\text{Kvadratikus térkép: }\; x_{n+1}=r-x_n^2,\quad f'(x)=-2x")
+    st.latex(r"\text{Logisztikus térkép: }\; x_{n+1}=r x_n(1-x_n),\quad f'(x)=r(1-2x)")
+    st.latex(r"\text{Kvadratikus térkép: }\; x_{n+1}=r-x_n^2,\quad f'(x)=-2x")
 
-st.markdown(
-    "A **burn-in** eltávolítja a kezdeti transzienseket; "
-    "a részátlag \\(\\lambda_n\\) konvergenciáját mutatja a 3D felület."
-)
+    st.markdown(
+        "A **burn-in** eltávolítja a kezdeti transzienseket; "
+        "a részátlag \\(\\lambda_n\\) konvergenciáját mutatja a 3D felület."
+    )
 
 # Kötelező ReflectAI-kompatibilitás
 app = run
