@@ -169,20 +169,17 @@ Pozitív \\(\\lambda\\) → **káosz**, negatív → **stabil** (attraktorba hú
     frac_chaotic = np.mean(lyap_vals > 0)
     st.info(f"🔍 A mintavételezett r-tartomány {frac_chaotic*100:.1f}%-ában λ>0 (káosz).")
 
-    # === Tudományos háttér (LaTeX) ===
-    st.markdown("### 📚 Tudományos háttér")
-    st.markdown(r"""
-A **Lyapunov-exponens** diszkrét leképezésre:
-\[
-\lambda = \lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^{n} \ln\left| f'(x_i) \right|,
-\quad x_{i+1}=f(x_i).
-\]
-- **Logisztikus térkép:** \(x_{n+1}=r x_n (1-x_n)\), \(f'(x)=r(1-2x)\)  
-- **Kvadratikus térkép:** \(x_{n+1}=r-x_n^2\), \(f'(x)=-2x\)
+    st.subheader("📚 Tudományos háttér")
 
-A burn-in eltávolítja a kezdeti transzienseket; a részátlag \(\lambda_n\) konvergenciája
-látható a 3D felületen.
-""")
+st.latex(r"\lambda = \lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^{n}\ln\!\left|f'(x_i)\right|,\qquad x_{i+1}=f(x_i).")
+
+st.latex(r"\text{Logisztikus térkép: }\; x_{n+1}=r x_n(1-x_n),\quad f'(x)=r(1-2x)")
+st.latex(r"\text{Kvadratikus térkép: }\; x_{n+1}=r-x_n^2,\quad f'(x)=-2x")
+
+st.markdown(
+    "A **burn-in** eltávolítja a kezdeti transzienseket; "
+    "a részátlag \\(\\lambda_n\\) konvergenciáját mutatja a 3D felület."
+)
 
 # Kötelező ReflectAI-kompatibilitás
 app = run
