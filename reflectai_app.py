@@ -83,29 +83,29 @@ if selected_category == main_menu:
         # ✅ HELYES BEHÚZÁS
         with st.expander("📘 Mi ez a platform?", expanded=True):
     st.markdown("""
-**Neurolab AI Sandbox** – interaktív kutatási és oktatási környezet az **idegtudomány**, a **tanulási algoritmusok** és a **komplex rendszerdinamika** vizsgálatához.  
-A platform célja nem ipari méretű szimuláció, hanem a **matematikai modellek élő, vizuális megtapasztalása**.  
+    **Neurolab AI Sandbox** – interaktív kutatási és oktatási környezet az **idegtudomány**, a **tanulási algoritmusok** és a **komplex rendszerdinamika** vizsgálatához.  
+    A platform célja nem ipari méretű szimuláció, hanem a **matematikai modellek élő, vizuális megtapasztalása**.  
 
-### Mit tud a platform?
-- 🧠 **Tanulási modellek** – Hebbian, Oja, STDP, MLP/ESN, XOR és kritikalitás  
-- 🔁 **Komplex dinamikák** – Kuramoto, Lorenz, Ising, zajtűrés, emergens hálózati mintázatok  
-- 📊 **Interaktív vizualizációk** – 2D/3D grafikonok, hálózati struktúrák, topológiai elemzés  
-- 📂 **Adatfeltöltés** – saját adatok bevitelével kísérletezhetsz (modulfüggő)  
+    ### Mit tud a platform?
+    - 🧠 **Tanulási modellek** – Hebbian, Oja, STDP, MLP/ESN, XOR és kritikalitás  
+    - 🔁 **Komplex dinamikák** – Kuramoto, Lorenz, Ising, zajtűrés, emergens hálózati mintázatok  
+    - 📊 **Interaktív vizualizációk** – 2D/3D grafikonok, hálózati struktúrák, topológiai elemzés  
+    - 📂 **Adatfeltöltés** – saját adatok bevitelével kísérletezhetsz (modulfüggő)  
 
-### Kinek szól?
-- 🎓 **Hallgatóknak és oktatóknak** – oktatási segédeszközként  
-- 🔬 **Kutatóknak** – gyors prototípushoz és modellteszteléshez  
-- 🌍 **Érdeklődőknek** – játékos, de tudományos felfedezéshez  
+    ### Kinek szól?
+    - 🎓 **Hallgatóknak és oktatóknak** – oktatási segédeszközként  
+    - 🔬 **Kutatóknak** – gyors prototípushoz és modellteszteléshez  
+    - 🌍 **Érdeklődőknek** – játékos, de tudományos felfedezéshez  
 
-### Tudományos megjegyzés
-A szimulációk **helyes matematikai definíciókra épülnek**, de méretük és futási idejük korlátozott.  
-Ezért a Neurolab AI Sandbox **főként explorációra és demonstrációra alkalmas**, nem helyettesíti a nagy léptékű számításokat.  
+    ### Tudományos megjegyzés
+    A szimulációk **helyes matematikai definíciókra épülnek**, de méretük és futási idejük korlátozott.  
+    Ezért a Neurolab AI Sandbox **főként explorációra és demonstrációra alkalmas**, nem helyettesíti a nagy léptékű számításokat.  
 
-### Hogyan kezdd el?
-1. Válassz modult a bal oldali menüből.  
-2. Állítsd a paramétereket, és figyeld az eredményeket valós időben.  
-3. Exportálj adatokat, jegyzetelj, és fedezd fel a **rejtett struktúrákat**.
-""")
+    ### Hogyan kezdd el?
+    1. Válassz modult a bal oldali menüből.  
+    2. Állítsd a paramétereket, és figyeld az eredményeket valós időben.  
+    3. Exportálj adatokat, jegyzetelj, és fedezd fel a **rejtett struktúrákat**.
+    """)
 
 else:
     modules = module_categories[selected_category]
