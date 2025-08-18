@@ -82,13 +82,15 @@ def lyapunov_finite_diff(map_f, r_vals, x0=0.5, steps=1500, burn_in=500, delta=1
 def run():
     st.title("🧠 Lyapunov Spektrum – Dinamikus rendszerek stabilitása")
 
-    st.markdown("""
-A Lyapunov-exponens a **kezdeti feltételekre való érzékenységet** méri diszkrét leképezéseknél:  
-\\[
-\\lambda = \\lim_{n\\to\\infty} \\frac{1}{n} \\sum_{i=1}^{n} \\ln\\left|f'(x_i)\\right|.
-\\]
-Pozitív \\(\\lambda\\) → **káosz**, negatív → **stabil** (attraktorba húz).
-""")
+    st.markdown(
+    "A Lyapunov-exponens a **kezdeti feltételekre való érzékenységet** méri diszkrét leképezéseknél:"
+)
+
+st.latex(r"\lambda = \lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^{n}\ln\!\left|f'(x_i)\right|")
+
+st.markdown(
+    "Pozitív \\(\\lambda\\) → **káosz**, negatív → **stabil** (attraktorba húz)."
+)
 
     # Paraméterek
     map_choice = st.selectbox("🧩 Leképezés típusa", list(map_functions.keys()))
