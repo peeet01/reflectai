@@ -82,15 +82,14 @@ def lyapunov_finite_diff(map_f, r_vals, x0=0.5, steps=1500, burn_in=500, delta=1
 def run():
     st.title("🧠 Lyapunov Spektrum – Dinamikus rendszerek stabilitása")
 
+    # --- Bevezető + képlet (helyesen a függvényen belül) ---
     st.markdown(
-    "A Lyapunov-exponens a **kezdeti feltételekre való érzékenységet** méri diszkrét leképezéseknél:"
-)
-
-st.latex(r"\lambda = \lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^{n}\ln\!\left|f'(x_i)\right|")
-
-st.markdown(
-    "Pozitív \\(\\lambda\\) → **káosz**, negatív → **stabil** (attraktorba húz)."
-)
+        "A Lyapunov-exponens a **kezdeti feltételekre való érzékenységet** méri diszkrét leképezéseknél:"
+    )
+    st.latex(r"\lambda = \lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^{n}\ln\!\left|f'(x_i)\right|")
+    st.markdown(
+        "Pozitív \\(\\lambda\\) → **káosz**, negatív → **stabil** (attraktorba húz)."
+    )
 
     # Paraméterek
     map_choice = st.selectbox("🧩 Leképezés típusa", list(map_functions.keys()))
@@ -125,17 +124,15 @@ st.markdown(
     ax.set_title(f"Lyapunov-spektrum – {map_choice}")
     st.pyplot(fig2d)
 
-    # === 3D plot: a részátlag konvergenciája (ROBOSZTUS) ===
+    # === 3D plot: a részátlag konvergenciája (robosztus) ===
     st.subheader("🌐 3D – Konvergencia az iterációk mentén")
     R, Ngrid = np.meshgrid(r_values, np.arange(1, steps+1))
 
-    # Biztonság: csak véges értékekkel dolgozunk
     Z = np.array(lyap_hist, dtype=np.float64)
     Z[~np.isfinite(Z)] = np.nan
 
     finite = Z[np.isfinite(Z)]
     if finite.size == 0 or (np.nanmax(Z) - np.nanmin(Z) < 1e-9):
-        # Fallback: 2D hőtérkép, ha túl lapos vagy minden NaN
         st.warning("A 3D felület túl lapos vagy nem véges értékeket tartalmaz – 2D hőtérkép jelenik meg.")
         fighm = go.Figure(data=[go.Heatmap(x=r_values, y=np.arange(1, steps+1), z=Z)])
         fighm.update_layout(
@@ -144,10 +141,9 @@ st.markdown(
         )
         st.plotly_chart(fighm, use_container_width=True)
     else:
-        # Dinamikus színtartomány – szélsőségek levágása, hogy ne „feketedjen” a felület
         cmin = float(np.nanpercentile(Z, 2))
         cmax = float(np.nanpercentile(Z, 98))
-        if cmax - cmin < 1e-9:  # extra biztosíték
+        if cmax - cmin < 1e-9:
             cmin, cmax = float(np.nanmin(Z)), float(np.nanmax(Z))
 
         fig3d = go.Figure(data=[go.Surface(
@@ -171,13 +167,11 @@ st.markdown(
     frac_chaotic = np.mean(lyap_vals > 0)
     st.info(f"🔍 A mintavételezett r-tartomány {frac_chaotic*100:.1f}%-ában λ>0 (káosz).")
 
+    # === Tudományos háttér (LaTeX) ===
     st.subheader("📚 Tudományos háttér")
-
     st.latex(r"\lambda = \lim_{n\to\infty}\frac{1}{n}\sum_{i=1}^{n}\ln\!\left|f'(x_i)\right|,\qquad x_{i+1}=f(x_i).")
-
     st.latex(r"\text{Logisztikus térkép: }\; x_{n+1}=r x_n(1-x_n),\quad f'(x)=r(1-2x)")
     st.latex(r"\text{Kvadratikus térkép: }\; x_{n+1}=r-x_n^2,\quad f'(x)=-2x")
-
     st.markdown(
         "A **burn-in** eltávolítja a kezdeti transzienseket; "
         "a részátlag \\(\\lambda_n\\) konvergenciáját mutatja a 3D felület."
