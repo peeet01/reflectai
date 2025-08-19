@@ -22,7 +22,7 @@ def generate_graph(N, graph_type, p=0.3, k=4, m=2):
         return nx.erdos_renyi_graph(N, p=p, seed=42)
     elif graph_type == "Kis világ (Watts–Strogatz)":
         k = max(2, min(k, N-1))
-        if k % 2 == 1:  # WS k-nak párosnak illik lennie a gyűrűn
+        if k % 2 == 1:  # WS: a gyűrűn általában páros k a kerek szomszédsághoz
             k += 1
         return nx.watts_strogatz_graph(N, k=k, p=p, seed=42)
     elif graph_type == "Skálafüggetlen (Barabási–Albert)":
@@ -32,11 +32,19 @@ def generate_graph(N, graph_type, p=0.3, k=4, m=2):
         return nx.complete_graph(N)
 
 # --- 3D gráf kirajzolás ---
-def plot_graph_3d(G, theta, palette):
-    # 3D erő-alapú elrendezés (stabil, szép)
-    pos = nx.spring_layout(G, dim=3, seed=42)
-    node_xyz = np.array([pos[n] for n in G.nodes()])
-    # élek
+def plot_graph_3d(G, theta, palette, layout_type="Spring (hálózati kutatás – alapértelmezett)"):
+    # Elrendezés kiválasztása
+    if layout_type.startswith("Spring"):
+        pos = nx.spring_layout(G, dim=3, seed=42)  # 3D erő-alapú, hálózatkutatásban bevett
+        node_xyz = np.array([pos[n] for n in G.nodes()])
+    else:
+        # Kör elrendezés (klasszikus tankönyvi ábra): 2D -> 3D (z=0)
+        pos2d = nx.circular_layout(G)
+        node_xy = np.array([pos2d[n] for n in G.nodes()])
+        zeros = np.zeros((node_xy.shape[0], 1))
+        node_xyz = np.hstack([node_xy, zeros])
+
+    # Élek koordinátái
     edge_x, edge_y, edge_z = [], [], []
     for u, v in G.edges():
         x0, y0, z0 = node_xyz[u]
@@ -45,7 +53,7 @@ def plot_graph_3d(G, theta, palette):
         edge_y += [y0, y1, None]
         edge_z += [z0, z1, None]
 
-    # fázist 0..2π közé
+    # Fázist 0..2π közé tekerjük vizualizációhoz
     theta_wrapped = (theta % (2*np.pi))
 
     fig = go.Figure()
@@ -110,6 +118,13 @@ def run():
     dt = st.sidebar.slider("Időlépés (dt)", 0.005, 0.2, 0.05, 0.005)
     palette = st.sidebar.selectbox("Színséma (3D)", ["Turbo", "Viridis", "Electric", "Hot", "Rainbow"])
 
+    # 👇 ÚJ: Elrendezés-választó + magyarázat kapcsoló
+    layout_type = st.sidebar.selectbox(
+        "Vizualizációs elrendezés",
+        ["Spring (hálózati kutatás – alapértelmezett)", "Kör (klasszikus tankönyvi)"]
+    )
+    show_disclaimer = st.sidebar.checkbox("Magyarázó szöveg megjelenítése a grafikon felett", value=True)
+
     # Szimuláció
     np.random.seed(42)
     theta = np.random.uniform(0, 2*np.pi, N)
@@ -138,9 +153,22 @@ def run():
     st.subheader("📈 Szinkronizációs index R(t)")
     st.line_chart(order_params)
 
+    # 💬 Magyarázó szöveg az elrendezéshez (disclaimer)
+    if show_disclaimer:
+        if layout_type.startswith("Spring"):
+            st.markdown(
+                "> *A csomópontok 3D **erő-alapú elrendezésben** láthatók. Hálózatkutatásban ezt használjuk, "
+                "mert a **gráf szerkezete** a lényeges, nem a geometriai körpozíció.*"
+            )
+        else:
+            st.markdown(
+                "> *Klasszikus **kör elrendezés**: didaktikus, tankönyvi nézet. A dinamika ugyanaz, "
+                "csak a megjelenítés változik.*"
+            )
+
     # 3D hálózat
     st.subheader("🌐 3D vizualizáció – Oszcillátor fázisok színkóddal")
-    plot_graph_3d(G, theta, palette)
+    plot_graph_3d(G, theta, palette, layout_type=layout_type)
 
     # Tudományos háttér
     st.markdown("### 📘 Tudományos háttér")
