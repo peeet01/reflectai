@@ -26,10 +26,9 @@ def subset_loader(train=True, n_items=3000, batch_size=128, shuffle=True, seed=4
     rng = np.random.default_rng(seed)
     idx = rng.choice(len(ds), size=min(n_items, len(ds)), replace=False)
     sub = Subset(ds, idx)
-    return DataLoader(sub, batch_size=batch_size, shuffle=shuffle, num_workers=0, pin_memory=False)
+    return DataLoader(sub, batch_size=batch_size, shuffle=shuffle)
 
 def psnr_from_mse(mse):
-    # képek 0..1 skálán → MAX_I = 1
     if mse <= 0:
         return float('inf')
     return 10.0 * np.log10(1.0 / mse)
@@ -38,12 +37,10 @@ def to_cpu_numpy(t):
     return t.detach().cpu().numpy()
 
 def pca_to_3d(Z):
-    # Z: [N, d] → PCA 3 dimenzióra (numpy SVD)
     Z = np.asarray(Z, dtype=np.float64)
     Zc = Z - Z.mean(axis=0, keepdims=True)
     U, S, Vt = np.linalg.svd(Zc, full_matrices=False)
     if Vt.shape[0] < 3:
-        # kevés dimenzió esetén nullákkal töltünk
         pad = np.zeros((3 - Vt.shape[0], Vt.shape[1]), dtype=Vt.dtype)
         Vt = np.vstack([Vt, pad])
     Z3 = Zc @ Vt[:3].T
@@ -52,290 +49,225 @@ def pca_to_3d(Z):
 # -----------------------------
 # Modellek
 # -----------------------------
-class MLP_Autoencoder(nn.Module):
+class MLP_AE(nn.Module):
     def __init__(self, latent_dim=3):
         super().__init__()
         self.latent_dim = latent_dim
         self.encoder = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(28*28, 256),
-            nn.ReLU(inplace=True),
-            nn.Linear(256, 128),
-            nn.ReLU(inplace=True),
+            nn.Linear(28*28, 256), nn.ReLU(),
+            nn.Linear(256, 128), nn.ReLU(),
             nn.Linear(128, latent_dim),
         )
         self.decoder = nn.Sequential(
-            nn.Linear(latent_dim, 128),
-            nn.ReLU(inplace=True),
-            nn.Linear(128, 256),
-            nn.ReLU(inplace=True),
-            nn.Linear(256, 28*28),
-            nn.Sigmoid()
+            nn.Linear(latent_dim, 128), nn.ReLU(),
+            nn.Linear(128, 256), nn.ReLU(),
+            nn.Linear(256, 28*28), nn.Sigmoid()
         )
 
-    def encode(self, x):
-        return self.encoder(x)
-
-    def decode(self, z):
-        x_flat = self.decoder(z)
-        return x_flat.view(-1, 1, 28, 28)
-
     def forward(self, x):
-        z = self.encode(x)
-        xr = self.decode(z)
+        z = self.encoder(x)
+        xr = self.decoder(z).view(-1,1,28,28)
         return xr, z
 
-class Conv_Autoencoder(nn.Module):
+class Conv_AE(nn.Module):
     def __init__(self, latent_dim=3):
         super().__init__()
         self.latent_dim = latent_dim
-        # Encoder: 28x28 -> 14x14 -> 7x7
         self.enc = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=4, stride=2, padding=1),  # 28->14
-            nn.ReLU(inplace=True),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=1), # 14->7
-            nn.ReLU(inplace=True),
+            nn.Conv2d(1,32,4,2,1), nn.ReLU(),
+            nn.Conv2d(32,64,4,2,1), nn.ReLU()
         )
         self.enc_lin = nn.Linear(64*7*7, latent_dim)
-        # Decoder
         self.dec_lin = nn.Linear(latent_dim, 64*7*7)
         self.dec = nn.Sequential(
-            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1), # 7->14
-            nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(32, 1, kernel_size=4, stride=2, padding=1),  # 14->28
-            nn.Sigmoid()
+            nn.ConvTranspose2d(64,32,4,2,1), nn.ReLU(),
+            nn.ConvTranspose2d(32,1,4,2,1), nn.Sigmoid()
         )
 
-    def encode(self, x):
-        h = self.enc(x)
-        h = h.view(x.size(0), -1)
-        z = self.enc_lin(h)
-        return z
-
-    def decode(self, z):
-        h = self.dec_lin(z).view(-1, 64, 7, 7)
-        xr = self.dec(h)
-        return xr
-
     def forward(self, x):
-        z = self.encode(x)
-        xr = self.decode(z)
+        h = self.enc(x).view(x.size(0), -1)
+        z = self.enc_lin(h)
+        h = self.dec_lin(z).view(-1,64,7,7)
+        xr = self.dec(h)
         return xr, z
 
+# --------- Variational AE (MLP alapú) ---------
+class MLP_VAE(nn.Module):
+    def __init__(self, latent_dim=3):
+        super().__init__()
+        self.latent_dim = latent_dim
+        self.enc = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(28*28, 256), nn.ReLU(),
+            nn.Linear(256, 128), nn.ReLU(),
+        )
+        self.mu = nn.Linear(128, latent_dim)
+        self.logvar = nn.Linear(128, latent_dim)
+        self.dec = nn.Sequential(
+            nn.Linear(latent_dim, 128), nn.ReLU(),
+            nn.Linear(128, 256), nn.ReLU(),
+            nn.Linear(256, 28*28), nn.Sigmoid()
+        )
+
+    def reparam(self, mu, logvar):
+        std = torch.exp(0.5*logvar)
+        eps = torch.randn_like(std)
+        return mu + eps*std
+
+    def forward(self, x):
+        h = self.enc(x)
+        mu, logvar = self.mu(h), self.logvar(h)
+        z = self.reparam(mu, logvar)
+        xr = self.dec(z).view(-1,1,28,28)
+        return xr, z, mu, logvar
+
+class Conv_VAE(nn.Module):
+    def __init__(self, latent_dim=3):
+        super().__init__()
+        self.latent_dim = latent_dim
+        self.enc = nn.Sequential(
+            nn.Conv2d(1,32,4,2,1), nn.ReLU(),
+            nn.Conv2d(32,64,4,2,1), nn.ReLU()
+        )
+        self.enc_lin = nn.Linear(64*7*7,128)
+        self.mu = nn.Linear(128, latent_dim)
+        self.logvar = nn.Linear(128, latent_dim)
+        self.dec_lin = nn.Linear(latent_dim, 64*7*7)
+        self.dec = nn.Sequential(
+            nn.ConvTranspose2d(64,32,4,2,1), nn.ReLU(),
+            nn.ConvTranspose2d(32,1,4,2,1), nn.Sigmoid()
+        )
+
+    def reparam(self, mu, logvar):
+        std = torch.exp(0.5*logvar)
+        eps = torch.randn_like(std)
+        return mu + eps*std
+
+    def forward(self, x):
+        h = self.enc(x).view(x.size(0), -1)
+        h = self.enc_lin(h)
+        mu, logvar = self.mu(h), self.logvar(h)
+        z = self.reparam(mu, logvar)
+        h = self.dec_lin(z).view(-1,64,7,7)
+        xr = self.dec(h)
+        return xr, z, mu, logvar
+
 # -----------------------------
-# Tanítás
+# Loss: AE vagy VAE
 # -----------------------------
-def train_autoencoder(model, train_loader, device, epochs=6, lr=1e-3, progress_place=None):
-    model.train()
-    criterion = nn.MSELoss()
-    opt = optim.Adam(model.parameters(), lr=lr)
-    history = []
+def vae_loss(xr, x, mu, logvar, beta=1.0):
+    recon = nn.functional.mse_loss(xr, x, reduction="sum")
+    kl = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    return (recon + beta*kl)/x.size(0), recon.item()/x.size(0), kl.item()/x.size(0)
 
-    for ep in range(1, epochs+1):
-        running = 0.0
-        n = 0
-        for x, _ in train_loader:
-            x = x.to(device)
-            opt.zero_grad()
-            xr, _ = model(x)
-            loss = criterion(xr, x)
-            loss.backward()
-            opt.step()
-            running += loss.item() * x.size(0)
-            n += x.size(0)
-        avg = running / max(1, n)
-        history.append(avg)
-        if progress_place is not None:
-            progress_place.write(f"📊 Epoch {ep}/{epochs} — Train MSE: **{avg:.5f}**")
-    return history
-
-@torch.no_grad()
-def evaluate_autoencoder(model, test_loader, device, max_batches=10):
-    model.eval()
-    criterion = nn.MSELoss(reduction='sum')
-    total_mse = 0.0
-    total_n = 0
-    first_batch = None
-    first_labels = None
-    all_Z = []
-    all_y = []
-
-    for b_idx, (x, y) in enumerate(test_loader):
-        x = x.to(device)
-        xr, z = model(x)
-        total_mse += criterion(xr, x).item()
-        total_n += x.numel()
-        if first_batch is None:
-            first_batch = (x.cpu().clone(), xr.cpu().clone())
-            first_labels = y.clone()
-        all_Z.append(to_cpu_numpy(z))
-        all_y.append(to_cpu_numpy(y))
-        if b_idx+1 >= max_batches:
-            break
-
-    mse = total_mse / total_n
-    psnr = psnr_from_mse(mse)
-    Z = np.concatenate(all_Z, axis=0) if all_Z else np.zeros((0, model.latent_dim))
-    y = np.concatenate(all_y, axis=0) if all_y else np.zeros((0,))
-    return mse, psnr, first_batch, first_labels, Z, y
-
-@torch.no_grad()
-def latent_traversal(model, x, span=2.0, steps=9, device="cpu"):
-    """Egydarab input képet (x[0]) kódolunk, majd a z tér mindhárom dimenziójában
-       egy-egy vonalat bejárunk. Visszaadunk egy [3*steps] rekonstr. rácsot."""
-    model.eval()
-    x = x[:1].to(device)  # első minta
-    _, z0 = model(x)
-    z0 = z0[0].cpu().numpy()
-    lat_dim = z0.shape[0]
-    if lat_dim < 1:
-        return None
-
-    grid_imgs = []
-    axes = min(3, lat_dim)  # max 3 tengely a bemutatóhoz
-    for d in range(axes):
-        vals = np.linspace(-span, span, steps)
-        for v in vals:
-            z = z0.copy()
-            z[d] = z0[d] + v
-            zt = torch.from_numpy(z).float().unsqueeze(0).to(device)
-            xr = model.decode(zt)
-            grid_imgs.append(xr.squeeze(0).cpu())
-    # [axes*steps, 1, 28, 28]
-    return torch.stack(grid_imgs, dim=0)
+def ae_loss(xr, x):
+    return nn.functional.mse_loss(xr, x)
 
 # -----------------------------
 # Streamlit modul
 # -----------------------------
 def app():
     st.set_page_config(layout="wide")
-    st.title("🧠 Autoencoder – 3D latens tér, gyors demó és mélyebb diagnosztika")
+    st.title("🧠 Autoencoder & Variational Autoencoder – 3D latens tér")
 
-    # Gyors infó a teljes MNIST méretről (cache-elt)
     n_train_full, n_test_full = load_mnist_datasets()
 
     st.sidebar.header("⚙️ Beállítások")
-    arch = st.sidebar.selectbox("Architektúra", ["Konvolúciós AE", "MLP AE"])
-    latent_dim = st.sidebar.slider("Latens dimenzió (vizualizációhoz 3 javasolt)", 2, 8, 3)
+    arch = st.sidebar.selectbox("Architektúra", ["MLP AE", "Conv AE", "MLP VAE", "Conv VAE"])
+    latent_dim = st.sidebar.slider("Latens dimenzió", 2, 8, 3)
+    beta = st.sidebar.slider("β (KL súly, csak VAE esetén)", 0.1, 5.0, 1.0, 0.1)
     lr = st.sidebar.select_slider("Tanulási ráta", options=[5e-4, 1e-3, 2e-3], value=1e-3)
     batch_size = st.sidebar.slider("Batch méret", 64, 512, 128, 64)
-    epochs = st.sidebar.slider("Epochok", 1, 20, 6)
+    epochs = st.sidebar.slider("Epochok", 1, 15, 6)
 
-    st.sidebar.subheader("⏱️ Gyors demó / Adat-budget")
-    quick_demo = st.sidebar.checkbox("Gyors demó mód (ajánlott elsőre)", value=True)
-    if quick_demo:
-        n_train = st.sidebar.number_input("Train budget (képek)", 500, n_train_full, 2000, step=500)
-        n_test  = st.sidebar.number_input("Test budget (képek)", 500, n_test_full, 2000, step=500)
-        epochs  = min(epochs, 8)  # demóban ne legyen túl hosszú
-    else:
-        n_train = st.sidebar.number_input("Train budget (képek)", 1000, n_train_full, 20000, step=1000)
-        n_test  = st.sidebar.number_input("Test budget (képek)", 1000, n_test_full, 5000, step=500)
-
+    n_train = st.sidebar.number_input("Train képek", 500, n_train_full, 3000, step=500)
+    n_test = st.sidebar.number_input("Test képek", 500, n_test_full, 1000, step=500)
     seed = st.sidebar.number_input("Seed", 0, 9999, 42)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-
-    # Modell létrehozása
     torch.manual_seed(seed)
-    if arch == "Konvolúciós AE":
-        model = Conv_Autoencoder(latent_dim=latent_dim).to(device)
+
+    if arch=="MLP AE":
+        model = MLP_AE(latent_dim).to(device)
+        use_vae=False
+    elif arch=="Conv AE":
+        model = Conv_AE(latent_dim).to(device)
+        use_vae=False
+    elif arch=="MLP VAE":
+        model = MLP_VAE(latent_dim).to(device)
+        use_vae=True
     else:
-        model = MLP_Autoencoder(latent_dim=latent_dim).to(device)
+        model = Conv_VAE(latent_dim).to(device)
+        use_vae=True
 
-    # Adatbetöltők
-    train_loader = subset_loader(train=True,  n_items=int(n_train), batch_size=int(batch_size), shuffle=True, seed=seed)
-    test_loader  = subset_loader(train=False, n_items=int(n_test),  batch_size=int(batch_size), shuffle=False, seed=seed)
+    train_loader = subset_loader(True, n_train, batch_size, True, seed)
+    test_loader = subset_loader(False, n_test, batch_size, False, seed)
 
-    c1, c2, c3 = st.columns([1.2, 1, 1])
-    with c1:
-        st.markdown("**Adat-budget**")
-        st.write(f"Train: **{n_train}** / {n_train_full} • Test: **{n_test}** / {n_test_full}")
-        st.write(f"Eszköz: **{device.upper()}** • Arch: **{arch}** • Latens dim: **{latent_dim}**")
+    if st.button("🚀 Tanítás és kiértékelés"):
+        opt = optim.Adam(model.parameters(), lr=lr)
+        history=[]
+        for ep in range(epochs):
+            model.train()
+            run_loss=0
+            for x,_ in train_loader:
+                x=x.to(device)
+                opt.zero_grad()
+                if use_vae:
+                    xr,z,mu,logvar = model(x)
+                    loss,recon,kl = vae_loss(xr,x,mu,logvar,beta)
+                else:
+                    xr,z = model(x)
+                    loss = ae_loss(xr,x)
+                loss.backward()
+                opt.step()
+                run_loss+=loss.item()
+            history.append(run_loss/len(train_loader))
+            st.write(f"Epoch {ep+1}/{epochs} Loss: {history[-1]:.4f}")
 
-    start = st.button("🚀 Tanítás és kiértékelés")
+        # Rekonstrukciós hiba görbe
+        fig,ax=plt.subplots()
+        ax.plot(history,marker='o')
+        ax.set_xlabel("Epoch"); ax.set_ylabel("Train Loss")
+        st.pyplot(fig)
 
-    if start:
-        log_area = st.empty()
-        # Tanítás
-        history = train_autoencoder(model, train_loader, device, epochs=epochs, lr=lr, progress_place=log_area)
-
-        # Loss görbe
-        st.subheader("📉 Rekonstrukciós hiba (MSE) alakulása")
-        fig_loss, ax = plt.subplots()
-        ax.plot(history, marker='o')
-        ax.set_xlabel("Epoch")
-        ax.set_ylabel("Train MSE")
-        ax.grid(True, alpha=0.3)
-        st.pyplot(fig_loss)
-
-        # Kiértékelés + első batch rekonstrukció
-        mse, psnr, first_batch, first_labels, Z, y = evaluate_autoencoder(model, test_loader, device, max_batches=10)
-        st.success(f"✅ Test MSE: **{mse:.6f}**  |  PSNR: **{psnr:.2f} dB**  (0–1 skálán)")
-
-        # Eredeti vs Recon rács
-        st.subheader("🖼️ Eredeti vs. Rekonstrukció")
-        if first_batch is not None:
-            x0, xr0 = first_batch
-            # 10-10 kép rácsban
-            n_show = min(10, x0.shape[0])
-            grid_orig = make_grid(x0[:n_show], nrow=n_show, normalize=True, pad_value=1.0)
-            grid_reco = make_grid(xr0[:n_show], nrow=n_show, normalize=True, pad_value=1.0)
-
-            fig, axes = plt.subplots(2, 1, figsize=(n_show*1.0, 3), dpi=120)
-            axes[0].imshow(grid_orig.permute(1,2,0), cmap='gray')
-            axes[0].set_title("Eredeti")
-            axes[0].axis('off')
-            axes[1].imshow(grid_reco.permute(1,2,0), cmap='gray')
-            axes[1].set_title("Rekonstrukció")
-            axes[1].axis('off')
-            st.pyplot(fig)
-
-        # Latens tér 3D
-        st.subheader("🌌 3D latens tér")
-        if Z.shape[0] > 0:
-            if Z.shape[1] == 3:
-                Z3 = Z
+        # Első batch kiértékelés
+        x,y = next(iter(test_loader))
+        x=x.to(device)
+        with torch.no_grad():
+            if use_vae:
+                xr,z,mu,logvar = model(x)
             else:
-                st.caption("Latens dim != 3 → PCA-val vetítve 3D-be a vizualizációhoz.")
-                Z3 = pca_to_3d(Z)
-            df = pd.DataFrame(Z3, columns=["z1","z2","z3"])
-            df["label"] = y.astype(int)
-            fig3d = px.scatter_3d(df, x="z1", y="z2", z="z3",
-                                  color=df["label"].astype(str),
-                                  opacity=0.85,
-                                  title="Latens reprezentáció (3D)")
-            st.plotly_chart(fig3d, use_container_width=True)
+                xr,z = model(x)
 
-            # Export latensek
-            st.download_button("⬇️ Latens vektorok (CSV)",
-                               df.to_csv(index=False).encode("utf-8"),
-                               file_name="latent_vectors.csv",
-                               mime="text/csv")
+        st.subheader("🖼️ Eredeti vs. Rekonstrukció")
+        n_show=10
+        grid_orig = make_grid(x[:n_show].cpu(),nrow=n_show,normalize=True)
+        grid_reco = make_grid(xr[:n_show].cpu(),nrow=n_show,normalize=True)
+        fig,axes=plt.subplots(2,1,figsize=(n_show,3))
+        axes[0].imshow(grid_orig.permute(1,2,0)); axes[0].axis("off"); axes[0].set_title("Eredeti")
+        axes[1].imshow(grid_reco.permute(1,2,0)); axes[1].axis("off"); axes[1].set_title("Rekonstrukció")
+        st.pyplot(fig)
 
-        # Latens traversálás (csak ha van első batch)
-        st.subheader("🧭 Latens traversálás (első minta mentén max. 3 tengely)")
-        span = st.slider("Eltérés (±)", 0.5, 4.0, 2.0, 0.5)
-        steps = st.slider("Lépések tengelyenként", 5, 13, 9, 2)
-        if first_batch is not None:
-            with torch.no_grad():
-                grid_lat = latent_traversal(model, first_batch[0], span=span, steps=steps, device=device)
-            if grid_lat is not None:
-                # rács: axes sorok egymás alatt
-                grid = make_grid(grid_lat, nrow=steps, normalize=True, pad_value=1.0)
-                plt.figure(figsize=(steps*0.7, 6))
-                plt.imshow(grid.permute(1,2,0), cmap='gray')
-                plt.axis('off')
-                plt.title("Latens tengelyek menti változások")
-                st.pyplot(plt.gcf())
+        # Latens tér vizualizáció
+        st.subheader("🌌 Latens tér")
+        Z = to_cpu_numpy(z)
+        if Z.shape[1]==3:
+            Z3=Z
+        else:
+            Z3=pca_to_3d(Z)
+        df=pd.DataFrame(Z3,columns=["z1","z2","z3"])
+        df["label"]=y.numpy()
+        fig3d=px.scatter_3d(df,x="z1",y="z2",z="z3",color=df["label"].astype(str))
+        st.plotly_chart(fig3d,use_container_width=True)
 
-        # Rövid tudományos összefoglaló
-        st.markdown("### 📚 Tudományos háttér (rövid)")
-        st.markdown(
-            "- Rekonstrukciós cél: $\\min \\|x-\\hat{x}\\|^2$; **PSNR** a vizuális hűség durva mértéke.\n"
-            "- **Konvolúciós AE** jobb lokális mintázat-megőrzést ad az MNIST-hez, mint a tiszta MLP.\n"
-            "- A latens tér klasztereződése jelzi, hogy a reprezentáció **diszkriminatív** az osztályokra.\n"
-            "- **Latens traversálás**: lokális manifoldszerkezetet szemléltet a $z$ térben."
-        )
+        st.markdown("### 📚 Tudományos háttér")
+        if use_vae:
+            st.latex(r"\mathcal{L} = \|x-\hat{x}\|^2 + \beta D_{KL}(q(z|x)\,\|\,p(z))")
+            st.markdown("A VAE folytonos, szabályozott latens teret tanul → jobb generatív képesség.")
+        else:
+            st.latex(r"\mathcal{L} = \|x-\hat{x}\|^2")
+            st.markdown("Az AE dimenziócsökkentésre és vizualizációra alkalmas, de kevésbé generatív.")
 
-# ReflectAI-kompatibilitás
+# ReflectAI-kompatibilis
 app = app
